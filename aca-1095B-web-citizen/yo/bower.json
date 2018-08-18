@@ -1,0 +1,35 @@
+{
+  "name": "aca1095-bui",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "2.1.4",
+    "angular": "1.5.0",
+    "bootstrap": "3.3.6",
+    "angular-animate": "1.5.0",
+    "angular-cookies": "1.5.0",
+    "angular-resource": "1.5.0",
+    "angular-route": "1.5.0",
+    "angular-sanitize": "1.5.0",
+    "angular-touch": "1.5.0",
+    "angular-ui-router": "0.2.18",
+    "roboto-fontface": "0.4.3",
+    "font-awesome": "4.4.0",
+    "angular-bootstrap": "0.13.4",
+    "underscore": "1.8.3",
+    "recaptcha_ajax": "recaptcha-ajax#*"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.5.0"
+  },
+  "appPath": "app",
+  "moduleName": "aca1095BUiAppCitizen",
+  "overrides": {
+    "bootstrap": {
+      "main": [
+        "less/bootstrap.less",
+        "dist/css/bootstrap.css",
+        "dist/js/bootstrap.js"
+      ]
+    }
+  }
+}

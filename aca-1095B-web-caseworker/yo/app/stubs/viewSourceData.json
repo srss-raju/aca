@@ -1,0 +1,84 @@
+{
+  "filerInfo": {
+    "filerID": "ARDHSDSS_2000201234",
+    "firstName": "James",
+    "lastName": "Smith",
+    "uidNumber": "xxx-xx-4532",
+    "uidType": "SSN",
+    "taxYear": "2015",
+    "lastMailedDate": "",
+    "lastModifiedDate": "01/08/2016 12:00:00 AM",
+    "filerStatus": "N",
+    "dob": "05/25/1960"
+  },
+  "currentForm": {
+    "formID": "ARDHSDSS_2000201234",
+    "generatedBy": "BATCH",
+    "lastModifiedDate": "01/08/2016 12:00:00 AM",
+    "addressLine1": "12 Brook Hollow Lane",
+    "addressLine2": "Apt 13",
+    "city": "Pine Bluff",
+    "state": "AR",
+    "zipcode": "71611",
+    "lastMailRequestedDate": "",
+    "irsTransmissionStatusCd" : "XC",
+    "printDate": "",
+    "updatedDate": "",
+    "mailStatus": "READY_TO_MAIL",
+    "pdfStatus": "GENERATED",
+    "comments": "",
+    "pdfAvailable": false
+  },
+  "filerCoverageInfo": [
+    {
+      "month": "Jan",
+      "covered": "0"
+    },
+    {
+      "month": "Feb",
+      "covered": "0"
+    },
+    {
+      "month": "Mar",
+      "covered": "0"
+    },
+    {
+      "month": "Apr",
+      "covered": "0"
+    },
+    {
+      "month": "May",
+      "covered": "0"
+    },
+    {
+      "month": "Jun",
+      "covered": "0"
+    },
+    {
+      "month": "Jul",
+      "covered": "0"
+    },
+    {
+      "month": "Aug",
+      "covered": "0"
+    },
+    {
+      "month": "Sep",
+      "covered": "0"
+    },
+    {
+      "month": "Oct",
+      "covered": "0"
+    },
+    {
+      "month": "Nov",
+      "covered": "0"
+    },
+    {
+      "month": "Dec",
+      "covered": "0"
+    }
+  ],
+  "coverageSources": [],
+  "comments": ""
+}

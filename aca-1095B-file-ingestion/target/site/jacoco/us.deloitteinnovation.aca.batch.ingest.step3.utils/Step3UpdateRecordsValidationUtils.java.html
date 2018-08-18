@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3UpdateRecordsValidationUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.utils</a> &gt; <span class="el_source">Step3UpdateRecordsValidationUtils.java</span></div><h1>Step3UpdateRecordsValidationUtils.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3DataValidationException;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.FORMAT_PLACEHOLDER_STR;
+
+/**
+ * Created by tthakore on 10/10/2016.
+ * &lt;p/&gt;
+ * this class will be responsible for validation of update records for file ingestion
+ */
+<span class="fc" id="L18">public class Step3UpdateRecordsValidationUtils {</span>
+
+<span class="fc" id="L20">    private static Logger logger = LoggerFactory.getLogger(Step3UpdateRecordsValidationUtils.class);</span>
+
+    @Autowired
+    private Environment env;
+
+
+    public void validateUpdateRecord(Step3FilerDataDto record, Step3FilerDataDto parent) throws Step3DataValidationException {
+
+        try {
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (!validForSingleRecordCheck(record, parent))</span>
+<span class="nc" id="L31">                return;</span>
+
+<span class="nc bnc" id="L33" title="All 2 branches missed.">            if (!validForDatabaseRecordCheck(record, parent))</span>
+<span class="nc" id="L34">                return;</span>
+
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            if (!validForFileRecordCheck(record, parent))</span>
+<span class="nc" id="L37">                return;</span>
+
+<span class="nc" id="L39">        } catch (Exception e) {</span>
+<span class="nc" id="L40">            logger.error(&quot;Error in record Step3UpdateRecordsValidationUtils:validateCorrectedRecord performCrossRecordValidation&quot;, e);</span>
+<span class="nc" id="L41">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L42">            step3DataValidationException.setParent(parent.getFilersWithSameIdsInFile());</span>
+<span class="nc" id="L43">            step3DataValidationException.setErrorMessage(&quot;Exception in processing record for given source unique id hence all the records with given source unique id will be skipped : &quot; + record.getSourceUniqueId());</span>
+<span class="nc" id="L44">            throw step3DataValidationException;</span>
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">    }</span>
+
+
+    /**
+     * check for validation if there is no record in the database and  file has no original record we have to reject the record.
+     **/
+    public Boolean validForSingleRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+          /*If there is no record exists for current item in db or file it means it is a unique record scenario 1. it means no IID and UID matched with any db record.*/
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (parent.getFilersWithSameIdsInDB().isEmpty()) {</span>
+            // check if there is only one record with &quot;U&quot; and there is no original in file.
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            if (parent.getFilersWithSameIdsInFile().size() == 1) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">                if (parent.getFilersWithSameIdsInFile().get(0).getRowNumber().equals(record.getRowNumber())) {</span>
+<span class="fc" id="L58">                    markRecordAsFailed(record, parent, &quot;ERROR.ER3.1.2.1&quot;, record.getSourceUniqueId());</span>
+<span class="fc" id="L59">                    return false;</span>
+                }
+            } else {
+<span class="nc" id="L62">                Integer originalRecordIndex = getOriginalRecordIndex(record, parent);</span>
+                //In case original record is after current record for update reject the record.
+<span class="nc bnc" id="L64" title="All 4 branches missed.">                if ((originalRecordIndex == -1) || (Integer.valueOf(record.getRowNumber()) &lt; originalRecordIndex)) {</span>
+<span class="nc" id="L65">                    markRecordAsFailed(record, parent, &quot;ERROR.ER3.1.2.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L66">                    return false;</span>
+                }
+            }
+        }
+<span class="nc" id="L70">        return true;</span>
+    }
+
+
+    protected Boolean validForDatabaseRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+        /*IF there is any record exists  in the database for same UID we have to perform cross record validation on that record to verify we are getting same SSN, DOB and TIN or else reject the record*/
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInDB()) {</span>
+
+            /* If there is any correction record in the file prior to this record and is passed */
+            /* that record will override the record in DB. */
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            for (int idx=0; idx&lt;parent.getFilersWithSameIdsInFile().size(); idx++) {</span>
+<span class="nc" id="L81">                Step3FilerDataDto toScan = parent.getFilersWithSameIdsInFile().get(idx);</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">                if (&quot;C&quot;.equalsIgnoreCase(toScan.getOriginalCorrectionCode()) &amp;&amp; &quot;PASSED&quot;.equalsIgnoreCase(toScan.getRecordStatus())) {</span>
+<span class="nc" id="L83">                    item = toScan;</span>
+                }
+            }
+
+<span class="nc" id="L87">            String itemSid = item.getSIDValue();</span>
+<span class="nc" id="L88">            String itemTid = item.getTIDValue();</span>
+<span class="nc" id="L89">            String itemUid = item.getUIDValue();</span>
+<span class="nc" id="L90">            String recordSid = record.getSIDValue();</span>
+<span class="nc" id="L91">            String recordTid = record.getTIDValue();</span>
+<span class="nc" id="L92">            String recordUid = record.getUIDValue();</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if(!proccessDBValidationRule(itemSid, itemTid, itemUid, recordSid, recordTid, recordUid, record, item, parent))</span>
+<span class="nc" id="L95">                return false;</span>
+<span class="nc" id="L96">        }</span>
+<span class="nc" id="L97">        return true;</span>
+    }
+
+    protected Boolean validForFileRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="nc" id="L101">        Boolean isValidRecord = false;</span>
+
+         /*IF there are record in file with same  then loop through them and check for validation scenario 2 and 3 */
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInFile()) {</span>
+
+            // if there is no original record in file or db for update we have to reject the record.
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            if ((item.getUIDValue().equals(record.getUIDValue())) &amp;&amp; item.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">                    &amp;&amp; item.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED) &amp;&amp; (Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(item.getRowNumber()))){</span>
+<span class="nc" id="L109">                isValidRecord = true;</span>
+            }
+
+            /* If there is any correction record in the file prior to this record and is passed */
+            /* that record will override the record in DB. */
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            for (int idx=0; idx&lt;parent.getFilersWithSameIdsInFile().size(); idx++) {</span>
+<span class="nc" id="L115">                Step3FilerDataDto toScan = parent.getFilersWithSameIdsInFile().get(idx);</span>
+<span class="nc bnc" id="L116" title="All 4 branches missed.">                if (&quot;C&quot;.equalsIgnoreCase(toScan.getOriginalCorrectionCode()) &amp;&amp; &quot;PASSED&quot;.equalsIgnoreCase(toScan.getRecordStatus())) {</span>
+<span class="nc" id="L117">                    item = toScan;</span>
+                }
+            }
+
+<span class="nc" id="L121">            String itemSid = item.getSIDValue();</span>
+<span class="nc" id="L122">            String itemTid = item.getTIDValue();</span>
+<span class="nc" id="L123">            String itemUid = item.getUIDValue();</span>
+<span class="nc" id="L124">            String recordSid = record.getSIDValue();</span>
+<span class="nc" id="L125">            String recordTid = record.getTIDValue();</span>
+<span class="nc" id="L126">            String recordUid = record.getUIDValue();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if(!processFileValidationRules(itemSid,itemTid,itemUid,recordSid,recordTid,recordUid,item,record,parent))</span>
+<span class="nc" id="L128">                return false;</span>
+
+<span class="nc" id="L130">        }</span>
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (isValidRecord) {</span>
+<span class="nc" id="L133">            markRecordAsPassed(record, parent);</span>
+        } else {
+<span class="nc" id="L135">            markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.4.1&quot;, record.getSourceUniqueId());</span>
+        }
+<span class="nc" id="L137">        return true;</span>
+    }
+
+    public void markRecordAsFailed(Step3FilerDataDto record, Step3FilerDataDto parent, String validatiomsg, String uidToDisplay) {
+<span class="fc" id="L141">        markRecordAsFailed(record, parent, validatiomsg, uidToDisplay, false);</span>
+<span class="fc" id="L142">    }</span>
+
+    private void markRecordAsFailed(Step3FilerDataDto record, Step3FilerDataDto parent, String validatiomsg, String uidToDisplay, boolean appendRid) {
+<span class="fc" id="L145">        String message = env.getProperty(validatiomsg);</span>
+<span class="fc" id="L146">        StringBuilder bdMessage = new StringBuilder();</span>
+<span class="pc bpc" id="L147" title="3 of 4 branches missed.">        if (null != message &amp;&amp; message.contains(FORMAT_PLACEHOLDER_STR)) {</span>
+<span class="nc" id="L148">            bdMessage.append(String.format(message, uidToDisplay));</span>
+        } else {
+<span class="fc" id="L150">            bdMessage.append(message);</span>
+        }
+<span class="fc" id="L152">        logger.warn(&quot;Validation rule for Update failed. &quot; + validatiomsg);</span>
+<span class="fc" id="L153">        record.setRecordStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (appendRid) {</span>
+<span class="nc" id="L155">            bdMessage.append(String.valueOf(uidToDisplay));</span>
+        }
+<span class="fc" id="L157">        record.setBDMessage(bdMessage.toString());</span>
+        /* Add item to rejected records bucket*/
+<span class="fc" id="L159">        parent.getRejectedRecordList().add(record);</span>
+<span class="fc" id="L160">    }</span>
+
+    /**
+     * Function to retrive information of original record index. takes parent record and current record as input parameter
+     **/
+    public int getOriginalRecordIndex(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="nc" id="L166">        int recordIndex = -1;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (Step3FilerDataDto recordInFile : parent.getFilersWithSameIdsInFile()) {</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">            if (Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(recordInFile.getRowNumber()) &amp;&amp; recordInFile.getSourceUniqueId().equals(record.getSourceUniqueId())</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">                    &amp;&amp; recordInFile.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                    &amp;&amp; recordInFile.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED)) {</span>
+<span class="nc" id="L171">                recordIndex = Integer.valueOf(recordInFile.getRowNumber());</span>
+            }
+<span class="nc" id="L173">        }</span>
+<span class="nc" id="L174">        return recordIndex;</span>
+    }
+
+    protected Boolean proccessDBValidationRule(String itemSid, String itemTid, String itemUid, String recordSid, String recordTid,
+                                               String recordUid, Step3FilerDataDto record, Step3FilerDataDto item, Step3FilerDataDto parent) {
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (itemUid.equals(recordUid)) {</span>
+<span class="nc bnc" id="L180" title="All 6 branches missed.">            if (!(itemSid.equals(recordSid)) || !(itemTid.equals(recordTid)) || !(item.getRecipientDob().equals(record.getRecipientDob()))) {//Test to check same SSN different RID's and reject record DB record.</span>
+<span class="nc" id="L181">                markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.5.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L182">                return false;</span>
+            }
+<span class="nc bnc" id="L184" title="All 4 branches missed.">            if (&quot;C&quot;.equals(record.getFilerStatus()) &amp;&amp; !checkForCoveredPersonValidation(record, item, &quot;DB&quot;)) {</span>
+<span class="nc" id="L185">                markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.7.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L186">                return false;</span>
+            }
+<span class="nc" id="L188">            markRecordAsPassed(record, parent);</span>
+<span class="nc" id="L189">            return false;// if you get a record in DB for an update and it is a valid record to update in db no need to check against file.</span>
+        }
+<span class="nc" id="L191">        return true;</span>
+    }
+
+    protected Boolean processFileValidationRules(String itemSid,String itemTid, String itemUid, String recordSid,
+                                                    String recordTid,String recordUid,Step3FilerDataDto item,Step3FilerDataDto record,Step3FilerDataDto parent)
+    {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if ((Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(item.getRowNumber()))</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                &amp;&amp; (itemUid.equals(recordUid)))// check item is not the same item</span>
+        {
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            if (!(itemSid.equals(recordSid))</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">                    || !(itemTid.equals(recordTid))</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">                        || !(item.getRecipientDob().equals(record.getRecipientDob()))) {//Test to check same SSN different RID's and reject record same file.</span>
+<span class="nc" id="L203">                markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.5.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L204">                return false;</span>
+            }
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if (&quot;C&quot;.equals(record.getFilerStatus())</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                    &amp;&amp; !checkForCoveredPersonValidation(record, item, &quot;FILE&quot;)) {</span>
+<span class="nc" id="L208">                markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.7.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L209">                return false;</span>
+            }
+        }
+<span class="nc" id="L212">        return true;</span>
+    }
+
+    protected void markRecordAsPassed(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="nc" id="L216">        record.setRecordStatus(CommonDataConstants.VALIDATION_RULE_PASSED);</span>
+<span class="nc" id="L217">        record.setBDMessage(env.getProperty(&quot;UPDATE.ACCEPTED&quot;));</span>
+
+        /* Add item to Accepted records bucket*/
+<span class="nc" id="L220">        parent.getAcceptedRecordList().add(record);</span>
+
+
+<span class="nc" id="L223">    }</span>
+
+    protected Boolean checkForCoveredPersonValidation(Step3FilerDataDto record, Step3FilerDataDto item, String itemType) {
+<span class="nc" id="L226">        Boolean recordValidForValidation = true;</span>
+
+<span class="nc bnc" id="L228" title="All 4 branches missed.">        if (itemType == &quot;DB&quot; &amp;&amp; !item.getResponsiblePersonUniqueId().equals(record.getResponsiblePersonUniqueId())) {</span>
+<span class="nc" id="L229">            recordValidForValidation = false;</span>
+        }
+
+<span class="nc bnc" id="L232" title="All 4 branches missed.">        if (itemType == &quot;FILE&quot; &amp;&amp; !item.getResponsiblePersonUniqueId().equals(record.getResponsiblePersonUniqueId())</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                    &amp;&amp;  item.getRecordStatus() != null</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                            &amp;&amp; item.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED)) {// If item is not validation passed we can not compare it with current record comaprison has to be done with valid record.</span>
+<span class="nc" id="L235">            recordValidForValidation = false;</span>
+        }
+<span class="nc" id="L237">        return recordValidForValidation;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

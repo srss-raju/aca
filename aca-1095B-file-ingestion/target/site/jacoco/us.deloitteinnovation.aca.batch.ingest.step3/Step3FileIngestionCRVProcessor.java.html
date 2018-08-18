@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3FileIngestionCRVProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3</a> &gt; <span class="el_source">Step3FileIngestionCRVProcessor.java</span></div><h1>Step3FileIngestionCRVProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3RecordsUIDValidationResultMap;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3ValidationMapDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3CorrectedRecordsValidationUtils;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3OriginalRecordsValidationUtils;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3UpdateRecordsValidationUtils;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.util.List;
+
+/**
+ * &lt;p/&gt;
+ * Step3FileIngestionCRVProcessor is created to process each record one by one and implement validation rule according to correction code
+ * &quot;O&quot;,&quot;U&quot;,&quot;C&quot; once validation rules are implemented. perfor business validation rule gets called. which creates final record to update in filer
+ * demographics.
+ * &lt;li&gt;
+ * Step1 :- Get the container object which is from intial unique uid list to the processor
+ * Step2 :- Check for the correction code and implement respective validation implementation logic
+ * Step3 :- Once validation rule implemented get list of accepted records and perform usiness balidation that is merge or replace records to update in filer demograpics.
+ * Step4 :- Perform merging of record or replacement of record
+ * Step5  :-pass record to writer to write it to DB.
+ * &lt;/li&gt;
+ *
+ * @see Step3FileIngestionCRVReader
+ * @see Step3FileIngestionCRVWriter
+ * @see Step3OriginalRecordsValidationUtils
+ * @see Step3CorrectedRecordsValidationUtils
+ * @see Step3UpdateRecordsValidationUtils
+ * &lt;/p&gt;
+ */
+@Component
+<span class="fc" id="L41">public class Step3FileIngestionCRVProcessor implements ItemProcessor&lt;Step3FilerDataDto, Step3FilerDataDto&gt; {</span>
+
+
+<span class="fc" id="L44">    private static Logger logger = LoggerFactory.getLogger(Step3FileIngestionCRVProcessor.class);</span>
+
+
+    @Autowired
+    Step3RecordsUIDValidationResultMap step3RecordsUIDValidationResultMap;
+
+    @Autowired
+    private Step3OriginalRecordsValidationUtils step3OriginalRecordsValidationUtils;
+
+    @Autowired
+    private Step3UpdateRecordsValidationUtils step3UpdateRecordsValidationUtils;
+
+
+    @Autowired
+    private Step3CorrectedRecordsValidationUtils step3CorrectedRecordsValidationUtils;
+
+    @Autowired
+    private Environment env;
+
+    @Override
+    public Step3FilerDataDto process(Step3FilerDataDto item) throws Exception {
+
+
+<span class="fc" id="L67">        logger.info(&quot;start of Step3FileIngestionCRVProcessor process function.....&quot;);</span>
+        try {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            for (Step3FilerDataDto step3FilerDataDto : item.getFilersWithSameIdsInFile()) {</span>
+<span class="fc" id="L70">                performCrossRecordValidation(item, step3FilerDataDto);</span>
+<span class="fc" id="L71">            }</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (!item.getAcceptedRecordList().isEmpty()) {</span>
+<span class="fc" id="L73">                Step3ValidationMapDto step3ValidationMapDto = step3RecordsUIDValidationResultMap.getMapDtoMap().get(item.getUIDValue());</span>
+<span class="fc" id="L74">                step3ValidationMapDto.setValidationStatus(CommonDataConstants.VALIDATION_RULE_PASSED);</span>
+<span class="fc" id="L75">                step3RecordsUIDValidationResultMap.getMapDtoMap().put(item.getUIDValue(), step3ValidationMapDto);</span>
+<span class="fc" id="L76">            } else {</span>
+<span class="nc" id="L77">                Step3ValidationMapDto step3ValidationMapDto = step3RecordsUIDValidationResultMap.getMapDtoMap().get(item.getUIDValue());</span>
+<span class="nc" id="L78">                step3ValidationMapDto.setValidationStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="nc" id="L79">                step3RecordsUIDValidationResultMap.getMapDtoMap().put(item.getUIDValue(), step3ValidationMapDto);</span>
+            }
+<span class="fc" id="L81">            performBusinessOperationsOnAcceptedRecord(item);</span>
+<span class="nc" id="L82">        } catch (Exception e) {</span>
+<span class="nc" id="L83">            logger.error(&quot;Error in record processor &quot;, e);</span>
+<span class="nc" id="L84">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L85">            step3DataValidationException.setParent(item.getFilersWithSameIdsInFile());</span>
+<span class="nc" id="L86">            step3DataValidationException.setErrorMessage(&quot;Exception in processing record for given source unique id hence all the records with given source unique id will be skipped : &quot; + item.getSourceUniqueId());</span>
+<span class="nc" id="L87">            throw step3DataValidationException;</span>
+<span class="fc" id="L88">        }</span>
+<span class="fc" id="L89">        logger.info(&quot;end of Step3FileIngestionCRVProcessor process function.....&quot;);</span>
+<span class="fc" id="L90">        return item;</span>
+    }
+
+    //to perform cross record validation
+    public void performCrossRecordValidation(Step3FilerDataDto item, Step3FilerDataDto step3FilerDataDto) throws Step3DataValidationException {
+        try {
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">            if (step3FilerDataDto.getSourceCd().equals(item.getSourceCd()) &amp;&amp; step3FilerDataDto.getSourceUniqueId().equals(item.getSourceUniqueId()))// process record only for same source cd and source unique id.</span>
+            {
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                if (step3FilerDataDto.getCorrection() == null) {</span>
+<span class="nc" id="L99">                    step3FilerDataDto.setRecordStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="nc" id="L100">                    step3FilerDataDto.setBDMessage(&quot;Invalid correction code for record&quot; + String.valueOf(step3FilerDataDto.getSourceUniqueId()));</span>
+                /* Add item to rejected records bucket*/
+<span class="nc" id="L102">                    item.getRejectedRecordList().add(step3FilerDataDto);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                } else if (step3FilerDataDto.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O))// business rules for original will go over here</span>
+                {
+                    // verify ICD Scenario 1-4 for originals
+<span class="fc" id="L106">                    step3OriginalRecordsValidationUtils.validateOriginalRecord(step3FilerDataDto, item);</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                } else if (step3FilerDataDto.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_U))// business rules for updates will go over here</span>
+                {
+<span class="nc" id="L110">                    step3UpdateRecordsValidationUtils.validateUpdateRecord(step3FilerDataDto, item);</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                } else if (step3FilerDataDto.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_C))// business rules for correction will go over here</span>
+                {
+<span class="nc" id="L114">                    step3CorrectedRecordsValidationUtils.validateCorrectedRecord(step3FilerDataDto, item);</span>
+                } else {
+<span class="nc" id="L116">                    step3FilerDataDto.setRecordStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="nc" id="L117">                    step3FilerDataDto.setBDMessage(&quot;Invalid correction code for record&quot; + String.valueOf(step3FilerDataDto.getSourceUniqueId()));</span>
+                    /* Add item to rejected records bucket*/
+<span class="nc" id="L119">                    item.getRejectedRecordList().add(step3FilerDataDto);</span>
+                }
+            }
+<span class="nc" id="L122">        } catch (Exception e) {</span>
+<span class="nc" id="L123">            logger.error(&quot;Error in record processor performCrossRecordValidation&quot;, e);</span>
+<span class="nc" id="L124">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L125">            step3DataValidationException.setParent(item.getFilersWithSameIdsInFile());</span>
+<span class="nc" id="L126">            step3DataValidationException.setErrorMessage(&quot;Exception in processing record for given source unique id hence all the records with given source unique id will be skipped : &quot; + item.getSourceUniqueId());</span>
+<span class="nc" id="L127">            throw step3DataValidationException;</span>
+<span class="fc" id="L128">        }</span>
+
+<span class="fc" id="L130">    }</span>
+
+    //protected void validationForOriginals(Step3FilerDataDto record, Step3FilerDataDto parent) throws Exception
+    protected void performBusinessOperationsOnAcceptedRecord(Step3FilerDataDto item) {
+<span class="fc" id="L134">        Step3FilerDataDto masterRecord = getMasterRecord(item);// no record for originals in db.</span>
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        for (Step3FilerDataDto acceptedRecord : item.getAcceptedRecordList()) {</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">            if (acceptedRecord.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_U)) {</span>
+<span class="nc" id="L138">                mergeCoverageInfo(masterRecord, acceptedRecord);</span>
+<span class="nc" id="L139">                updateRecipientInfo(masterRecord, acceptedRecord);</span>
+<span class="nc" id="L140">                updateIrsTransmissionCode(masterRecord, acceptedRecord, item);</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            } else if (acceptedRecord.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_C)) {</span>
+<span class="nc" id="L142">                replaceFilersData(masterRecord, acceptedRecord);</span>
+<span class="nc" id="L143">                updateIrsTransmissionCode(masterRecord, acceptedRecord, item);</span>
+            }
+<span class="fc" id="L145">        }</span>
+<span class="pc bpc" id="L146" title="2 of 4 branches missed.">        if (masterRecord != null &amp;&amp; !item.getAcceptedRecordList().isEmpty()) {</span>
+<span class="fc" id="L147">            item.getRecordsForFD().add(masterRecord);</span>
+        }
+<span class="fc" id="L149">    }</span>
+
+    protected Step3FilerDataDto getMasterRecord(Step3FilerDataDto parentItem) {
+        // check for master record in DB
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (Step3FilerDataDto item : parentItem.getFilersWithSameIdsInDB()) {</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            if (item.getUIDValue().equals(parentItem.getUIDValue())) {</span>
+<span class="fc" id="L155">                Step3FilerDataDto toReturn = new Step3FilerDataDto(item);</span>
+<span class="fc" id="L156">                toReturn.setIsRecordExistsInDB(Boolean.TRUE);</span>
+<span class="fc" id="L157">                setVersionNoAndCorIndicatorDB(toReturn);</span>
+<span class="fc" id="L158">                return toReturn;</span>
+            }
+<span class="fc" id="L160">        }</span>
+        // check for original record in file.
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        for (Step3FilerDataDto item : parentItem.getAcceptedRecordList()) {</span>
+<span class="pc bpc" id="L163" title="1 of 4 branches missed.">            if (item.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O) &amp;&amp; item.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED)) {</span>
+<span class="fc" id="L164">                Step3FilerDataDto toReturn = new Step3FilerDataDto(item);</span>
+<span class="fc" id="L165">                toReturn.setIsRecordExistsInDB(Boolean.FALSE);</span>
+<span class="fc" id="L166">                setVersionNoAndCorIndicatorFILE(toReturn);</span>
+<span class="fc" id="L167">                return toReturn;</span>
+            }
+<span class="fc" id="L169">        }</span>
+<span class="nc" id="L170">        return null;</span>
+    }
+
+
+    // merge coverage with or condition if anyone is 1 final record will be 1. no update if there is no change in coverage.
+    protected void mergeCoverageInfo(Step3FilerDataDto masterRecord, Step3FilerDataDto slaveRecord) {
+
+<span class="fc" id="L177">        boolean changeincoverage = false;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (!masterRecord.getJan().equals(slaveRecord.getJan())) {</span>
+<span class="fc" id="L179">            masterRecord.setJan(getMonthORValue(masterRecord.getJan(), slaveRecord.getJan()));</span>
+<span class="fc" id="L180">            changeincoverage = true;</span>
+        }
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (!masterRecord.getFeb().equals(slaveRecord.getFeb())) {</span>
+<span class="fc" id="L183">            masterRecord.setFeb(getMonthORValue(masterRecord.getFeb(), slaveRecord.getFeb()));</span>
+<span class="fc" id="L184">            changeincoverage = true;</span>
+        }
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (!masterRecord.getMar().equals(slaveRecord.getMar())) {</span>
+<span class="fc" id="L187">            masterRecord.setMar(getMonthORValue(masterRecord.getMar(), slaveRecord.getMar()));</span>
+<span class="fc" id="L188">            changeincoverage = true;</span>
+        }
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (!masterRecord.getApr().equals(slaveRecord.getApr())) {</span>
+<span class="fc" id="L191">            masterRecord.setApr(getMonthORValue(masterRecord.getApr(), slaveRecord.getApr()));</span>
+<span class="fc" id="L192">            changeincoverage = true;</span>
+        }
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        if (!masterRecord.getMay().equals(slaveRecord.getMay())) {</span>
+<span class="nc" id="L195">            masterRecord.setMay(getMonthORValue(masterRecord.getMay(), slaveRecord.getMay()));</span>
+<span class="nc" id="L196">            changeincoverage = true;</span>
+        }
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (!masterRecord.getJun().equals(slaveRecord.getJun())) {</span>
+<span class="nc" id="L199">            masterRecord.setJun(getMonthORValue(masterRecord.getJun(), slaveRecord.getJun()));</span>
+<span class="nc" id="L200">            changeincoverage = true;</span>
+        }
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (!masterRecord.getJul().equals(slaveRecord.getJul())) {</span>
+<span class="nc" id="L203">            masterRecord.setJul(getMonthORValue(masterRecord.getJul(), slaveRecord.getJul()));</span>
+<span class="nc" id="L204">            changeincoverage = true;</span>
+        }
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (!masterRecord.getAug().equals(slaveRecord.getAug())) {</span>
+<span class="nc" id="L207">            masterRecord.setAug(getMonthORValue(masterRecord.getAug(), slaveRecord.getAug()));</span>
+<span class="nc" id="L208">            changeincoverage = true;</span>
+        }
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (!masterRecord.getSep().equals(slaveRecord.getSep())) {</span>
+<span class="nc" id="L211">            masterRecord.setSep(getMonthORValue(masterRecord.getSep(), slaveRecord.getSep()));</span>
+<span class="nc" id="L212">            changeincoverage = true;</span>
+        }
+
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        if (!masterRecord.getOct().equals(slaveRecord.getOct())) {</span>
+<span class="nc" id="L216">            masterRecord.setOct(getMonthORValue(masterRecord.getOct(), slaveRecord.getOct()));</span>
+<span class="nc" id="L217">            changeincoverage = true;</span>
+        }
+
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (!masterRecord.getNov().equals(slaveRecord.getNov())) {</span>
+<span class="nc" id="L221">            masterRecord.setNov(getMonthORValue(masterRecord.getNov(), slaveRecord.getNov()));</span>
+<span class="nc" id="L222">            changeincoverage = true;</span>
+        }
+
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">        if (!masterRecord.getDec().equals(slaveRecord.getDec())) {</span>
+<span class="nc" id="L226">            masterRecord.setDec(getMonthORValue(masterRecord.getDec(), slaveRecord.getDec()));</span>
+<span class="nc" id="L227">            changeincoverage = true;</span>
+        }
+
+<span class="fc" id="L230">        slaveRecord.setIsCoverageChangesAvailable(changeincoverage);</span>
+<span class="fc" id="L231">    }</span>
+
+    protected void updateRecipientInfo(Step3FilerDataDto masterRecord, Step3FilerDataDto slaveRecord) {
+
+<span class="fc" id="L235">        masterRecord.getBatchInfo().setBatchId(slaveRecord.getBatchInfo().getBatchId());</span>
+
+        // entering recipient info
+<span class="fc" id="L238">        masterRecord.setRecipientFirstName(slaveRecord.getRecipientFirstName());</span>
+<span class="fc" id="L239">        masterRecord.setRecipientLastName(slaveRecord.getRecipientLastName());</span>
+<span class="fc" id="L240">        masterRecord.setRecipientMiddleName(slaveRecord.getRecipientMiddleName());</span>
+<span class="fc" id="L241">        masterRecord.setRecepientSuffixName(slaveRecord.getRecepientSuffixName());</span>
+<span class="fc" id="L242">        masterRecord.setRecipientAddressLine1(slaveRecord.getRecipientAddressLine1());</span>
+<span class="fc" id="L243">        masterRecord.setRecipientAddressLine2(slaveRecord.getRecipientAddressLine2());</span>
+<span class="fc" id="L244">        masterRecord.setRecipientZip5(slaveRecord.getRecepientZip5());</span>
+<span class="fc" id="L245">        masterRecord.setRecipientZip4(slaveRecord.getRecepientZip4());</span>
+<span class="fc" id="L246">        masterRecord.setRecipientState(slaveRecord.getRecipientState());</span>
+<span class="fc" id="L247">        masterRecord.setRecipientCity(slaveRecord.getRecipientCity());</span>
+<span class="fc" id="L248">        masterRecord.seteMail(slaveRecord.getEMail());</span>
+
+        // updating employer information
+<span class="fc" id="L251">        masterRecord.setPolicyOrigin(slaveRecord.getPolicyOrigin());</span>
+<span class="fc" id="L252">        masterRecord.setShopIdentifier(slaveRecord.getShopIdentifier());</span>
+<span class="fc" id="L253">        masterRecord.setEmployerName(slaveRecord.getEmployerName());</span>
+<span class="fc" id="L254">        masterRecord.setEmployerIdentificationNumber(slaveRecord.getEmployerIdentificationNumber());</span>
+<span class="fc" id="L255">        masterRecord.setEmployerContactNo(slaveRecord.getEmployerContactNo());</span>
+<span class="fc" id="L256">        masterRecord.setEmployerAddressLine1(slaveRecord.getEmployerAddressLine1());</span>
+<span class="fc" id="L257">        masterRecord.setEmployerAddressLine2(slaveRecord.getEmployerAddressLine2());</span>
+<span class="fc" id="L258">        masterRecord.setEmployerCityOrTown(slaveRecord.getEmployerCityOrTown());</span>
+<span class="fc" id="L259">        masterRecord.setEmployerStateOrProvince(slaveRecord.getEmployerStateOrProvince());</span>
+<span class="fc" id="L260">        masterRecord.setEmployerCountry(slaveRecord.getEmployerCountry());</span>
+<span class="fc" id="L261">        masterRecord.setZipOrPostalCode(slaveRecord.getZipOrPostalCode());</span>
+
+        //updating provider information
+<span class="fc" id="L264">        masterRecord.setProviderName(slaveRecord.getProviderName());</span>
+<span class="fc" id="L265">        masterRecord.setProviderIdentificationNumber(slaveRecord.getProviderIdentificationNumber());</span>
+<span class="fc" id="L266">        masterRecord.setProviderContactNo(slaveRecord.getProviderContactNo());</span>
+<span class="fc" id="L267">        masterRecord.setProviderAddressLine2(slaveRecord.getProviderAddressLine2());</span>
+<span class="fc" id="L268">        masterRecord.setProviderAddressLine1(slaveRecord.getProviderAddressLine1());</span>
+<span class="fc" id="L269">        masterRecord.setProviderCityOrTown(slaveRecord.getProviderCityOrTown());</span>
+<span class="fc" id="L270">        masterRecord.setProviderStateOrProvince(slaveRecord.getProviderStateOrProvince());</span>
+<span class="fc" id="L271">        masterRecord.setProviderCountry(slaveRecord.getProviderCountry());</span>
+<span class="fc" id="L272">        masterRecord.setProviderZipOrPostalCode(slaveRecord.getProviderZipOrPostalCode());</span>
+
+
+        // all the statuses and comments related info
+<span class="fc" id="L276">        masterRecord.setCommunicationPreference(slaveRecord.getCommunicationPreference());</span>
+<span class="fc" id="L277">        masterRecord.setComments(slaveRecord.getComments());</span>
+<span class="fc" id="L278">        masterRecord.setUpdatedDt(slaveRecord.getUpdatedDt());</span>
+<span class="fc" id="L279">        masterRecord.setUpdatedBy(slaveRecord.getUpdatedBy());</span>
+<span class="fc" id="L280">        masterRecord.setCorrectionDt(slaveRecord.getCorrectionDt());</span>
+<span class="fc" id="L281">        masterRecord.setCorrection(slaveRecord.getCorrection());</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">        masterRecord.setFormStatus((masterRecord.getFormStatus() == null) ? null : CommonDataConstants.FormStatus.FORM_STATUS_REGENERATE);</span>
+<span class="fc" id="L283">        masterRecord.setResponsiblePersonUniqueId(slaveRecord.getResponsiblePersonUniqueId());</span>
+<span class="fc" id="L284">        masterRecord.setMailedForm(slaveRecord.getMailedForm());</span>
+<span class="fc" id="L285">        masterRecord.setFilerStatus(slaveRecord.getFilerStatus());</span>
+<span class="pc bpc" id="L286" title="3 of 4 branches missed.">        if (&quot;C&quot;.equals(slaveRecord.getCorrection()) &amp;&amp; slaveRecord.getFilerCoverage().getOrigCoverageBeginDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE)</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">                &amp;&amp; slaveRecord.getFilerCoverage().getOrigCoverageEndDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE)) {</span>
+<span class="nc" id="L288">            masterRecord.setStatus(CommonDataConstants.RECORD_STATUS_INACTIVE);</span>
+<span class="nc" id="L289">            slaveRecord.setBDMessage(env.getProperty(&quot;CORRECTION.WR_CV5.2.1.1&quot;));</span>
+<span class="pc bpc" id="L290" title="3 of 4 branches missed.">        } else if (&quot;C&quot;.equals(slaveRecord.getCorrection()) &amp;&amp; CommonDataConstants.RECORD_STATUS_INACTIVE.equals(masterRecord.getStatus())) {</span>
+<span class="nc" id="L291">            masterRecord.setStatus(CommonDataConstants.RECORD_STATUS_ACTIVE);</span>
+<span class="nc" id="L292">            slaveRecord.setBDMessage(env.getProperty(&quot;CORRECTION.WR_CV5.2.2.1&quot;));</span>
+        }
+
+        //if filer_status is &quot;C&quot; and master record is from db in that case we have to update responsible person list
+<span class="pc bpc" id="L296" title="5 of 6 branches missed.">        if (&quot;DB&quot;.equals(masterRecord.getRecordSource()) &amp;&amp; &quot;C&quot;.equals(masterRecord.getFilerStatus()) &amp;&amp; masterRecord.getResposiblePersonList().isEmpty()) {</span>
+<span class="nc" id="L297">            masterRecord.getResposiblePersonList().addAll(slaveRecord.getResposiblePersonList());</span>
+<span class="nc" id="L298">            masterRecord.getCoveredPersonListSharingSameResponsible().addAll(slaveRecord.getCoveredPersonListSharingSameResponsible());</span>
+<span class="pc bpc" id="L299" title="5 of 6 branches missed.">        } else if (&quot;DB&quot;.equals(masterRecord.getRecordSource()) &amp;&amp; &quot;R&quot;.equals(masterRecord.getFilerStatus()) &amp;&amp; masterRecord.getCoveredPersonList().isEmpty()) {</span>
+<span class="nc" id="L300">            masterRecord.getCoveredPersonList().addAll(slaveRecord.getCoveredPersonList());</span>
+        }
+
+<span class="fc" id="L303">    }</span>
+
+    private String getMonthORValue(String master, String slave) {
+        String finalValue;
+<span class="pc bpc" id="L307" title="3 of 4 branches missed.">        finalValue = (&quot;1&quot;.equals(master)) || (&quot;1&quot;.equals(slave)) ? &quot;1&quot; : &quot;0&quot;;</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">        return (finalValue.length() &gt; 0) ? finalValue : &quot;&quot;;</span>
+    }
+
+
+    protected void replaceFilersData(Step3FilerDataDto masterRecord, Step3FilerDataDto slaveRecord) {
+
+        // replace ssn , dob and tin
+<span class="fc" id="L315">        masterRecord.setRecipientDob(slaveRecord.getRecipientDob());</span>
+<span class="fc" id="L316">        masterRecord.setRecipientSsn(slaveRecord.getRecipientSsn());</span>
+<span class="fc" id="L317">        masterRecord.setRecipientTin(slaveRecord.getRecipientTin());</span>
+
+
+<span class="pc bpc" id="L320" title="3 of 4 branches missed.">        if ((slaveRecord.getFilerCoverage().getOrigCoverageBeginDt().toString().equals(CommonDataConstants.COVERAGE_CLEAR_DATE) &amp;&amp; slaveRecord.getFilerCoverage().getOrigCoverageEndDt().toString().equals(CommonDataConstants.COVERAGE_CLEAR_DATE))</span>
+<span class="pc bpc" id="L321" title="3 of 4 branches missed.">                || (slaveRecord.getFilerCoverage().getOrigCoverageBeginDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE) &amp;&amp; slaveRecord.getFilerCoverage().getOrigCoverageEndDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE))) {</span>
+<span class="nc" id="L322">            masterRecord.setJan(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L323">            masterRecord.setFeb(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L324">            masterRecord.setMar(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L325">            masterRecord.setApr(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L326">            masterRecord.setMay(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L327">            masterRecord.setJun(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L328">            masterRecord.setJul(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L329">            masterRecord.setAug(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L330">            masterRecord.setSep(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L331">            masterRecord.setOct(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L332">            masterRecord.setNov(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+<span class="nc" id="L333">            masterRecord.setDec(String.valueOf(CommonDataConstants.NOT_COVERED));</span>
+        } else {
+            // replace months
+<span class="fc" id="L336">            masterRecord.setJan(slaveRecord.getJan());</span>
+<span class="fc" id="L337">            masterRecord.setFeb(slaveRecord.getFeb());</span>
+<span class="fc" id="L338">            masterRecord.setMar(slaveRecord.getMar());</span>
+<span class="fc" id="L339">            masterRecord.setApr(slaveRecord.getApr());</span>
+<span class="fc" id="L340">            masterRecord.setMay(slaveRecord.getMay());</span>
+<span class="fc" id="L341">            masterRecord.setJun(slaveRecord.getJun());</span>
+<span class="fc" id="L342">            masterRecord.setJul(slaveRecord.getJul());</span>
+<span class="fc" id="L343">            masterRecord.setAug(slaveRecord.getAug());</span>
+<span class="fc" id="L344">            masterRecord.setSep(slaveRecord.getSep());</span>
+<span class="fc" id="L345">            masterRecord.setOct(slaveRecord.getOct());</span>
+<span class="fc" id="L346">            masterRecord.setNov(slaveRecord.getNov());</span>
+<span class="fc" id="L347">            masterRecord.setDec(slaveRecord.getDec());</span>
+        }
+
+
+        // update other info
+<span class="fc" id="L352">        updateRecipientInfo(masterRecord, slaveRecord);</span>
+<span class="fc" id="L353">    }</span>
+
+    /**
+     * Responsibility for below function is to set respective version no and correction indicator for record which is already there in DB.
+     **/
+    public void setVersionNoAndCorIndicatorDB(Step3FilerDataDto item) {
+<span class="fc" id="L359">        item.setVersionNumber(item.getVersionNumber() + 1);</span>
+<span class="fc" id="L360">        updateCorrectionIndicator(item);</span>
+<span class="fc" id="L361">    }</span>
+
+    public void setVersionNoAndCorIndicatorFILE(Step3FilerDataDto item) {
+
+<span class="fc bfc" id="L365" title="All 2 branches covered.">        if (&quot;R&quot;.equals(item.getFilerStatus())) {</span>
+<span class="fc" id="L366">            item.setVersionNumber(0);</span>
+<span class="fc" id="L367">            updateCorrectionIndicator(item);</span>
+<span class="pc bpc" id="L368" title="1 of 2 branches missed.">        } else if (&quot;C&quot;.equals(item.getFilerStatus())) {</span>
+<span class="nc bnc" id="L369" title="All 4 branches missed.">            if (!item.getResposiblePersonList().isEmpty() &amp;&amp; ((Step3FilerDataDto) item.getResposiblePersonList().get(0)).getRecordSource().equals(&quot;DB&quot;)) {</span>
+<span class="nc" id="L370">                item.setVersionNumber(((Step3FilerDataDto) item.getResposiblePersonList().get(0)).getVersionNumber() + 1);</span>
+            } else {
+<span class="nc" id="L372">                item.setVersionNumber(0);</span>
+            }
+        }
+<span class="fc" id="L375">    }</span>
+
+    public void updateCorrectionIndicator(Step3FilerDataDto item) {
+<span class="fc bfc" id="L378" title="All 2 branches covered.">        if (item.getFormStatus() == null) {</span>
+<span class="fc" id="L379">            item.setCorrectionIndicator(&quot;0&quot;);</span>
+        } else {
+<span class="pc bpc" id="L381" title="1 of 4 branches missed.">            if (item.getIrsTransmissionStatusCD() != null &amp;&amp; !&quot;DT&quot;.equals(item.getIrsTransmissionStatusCD())) {</span>
+<span class="fc" id="L382">                item.setCorrectionIndicator(&quot;2&quot;);</span>
+<span class="fc" id="L383">                item.setIrsTransmissionStatusCD(&quot;CO&quot;);</span>
+            } else {
+<span class="fc" id="L385">                item.setCorrectionIndicator(&quot;1&quot;);</span>
+            }
+        }
+<span class="fc" id="L388">    }</span>
+
+
+    /* Logics for story ACAB-2545 */
+    protected void updateIrsTransmissionCode(Step3FilerDataDto masterRecord, Step3FilerDataDto slaveRecord, Step3FilerDataDto item) {
+        /* If IRS_TRANSMISSION_CODE if not NULL or DT and FILER_STATUS is R or N, change IRS_TRANSMISSION_CODE to CO */
+<span class="nc bnc" id="L394" title="All 4 branches missed.">        if (null != masterRecord.getIrsTransmissionStatusCD() &amp;&amp; !&quot;DT&quot;.equalsIgnoreCase(masterRecord.getIrsTransmissionStatusCD())</span>
+<span class="nc bnc" id="L395" title="All 4 branches missed.">                &amp;&amp; (&quot;R&quot;.equalsIgnoreCase(slaveRecord.getFilerStatus()) || &quot;N&quot;.equalsIgnoreCase(slaveRecord.getFilerStatus()))) {</span>
+<span class="nc" id="L396">            masterRecord.setIrsTransmissionStatusCD(&quot;CO&quot;);</span>
+        }
+
+            /* The other scenario, when current record is a covered person, requires information of other records in the batch */
+            /* and therefore will be handled in writer */
+
+
+
+<span class="nc" id="L404">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

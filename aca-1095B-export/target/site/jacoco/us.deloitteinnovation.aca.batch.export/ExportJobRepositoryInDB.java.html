@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportJobRepositoryInDB.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export</a> &gt; <span class="el_source">ExportJobRepositoryInDB.java</span></div><h1>ExportJobRepositoryInDB.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export;
+
+import org.springframework.batch.core.StepExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.entity.*;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.repository.FilerDemographicRepository;
+import us.deloitteinnovation.aca.repository.Irs1095XMLRepository;
+import us.deloitteinnovation.aca.repository.IrsRecordDetails1095BRepository;
+import us.gov.treasury.irs.ext.aca.air._7.Form1095BUpstreamDetailType;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by bhchaganti on 4/4/2016.
+ */
+
+<span class="nc" id="L24">public class ExportJobRepositoryInDB implements ExportJob1095Repository {</span>
+
+    @Autowired
+    Irs1095XMLRepository irs1095XMLRepository;
+
+    @Autowired
+    FilerDemographicRepository filerDemographicRepository;
+
+    @Autowired
+    IrsRecordDetails1095BRepository irsRecordDetails1095BRepository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+
+    @Override
+    public Step1Form1095Dto getForm1095bById(String sourceCode, long sourceId) {
+
+<span class="nc" id="L42">        Filer filer = new Filer();</span>
+<span class="nc" id="L43">        filer.setSourceCd(sourceCode);</span>
+<span class="nc" id="L44">        filer.setSourceUniqueId(sourceId);</span>
+
+<span class="nc" id="L46">        Form1095BUpstreamDetailType form1095BUpstreamDetailType = new Form1095BUpstreamDetailType();</span>
+
+<span class="nc" id="L48">        Irs1095XMLPK irs1095XMLPK = new Irs1095XMLPK(sourceId, sourceCode);</span>
+<span class="nc" id="L49">        Irs1095XML irs1095XML = irs1095XMLRepository.findOne(irs1095XMLPK);</span>
+
+<span class="nc" id="L51">        Step1Form1095Dto dto = new Step1Form1095Dto();</span>
+<span class="nc" id="L52">        dto.setFiler(filer);</span>
+<span class="nc" id="L53">        dto.setRawXml(irs1095XML.getIrs1095BXml().getBytes());</span>
+<span class="nc" id="L54">        dto.setForm1095BUpstreamDetailType(form1095BUpstreamDetailType);</span>
+<span class="nc" id="L55">        return dto;</span>
+    }
+
+
+    @Override
+    public List&lt;Step1Form1095Dto&gt; getForm1095bBySourceCode(String sourceCd, Integer currentTransmissionId, StepExecution stepExecution) {
+<span class="nc" id="L61">        String irsTransmissionStatusCd = BatchExportConstants.getStatusFromTransmissionCode(BatchExportConstants.getJobTypeLetter(stepExecution));</span>
+
+        List&lt;Irs1095XML&gt; irs1095XMLList;
+
+        String sql;
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (irsTransmissionStatusCd.equals(BatchExportEntityConstants.FilerXmlStatus.REPLACE)) {</span>
+           /* Replacement transmissions will get records of a given transmission id */
+<span class="nc" id="L68">            sql = &quot;SELECT irsxml.SOURCE_UNIQUE_ID, irsxml.SOURCE_CD, irsxml.IRS_1095B_XML, fd.FILER_DEMO_SEQ &quot; +</span>
+                    &quot;from dbo.IRS_1095_XML irsxml &quot; +
+                    &quot;join &quot; +
+                    &quot;FILER_DEMOGRAPHICS fd on (irsxml.SOURCE_CD = fd.SOURCE_CD and irsxml.SOURCE_UNIQUE_ID = fd.SOURCE_UNIQUE_ID) &quot; +
+                    &quot;join &quot; +
+                    &quot;dbo.IRS_RECORD_DETAILS_1095B rdetails &quot; +
+                    &quot;on(irsxml.source_unique_id = rdetails.source_unique_id and irsxml.SOURCE_CD = rdetails.SOURCE_CD) &quot; +
+                    &quot;WHERE irsxml.IRS_TRANSMISSION_STATUS_CD = '&quot; + irsTransmissionStatusCd + &quot;' &quot; +
+                    &quot;AND rdetails.TRANSMISSION_ID =&quot; + currentTransmissionId + &quot;  AND irsxml.SOURCE_CD = '&quot; + sourceCd + &quot;'&quot;;
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        } else if (irsTransmissionStatusCd.equals(BatchExportEntityConstants.FilerXmlStatus.CORRECTED)) {</span>
+            /* Correction transmissions will get records of all transmission id's */
+<span class="nc" id="L80">            sql = &quot;SELECT irsxml.SOURCE_UNIQUE_ID, irsxml.SOURCE_CD, irsxml.IRS_1095B_XML, fd.FILER_DEMO_SEQ &quot; +</span>
+                    &quot;from dbo.IRS_1095_XML irsxml &quot; +
+                    &quot;join &quot; +
+                    &quot;FILER_DEMOGRAPHICS fd on (irsxml.SOURCE_CD = fd.SOURCE_CD and irsxml.SOURCE_UNIQUE_ID = fd.SOURCE_UNIQUE_ID) &quot; +
+                    &quot;join &quot; +
+                    &quot;dbo.IRS_RECORD_DETAILS_1095B rdetails &quot; +
+                    &quot;on(irsxml.source_unique_id = rdetails.source_unique_id and irsxml.SOURCE_CD = rdetails.SOURCE_CD) &quot; +
+                    &quot;WHERE irsxml.IRS_TRANSMISSION_STATUS_CD = '&quot; + irsTransmissionStatusCd + &quot;' &quot; +
+                    &quot;AND irsxml.SOURCE_CD = '&quot; + sourceCd + &quot;'&quot;;
+        } else {
+            /* For Originals there will be no tranmissions generated. So no need to iterate by transmissions */
+<span class="nc" id="L91">            sql = &quot;select irsxml.SOURCE_UNIQUE_ID, irsxml.SOURCE_CD, irsxml.IRS_1095B_XML, FILER_DEMO_SEQ &quot; +</span>
+                    &quot;FROM IRS_1095_XML irsxml &quot; +
+                    &quot;join FILER_DEMOGRAPHICS fd on (irsxml.SOURCE_CD = fd.SOURCE_CD and irsxml.SOURCE_UNIQUE_ID = fd.SOURCE_UNIQUE_ID) &quot; +
+                    &quot;where irsxml.SOURCE_CD = '&quot; + sourceCd + &quot;' and irsxml.IRS_TRANSMISSION_STATUS_CD = '&quot; + irsTransmissionStatusCd + &quot;'&quot;;
+
+        }
+
+<span class="nc" id="L98">        irs1095XMLList = this.jdbcTemplate.query(sql, new IRSXmlEntityMapper());</span>
+
+<span class="nc" id="L100">        List&lt;Step1Form1095Dto&gt; list1095Dto = new ArrayList&lt;Step1Form1095Dto&gt;();</span>
+<span class="nc" id="L101">        Integer intRecordId = 0;</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (Irs1095XML irs1095XML : irs1095XMLList) {</span>
+
+<span class="nc" id="L105">            Step1Form1095Dto dto = new Step1Form1095Dto();</span>
+
+<span class="nc" id="L107">            Filer filer = new Filer();</span>
+<span class="nc" id="L108">            Form1095BUpstreamDetailType form1095BUpstreamDetailType = new Form1095BUpstreamDetailType();</span>
+
+<span class="nc" id="L110">            IrsRecordDetails1095B irsRecordDetails1095B = null;</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (irsTransmissionStatusCd.equals(BatchExportEntityConstants.FilerXmlStatus.CORRECTED)) {</span>
+
+<span class="nc" id="L114">                irsRecordDetails1095B = irsRecordDetails1095BRepository.fetchOriginalTransmissionDetailsForCorrections(irs1095XML.getSourceCd(), irs1095XML.getSourceUniqueId());</span>
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            } else if (irsTransmissionStatusCd.equals(BatchExportEntityConstants.FilerXmlStatus.REPLACE)) {</span>
+
+<span class="nc" id="L118">                irsRecordDetails1095B = irsRecordDetails1095BRepository.fetchOriginalTransmissionDetailsForReplacements(irs1095XML.getSourceCd(), irs1095XML.getSourceUniqueId());</span>
+            }
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (irsRecordDetails1095B != null) {</span>
+
+<span class="nc" id="L123">                IrsRecordDetails1095BPK irsRecordDetails1095BPK = new IrsRecordDetails1095BPK();</span>
+<span class="nc" id="L124">                irsRecordDetails1095BPK.setRecordId(irsRecordDetails1095B.getId().getRecordId());</span>
+<span class="nc" id="L125">                irsRecordDetails1095BPK.setSubmissionId(irsRecordDetails1095B.getId().getSubmissionId());</span>
+<span class="nc" id="L126">                irsRecordDetails1095BPK.setTransmissionId(irsRecordDetails1095B.getId().getTransmissionId());</span>
+<span class="nc" id="L127">                dto.setIrsRecordDetails1095BPK(irsRecordDetails1095BPK);</span>
+            }
+
+<span class="nc" id="L130">            filer.setSourceCd(sourceCd);</span>
+<span class="nc" id="L131">            filer.setSourceUniqueId(irs1095XML.getSourceUniqueId());</span>
+<span class="nc" id="L132">            filer.setFilerDemoSeq(irs1095XML.getFilerDemoSeq());</span>
+
+<span class="nc" id="L134">            intRecordId++;</span>
+<span class="nc" id="L135">            form1095BUpstreamDetailType.setRecordId(new BigInteger(intRecordId.toString()));</span>
+
+<span class="nc" id="L137">            dto.setFiler(filer);</span>
+<span class="nc" id="L138">            dto.setRawXml(irs1095XML.getIrs1095BXml().getBytes());</span>
+<span class="nc" id="L139">            dto.setForm1095BUpstreamDetailType(form1095BUpstreamDetailType);</span>
+
+<span class="nc" id="L141">            list1095Dto.add(dto);</span>
+<span class="nc" id="L142">        }</span>
+<span class="nc" id="L143">        return (list1095Dto);</span>
+    }
+
+    @Override
+    public void save(Step1Form1095Dto form1095Bdto, StepExecution stepExecution) {
+
+<span class="nc" id="L149">        Irs1095XML irs1095XMLEntity = new Irs1095XML();</span>
+<span class="nc" id="L150">        Irs1095XMLPK irs1095XMLPK = new Irs1095XMLPK(form1095Bdto.getFiler().getSourceUniqueId(), form1095Bdto.getFiler().getSourceCd());</span>
+<span class="nc" id="L151">        irs1095XMLEntity.setId(irs1095XMLPK);</span>
+
+<span class="nc" id="L153">        irs1095XMLEntity.setIrsTransmissionStatusCd(BatchExportConstants.getStatusFromTransmissionCode(BatchExportConstants.getJobTypeLetter(stepExecution)));</span>
+        // TODO: Get the actual Status code from IRS_TRANSMISSION_STATUS table
+<span class="nc" id="L155">        irs1095XMLEntity.setIrs1095BXml(new String(form1095Bdto.getRawXml()));</span>
+<span class="nc" id="L156">        irs1095XMLEntity.setUpdatedBy(&quot;System&quot;);</span>
+<span class="nc" id="L157">        irs1095XMLEntity.setUpdatedDate(new java.util.Date());</span>
+
+        /*
+        * Replacements job will be called in 2 cases. 1. Reject Resend and 2. Reject Corrected
+        * For replacements, only insert records into IRS_1095_XML if and only if they do not exist.
+        * Because in Reject Resend scenario, we do not want to re-generate filer XML's but use the already
+        * generated filer XML's. Whereas for Reject Corrected scenario, we re-generate filer XML's. Hence the
+        * below check. Not sure if this can be handled in a better way.
+        *
+        * */
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (&quot;R&quot;.equalsIgnoreCase(BatchExportConstants.getJobTypeLetter(stepExecution))) {</span>
+<span class="nc" id="L169">            Irs1095XML irs1095XML = irs1095XMLRepository.findByTransmissionStatusCode(form1095Bdto.getFiler().getSourceUniqueId(),</span>
+<span class="nc" id="L170">                    form1095Bdto.getFiler().getSourceCd(),</span>
+                    BatchExportConstants.
+<span class="nc" id="L172">                            getStatusFromTransmissionCode(BatchExportConstants.getJobTypeLetter(stepExecution)));</span>
+            //Save only if the entity doesn't already exist
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (irs1095XML == null) {</span>
+<span class="nc" id="L175">                irs1095XMLRepository.save(irs1095XMLEntity);</span>
+            }
+<span class="nc" id="L177">        } else {</span>
+<span class="nc" id="L178">            irs1095XMLRepository.save(irs1095XMLEntity);</span>
+        }
+        /* Update Filer Demographics with appropriate status */
+<span class="nc" id="L181">        filerDemographicRepository.updateIrsStatusCD(form1095Bdto.getFiler().getSourceCd(), form1095Bdto.getFiler().getSourceUniqueId(), &quot;System&quot;, new Date(), &quot;XC&quot;);</span>
+<span class="nc" id="L182">    }</span>
+
+    /**
+     * Clears all in-memory data storage maps.  Useful for testing.
+     */
+    public void clearAll() {
+
+<span class="nc" id="L189">        irs1095XMLRepository.deleteAll();</span>
+<span class="nc" id="L190">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

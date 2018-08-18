@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicsDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dao.impl</a> &gt; <span class="el_source">FilerDemographicsDaoImpl.java</span></div><h1>FilerDemographicsDaoImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dao.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dao.FilerDemographicsDao;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicPKDto;
+import us.deloitteinnovation.aca.batch.mapper.FilerDemographicsMapper;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static us.deloitteinnovation.aca.batch.constants.BatchQueryConstants.*;
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.STATUS_ACTIVE;
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.STATUS_INACTIVE;
+
+/**
+ * Created by rgopalani on 10/12/2015.
+ */
+<span class="nc" id="L32">public class FilerDemographicsDaoImpl extends NamedParameterJdbcDaoSupport implements FilerDemographicsDao {</span>
+
+<span class="nc" id="L34">    private final static Logger LOGGER = LoggerFactory.getLogger(FilerDemographicsDaoImpl.class);</span>
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+<span class="nc" id="L42">    private int batchSize = 500;</span>
+
+    @Override
+    public int[][] bulkInsert(final List&lt;FilerDemographicDto&gt; filerDemographics) {
+<span class="nc" id="L46">        return this.jdbcTemplate.batchUpdate(</span>
+                INSERT_FILER_DEMOGRAPHICS, filerDemographics, this.batchSize,
+<span class="nc" id="L48">                new ParameterizedPreparedStatementSetter&lt;FilerDemographicDto&gt;() {</span>
+                    public void setValues(PreparedStatement pStatement, FilerDemographicDto filerDemographic) {
+                        try {
+<span class="nc" id="L51">                            pStatement.setInt(1, filerDemographic.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L52">                            BatchUtils.setString(2, pStatement, filerDemographic.getComments());</span>
+<span class="nc" id="L53">                            BatchUtils.setString(3, pStatement, filerDemographic.getCommunicationPreference());</span>
+<span class="nc" id="L54">                            BatchUtils.setString(4, pStatement, filerDemographic.getCorrection());</span>
+<span class="nc" id="L55">                            BatchUtils.setDate(5, pStatement, filerDemographic.getCorrectionDt());</span>
+<span class="nc" id="L56">                            BatchUtils.setString(6, pStatement, filerDemographic.getEMail());</span>
+<span class="nc" id="L57">                            BatchUtils.setString(7, pStatement, filerDemographic.getEmployerAddressLine1());</span>
+<span class="nc" id="L58">                            BatchUtils.setString(8, pStatement, filerDemographic.getEmployerAddressLine2());</span>
+<span class="nc" id="L59">                            BatchUtils.setString(9, pStatement, filerDemographic.getEmployerCityOrTown());</span>
+<span class="nc" id="L60">                            BatchUtils.setString(10, pStatement, filerDemographic.getEmployerContactNo());</span>
+<span class="nc" id="L61">                            BatchUtils.setString(11, pStatement, filerDemographic.getEmployerCountry());</span>
+<span class="nc" id="L62">                            BatchUtils.setString(12, pStatement, filerDemographic.getEmployerIdentificationNumber());</span>
+<span class="nc" id="L63">                            BatchUtils.setString(13, pStatement, filerDemographic.getEmployerName());</span>
+<span class="nc" id="L64">                            BatchUtils.setString(14, pStatement, filerDemographic.getEmployerStateOrProvince());</span>
+<span class="nc" id="L65">                            BatchUtils.setString(15, pStatement, filerDemographic.getFilerStatus());</span>
+<span class="nc" id="L66">                            BatchUtils.setString(16, pStatement, filerDemographic.getLanguagePreference());</span>
+<span class="nc" id="L67">                            BatchUtils.setString(17, pStatement, filerDemographic.getPolicyOrigin());</span>
+                            //BatchUtils.setString(18, pStatement, filerDemographic.getProgramName());
+<span class="nc" id="L69">                            BatchUtils.setString(18, pStatement, filerDemographic.getProviderAddressLine1());</span>
+<span class="nc" id="L70">                            BatchUtils.setString(19, pStatement, filerDemographic.getProviderAddressLine2());</span>
+<span class="nc" id="L71">                            BatchUtils.setString(20, pStatement, filerDemographic.getProviderCityOrTown());</span>
+<span class="nc" id="L72">                            BatchUtils.setString(21, pStatement, filerDemographic.getProviderContactNo().toString());</span>
+<span class="nc" id="L73">                            BatchUtils.setString(22, pStatement, filerDemographic.getProviderCountry());</span>
+<span class="nc" id="L74">                            BatchUtils.setString(23, pStatement, filerDemographic.getProviderIdentificationNumber());</span>
+<span class="nc" id="L75">                            BatchUtils.setString(24, pStatement, filerDemographic.getProviderName());</span>
+<span class="nc" id="L76">                            BatchUtils.setString(25, pStatement, filerDemographic.getProviderStateOrProvince());</span>
+<span class="nc" id="L77">                            BatchUtils.setString(26, pStatement, filerDemographic.getProviderZipOrPostalCode());</span>
+<span class="nc" id="L78">                            BatchUtils.setString(27, pStatement, filerDemographic.getRecipientAddressLine1());</span>
+<span class="nc" id="L79">                            BatchUtils.setString(28, pStatement, filerDemographic.getRecipientAddressLine2());</span>
+                            /*BatchUtils.setString(30, pStatement, filerDemographic.getRecepientCaseApplicationId());*/
+<span class="nc" id="L81">                            BatchUtils.setString(29, pStatement, filerDemographic.getRecipientCity());</span>
+<span class="nc" id="L82">                            BatchUtils.setDate(30, pStatement, filerDemographic.getRecipientDob());</span>
+<span class="nc" id="L83">                            BatchUtils.setString(31, pStatement, filerDemographic.getRecipientFirstName());</span>
+<span class="nc" id="L84">                            BatchUtils.setString(32, pStatement, filerDemographic.getRecipientLastName());</span>
+<span class="nc" id="L85">                            BatchUtils.setString(33, pStatement, filerDemographic.getRecipientMiddleName());</span>
+<span class="nc" id="L86">                            BatchUtils.setString(34, pStatement, filerDemographic.getRecipientSsn());</span>
+<span class="nc" id="L87">                            BatchUtils.setString(35, pStatement, filerDemographic.getRecipientState());</span>
+<span class="nc" id="L88">                            BatchUtils.setString(36, pStatement, filerDemographic.getRecepientSuffixName());</span>
+<span class="nc" id="L89">                            BatchUtils.setString(37, pStatement, filerDemographic.getRecipientTin());</span>
+<span class="nc" id="L90">                            BatchUtils.setString(38, pStatement, filerDemographic.getRecepientZip4());</span>
+<span class="nc" id="L91">                            BatchUtils.setString(39, pStatement, filerDemographic.getRecepientZip5());</span>
+<span class="nc" id="L92">                            BatchUtils.setString(40, pStatement, filerDemographic.getResponsiblePersonUniqueId());</span>
+<span class="nc" id="L93">                            BatchUtils.setString(41, pStatement, filerDemographic.getShopIdentifier());</span>
+<span class="nc" id="L94">                            pStatement.setString(42, filerDemographic.getId().getTaxYear());</span>
+<span class="nc" id="L95">                            BatchUtils.setString(43, pStatement, filerDemographic.getUpdatedBy());</span>
+<span class="nc" id="L96">                            BatchUtils.setString(44, pStatement, filerDemographic.getUpdatedDt());</span>
+<span class="nc" id="L97">                            BatchUtils.setString(45, pStatement, filerDemographic.getZipOrPostalCode());</span>
+<span class="nc" id="L98">                            BatchUtils.setString(46, pStatement, filerDemographic.getJan());</span>
+<span class="nc" id="L99">                            BatchUtils.setString(47, pStatement, filerDemographic.getFeb());</span>
+<span class="nc" id="L100">                            BatchUtils.setString(48, pStatement, filerDemographic.getMar());</span>
+<span class="nc" id="L101">                            BatchUtils.setString(49, pStatement, filerDemographic.getApr());</span>
+<span class="nc" id="L102">                            BatchUtils.setString(50, pStatement, filerDemographic.getMay());</span>
+<span class="nc" id="L103">                            BatchUtils.setString(51, pStatement, filerDemographic.getJun());</span>
+<span class="nc" id="L104">                            BatchUtils.setString(52, pStatement, filerDemographic.getJul());</span>
+<span class="nc" id="L105">                            BatchUtils.setString(53, pStatement, filerDemographic.getAug());</span>
+<span class="nc" id="L106">                            BatchUtils.setString(54, pStatement, filerDemographic.getSep());</span>
+<span class="nc" id="L107">                            BatchUtils.setString(55, pStatement, filerDemographic.getOct());</span>
+<span class="nc" id="L108">                            BatchUtils.setString(56, pStatement, filerDemographic.getNov());</span>
+<span class="nc" id="L109">                            BatchUtils.setString(57, pStatement, filerDemographic.getDec());</span>
+<span class="nc" id="L110">                            BatchUtils.setString(58, pStatement,</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                                    filerDemographic.isActive() ? STATUS_ACTIVE : STATUS_INACTIVE);</span>
+<span class="nc" id="L112">                            BatchUtils.setString(59, pStatement, filerDemographic.getMailedForm());</span>
+<span class="nc" id="L113">                            BatchUtils.setString(60, pStatement, filerDemographic.getId().getSourceCd());</span>
+<span class="nc" id="L114">                            BatchUtils.setString(61, pStatement, filerDemographic.getId().getSourceUniqueId());</span>
+<span class="nc" id="L115">                        } catch (SQLException e) {</span>
+<span class="nc" id="L116">                            LOGGER.error(e.getMessage());</span>
+<span class="nc" id="L117">                        }</span>
+<span class="nc" id="L118">                    }</span>
+
+                    public int getBatchSize() {
+<span class="nc" id="L121">                        return filerDemographics.size();</span>
+                    }
+                });
+    }
+
+    @Override
+    public int[] bulkUpdate(List&lt;FilerDemographicDto&gt; filerDemographics) {
+<span class="nc" id="L128">        final SqlParameterSource[] paramsRA = new SqlParameterSource[filerDemographics.size()];</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (int i = 0; i &lt; paramsRA.length; i++) {</span>
+<span class="nc" id="L130">            final FilerDemographicDto fd = filerDemographics.get(i);</span>
+<span class="nc" id="L131">            final Map&lt;String, Object&gt; params = createUpdateParams(fd);</span>
+<span class="nc" id="L132">            paramsRA[i] = new MapSqlParameterSource(params);</span>
+        }
+<span class="nc" id="L134">        return namedParameterJdbcTemplate.batchUpdate(UPDATE_FILER_DEMOGRAPHICS, paramsRA);</span>
+    }
+
+    /**
+     * @param filerDemographic
+     * @return
+     */
+    public int update(final FilerDemographicDto filerDemographic) {
+<span class="nc" id="L142">        return this.namedParameterJdbcTemplate.update(UPDATE_FILER_DEMOGRAPHICS,</span>
+<span class="nc" id="L143">                createUpdateParams(filerDemographic));</span>
+    }
+
+    private Map&lt;String, Object&gt; createUpdateParams(final FilerDemographicDto filerDemographic) {
+<span class="nc" id="L147">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L148">        params.put(BatchConstants.PARAM_TAX_YEAR, filerDemographic.getId().getTaxYear());</span>
+     /*   BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_CASE_APPLICATION_ID, params, filerDemographic.getRecepientCaseApplicationId());*/
+<span class="nc" id="L150">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_FIRST_NAME, params, filerDemographic.getRecipientFirstName());</span>
+<span class="nc" id="L151">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_MIDDLE_NAME, params, filerDemographic.getRecipientMiddleName());</span>
+<span class="nc" id="L152">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_LAST_NAME, params, filerDemographic.getRecipientLastName());</span>
+<span class="nc" id="L153">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_SUFFIX_NAME, params, filerDemographic.getRecepientSuffixName());</span>
+<span class="nc" id="L154">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_SSN, params, filerDemographic.getRecipientSsn());</span>
+<span class="nc" id="L155">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_TIN, params, filerDemographic.getRecipientTin());</span>
+<span class="nc" id="L156">        BatchUtils.setDate(BatchConstants.PARAM_RECIPIENT_DOB, params, filerDemographic.getRecipientDob());</span>
+<span class="nc" id="L157">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_ADDRESS_LINE_1, params, filerDemographic.getRecipientAddressLine1());</span>
+<span class="nc" id="L158">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_ADDRESS_LINE_2, params, filerDemographic.getRecipientAddressLine2());</span>
+<span class="nc" id="L159">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_CITY, params, filerDemographic.getRecipientCity());</span>
+<span class="nc" id="L160">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_STATE, params, filerDemographic.getRecipientState());</span>
+<span class="nc" id="L161">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_ZIP_5, params, filerDemographic.getRecepientZip5());</span>
+<span class="nc" id="L162">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_ZIP_4, params, filerDemographic.getRecepientZip4());</span>
+<span class="nc" id="L163">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_E_MAIL, params, filerDemographic.getEMail());</span>
+<span class="nc" id="L164">        BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_LANGUAGE_PREFERENCE, params, filerDemographic.getLanguagePreference());</span>
+<span class="nc" id="L165">        BatchUtils.setString(BatchConstants.PARAM_POLICY_ORIGIN, params, filerDemographic.getPolicyOrigin());</span>
+<span class="nc" id="L166">        BatchUtils.setString(BatchConstants.PARAM_SHOP_IDENTIFIER, params, filerDemographic.getShopIdentifier());</span>
+<span class="nc" id="L167">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_NAME, params, filerDemographic.getEmployerName());</span>
+<span class="nc" id="L168">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_IDENTIFICATION_NUMBER, params, filerDemographic.getEmployerIdentificationNumber());</span>
+<span class="nc" id="L169">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_CONTACT_NO, params, filerDemographic.getEmployerContactNo());</span>
+<span class="nc" id="L170">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_ADDRESS_LINE_1, params, filerDemographic.getEmployerAddressLine1());</span>
+<span class="nc" id="L171">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_ADDRESS_LINE_2, params, filerDemographic.getEmployerAddressLine2());</span>
+<span class="nc" id="L172">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_CITY_OR_TOWN, params, filerDemographic.getEmployerCityOrTown());</span>
+<span class="nc" id="L173">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_STATE_OR_PROVINCE, params, filerDemographic.getEmployerStateOrProvince());</span>
+<span class="nc" id="L174">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_COUNTRY, params, filerDemographic.getEmployerCountry());</span>
+<span class="nc" id="L175">        BatchUtils.setString(BatchConstants.PARAM_EMPLOYER_ZIP_OR_POSTAL_CODE, params, filerDemographic.getZipOrPostalCode());</span>
+<span class="nc" id="L176">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_NAME, params, filerDemographic.getProviderName());</span>
+<span class="nc" id="L177">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_IDENTIFICATION_NUMBER, params, filerDemographic.getProviderIdentificationNumber());</span>
+<span class="nc" id="L178">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_CONTACT_NO, params, filerDemographic.getProviderContactNo());</span>
+<span class="nc" id="L179">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_ADDRESS_LINE_1, params, filerDemographic.getProviderAddressLine1());</span>
+<span class="nc" id="L180">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_ADDRESS_LINE_2, params, filerDemographic.getProviderAddressLine2());</span>
+<span class="nc" id="L181">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_CITY_OR_TOWN, params, filerDemographic.getProviderCityOrTown());</span>
+<span class="nc" id="L182">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_STATE_OR_PROVINCE, params, filerDemographic.getProviderStateOrProvince());</span>
+<span class="nc" id="L183">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_COUNTRY, params, filerDemographic.getProviderCountry());</span>
+<span class="nc" id="L184">        BatchUtils.setString(BatchConstants.PARAM_PROVIDER_ZIP_OR_POSTAL_CODE, params, filerDemographic.getProviderZipOrPostalCode());</span>
+<span class="nc" id="L185">        BatchUtils.setString(BatchConstants.PARAM_FILER_STATUS, params, filerDemographic.getFilerStatus());</span>
+<span class="nc" id="L186">        BatchUtils.setString(BatchConstants.PARAM_RESPONSIBLE_PERSON_UNIQUE_ID, params, filerDemographic.getResponsiblePersonUniqueId());</span>
+<span class="nc" id="L187">        BatchUtils.setString(BatchConstants.PARAM_COMMUNICATION_PREFERENCE, params, filerDemographic.getCommunicationPreference());</span>
+<span class="nc" id="L188">        BatchUtils.setString(BatchConstants.PARAM_CORRECTION_CODE, params, filerDemographic.getCorrection());</span>
+<span class="nc" id="L189">        BatchUtils.setString(BatchConstants.PARAM_JAN, params, filerDemographic.getJan());</span>
+<span class="nc" id="L190">        BatchUtils.setString(BatchConstants.PARAM_FEB, params, filerDemographic.getFeb());</span>
+<span class="nc" id="L191">        BatchUtils.setString(BatchConstants.PARAM_MAR, params, filerDemographic.getMar());</span>
+<span class="nc" id="L192">        BatchUtils.setString(BatchConstants.PARAM_APR, params, filerDemographic.getApr());</span>
+<span class="nc" id="L193">        BatchUtils.setString(BatchConstants.PARAM_MAY, params, filerDemographic.getMay());</span>
+<span class="nc" id="L194">        BatchUtils.setString(BatchConstants.PARAM_JUN, params, filerDemographic.getJun());</span>
+<span class="nc" id="L195">        BatchUtils.setString(BatchConstants.PARAM_JUL, params, filerDemographic.getJul());</span>
+<span class="nc" id="L196">        BatchUtils.setString(BatchConstants.PARAM_AUG, params, filerDemographic.getAug());</span>
+<span class="nc" id="L197">        BatchUtils.setString(BatchConstants.PARAM_SEP, params, filerDemographic.getSep());</span>
+<span class="nc" id="L198">        BatchUtils.setString(BatchConstants.PARAM_OCT, params, filerDemographic.getOct());</span>
+<span class="nc" id="L199">        BatchUtils.setString(BatchConstants.PARAM_NOV, params, filerDemographic.getNov());</span>
+<span class="nc" id="L200">        BatchUtils.setString(BatchConstants.PARAM_DEC, params, filerDemographic.getDec());</span>
+<span class="nc" id="L201">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_BY, params, filerDemographic.getUpdatedBy());</span>
+<span class="nc" id="L202">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_DATE, params, filerDemographic.getUpdatedDt());</span>
+<span class="nc" id="L203">        BatchUtils.setString(BatchConstants.PARAM_MAILED_FORM, params, filerDemographic.getMailedForm());</span>
+        //BatchUtils.setString(BatchConstants.PARAM_PROGRAM_NAME, params, filerDemographic.getProgramName());
+<span class="nc" id="L205">        BatchUtils.setString(BatchConstants.BATCH_ID, params, filerDemographic.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L206">        BatchUtils.setString(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, params, filerDemographic.getId().getSourceUniqueId());</span>
+<span class="nc" id="L207">        BatchUtils.setString(BatchConstants.PARAM_SOURCE_CD, params, filerDemographic.getId().getSourceCd());</span>
+
+<span class="nc" id="L209">        return params;</span>
+    }
+
+    @Override
+    public int clearCoverage(FilerDemographicDto filerDemographic) {
+<span class="nc" id="L214">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L215">        BatchUtils.setString(BatchConstants.PARAM_JAN, params, &quot;0&quot;);</span>
+<span class="nc" id="L216">        BatchUtils.setString(BatchConstants.PARAM_FEB, params, &quot;0&quot;);</span>
+<span class="nc" id="L217">        BatchUtils.setString(BatchConstants.PARAM_MAR, params, &quot;0&quot;);</span>
+<span class="nc" id="L218">        BatchUtils.setString(BatchConstants.PARAM_APR, params, &quot;0&quot;);</span>
+<span class="nc" id="L219">        BatchUtils.setString(BatchConstants.PARAM_MAY, params, &quot;0&quot;);</span>
+<span class="nc" id="L220">        BatchUtils.setString(BatchConstants.PARAM_JUN, params, &quot;0&quot;);</span>
+<span class="nc" id="L221">        BatchUtils.setString(BatchConstants.PARAM_JUL, params, &quot;0&quot;);</span>
+<span class="nc" id="L222">        BatchUtils.setString(BatchConstants.PARAM_AUG, params, &quot;0&quot;);</span>
+<span class="nc" id="L223">        BatchUtils.setString(BatchConstants.PARAM_SEP, params, &quot;0&quot;);</span>
+<span class="nc" id="L224">        BatchUtils.setString(BatchConstants.PARAM_OCT, params, &quot;0&quot;);</span>
+<span class="nc" id="L225">        BatchUtils.setString(BatchConstants.PARAM_NOV, params, &quot;0&quot;);</span>
+<span class="nc" id="L226">        BatchUtils.setString(BatchConstants.PARAM_DEC, params, &quot;0&quot;);</span>
+<span class="nc" id="L227">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_BY, params, filerDemographic.getUpdatedBy());</span>
+<span class="nc" id="L228">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_DATE, params, filerDemographic.getUpdatedDt());</span>
+<span class="nc" id="L229">        BatchUtils.setString(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, params, filerDemographic.getId().getSourceUniqueId());</span>
+<span class="nc" id="L230">        BatchUtils.setString(BatchConstants.PARAM_SOURCE_CD, params, filerDemographic.getId().getSourceCd());</span>
+<span class="nc" id="L231">        return namedParameterJdbcTemplate.update(</span>
+                UPDATE_FILER_DEMOGRAPHICS_COVERAGE, params);
+    }
+
+    @Override
+    public int updateCoverage(FilerDemographicDto filerDemographic) {
+<span class="nc" id="L237">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L238">        BatchUtils.setString(BatchConstants.PARAM_JAN, params, filerDemographic.getJan());</span>
+<span class="nc" id="L239">        BatchUtils.setString(BatchConstants.PARAM_FEB, params, filerDemographic.getFeb());</span>
+<span class="nc" id="L240">        BatchUtils.setString(BatchConstants.PARAM_MAR, params, filerDemographic.getMar());</span>
+<span class="nc" id="L241">        BatchUtils.setString(BatchConstants.PARAM_APR, params, filerDemographic.getApr());</span>
+<span class="nc" id="L242">        BatchUtils.setString(BatchConstants.PARAM_MAY, params, filerDemographic.getMay());</span>
+<span class="nc" id="L243">        BatchUtils.setString(BatchConstants.PARAM_JUN, params, filerDemographic.getJun());</span>
+<span class="nc" id="L244">        BatchUtils.setString(BatchConstants.PARAM_JUL, params, filerDemographic.getJul());</span>
+<span class="nc" id="L245">        BatchUtils.setString(BatchConstants.PARAM_AUG, params, filerDemographic.getAug());</span>
+<span class="nc" id="L246">        BatchUtils.setString(BatchConstants.PARAM_SEP, params, filerDemographic.getSep());</span>
+<span class="nc" id="L247">        BatchUtils.setString(BatchConstants.PARAM_OCT, params, filerDemographic.getOct());</span>
+<span class="nc" id="L248">        BatchUtils.setString(BatchConstants.PARAM_NOV, params, filerDemographic.getNov());</span>
+<span class="nc" id="L249">        BatchUtils.setString(BatchConstants.PARAM_DEC, params, filerDemographic.getDec());</span>
+<span class="nc" id="L250">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_BY, params, filerDemographic.getUpdatedBy());</span>
+<span class="nc" id="L251">        BatchUtils.setString(BatchConstants.PARAM_UPDATED_DATE, params, filerDemographic.getUpdatedDt());</span>
+<span class="nc" id="L252">        BatchUtils.setString(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, params, filerDemographic.getId().getSourceUniqueId());</span>
+<span class="nc" id="L253">        BatchUtils.setString(BatchConstants.PARAM_SOURCE_CD, params, filerDemographic.getId().getSourceCd());</span>
+<span class="nc" id="L254">        return namedParameterJdbcTemplate.update(</span>
+                UPDATE_FILER_DEMOGRAPHICS_COVERAGE, params);
+    }
+
+    /**
+     * @param filerDemographic
+     */
+    public List&lt;FilerDemographicDto&gt; getFilerDemographic(final FilerDemographicDto filerDemographic) {
+<span class="nc" id="L262">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L263">        BatchUtils.setStringWithoutEmpty(BatchConstants.PARAM_RECIPIENT_SSN, params, filerDemographic.getRecipientSsn());</span>
+<span class="nc" id="L264">        BatchUtils.setStringWithoutEmpty(BatchConstants.PARAM_RECIPIENT_TIN, params, filerDemographic.getRecipientTin());</span>
+<span class="nc" id="L265">        return this.namedParameterJdbcTemplate.query(SELECT_FILER_DEMOGRAPHICS, params, new FilerDemographicsMapper());</span>
+    }
+
+    @Override
+    public List&lt;FilerDemographicDto&gt; findAll(Set&lt;FilerDemographicPKDto&gt; ids) {
+<span class="nc" id="L270">        return null;</span>
+    }
+
+    @Override
+    public void bulkToggleActive(Collection&lt;FilerDemographicPKDto&gt; idsToDeactivate, final boolean active) {
+<span class="nc" id="L275">        jdbcTemplate.batchUpdate(TOGGLE_FILER_DEMOGRAPHICS_ACTIVE,</span>
+                idsToDeactivate, batchSize,
+<span class="nc" id="L277">                new ParameterizedPreparedStatementSetter&lt;FilerDemographicPKDto&gt;() {</span>
+                    @Override
+                    public void setValues(
+                            PreparedStatement pStatement,
+                            FilerDemographicPKDto id) throws SQLException {
+<span class="nc" id="L282">                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd hh:mm:ss a&quot;);</span>
+<span class="nc" id="L283">                        Date currentDate = new Date();</span>
+<span class="nc" id="L284">                        String currentTime = simpleDateFormat.format(currentDate);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                        BatchUtils.setString(1, pStatement, active ? STATUS_ACTIVE : STATUS_INACTIVE);</span>
+<span class="nc" id="L286">                        BatchUtils.setString(2, pStatement, BatchConstants.UPDATED_BY_NAME);</span>
+<span class="nc" id="L287">                        BatchUtils.setString(3, pStatement, currentTime);</span>
+<span class="nc" id="L288">                        BatchUtils.setString(4, pStatement, id.getSourceUniqueId());</span>
+<span class="nc" id="L289">                        BatchUtils.setString(5, pStatement, id.getSourceCd());</span>
+<span class="nc" id="L290">                    }</span>
+                });
+<span class="nc" id="L292">    }</span>
+
+    @Override
+    public void bulkMarkRegenerate(final Collection&lt;FilerDemographicPKDto&gt; idsToMarkRegenerate) {
+<span class="nc" id="L296">        final String sql = &quot;update FILER_DEMOGRAPHICS &quot;</span>
+                + &quot; set FORM_STATUS = ?, UPDATED_BY = ?, UPDATED_DATE = ?&quot;
+                + &quot; where SOURCE_UNIQUE_ID = ? and SOURCE_CD = ? and FORM_STATUS = ?&quot;;
+<span class="nc" id="L299">        jdbcTemplate.batchUpdate(sql, idsToMarkRegenerate, batchSize,</span>
+<span class="nc" id="L300">                new ParameterizedPreparedStatementSetter&lt;FilerDemographicPKDto&gt;() {</span>
+                    @Override
+                    public void setValues(final PreparedStatement ps, final FilerDemographicPKDto id) throws SQLException {
+<span class="nc" id="L303">                        ps.setString(1, CommonDataConstants.FormStatus.FORM_STATUS_REGENERATE);</span>
+<span class="nc" id="L304">                        BatchUtils.setString(2, ps, BatchConstants.UPDATED_BY_NAME);</span>
+<span class="nc" id="L305">                        BatchUtils.setCurrentDate(3, ps);</span>
+<span class="nc" id="L306">                        ps.setString(4, id.getSourceUniqueId());</span>
+<span class="nc" id="L307">                        ps.setString(5, id.getSourceCd());</span>
+<span class="nc" id="L308">                        ps.setString(6, CommonDataConstants.FormStatus.FORM_STATUS_GENERATED);</span>
+<span class="nc" id="L309">                    }</span>
+                });
+<span class="nc" id="L311">    }</span>
+
+    @Override
+    public void updateTransmissionStatusCodes(
+            final Set&lt;FilerDemographicPKDto&gt; ids, final String transmissionStatusCode) {
+<span class="nc" id="L316">        final String sql = &quot;update FILER_DEMOGRAPHICS&quot;</span>
+                + &quot; set IRS_TRANSMISSION_STATUS_CD = ?&quot;
+                + &quot; where SOURCE_UNIQUE_ID = ? and SOURCE_CD = ?&quot;;
+<span class="nc" id="L319">        jdbcTemplate.batchUpdate(sql, ids, batchSize,</span>
+<span class="nc" id="L320">                new ParameterizedPreparedStatementSetter&lt;FilerDemographicPKDto&gt;() {</span>
+                    @Override
+                    public void setValues(PreparedStatement ps, FilerDemographicPKDto id) throws SQLException {
+<span class="nc" id="L323">                        ps.setString(1, transmissionStatusCode);</span>
+<span class="nc" id="L324">                        ps.setString(2, id.getSourceUniqueId());</span>
+<span class="nc" id="L325">                        ps.setString(3, id.getSourceCd());</span>
+<span class="nc" id="L326">                    }</span>
+                });
+<span class="nc" id="L328">    }</span>
+
+    @Override
+    public long filerDemoSeqCurrentValue() {
+<span class="nc" id="L332">        return jdbcTemplate.queryForObject(SELECT_FILER_DEMO_SEQ_CURRENT_VAL, Long.class);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

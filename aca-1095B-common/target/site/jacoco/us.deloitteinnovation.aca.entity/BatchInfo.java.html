@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">BatchInfo.java</span></div><h1>BatchInfo.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
+/**
+ * The persistent class for the batch_info database table.
+ */
+@Entity
+@Table(name = &quot;batch_info&quot;)
+public class BatchInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = &quot;batch_info_seq&quot;)
+    @SequenceGenerator(name = &quot;batch_info_seq&quot;, sequenceName = &quot;batch_info_seq&quot;)
+    @Column(name = &quot;BATCH_ID&quot;)
+    private int batchId;
+
+    @Column(name = &quot;AGENCY_CD&quot;)
+    private String agencyCd;
+
+    @Column(name = &quot;EXCEPTION_REPORT_ID&quot;)
+    private Integer exceptionReportId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;RECEIVE_DATE&quot;)
+    private Date receiveDt;
+
+    @Column(name = &quot;STATE_CD&quot;)
+    private String stateCd;
+
+    @Column(name = &quot;SYSTEM_CD&quot;)
+    private String systemCd;
+
+    @Column(name = &quot;TOTAL_COUNT&quot;)
+    private Integer totalCount;
+
+    @Column(name = &quot;TOTAL_FAIL&quot;)
+    private Integer totalFail;
+
+    @Column(name = &quot;TOTAL_PASS&quot;)
+    private Integer totalPass;
+
+    @OneToMany(mappedBy = &quot;batchInfo&quot;)
+    private List&lt;FilerDemographic&gt; filerDemographics;
+
+    @Column(name = &quot;FILENAME&quot;)
+    private String fileName;
+
+    @Column(name = &quot;REQUISITION_ID&quot;)
+    private String requisitionId;
+
+
+    @Column(name = &quot;INVOICE_UID&quot;)
+    private String invoiceUid;
+
+    @Column(name = &quot;BATCH_TYPE&quot;)
+    private String batchType;
+
+    @Transient
+    private String sourceCode;
+
+<span class="fc" id="L68">    public BatchInfo() {</span>
+<span class="fc" id="L69">    }</span>
+
+    public int getBatchId() {
+<span class="nc" id="L72">        return this.batchId;</span>
+    }
+
+    public void setBatchId(int batchId) {
+<span class="nc" id="L76">        this.batchId = batchId;</span>
+<span class="nc" id="L77">    }</span>
+
+    public String getAgencyCd() {
+<span class="nc" id="L80">        return this.agencyCd;</span>
+    }
+
+    public void setAgencyCd(String agencyCd) {
+<span class="nc" id="L84">        this.agencyCd = agencyCd;</span>
+<span class="nc" id="L85">    }</span>
+
+    public int getExceptionReportId() {
+<span class="nc" id="L88">        return this.exceptionReportId;</span>
+    }
+
+    public void setExceptionReportId(int exceptionReportId) {
+<span class="nc" id="L92">        this.exceptionReportId = exceptionReportId;</span>
+<span class="nc" id="L93">    }</span>
+
+    public Date getReceiveDt() {
+<span class="nc" id="L96">        return this.receiveDt;</span>
+    }
+
+    public void setReceiveDt(Date receiveDt) {
+<span class="nc" id="L100">        this.receiveDt = receiveDt;</span>
+<span class="nc" id="L101">    }</span>
+
+    public String getStateCd() {
+<span class="nc" id="L104">        return this.stateCd;</span>
+    }
+
+    public void setStateCd(String stateCd) {
+<span class="nc" id="L108">        this.stateCd = stateCd;</span>
+<span class="nc" id="L109">    }</span>
+
+    public String getSystemCd() {
+<span class="nc" id="L112">        return this.systemCd;</span>
+    }
+
+    public void setSystemCd(String systemCd) {
+<span class="nc" id="L116">        this.systemCd = systemCd;</span>
+<span class="nc" id="L117">    }</span>
+
+    public int getTotalCount() {
+<span class="nc" id="L120">        return this.totalCount;</span>
+    }
+
+    public void setTotalCount(int totalCount) {
+<span class="nc" id="L124">        this.totalCount = totalCount;</span>
+<span class="nc" id="L125">    }</span>
+
+    public int getTotalFail() {
+<span class="nc" id="L128">        return this.totalFail;</span>
+    }
+
+    public void setTotalFail(int totalFail) {
+<span class="nc" id="L132">        this.totalFail = totalFail;</span>
+<span class="nc" id="L133">    }</span>
+
+    public int getTotalPass() {
+<span class="nc" id="L136">        return this.totalPass;</span>
+    }
+
+    public void setTotalPass(int totalPass) {
+<span class="nc" id="L140">        this.totalPass = totalPass;</span>
+<span class="nc" id="L141">    }</span>
+
+    public int getInvoiceUid() {
+<span class="nc" id="L144">        return Integer.parseInt(invoiceUid);</span>
+    }
+
+    public void setInvoiceUid(int invoiceUid) {
+<span class="nc" id="L148">        this.invoiceUid = Integer.toString(invoiceUid);</span>
+<span class="nc" id="L149">    }</span>
+
+    public String getBatchType() {
+<span class="nc" id="L152">        return batchType;</span>
+    }
+
+    public void setBatchType(String batchType) {
+<span class="nc" id="L156">        this.batchType = batchType;</span>
+<span class="nc" id="L157">    }</span>
+
+    /**
+     * @return the filerDemographics
+     */
+    public List&lt;FilerDemographic&gt; getFilerDemographics() {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (null == filerDemographics) {</span>
+<span class="nc" id="L164">            filerDemographics = new ArrayList&lt;&gt;();</span>
+        }
+<span class="nc" id="L166">        return filerDemographics;</span>
+    }
+
+    /**
+     * @param filerDemographics the filerDemographics to set
+     */
+    public void setFilerDemographics(List&lt;FilerDemographic&gt; filerDemographics) {
+<span class="nc" id="L173">        this.filerDemographics = filerDemographics;</span>
+<span class="nc" id="L174">    }</span>
+
+
+    public String getSourceCode() {
+<span class="nc" id="L178">        return sourceCode;</span>
+    }
+
+    public void setSourceCode(String sourceCode) {
+<span class="nc" id="L182">        this.sourceCode = sourceCode;</span>
+<span class="nc" id="L183">    }</span>
+
+    public String getFileName() {
+<span class="nc" id="L186">        return fileName;</span>
+    }
+
+    public void setFileName(String fileName) {
+<span class="nc" id="L190">        this.fileName = fileName;</span>
+<span class="nc" id="L191">    }</span>
+
+    public int getRequisitionId() {
+<span class="nc" id="L194">        return Integer.parseInt(requisitionId);</span>
+    }
+
+    public void setRequisitionId(int requisitionId) {
+<span class="nc" id="L198">        this.requisitionId = Integer.toString(requisitionId);</span>
+<span class="nc" id="L199">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

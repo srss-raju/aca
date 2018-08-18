@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerVerificationSkipListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.listener</a> &gt; <span class="el_source">FilerVerificationSkipListener.java</span></div><h1>FilerVerificationSkipListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.listener;
+
+import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.SkipListener;
+import org.springframework.batch.item.file.FlatFileParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.batch.service.ExceptionReportService;
+import us.deloitteinnovation.aca.entity.FilerDemographicStagingEntity;
+
+/**
+ * Created by bhchaganti on 9/21/2016.
+ */
+<span class="nc" id="L18">public class FilerVerificationSkipListener implements SkipListener {</span>
+<span class="nc" id="L19">    private final static Logger LOGGER = LoggerFactory.getLogger(us.deloitteinnovation.aca.batch.listener.FilerVerificationSkipListener.class);</span>
+    @Autowired
+    ExceptionReportService exceptionReportService;
+    @Autowired
+    BatchInfoDto batchInfoDto;
+    StringBuilder errorMessageSb;
+
+    @Override
+    public void onSkipInRead(Throwable throwable) {
+<span class="nc" id="L28">        errorMessageSb = new StringBuilder();</span>
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (throwable instanceof FlatFileParseException) {</span>
+<span class="nc" id="L31">            FlatFileParseException flatFileParseException = (FlatFileParseException) throwable;</span>
+
+<span class="nc" id="L33">            errorMessageSb.append(&quot;Error occurred while processing line#: &quot; + Integer.valueOf(flatFileParseException.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP));</span>
+<span class="nc" id="L34">            errorMessageSb.append(&quot;\nFaulty line: &quot; + flatFileParseException.getInput());</span>
+
+<span class="nc" id="L36">            ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L37">            exceptionReportDto.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L38">            exceptionReportDto.setRowNumber(flatFileParseException.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+<span class="nc" id="L39">            exceptionReportDto.setExDetails(errorMessageSb.toString());</span>
+<span class="nc" id="L40">            exceptionReportService.save(exceptionReportDto);</span>
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L43">                LOGGER.info(&quot;Skipped erroneous line#: &quot; + flatFileParseException.getLineNumber());</span>
+            }
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        } else if (throwable instanceof ConstraintViolationException) {</span>
+<span class="nc" id="L46">            ConstraintViolationException constraintViolationException = (ConstraintViolationException) throwable;</span>
+<span class="nc" id="L47">            errorMessageSb.append(&quot;Constraint Violation occurred&quot;);</span>
+<span class="nc" id="L48">            errorMessageSb.append(&quot;Violation message:&quot; + constraintViolationException.getMessage());</span>
+
+<span class="nc" id="L50">            ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L51">            exceptionReportDto.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L52">            exceptionReportDto.setExDetails(errorMessageSb.toString());</span>
+<span class="nc" id="L53">            exceptionReportService.save(exceptionReportDto);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L56">                LOGGER.info(&quot;Constraint violation, skipped reading this record&quot;);</span>
+            }
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        } else if (throwable instanceof Exception) {</span>
+
+<span class="nc" id="L60">            Exception exception = (Exception) throwable;</span>
+<span class="nc" id="L61">            errorMessageSb.append(&quot;Skipping reading this record&quot;);</span>
+<span class="nc" id="L62">            errorMessageSb.append(&quot;Message: &quot; + exception.getMessage());</span>
+
+<span class="nc" id="L64">            ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L65">            exceptionReportDto.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L66">            exceptionReportDto.setExDetails(errorMessageSb.toString());</span>
+<span class="nc" id="L67">            exceptionReportService.save(exceptionReportDto);</span>
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L70">                LOGGER.info(&quot;Exception occurred, skipped reading this record&quot;);</span>
+            }
+        }
+
+<span class="nc" id="L74">    }</span>
+
+    @Override
+    public void onSkipInWrite(Object o, Throwable throwable) {
+
+<span class="nc" id="L79">        FilerDemographicStagingEntity skippedEntity = (FilerDemographicStagingEntity) o;</span>
+<span class="nc" id="L80">        errorMessageSb = new StringBuilder();</span>
+<span class="nc" id="L81">        Exception exception = (Exception) throwable;</span>
+<span class="nc" id="L82">        errorMessageSb.append(&quot;Skipped writing record &quot; + skippedEntity.getSourceUniqueId());</span>
+<span class="nc" id="L83">        errorMessageSb.append(&quot;Exception Message: &quot; + exception.getMessage());</span>
+
+<span class="nc" id="L85">        ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L86">        exceptionReportDto.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L87">        exceptionReportDto.setExDetails(errorMessageSb.toString());</span>
+<span class="nc" id="L88">        exceptionReportDto.setSourceUniqueId(skippedEntity.getSourceUniqueId());</span>
+<span class="nc" id="L89">        exceptionReportService.save(exceptionReportDto);</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L92">            LOGGER.info(&quot;Skipped writing: &quot; + skippedEntity.getSourceUniqueId());</span>
+        }
+
+<span class="nc" id="L95">    }</span>
+
+    @Override
+    public void onSkipInProcess(Object o, Throwable throwable) {
+
+<span class="nc" id="L100">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

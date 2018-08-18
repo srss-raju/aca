@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoveredPersonMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">CoveredPersonMapper.java</span></div><h1>CoveredPersonMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import org.springframework.jdbc.core.RowMapper;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
+<span class="nc" id="L11">public class CoveredPersonMapper  implements RowMapper&lt;CoveredPerson&gt; {</span>
+
+    @Override
+    public CoveredPerson mapRow(ResultSet rs, int rowNum) throws SQLException {
+<span class="nc" id="L15">    	CoveredPerson cp = new CoveredPerson();</span>
+<span class="nc" id="L16">    	String name = rs.getString(CommonEntityConstants.RECIPIENT_FIRST_NAME) +&quot; &quot;+ rs.getString(CommonEntityConstants.RECIPIENT_LAST_NAME);</span>
+<span class="nc" id="L17">		String ssn = rs.getString(CommonDataConstants.RECIPIENT_SSN);</span>
+<span class="nc bnc" id="L18" title="All 2 branches missed.">		String jan = (rs.getString(CommonEntityConstants.JAN) != null)?rs.getString(CommonEntityConstants.JAN):&quot;0&quot;;</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">		String feb = (rs.getString(CommonEntityConstants.FEB) != null)?rs.getString(CommonEntityConstants.FEB):&quot;0&quot;;</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">		String mar = (rs.getString(CommonEntityConstants.MAR) != null)?rs.getString(CommonEntityConstants.MAR):&quot;0&quot;;</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">		String apr = (rs.getString(CommonEntityConstants.APR) != null)?rs.getString(CommonEntityConstants.APR):&quot;0&quot;;</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">		String may = (rs.getString(CommonEntityConstants.MAY) != null)?rs.getString(CommonEntityConstants.MAY):&quot;0&quot;;</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">		String jun = (rs.getString(CommonEntityConstants.JUN) != null)?rs.getString(CommonEntityConstants.JUN):&quot;0&quot;;</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">		String jul = (rs.getString(CommonEntityConstants.JUL) != null)?rs.getString(CommonEntityConstants.JUL):&quot;0&quot;;</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">		String aug = (rs.getString(CommonEntityConstants.AUG) != null)?rs.getString(CommonEntityConstants.AUG):&quot;0&quot;;</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">		String sep = (rs.getString(CommonEntityConstants.SEP) != null)?rs.getString(CommonEntityConstants.SEP):&quot;0&quot;;</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">		String oct = (rs.getString(CommonEntityConstants.OCT) != null)?rs.getString(CommonEntityConstants.OCT):&quot;0&quot;;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		String nov = (rs.getString(CommonEntityConstants.NOV) != null)?rs.getString(CommonEntityConstants.NOV):&quot;0&quot;;</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		String dec = (rs.getString(CommonEntityConstants.DEC) != null)?rs.getString(CommonEntityConstants.DEC):&quot;0&quot;;</span>
+<span class="nc" id="L30">		cp.setFirstName(rs.getString(CommonEntityConstants.RECIPIENT_FIRST_NAME));</span>
+<span class="nc" id="L31">		cp.setLastName(rs.getString(CommonEntityConstants.RECIPIENT_LAST_NAME));</span>
+<span class="nc" id="L32">		cp.setMiddleName(rs.getString(CommonEntityConstants.RECIPIENT_MIDDLE_NAME));</span>
+<span class="nc" id="L33">		cp.setSuffix(rs.getString(CommonEntityConstants.RECIPIENT_NAME_SUFFIX));</span>
+<span class="nc" id="L34">		cp.setName(name);</span>
+<span class="nc" id="L35">		cp.setDob(rs.getDate(CommonDataConstants.RECIPIENT_DOB).toString());</span>
+<span class="nc" id="L36">		cp.setSsn(ssn);</span>
+<span class="nc" id="L37">		cp.setTin(rs.getString(CommonDataConstants.RECIPIENT_TIN));</span>
+<span class="nc bnc" id="L38" title="All 4 branches missed.">    	cp.setJan((jan != null) ? (jan.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCHECKED);</span>
+<span class="nc bnc" id="L39" title="All 4 branches missed.">        cp.setFeb((feb != null) ? (feb.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        cp.setMar((mar != null) ? (mar.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        cp.setApr((apr != null) ? (apr.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">		cp.setMay((may != null) ? (may.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        cp.setJun((jun != null) ? (jun.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L44" title="All 4 branches missed.">        cp.setJul((jul != null) ? (jul.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        cp.setAug((aug != null) ? (aug.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">        cp.setSep((sep != null) ? (sep.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        cp.setOct((oct != null) ? (oct.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">        cp.setNov((nov != null) ? (nov.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L49" title="All 4 branches missed.">		cp.setDec((dec != null) ? (dec.equals(CommonEntityConstants.COVERED) ? CommonEntityConstants.COVERED : CommonEntityConstants.UNCOVERED) : CommonEntityConstants.UNCOVERED);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if(jan.equals(CommonEntityConstants.COVERED) &amp;&amp;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        		feb.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        		mar.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        		apr.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        		may.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        		jun.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        		jul.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        		aug.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        		sep.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        		oct.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        		nov.equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        		dec.equals(CommonEntityConstants.COVERED)){</span>
+<span class="nc" id="L62">        	cp.setAll(CommonEntityConstants.CHECKED);</span>
+        }else
+		{
+<span class="nc" id="L65">			cp.setAll(CommonEntityConstants.UNCHECKED);</span>
+		}
+
+<span class="nc" id="L68">        return cp;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

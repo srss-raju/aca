@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3CorrectedRecordsValidationUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.utils</a> &gt; <span class="el_source">Step3CorrectedRecordsValidationUtils.java</span></div><h1>Step3CorrectedRecordsValidationUtils.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3DataValidationException;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.text.MessageFormat;
+import java.util.List;
+
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.FORMAT_PLACEHOLDER_STR;
+
+/**
+ * Created by tthakore on 10/27/2016.
+ */
+<span class="fc" id="L19">public class Step3CorrectedRecordsValidationUtils {</span>
+
+<span class="fc" id="L21">    private static Logger logger = LoggerFactory.getLogger(Step3CorrectedRecordsValidationUtils.class);</span>
+    @Autowired
+    private Environment env;
+
+    public void validateCorrectedRecord(Step3FilerDataDto record, Step3FilerDataDto parent) throws Step3DataValidationException {
+        try {
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">            if (!validForSingleRecordCheck(record, parent))</span>
+<span class="nc" id="L28">                return;</span>
+
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">            if (!validForDatabaseRecordCheck(record, parent))</span>
+<span class="nc" id="L31">                return;</span>
+
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">            if (!validForFileRecordCheck(record, parent))</span>
+<span class="nc" id="L34">                return;</span>
+
+<span class="fc" id="L36">        } catch (Exception e) {</span>
+<span class="fc" id="L37">            logger.error(&quot;Error in record Step3CorrectedRecordsValidationUtils:validateCorrectedRecord performCrossRecordValidation&quot;, e);</span>
+<span class="fc" id="L38">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="fc" id="L39">            step3DataValidationException.setParent(parent.getFilersWithSameIdsInFile());</span>
+<span class="fc" id="L40">            step3DataValidationException.setErrorMessage(&quot;Exception in processing record for given source unique id hence all the records with given source unique id will be skipped : &quot; + record.getSourceUniqueId());</span>
+<span class="fc" id="L41">            throw step3DataValidationException;</span>
+<span class="fc" id="L42">        }</span>
+
+
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * check for validation if there is no record in the database and  file has no original record for corresponding
+     * correction we have to reject the record.
+     **/
+    public Boolean validForSingleRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+          /*If there is no record exists for current item in db or file it means it is a unique record scenario 1. it means no IID and UID matched with any db record.*/
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (parent.getFilersWithSameIdsInDB().isEmpty()) {</span>
+            // check if there is only one record with &quot;U&quot; and there is no original in file.
+<span class="pc bpc" id="L55" title="3 of 4 branches missed.">            if (parent.getFilersWithSameIdsInFile().size() == 1 &amp;&amp; parent.getFilersWithSameIdsInFile().get(0).getRowNumber().equals(record.getRowNumber())) {</span>
+<span class="nc" id="L56">                markRecordAsFailed(record, parent, &quot;ERROR.ER3.1.2.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L57">                return false;</span>
+            } else {
+<span class="fc" id="L59">                Integer originalRecordIndex = getOriginalRecordIndex(record, parent);</span>
+                //In case original record is after current record for correction reject the record.
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">                if ((originalRecordIndex == -1) || (Integer.valueOf(record.getRowNumber()) &lt; originalRecordIndex)) {</span>
+<span class="nc" id="L62">                    markRecordAsFailed(record, parent, &quot;ERROR.ER3.1.2.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L63">                    return false;</span>
+                }
+            }
+        }
+<span class="fc" id="L67">        return true;</span>
+    }
+
+    /**
+     * Function to retrieve information of original record index. takes parent record and current record as input parameters.
+     **/
+    public int getOriginalRecordIndex(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc" id="L74">        int recordIndex = -1;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (Step3FilerDataDto recordInFile : parent.getFilersWithSameIdsInFile()) {</span>
+<span class="pc bpc" id="L76" title="1 of 4 branches missed.">            if (Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(recordInFile.getRowNumber()) &amp;&amp; recordInFile.getSourceUniqueId().equals(record.getSourceUniqueId())</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                    &amp;&amp; recordInFile.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                    &amp;&amp; recordInFile.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED)) {</span>
+<span class="fc" id="L79">                recordIndex = Integer.valueOf(recordInFile.getRowNumber());</span>
+            }
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">        return recordIndex;</span>
+    }
+
+    /**
+     * Function to retrive information of original record index. takes parent record and current record as input parameters.
+     **/
+    public Step3FilerDataDto getOriginalRecordDB(Step3FilerDataDto record, List&lt;Step3FilerDataDto&gt; dbList) {
+<span class="fc" id="L89">        Step3FilerDataDto recordIndex = null;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (Step3FilerDataDto recordInFile : dbList) {</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (record.getUIDValue().equals(recordInFile.getUIDValue())) {</span>
+<span class="fc" id="L92">                recordIndex = recordInFile;</span>
+            }
+<span class="fc" id="L94">        }</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        return (recordIndex != null) ? recordIndex : null;</span>
+    }
+
+    /**
+     * Function loops through records in db and check if it is valid record or not if it is not a valid recrd mark it as rejected.
+     **/
+    public Boolean validForDatabaseRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+        /*IF there is any record exists  in the database for same UID we have to perform cross record validation on that record to verify we are getting same SSN, DOB and TIN or else reject the record*/
+
+        // check for record in DB with same SSN/TIN but different RID and reject the record if same ssn exists for other record.
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!checkForSameSsnDifferentRIDDB(record, parent))</span>
+<span class="nc" id="L106">            return false;</span>
+
+
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInDB()) {</span>
+
+<span class="fc" id="L111">            String itemUid = item.getUIDValue();</span>
+<span class="fc" id="L112">            String recordUid = record.getUIDValue();</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">            if (!processDBValidationRule(itemUid, recordUid, record, item, parent))</span>
+<span class="fc" id="L114">                return false;</span>
+<span class="nc" id="L115">        }</span>
+<span class="fc" id="L116">        return true;</span>
+    }
+
+    /**
+     * Function compares DB validation rule for current record and marks record as either accepted or rejected
+     **/
+    public Boolean processDBValidationRule(String itemUid,
+                                           String recordUid, Step3FilerDataDto record, Step3FilerDataDto item, Step3FilerDataDto parent) {
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (itemUid.equals(recordUid)) {</span>
+<span class="pc bpc" id="L125" title="3 of 4 branches missed.">            if (&quot;C&quot;.equals(record.getFilerStatus()) &amp;&amp; !checkForCoveredPersonValidation(record, item, &quot;DB&quot;)) {</span>
+<span class="nc" id="L126">                markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.7.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L127">                return false;</span>
+            }
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            if (!isValidForInActivationDBRrecord(record, parent)) {</span>
+<span class="nc" id="L130">                return false;</span>
+            }
+
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">            if (!isValidForActivationRuleCrecordforDB(record, parent)) {</span>
+<span class="nc" id="L134">                return false;</span>
+            }
+<span class="fc" id="L136">            markRecordAsPassed(record, parent);</span>
+<span class="fc" id="L137">            return false;// if you get a record in DB for an correction and it is a valid record to update in db no need to check for file.</span>
+        }
+
+<span class="nc" id="L140">        return true;</span>
+    }
+
+
+    /**
+     * Function compares DB records and check if there is any record with same ssn in DB with different RID.
+     * Also if there is nothing in DB we have to make sure that there is no maching SSN wich is going to get update from file as well.
+     **/
+    public Boolean checkForSameSsnDifferentRIDDB(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInDB()) {</span>
+
+<span class="fc" id="L151">            String itemUid = item.getUIDValue();</span>
+<span class="fc" id="L152">            String itemSid = item.getSIDValue();</span>
+<span class="fc" id="L153">            String itemTid = item.getTIDValue();</span>
+<span class="fc" id="L154">            String recordUid = record.getUIDValue();</span>
+<span class="fc" id="L155">            String recordSid = record.getSIDValue();</span>
+<span class="fc" id="L156">            String recordTid = record.getTIDValue();</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">            if (!itemUid.equals(recordUid)) {</span>
+<span class="nc bnc" id="L158" title="All 8 branches missed.">                if ((itemSid.equals(recordSid) &amp;&amp; !&quot;NA&quot;.equals(recordSid)) || (itemTid.equals(recordTid) &amp;&amp; !&quot;NA&quot;.equals(recordTid))) {//Test to check same SSN different RID's and reject record DB record.</span>
+<span class="nc" id="L159">                    markRecordAsFailed(record, parent, &quot;CORRECTION.ER_CV5.1.6.2&quot;, item.getSourceUniqueId(), true);</span>
+<span class="nc" id="L160">                    return false;</span>
+                }
+            }
+<span class="fc" id="L163">        }</span>
+<span class="fc" id="L164">        return checkForSameSsnDifferentRIDFILE(record, parent);</span>
+    }
+
+    /**
+     * Function compares DB records and check if there is any record with same ssn in DB with different RID.
+     **/
+    public Boolean checkForSameSsnDifferentRIDFILE(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInFile()) {</span>
+
+<span class="fc" id="L173">            String itemUid = item.getUIDValue();</span>
+<span class="fc" id="L174">            String itemSid = item.getSIDValue();</span>
+<span class="fc" id="L175">            String itemTid = item.getTIDValue();</span>
+<span class="fc" id="L176">            String recordUid = record.getUIDValue();</span>
+<span class="fc" id="L177">            String recordSid = record.getSIDValue();</span>
+<span class="fc" id="L178">            String recordTid = record.getTIDValue();</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">            if (!itemUid.equals(recordUid)) {</span>
+<span class="nc bnc" id="L180" title="All 8 branches missed.">                if ((itemSid.equals(recordSid) &amp;&amp; !&quot;NA&quot;.equals(recordSid)) || (itemTid.equals(recordTid) &amp;&amp; !&quot;NA&quot;.equals(recordTid))) {//Test to check same SSN different RID's and reject record DB record.</span>
+<span class="nc" id="L181">                    markRecordAsFailed(record, parent, &quot;CORRECTION.ER_CV5.1.6.3&quot;, item.getSourceUniqueId(), true);</span>
+<span class="nc" id="L182">                    return false;</span>
+                }
+            }
+<span class="fc" id="L185">        }</span>
+<span class="fc" id="L186">        return true;</span>
+    }
+
+    /**
+     * validForFileRecordCheck()  Check if you are trying to send SSN/TIN that already present in the FILE and record is accepted
+     **/
+    public Boolean validForFileRecordCheck(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc" id="L193">        Boolean isValidRecord = false;</span>
+
+        /*Check if you are trying to send SSN/TIN that already present in the FILE and record is accepted*/
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (!checkForSameSsnDifferentRIDFILE(record, parent))</span>
+<span class="nc" id="L197">            return false;</span>
+
+         /*IF there are record in file with same  then loop through them and check for validation scenario 2 and 3 */
+<span class="fc bfc" id="L200" title="All 2 branches covered.">        for (Step3FilerDataDto item : parent.getFilersWithSameIdsInFile()) {</span>
+<span class="fc" id="L201">            String itemUid = item.getUIDValue();</span>
+<span class="fc" id="L202">            String recordUid = record.getUIDValue();</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">            if (!processFileValidationRules(itemUid, recordUid, item, record, parent))</span>
+<span class="nc" id="L204">                return false;</span>
+
+            //commenting validation of active inactive record in file. since we have to decide wether it is allowed as part of same file or not.
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">            if (!isValidForActivationFILERrecord(record, parent)) {</span>
+<span class="nc" id="L208">                return false;</span>
+            }
+
+            // if there is no original record in file or db for update we have to reject the record.
+<span class="pc bpc" id="L212" title="1 of 4 branches missed.">            if ((itemUid.equals(recordUid)) &amp;&amp; item.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)</span>
+<span class="pc bpc" id="L213" title="2 of 4 branches missed.">                    &amp;&amp; item.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED) &amp;&amp; (Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(item.getRowNumber()))) {</span>
+<span class="fc" id="L214">                isValidRecord = true;</span>
+            }
+<span class="fc" id="L216">        }</span>
+
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (isValidRecord) {</span>
+<span class="fc" id="L219">            markRecordAsPassed(record, parent);</span>
+        } else {
+<span class="nc" id="L221">            markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.4.1&quot;, record.getSourceUniqueId());</span>
+        }
+<span class="fc" id="L223">        return true;</span>
+    }
+
+
+    /**
+     * processFileValidationRules will be checking validation rule for C record.
+     **/
+    protected Boolean processFileValidationRules(String itemUid,
+                                                 String recordUid, Step3FilerDataDto item, Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        if ((Integer.valueOf(record.getRowNumber()) &gt; Integer.valueOf(item.getRowNumber()))</span>
+<span class="pc bpc" id="L233" title="2 of 4 branches missed.">                &amp;&amp; (itemUid.equals(recordUid)) &amp;&amp; &quot;C&quot;.equals(record.getFilerStatus())</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                &amp;&amp; !checkForCoveredPersonValidation(record, item, &quot;FILE&quot;)) {</span>
+<span class="nc" id="L235">            markRecordAsFailed(record, parent, &quot;UPDATE.ER_CV5.1.7.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L236">            return false;</span>
+        }
+<span class="fc" id="L238">        return true;</span>
+    }
+
+    /**
+     * checkForCoveredPersonValidation() function is created to validate covered person validation tule
+     * since user is not allowed to change responsible person with C.
+     *
+     * @param record   :- record to process
+     * @param item     :- to check against.
+     * @param itemType :- DB vs File.
+     **/
+    protected Boolean checkForCoveredPersonValidation(Step3FilerDataDto record, Step3FilerDataDto item, String itemType) {
+<span class="nc" id="L250">        Boolean recordValidForValidation = true;</span>
+
+<span class="nc bnc" id="L252" title="All 4 branches missed.">        if (itemType == &quot;DB&quot; &amp;&amp; !item.getResponsiblePersonUniqueId().equals(record.getResponsiblePersonUniqueId())) {</span>
+<span class="nc" id="L253">            recordValidForValidation = false;</span>
+        }
+
+<span class="nc bnc" id="L256" title="All 4 branches missed.">        if (itemType == &quot;FILE&quot; &amp;&amp; !item.getResponsiblePersonUniqueId().equals(record.getResponsiblePersonUniqueId())</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">                &amp;&amp; item.getRecordStatus() != null</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">                &amp;&amp; item.getRecordStatus().equals(CommonDataConstants.VALIDATION_RULE_PASSED)) {// If item is not validation passed we can not compare it with current record comaprison has to be done with valid record.</span>
+<span class="nc" id="L259">            recordValidForValidation = false;</span>
+        }
+<span class="nc" id="L261">        return recordValidForValidation;</span>
+    }
+
+
+    /**
+     * isValidForActivationDBRrecord() will check records in database and check wether record is valid for activation rule or not. Checks are saperate for file and DB
+     * so they are handeled in different methods
+     **/
+    public Boolean isValidForInActivationDBRrecord(Step3FilerDataDto record, Step3FilerDataDto parent) {
+
+
+<span class="pc bpc" id="L272" title="2 of 4 branches missed.">        if (&quot;R&quot;.equals(record.getFilerStatus()) &amp;&amp; !record.getCoveredPersonList().isEmpty()</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                &amp;&amp; (CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageBeginDt().toString())</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                &amp;&amp; CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageEndDt().toString()))) {</span>
+<span class="nc" id="L275">            isInactivationForCoveredPersonAvailableInFile(record.getCoveredPersonList(), record);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">            for (Step3FilerDataDto item : record.getCoveredPersonList()) {</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                if (&quot;ACTIVE&quot;.equals(item.getStatus())) {</span>
+                    // the reason we have this condition is to separate out logic for activation between file and DB so that if in future if you have different validation messages you can put it on correct place.
+<span class="nc bnc" id="L279" title="All 2 branches missed.">                    if (CommonDataConstants.RECORD_VALIDATION_TYPE_DB.equals(item.getRecordSource())) {</span>
+<span class="nc" id="L280">                        markRecordAsFailed(record, parent, &quot;CORRECTION.ER_CV5.2.3.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L281">                        return false;</span>
+                    }
+                }
+<span class="nc" id="L284">            }</span>
+        }
+<span class="fc" id="L286">        return true;</span>
+    }
+
+    /**
+     * *  isValidForActivationFILERrecord() will check records in File and check wether record is valid for activation rule or not. Checks are saperate for file and DB
+     * so they are handled in different methods
+     **/
+    public Boolean isValidForActivationFILERrecord(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">        if ((CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageBeginDt().toString())</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                &amp;&amp; CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageEndDt().toString()))) {</span>
+<span class="nc" id="L296">            markRecordAsFailed(record, parent, &quot;CORRECTION.ER_CV5.2.5.1&quot;, record.getSourceUniqueId());</span>
+<span class="nc" id="L297">            return false;</span>
+        }
+<span class="fc" id="L299">        return true;</span>
+    }
+
+    /**
+     * Below function will take care of  Rule no 5.2.4 ICD  if records are there in db
+     **/
+    public Boolean isValidForActivationRuleCrecordforDB(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc" id="L306">        Step3FilerDataDto recordInDb = getOriginalRecordDB(record, parent.getFilersWithSameIdsInDB());</span>
+<span class="pc bpc" id="L307" title="3 of 4 branches missed.">        if (&quot;C&quot;.equals(record.getFilerStatus()) &amp;&amp; (recordInDb != null)</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                &amp;&amp; CommonDataConstants.RECORD_STATUS_INACTIVE.equals(recordInDb.getStatus())) {</span>
+
+<span class="nc" id="L310">            checkForRpersonActivationinFile(record, record.getResposiblePersonList());</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">            for (Step3FilerDataDto item : record.getResposiblePersonList()) {</span>
+<span class="nc bnc" id="L312" title="All 4 branches missed.">                if (CommonDataConstants.RECORD_VALIDATION_TYPE_DB.equals(item.getRecordSource()) &amp;&amp; CommonDataConstants.RECORD_STATUS_INACTIVE.equals(item.getStatus())</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">                        &amp;&amp; !(CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageBeginDt().toString())</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                        &amp;&amp; !CommonDataConstants.RECORD_INACTIVE_DATE.equals(record.getFilerCoverage().getOrigCoverageEndDt().toString()))) {</span>
+<span class="nc" id="L315">                    markRecordAsFailed(record, parent, &quot;CORRECTION.ER_CV5.2.4.1&quot;, item.getSourceUniqueId());</span>
+<span class="nc" id="L316">                    return false;</span>
+                }
+<span class="nc" id="L318">            }</span>
+        }
+<span class="fc" id="L320">        return true;</span>
+    }
+
+    /**
+     * markRecordAsPassed() is a generic function to mark available record as passed.
+     **/
+    protected void markRecordAsPassed(Step3FilerDataDto record, Step3FilerDataDto parent) {
+<span class="fc" id="L327">        record.setRecordStatus(CommonDataConstants.VALIDATION_RULE_PASSED);</span>
+<span class="fc" id="L328">        record.setBDMessage(env.getProperty(&quot;CORRECTION.ACCEPTED&quot;));</span>
+        /* Add item to Accepted records bucket*/
+<span class="fc" id="L330">        parent.getAcceptedRecordList().add(record);</span>
+<span class="fc" id="L331">    }</span>
+
+
+    /**
+     * *  markRecordAsFailed() is a generic function to mark all the record as failed which are passed to it. and adding the record to rejected record list
+     *
+     * @param record       : record which we are marking as failed
+     * @param parent       : parent container of record to mark passed or failed.
+     * @param validatiomsg : validation message property name to be dispplayed from property files.
+     * @param uidToDisplay : source unique id we want to display in business decision log table
+     **/
+    public void markRecordAsFailed(Step3FilerDataDto record, Step3FilerDataDto parent, String validatiomsg, String uidToDisplay) {
+
+<span class="nc" id="L344">        markRecordAsFailed(record, parent, validatiomsg, uidToDisplay, false);</span>
+<span class="nc" id="L345">    }</span>
+
+    private void markRecordAsFailed(Step3FilerDataDto record, Step3FilerDataDto parent, String validatiomsg, String uidToDisplay, boolean appendRid) {
+<span class="fc" id="L348">        String message = env.getProperty(validatiomsg);</span>
+<span class="fc" id="L349">        StringBuilder bdMessage = new StringBuilder();</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        if (message.contains(FORMAT_PLACEHOLDER_STR)) {</span>
+<span class="nc" id="L351">            bdMessage.append(String.format(message, uidToDisplay));</span>
+        } else {
+<span class="nc" id="L353">            bdMessage.append(message);</span>
+        }
+<span class="nc" id="L355">        logger.warn(&quot;Validation rule for Correction failed. &quot; + validatiomsg);</span>
+<span class="nc" id="L356">        record.setRecordStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        if (appendRid) {</span>
+<span class="nc" id="L358">            bdMessage.append(String.valueOf(uidToDisplay));</span>
+        }
+<span class="nc" id="L360">        record.setBDMessage(bdMessage.toString());</span>
+        /* Add item to rejected records bucket*/
+<span class="nc" id="L362">        parent.getRejectedRecordList().add(record);</span>
+<span class="nc" id="L363">    }</span>
+
+    /**
+     * isInactivationForCoveredPersonAvailableInFile() loops through every covered person record and check if
+     * user is trying to make covered person inactive in the file if yes mark db record as inactive since if it is a valid record.
+     * and it should be in the row prior to current row for R record
+     *
+     * @param coveredPersonList : list of covered person
+     * @param record            : actual responsible person.
+     **/
+    public void isInactivationForCoveredPersonAvailableInFile(List&lt;Step3FilerDataDto&gt; coveredPersonList, Step3FilerDataDto record) {
+<span class="nc bnc" id="L374" title="All 2 branches missed.">        for (Step3FilerDataDto coveredPerson : coveredPersonList) {</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">            if (&quot;FILE&quot;.equals(coveredPerson.getRecordSource())</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">                    &amp;&amp; &quot;C&quot;.equals(coveredPerson.getCorrection())</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">                    &amp;&amp; Integer.parseInt(record.getRowNumber()) &gt; Integer.parseInt(coveredPerson.getRowNumber())</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">                    &amp;&amp; (CommonDataConstants.RECORD_INACTIVE_DATE.equals(coveredPerson.getFilerCoverage().getOrigCoverageBeginDt().toString())</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                    &amp;&amp; CommonDataConstants.RECORD_INACTIVE_DATE.equals(coveredPerson.getFilerCoverage().getOrigCoverageEndDt().toString()))) {</span>
+<span class="nc" id="L380">                runCorrectionRuleForRecord(coveredPersonList, coveredPerson);</span>
+            }
+<span class="nc" id="L382">        }</span>
+<span class="nc" id="L383">    }</span>
+
+    /**
+     * runCorrectionRuleForRecord() runs correction rule on the record to mark db record as inactive.
+     * if it is a valid correction to mark record as inactive.
+     *
+     * @param coveredPersonList : list of covered person
+     * @param record            : actual covered  person in file.
+     **/
+    public void runCorrectionRuleForRecord(List&lt;Step3FilerDataDto&gt; coveredPersonList, Step3FilerDataDto record) {
+<span class="nc bnc" id="L393" title="All 2 branches missed.">        for (Step3FilerDataDto coveredPerson : coveredPersonList) {</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">            if (coveredPerson.getUIDValue().equals(record.getUIDValue())</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">                    &amp;&amp; &quot;DB&quot;.equals(coveredPerson.getRecordSource())) {</span>
+<span class="nc" id="L396">                record.setStatus(&quot;INACTIVE&quot;);</span>
+<span class="nc" id="L397">                coveredPerson.setStatus(&quot;INACTIVE&quot;);</span>
+            }
+<span class="nc" id="L399">        }</span>
+<span class="nc" id="L400">    }</span>
+
+    public void  checkForRpersonActivationinFile( Step3FilerDataDto record, List&lt;Step3FilerDataDto&gt; responsiblePersonList)
+    {
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        for (Step3FilerDataDto responsiblePerson : responsiblePersonList) {</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">            if (&quot;FILE&quot;.equals(responsiblePerson.getRecordSource())</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">                    &amp;&amp; &quot;C&quot;.equals(responsiblePerson.getCorrection())</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">                    &amp;&amp; Integer.parseInt(record.getRowNumber()) &gt; Integer.parseInt(responsiblePerson.getRowNumber())</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">                    &amp;&amp; !CommonDataConstants.RECORD_INACTIVE_DATE.equals(responsiblePerson.getFilerCoverage().getOrigCoverageBeginDt().toString())</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">                    &amp;&amp; !CommonDataConstants.RECORD_INACTIVE_DATE.equals(responsiblePerson.getFilerCoverage().getOrigCoverageEndDt().toString())) {</span>
+<span class="nc" id="L410">                runCorrectionRuleForResponsiblePersonRecord(responsiblePersonList, responsiblePerson);</span>
+            }
+<span class="nc" id="L412">        }</span>
+<span class="nc" id="L413">    }</span>
+
+
+    /**
+     * runCorrectionRuleForResponsiblePersonRecord() runs correction rules for responsible person rule on the record to mark db record as active.
+     * if it is a valid correction to mark record as active.
+     *
+     * @param coveredPersonList : list of covered person
+     * @param record            : actual covered  person in file.
+     **/
+    public void runCorrectionRuleForResponsiblePersonRecord(List&lt;Step3FilerDataDto&gt; coveredPersonList, Step3FilerDataDto record) {
+<span class="nc bnc" id="L424" title="All 2 branches missed.">        for (Step3FilerDataDto responsiblePerson : coveredPersonList) {</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">            if (responsiblePerson.getUIDValue().equals(record.getUIDValue())</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">                    &amp;&amp; &quot;DB&quot;.equals(responsiblePerson.getRecordSource())</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">                     &amp;&amp; &quot;INACTIVE&quot;.equals(responsiblePerson.getStatus())) {</span>
+<span class="nc" id="L428">                record.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L429">                responsiblePerson.setStatus(&quot;ACTIVE&quot;);</span>
+            }
+<span class="nc" id="L431">        }</span>
+<span class="nc" id="L432">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

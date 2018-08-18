@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceSystemConfigMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">SourceSystemConfigMapper.java</span></div><h1>SourceSystemConfigMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@Component
+<span class="fc" id="L11">public class SourceSystemConfigMapper implements RowMapper&lt;SourceSystemConfig&gt; {</span>
+
+    @Override
+    public SourceSystemConfig mapRow(ResultSet resultSet, int i) throws SQLException {
+<span class="nc" id="L15">        SourceSystemConfig sourceSystemConfig = new SourceSystemConfig();</span>
+<span class="nc" id="L16">        sourceSystemConfig.setUpdatedDate(resultSet.getDate(CommonDataConstants.UPDATED_DATE));</span>
+<span class="nc" id="L17">        sourceSystemConfig.setUpdatedBy(resultSet.getString(CommonDataConstants.UPDATED_BY));</span>
+<span class="nc" id="L18">        sourceSystemConfig.setSourceCd(resultSet.getString(CommonDataConstants.SOURCE_CD));</span>
+<span class="nc" id="L19">        sourceSystemConfig.setSourceCdId(resultSet.getInt(CommonDataConstants.SOURCE_CD_ID));</span>
+<span class="nc" id="L20">        sourceSystemConfig.setSupportViewPdf(resultSet.getString(CommonDataConstants.SUPPORT_VIEW_PDF));</span>
+<span class="nc" id="L21">        sourceSystemConfig.setNotFoundMessage(resultSet.getString(CommonDataConstants.NOT_FOUND_MESSAGE));</span>
+<span class="nc" id="L22">        sourceSystemConfig.setIncorrectAddressMessage(resultSet.getString(CommonDataConstants.INCORRECT_ADDRESS_MESSAGE));</span>
+<span class="nc" id="L23">        sourceSystemConfig.setReturnAddressLine1(resultSet.getString(CommonDataConstants.RETURN_ADDRESS_LINE1));</span>
+<span class="nc" id="L24">        sourceSystemConfig.setReturnAddressLine2(resultSet.getString(CommonDataConstants.RETURN_ADDRESS_LINE2));</span>
+<span class="nc" id="L25">        sourceSystemConfig.setReturnAddressCity(resultSet.getString(CommonDataConstants.RETURN_ADDRESS_CITY));</span>
+<span class="nc" id="L26">        sourceSystemConfig.setReturnAddressState(resultSet.getString(CommonDataConstants.RETURN_ADDRESS_STATE));</span>
+<span class="nc" id="L27">        sourceSystemConfig.setReturnAddressZip(resultSet.getString(CommonDataConstants.RETURN_ADDRESS_ZIP));</span>
+<span class="nc" id="L28">        sourceSystemConfig.setTransmitterControlCode(resultSet.getString(CommonDataConstants.TRANSMITTER_CONTROL_CODE));</span>
+<span class="nc" id="L29">        sourceSystemConfig.setPrintPreferences(resultSet.getString(CommonDataConstants.PRINT_PREFERENCES));</span>
+<span class="nc" id="L30">        sourceSystemConfig.setLanguagePreferences(resultSet.getString(CommonDataConstants.LANGUAGE_PREFERENCE));</span>
+<span class="nc" id="L31">        sourceSystemConfig.setStateAbbreviation(resultSet.getString(CommonDataConstants.STATE_ABBREVIATION));</span>
+<span class="nc" id="L32">        sourceSystemConfig.setProviderName(resultSet.getString(CommonDataConstants.PROVIDER_NAME));</span>
+<span class="nc" id="L33">        sourceSystemConfig.setProviderIdentificationNumber(resultSet.getString(CommonDataConstants.PROVIDER_IDENTIFICATION_NUMBER));</span>
+<span class="nc" id="L34">        sourceSystemConfig.setProviderContactFirstName(resultSet.getString(CommonDataConstants.PROVIDER_CONTACT_FIRST_NAME));</span>
+<span class="nc" id="L35">        sourceSystemConfig.setProviderContactLastName(resultSet.getString(CommonDataConstants.PROVIDER_CONTACT_LAST_NAME));</span>
+<span class="nc" id="L36">        sourceSystemConfig.setProviderContactNo(resultSet.getLong(CommonDataConstants.PROVIDER_CONTACT_NO));</span>
+<span class="nc" id="L37">        sourceSystemConfig.setProviderAddressLine1(resultSet.getString(CommonDataConstants.PROVIDER_ADDRESS_LINE_1));</span>
+<span class="nc" id="L38">        sourceSystemConfig.setProviderAddressLine2(resultSet.getString(CommonDataConstants.PROVIDER_ADDRESS_LINE_2));</span>
+<span class="nc" id="L39">        sourceSystemConfig.setProviderCityOrTown(resultSet.getString(CommonDataConstants.PROVIDER_CITY_OR_TOWN));</span>
+<span class="nc" id="L40">        sourceSystemConfig.setProviderStateOrProvince(resultSet.getString(CommonDataConstants.PROVIDER_STATE_OR_PROVINCE));</span>
+<span class="nc" id="L41">        sourceSystemConfig.setProviderCountry(resultSet.getString(CommonDataConstants.PROVIDER_COUNTRY));</span>
+<span class="nc" id="L42">        sourceSystemConfig.setProviderZipOrPostalCode(resultSet.getString(CommonDataConstants.PROVIDER_ZIP_OR_POSTAL_CODE));</span>
+<span class="nc" id="L43">        sourceSystemConfig.setTestTcc(resultSet.getString(CommonDataConstants.TEST_TCC));</span>
+<span class="nc" id="L44">        sourceSystemConfig.setDeloitteTestTcc(resultSet.getString(CommonDataConstants.DELOITTE_TEST_TCC));</span>
+<span class="nc" id="L45">        sourceSystemConfig.setSoftwareId(resultSet.getString(CommonDataConstants.SOFTWARE_ID));</span>
+<span class="nc" id="L46">        return sourceSystemConfig;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

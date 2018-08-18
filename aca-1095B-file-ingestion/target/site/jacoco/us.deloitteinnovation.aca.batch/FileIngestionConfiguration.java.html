@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileIngestionConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch</a> &gt; <span class="el_source">FileIngestionConfiguration.java</span></div><h1>FileIngestionConfiguration.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.*;
+import org.springframework.batch.core.step.skip.SkipPolicy;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineMapper;
+import org.springframework.batch.item.file.MultiResourceItemReader;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import us.deloitteinnovation.aca.JpaConfiguration;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dao.BatchInfoDao;
+import us.deloitteinnovation.aca.batch.dao.impl.BatchInfoDaoImpl;
+import us.deloitteinnovation.aca.batch.dto.BatchCountDto;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.exception.BatchImportException;
+import us.deloitteinnovation.aca.batch.exception.FileVerificationSkipper;
+import us.deloitteinnovation.aca.batch.file.filter.FileExtensionFilter;
+import us.deloitteinnovation.aca.batch.ingest.step1.Step1RefreshStagingTasklet;
+import us.deloitteinnovation.aca.batch.ingest.step2.FileNameVerificationDecider;
+import us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyFilerProcessor;
+import us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyFilerWriter;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3DataValidationException;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVProcessor;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVReader;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVWriter;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3InitialFilerList;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3RecordsUIDValidationResultMap;
+import us.deloitteinnovation.aca.batch.ingest.step3.listeners.Step3FIExecutionListener;
+import us.deloitteinnovation.aca.batch.ingest.step3.listeners.Step3RecordSkipListener;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.FileIngestionService;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.impl.FileIngestionServiceImpl;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.impl.Step3RecordValidationServiceImpl;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3CorrectedRecordsValidationUtils;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3OriginalRecordsValidationUtils;
+import us.deloitteinnovation.aca.batch.ingest.step3.utils.Step3UpdateRecordsValidationUtils;
+import us.deloitteinnovation.aca.batch.ingest.step4.Step4UpdateBatchCountsProcessor;
+import us.deloitteinnovation.aca.batch.ingest.step4.Step4UpdateBatchCountsReader;
+import us.deloitteinnovation.aca.batch.ingest.step4.Step4UpdateBatchCountsWriter;
+import us.deloitteinnovation.aca.batch.listener.FilerVerificationSkipListener;
+import us.deloitteinnovation.aca.batch.listener.ImportFilersJobExecutionListener;
+import us.deloitteinnovation.aca.batch.mapper.DefaultLineMapper;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.aca.batch.service.FileImportMailerService;
+import us.deloitteinnovation.aca.batch.service.ReportGenerationService;
+import us.deloitteinnovation.aca.batch.service.impl.BatchInfoServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.FileImportMailerServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.ReportGenerationServiceImpl;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.entity.FilerDemographicStagingEntity;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Properties;
+
+
+/**
+ * Configuration for various steps, readers, writers, processors and listeners
+ * 1. Bean definitions should stay here
+ * 2. Utility methods should move to a util package
+ */
+
+@Configuration
+@EnableAutoConfiguration
+@EnableBatchProcessing
+@Import(JpaConfiguration.class)
+@PropertySource(&quot;classpath:ValidationMessages.properties&quot;)
+<span class="nc" id="L95">public class FileIngestionConfiguration {</span>
+
+<span class="nc" id="L97">    private final static Logger LOGGER = LoggerFactory.getLogger(us.deloitteinnovation.aca.batch.FileIngestionConfiguration.class);</span>
+
+    @Autowired
+    JobBuilderFactory jobs;
+    @Autowired
+    StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    ProfileProperties profileProperties;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+
+    /* Step definitions */
+    @Bean
+    public Step step1RefreshStaging(Step1RefreshStagingTasklet step1RefreshStagingTasklet) {
+
+<span class="nc" id="L115">        return stepBuilderFactory</span>
+<span class="nc" id="L116">                .get(FileIngestionConstants.StepConstants.REFRESH_STAGING_TASKLET_STEP)</span>
+<span class="nc" id="L117">                .tasklet(step1RefreshStagingTasklet)</span>
+<span class="nc" id="L118">                .build();</span>
+    }
+
+    @Bean
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public Step step2VerifyFilerData(MultiResourceItemReader multiResourceItemReader,
+                                     ItemProcessor step2VerifyFilerProcessor,
+                                     ItemWriter step2VerifyFilerWriter,
+                                     SkipPolicy fileVerificationSkipper
+    ) {
+<span class="nc" id="L128">        return stepBuilderFactory.get(FileIngestionConstants.StepConstants.VERIFY_FILER_DATA_STEP)</span>
+<span class="nc" id="L129">                .&lt;FilerDemographicDto, FilerDemographicDto&gt;chunk(500)</span>
+<span class="nc" id="L130">                .reader(multiResourceItemReader)</span>
+<span class="nc" id="L131">                .processor(step2VerifyFilerProcessor)</span>
+<span class="nc" id="L132">                .writer(step2VerifyFilerWriter)</span>
+<span class="nc" id="L133">                .faultTolerant()</span>
+<span class="nc" id="L134">                .skipPolicy(fileVerificationSkipper)</span>
+<span class="nc" id="L135">                .build();</span>
+    }
+
+    /**
+     * Record Level validation for CRV configured from here
+     * step3 in file ingestion process.
+     **/
+
+    @Bean
+    @Qualifier(&quot;step3ValidateFilerData&quot;)
+    public Step step3ValidateFilerData(Step3FileIngestionCRVReader step3FileIngestionCRVReader,
+                                       Step3FileIngestionCRVProcessor step3FileIngestionCRVProcessor,
+                                       Step3FileIngestionCRVWriter step3FileIngestionCRVWriter,
+                                       Step3FIExecutionListener step3FIExecutionListener,
+                                       Step3RecordSkipListener step3RecordSkipListener) {
+
+<span class="nc" id="L151">        return stepBuilderFactory.get(FileIngestionConstants.StepConstants.VALIDATE_FILER_DATA_STEP).listener(step3FIExecutionListener).&lt;Step3FilerDataDto, Step3FilerDataDto&gt;chunk(500)</span>
+<span class="nc" id="L152">                .reader(step3FileIngestionCRVReader)</span>
+<span class="nc" id="L153">                .processor(step3FileIngestionCRVProcessor)</span>
+<span class="nc" id="L154">                .writer(step3FileIngestionCRVWriter).faultTolerant()</span>
+<span class="nc" id="L155">                .skip(Exception.class).noRetry(Step3DataValidationException.class)</span>
+<span class="nc" id="L156">                .skipLimit(Integer.MAX_VALUE).listener(step3RecordSkipListener)</span>
+<span class="nc" id="L157">                .build();</span>
+    }
+
+    @Bean
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public Step step4UpdateBatchCounts(Step4UpdateBatchCountsReader step4UpdateBatchCountsReader,
+                                       Step4UpdateBatchCountsProcessor step4UpdateBatchCountsProcessor,
+                                       Step4UpdateBatchCountsWriter step4UpdateBatchCountsWriter) {
+<span class="nc" id="L165">        return stepBuilderFactory.get(FileIngestionConstants.StepConstants.UPDATE_BATCH_COUNTS_STEP)</span>
+<span class="nc" id="L166">                .&lt;BatchCountDto, BatchCountDto&gt;chunk(1)</span>
+<span class="nc" id="L167">                .reader(step4UpdateBatchCountsReader)</span>
+<span class="nc" id="L168">                .processor(step4UpdateBatchCountsProcessor)</span>
+<span class="nc" id="L169">                .writer(step4UpdateBatchCountsWriter)</span>
+<span class="nc" id="L170">                .build();</span>
+    }
+
+    /* Step scope beans*/
+    @Bean
+    @StepScope
+    public Step1RefreshStagingTasklet step1RefreshStagingTasklet() {
+<span class="nc" id="L177">        Step1RefreshStagingTasklet step1RefreshStagingTasklet = new Step1RefreshStagingTasklet();</span>
+<span class="nc" id="L178">        step1RefreshStagingTasklet.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L179">        return step1RefreshStagingTasklet;</span>
+    }
+
+    @Bean
+    @Qualifier(&quot;multiResourceItemReader&quot;)
+    @StepScope
+    @SuppressWarnings(&quot;SpringJavaAutowiringInspection&quot;)
+    public MultiResourceItemReader multiResourceItemReader(
+            FlatFileItemReader&lt;FilerDemographicDto&gt; applicationReader,
+            @Value(&quot;#{jobParameters[STATE]}&quot;) String state
+    ) {
+<span class="nc" id="L190">        String stateInputFolderKey = state + BatchConstants.INPUT_FILE_FOLDER;</span>
+<span class="nc" id="L191">        String stateInputFolder = profileProperties.getProperty(stateInputFolderKey);</span>
+<span class="nc" id="L192">        MultiResourceItemReader reader = new MultiResourceItemReader();</span>
+        try {
+<span class="nc" id="L194">            Resource[] fileSystemResource = this.getFileSystemResource(stateInputFolder);</span>
+<span class="nc" id="L195">            reader.setResources(fileSystemResource);</span>
+<span class="nc" id="L196">            reader.setDelegate(applicationReader);</span>
+<span class="nc" id="L197">        } catch (BatchImportException e) {</span>
+<span class="nc" id="L198">            LOGGER.error(e.getMessage());</span>
+        } finally {
+<span class="nc" id="L200">            reader.close();</span>
+<span class="nc" id="L201">        }</span>
+<span class="nc" id="L202">        return reader;</span>
+    }
+
+    private Resource[] getFileSystemResource(
+            String inputFileFolder
+    ) throws BatchImportException {
+<span class="nc" id="L208">        Resource[] fileSystemResource = null;</span>
+<span class="nc" id="L209">        File fileDirectory = new File(inputFileFolder);</span>
+
+<span class="nc" id="L211">        File[] fileListInSourceFolder = fileDirectory.listFiles(new FileExtensionFilter(BatchConstants.FILE_FORMAT_EXTENSION));</span>
+
+        /* Pick up the oldest file;no matter which state it belongs to */
+<span class="nc" id="L214">        Arrays.sort(fileListInSourceFolder, new Comparator&lt;File&gt;() {</span>
+            public int compare(File f1, File f2) {
+<span class="nc" id="L216">                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());</span>
+            }
+        });
+
+<span class="nc" id="L220">        fileSystemResource = new FileSystemResource[FileIngestionConstants.NUM_FILES_TO_PROCESS];</span>
+<span class="nc" id="L221">        int i = 0;</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        for (File file : fileListInSourceFolder) {</span>
+
+<span class="nc" id="L224">            fileSystemResource[i] = new FileSystemResource(file.getAbsolutePath());</span>
+<span class="nc" id="L225">            break;</span>
+        }
+<span class="nc" id="L227">        return fileSystemResource;</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @Qualifier(&quot;applicationReader&quot;)
+    @StepScope
+    public FlatFileItemReader&lt;FilerDemographicDto&gt; applicationReader() {
+<span class="nc" id="L237">        FlatFileItemReader&lt;FilerDemographicDto&gt; reader = new FlatFileItemReader&lt;FilerDemographicDto&gt;();</span>
+<span class="nc" id="L238">        reader.setLineMapper(lineMapper());</span>
+<span class="nc" id="L239">        reader.setLinesToSkip(1);</span>
+<span class="nc" id="L240">        reader.setStrict(true);</span>
+<span class="nc" id="L241">        return reader;</span>
+    }
+
+    @Bean
+    public LineMapper&lt;FilerDemographicDto&gt; lineMapper() {
+<span class="nc" id="L246">        return new DefaultLineMapper&lt;&gt;();</span>
+    }
+
+    @Bean
+    public DelimitedLineTokenizer delimitedLineTokenizer() {
+<span class="nc" id="L251">        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();</span>
+<span class="nc" id="L252">        lineTokenizer.setDelimiter(&quot;|&quot;);</span>
+<span class="nc" id="L253">        lineTokenizer.setStrict(true);</span>
+<span class="nc" id="L254">        lineTokenizer.setQuoteCharacter('¬');//Use this instead of regular quotes to avoid open ended double quotes</span>
+<span class="nc" id="L255">        lineTokenizer.setNames(new String[]{</span>
+                BatchConstants.RECIPIENT_CASE_APPLICATION_ID,
+                BatchConstants.RECIPIENT_UNIQUE_ID,
+                BatchConstants.TAX_YEAR,
+                CommonEntityConstants.CORRECTION,
+                BatchConstants.RECIPIENT_FIRST_NAME,
+                BatchConstants.RECIPIENT_MIDDLE_NAME,
+                BatchConstants.RECIPIENT_LAST_NAME,
+                BatchConstants.RECIPIENT_NAME_SUFFIX,
+                CommonDataConstants.RECIPIENT_SSN,
+                CommonDataConstants.RECIPIENT_TIN,
+                CommonDataConstants.RECIPIENT_DOB,
+                BatchConstants.RECIPIENT_LANGUAGE_PREFERENCE,
+                BatchConstants.EMAIL,
+                BatchConstants.RECIPIENT_ADDRESS_LINE_1,
+                BatchConstants.RECIPIENT_ADDRESS_LINE_2,
+                BatchConstants.RECIPIENT_CITY,
+                BatchConstants.RECIPIENT_STATE_CODE,
+                BatchConstants.RECIPIENT_ZIP_5,
+                BatchConstants.RECIPIENT_ZIP_4,
+                BatchConstants.POLICY_ORIGIN,
+                BatchConstants.POLICY_PROGRAM_NAME,
+                BatchConstants.POLICY_COVERAGE_BEGIN_DT,
+                BatchConstants.POLICY_COVERAGE_END_DT,
+                BatchConstants.POLICY_SHOP_IDENTIFIER,
+                BatchConstants.EMPLOYER_NAME,
+                BatchConstants.EMPLOYER_IDENTIFICATION_NUMBER,
+                BatchConstants.EMPLOYER_CONTACT_NO,
+                BatchConstants.EMPLOYER_ADDRESS_LINE_1,
+                BatchConstants.EMPLOYER_ADDRESS_LINE_2,
+                BatchConstants.EMPLOYER_CITY_OR_TOWN,
+                BatchConstants.EMPLOYER_STATE_OR_PROVINCE,
+                BatchConstants.EMPLOYER_COUNTRY,
+                BatchConstants.EMPLOYER_ZIP_OR_FOREIGN_POSTAL_CODE,
+                BatchConstants.PROVIDER_NAME,
+                BatchConstants.PROVIDER_IDENTIFICATION_NUMBER,
+                BatchConstants.PROVIDER_CONTACT_NUMBER,
+                BatchConstants.PROVIDER_ADDRESS_LINE_1,
+                BatchConstants.PROVIDER_ADDRESS_LINE_2,
+                BatchConstants.PROVIDER_CITY_OR_TOWN,
+                BatchConstants.PROVIDER_STATE_OR_PROVINCE,
+                BatchConstants.PROVIDER_COUNTRY,
+                BatchConstants.PROVIDER_ZIP_OR_FOREIGN_POSTAL_CODE,
+                BatchConstants.FILER_STATUS,
+                BatchConstants.RESPONSIBLE_PERSON_UNIQUE_ID,
+                BatchConstants.COMM_PREFERENCE,
+                BatchConstants.MAILED_FORM});
+<span class="nc" id="L302">        return lineTokenizer;</span>
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor&lt;FilerDemographicDto, FilerDemographicStagingEntity&gt; step2VerifyFilerProcessor() {
+<span class="nc" id="L308">        LOGGER.info(&quot;Start of ItemProcessor&quot;);</span>
+<span class="nc" id="L309">        ItemProcessor applicationProcessor = new Step2VerifyFilerProcessor();</span>
+<span class="nc" id="L310">        LOGGER.info(&quot;End of ItemProcessor&quot;);</span>
+<span class="nc" id="L311">        return applicationProcessor;</span>
+    }
+
+    @Bean
+    @StepScope
+    public ItemWriter&lt;FilerDemographicStagingEntity&gt; step2VerifyFilerWriter() {
+<span class="nc" id="L317">        LOGGER.info(&quot;Start of ItemWriter&quot;);</span>
+<span class="nc" id="L318">        Step2VerifyFilerWriter applicationWriter = new Step2VerifyFilerWriter();</span>
+<span class="nc" id="L319">        LOGGER.info(&quot;End of ItemWriter&quot;);</span>
+<span class="nc" id="L320">        return applicationWriter;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3InitialFilerList step3InitialFilerList() {
+<span class="nc" id="L326">        return new Step3InitialFilerList();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3FileIngestionCRVReader step3FileIngestionCRVReader(Step3InitialFilerList step3InitialFilerList) {
+<span class="nc" id="L332">        return new Step3FileIngestionCRVReader(step3InitialFilerList);</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3FileIngestionCRVProcessor step3FileIngestionCRVProcessor() {
+<span class="nc" id="L338">        return new Step3FileIngestionCRVProcessor();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3FileIngestionCRVWriter step3FileIngestionCRVWriter() {
+<span class="nc" id="L344">        return new Step3FileIngestionCRVWriter();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3RecordValidationService step3RecordValidationService() {
+<span class="nc" id="L350">        return new Step3RecordValidationServiceImpl();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3FIExecutionListener step3FIExecutionListener() {
+<span class="nc" id="L356">        return new Step3FIExecutionListener();</span>
+    }
+
+    @Bean
+    public Step3RecordSkipListener step3RecordSkipListener() {
+<span class="nc" id="L361">        return new Step3RecordSkipListener();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3OriginalRecordsValidationUtils step3OriginalRecordsValidationUtils() {
+<span class="nc" id="L367">        return new Step3OriginalRecordsValidationUtils();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3UpdateRecordsValidationUtils step3UpdateRecordsValidationUtils() {
+<span class="nc" id="L373">        return new Step3UpdateRecordsValidationUtils();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3RecordsUIDValidationResultMap step3RecordsUIDValidationResultMap() {
+<span class="nc" id="L379">        return new Step3RecordsUIDValidationResultMap();</span>
+    }
+
+    /* Added bean for correction validation utils*/
+    @Bean
+    @StepScope
+    public Step3CorrectedRecordsValidationUtils step3CorrectedRecordsValidationUtils() {
+<span class="nc" id="L386">        return new Step3CorrectedRecordsValidationUtils();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4UpdateBatchCountsReader step4UpdateBatchCountsReader() {
+<span class="nc" id="L392">        return new Step4UpdateBatchCountsReader();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4UpdateBatchCountsProcessor step4UpdateBatchCountsProcessor() {
+<span class="nc" id="L398">        return new Step4UpdateBatchCountsProcessor();</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4UpdateBatchCountsWriter step4UpdateBatchCountsWriter() {
+<span class="nc" id="L404">        return new Step4UpdateBatchCountsWriter();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @JobScope
+    public ImportFilersJobExecutionListener importFilersJobExecutionListener() {
+<span class="nc" id="L413">        return new ImportFilersJobExecutionListener();</span>
+    }
+
+    @Bean
+    @JobScope
+    public FileNameVerificationDecider fileNameVerificationDecider() {
+<span class="nc" id="L419">        return new FileNameVerificationDecider();</span>
+    }
+
+    @Bean
+    public Validator mvcValidator() {
+<span class="nc" id="L424">        return new LocalValidatorFactoryBean();</span>
+    }
+
+    @Bean
+    public SkipPolicy fileVerificationSkipper() {
+<span class="nc" id="L429">        return new FileVerificationSkipper();</span>
+    }
+
+    @Bean
+    JavaMailSenderImpl javaMailSender() {
+<span class="nc" id="L434">        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();</span>
+<span class="nc" id="L435">        javaMailSender.setHost(profileProperties.getProperty(BatchConstants.MAIL_HOST));</span>
+<span class="nc" id="L436">        int port = Integer.parseInt(profileProperties.getProperty(BatchConstants.MAIL_PORT));</span>
+<span class="nc" id="L437">        javaMailSender.setPort(port);</span>
+        /*javaMailSender.setUsername(profileProperties.getProperty(BatchConstants.MAIL_USER_NAME));
+        javaMailSender.setPassword(profileProperties.getProperty(BatchConstants.MAIL_PASSWORD));*/
+<span class="nc" id="L440">        javaMailSender.setProtocol(profileProperties.getProperty(BatchConstants.MAIL_PROTOCOL));</span>
+<span class="nc" id="L441">        Properties javaMailProperties = new Properties();</span>
+<span class="nc" id="L442">        javaMailProperties.put(&quot;mail.transport.protocol&quot;, profileProperties.getProperty(BatchConstants.MAIL_PROTOCOL));</span>
+<span class="nc" id="L443">        javaMailProperties.put(&quot;mail.smtp.auth&quot;, false);</span>
+<span class="nc" id="L444">        javaMailProperties.put(&quot;mail.smtp.starttls.enable&quot;, true);</span>
+<span class="nc" id="L445">        javaMailProperties.put(&quot;mail.debug&quot;, true);</span>
+<span class="nc" id="L446">        javaMailProperties.put(&quot;mail.smtp.ssl.trust&quot;, profileProperties.getProperty(BatchConstants.MAIL_HOST));</span>
+<span class="nc" id="L447">        javaMailSender.setJavaMailProperties(javaMailProperties);</span>
+<span class="nc" id="L448">        return javaMailSender;</span>
+    }
+
+    @Bean
+      public FileImportMailerService applicationMailerService() {
+<span class="nc" id="L453">        FileImportMailerService fileImportMailerService = new FileImportMailerServiceImpl();</span>
+<span class="nc" id="L454">        return fileImportMailerService;</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @JobScope
+    public BatchInfoDto getBatchInfo(BatchInfoService batchInfoService) {
+<span class="nc" id="L463">        LOGGER.info(&quot;Start of BatchInfo&quot;);</span>
+<span class="nc" id="L464">        BatchInfoDto batchInfo = new BatchInfoDto();</span>
+<span class="nc" id="L465">        batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L466">        int batchId = batchInfoService.save(batchInfo);</span>
+<span class="nc" id="L467">        batchInfo.setBatchId(batchId);</span>
+<span class="nc" id="L468">        LOGGER.info(&quot;End of BatchInfo&quot;);</span>
+<span class="nc" id="L469">        return batchInfo;</span>
+    }
+
+
+
+    @Bean
+    public BatchInfoService batchInfoService() {
+<span class="nc" id="L476">        return new BatchInfoServiceImpl();</span>
+    }
+
+    @Bean
+    public BatchInfoDao batchInfoDao() {
+<span class="nc" id="L481">        BatchInfoDaoImpl batchInfoDao = new BatchInfoDaoImpl();</span>
+<span class="nc" id="L482">        batchInfoDao.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L483">        return batchInfoDao;</span>
+    }
+
+
+ /*   @Bean
+    public FileIngestionService fileIngestionDao() {
+        FileIngestionServiceImpl fileIngestionService = new FileIngestionServiceImpl();
+        fileIngestionService.setJdbcTemplate(jdbcTemplate);
+        return fileIngestionService;
+    }*/
+
+
+    @Bean
+    public FilerVerificationSkipListener filerVerificationSkipListener() {
+<span class="nc" id="L497">        return new FilerVerificationSkipListener();</span>
+    }
+
+
+    @Bean
+    public ReportGenerationService reportGenerationService() {
+<span class="nc" id="L503">        final ReportGenerationServiceImpl reportGenerationService = new ReportGenerationServiceImpl();</span>
+<span class="nc" id="L504">        reportGenerationService.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L505">        return reportGenerationService;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

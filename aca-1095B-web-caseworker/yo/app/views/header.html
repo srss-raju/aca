@@ -1,0 +1,24 @@
+<div class="navbar" role="banner">
+  <div class="navbar-container">
+    <div class="pull-left" ng-switch on="CitizenSession.selectedState">
+      <div ng-switch-when="AR">
+        <img tabindex="-1" ng-src="images/arkansas_state_logo.png"/>
+      </div>
+      <div ng-switch-when="IN">
+        <img tabindex="-1" ng-src="images/indiana_state_logo.png"/>
+      </div>
+      <div ng-switch-when="LA">
+        <img tabindex="-1" ng-src="images/louisiana_state_logo.png"/>
+      </div>
+      <div ng-switch-default>
+        <img tabindex="-1" ng-src="images/LaborWiseLogo.png"/>
+      </div>
+    </div>
+    <div class="navbar-option pull-right" style="padding-top: 5px" ng-switch on="CitizenSession.userLogged">
+      <span ng-switch-when="true" class="pointer" ng-click="CitizenSession.userLoggedOut()">
+        <span>Sign Out</span><span class="margin-left-5px"><i class="fa fa-power-off"></i></span>
+      </span>
+      <span ng-switch-when="false"></span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProcessReceiptDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Process Receipt Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.receipt.dto</a> &gt; <span class="el_source">ProcessReceiptDto.java</span></div><h1>ProcessReceiptDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.receipt.dto;
+
+import java.util.List;
+
+import us.deloitteinnovation.aca.entity.PrintDetail;
+
+<span class="nc" id="L7">public class ProcessReceiptDto {</span>
+	
+	private List&lt;PrintDetail&gt; printDetails;
+	private List&lt;String&gt; emptyFiles;
+	private boolean isCOR;
+
+	public List&lt;PrintDetail&gt; getPrintDetails() {
+<span class="nc" id="L14">		return printDetails;</span>
+	}
+
+	public void setPrintDetails(List&lt;PrintDetail&gt; printDetails) {
+<span class="nc" id="L18">		this.printDetails = printDetails;</span>
+<span class="nc" id="L19">	}</span>
+
+	public List&lt;String&gt; getEmptyFiles() {
+<span class="nc" id="L22">		return emptyFiles;</span>
+	}
+
+	public void setEmptyFiles(List&lt;String&gt; emptyFiles) {
+<span class="nc" id="L26">		this.emptyFiles = emptyFiles;</span>
+<span class="nc" id="L27">	}</span>
+	
+	public boolean isCOR() {
+<span class="nc" id="L30">		return isCOR;</span>
+	}
+
+	public void setCOR(boolean isCOR) {
+<span class="nc" id="L34">		this.isCOR = isCOR;</span>
+<span class="nc" id="L35">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

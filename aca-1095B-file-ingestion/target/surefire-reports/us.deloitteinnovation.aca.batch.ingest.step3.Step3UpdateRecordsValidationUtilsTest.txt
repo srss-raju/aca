@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.ingest.step3.Step3UpdateRecordsValidationUtilsTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0 sec - in us.deloitteinnovation.aca.batch.ingest.step3.Step3UpdateRecordsValidationUtilsTest

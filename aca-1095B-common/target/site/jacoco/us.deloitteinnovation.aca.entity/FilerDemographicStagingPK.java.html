@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicStagingPK.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerDemographicStagingPK.java</span></div><h1>FilerDemographicStagingPK.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+
+/**
+ * Primary key class for the filer_demographics_staging table.
+ */
+public class FilerDemographicStagingPK implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = &quot;filerdemographics_staging_seq&quot;)
+    @SequenceGenerator(name = &quot;filerdemographics_staging_seq&quot;, sequenceName = &quot;filerdemographics_staging_seq&quot;)
+    @Column(name = &quot;ROW_ID&quot;)
+    private int rowId;
+
+    @Digits(fraction = 0, integer = 15, message = ErrorMessageConstants.RECIPIENT_UNIQUE_ID_REQ_NUM)
+    @NotNull(message = ErrorMessageConstants.RECIPIENT_UNIQUE_ID_REQ)
+    @Column(name = CommonEntityConstants.RECIPIENT_UNIQUE_ID)
+    private long sourceUniqueId;
+
+    @NotNull(message = ErrorMessageConstants.RRECIPIENT_STATE_CODE_REQ)
+    @Column(name = &quot;SOURCE_CD&quot;)
+    private String sourceCd;
+
+<span class="nc" id="L35">    public FilerDemographicStagingPK() {</span>
+<span class="nc" id="L36">    }</span>
+
+    public static long getSerialVersionUID() {
+<span class="nc" id="L39">        return serialVersionUID;</span>
+    }
+
+    public Integer getRowId() {
+<span class="nc" id="L43">        return rowId;</span>
+    }
+
+    public void setRowId(Integer rowId) {
+<span class="nc" id="L47">        this.rowId = rowId;</span>
+<span class="nc" id="L48">    }</span>
+
+    public long getSourceUniqueId() {
+<span class="nc" id="L51">        return sourceUniqueId;</span>
+    }
+
+    public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L55">        this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L56">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L59">        return sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L63">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

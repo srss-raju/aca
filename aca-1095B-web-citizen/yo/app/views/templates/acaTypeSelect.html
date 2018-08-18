@@ -1,0 +1,26 @@
+<div class="col-sm-12 no-padding acaSelect-container">
+ <div class="dropdown text-gray-reg acaSelect" ng-click="fnShowList();" >
+   <input autofill="off" class="input-filter pointer" ng-model="searchText" tabindex="{{type == 'state' ? 2: 12}}"
+          data-toggle="dropdown pull-left" aria-label="{{type == 'state' ? defaultOption: 'Type or choose tax year'}}"
+          placeholder="{{defaultOption}}" ng-focus="fnShowList();"/>
+    <span class="fa fa-chevron-down dropdown-img pointer"></span>
+  </div>
+</div>
+
+<div class="col-sm-12 no-padding acaSelect-list" ng-show="showList">
+
+  <div class="popover-arrow pull-right" ng-show="searchText == '' || results.length > 0"></div>
+  <div class="popover-list" >
+    <button class="btn listItem pointer" tabindex="{{2 + $index}}" ng-if="type == 'state'"
+            ng-repeat="option in options | filter: { stateName : searchText } as results" ng-click="setValue(option)">
+      {{option.stateName}}
+    </button>
+
+    <button class="listItem pointer" tabindex="{{12 + $index}}" ng-if="type == 'year'"
+            ng-repeat="option in options | filter: { year : searchText} as results" ng-click="setValue(option)">
+      {{option.year}}
+    </button>
+
+  </div>
+</div>
+

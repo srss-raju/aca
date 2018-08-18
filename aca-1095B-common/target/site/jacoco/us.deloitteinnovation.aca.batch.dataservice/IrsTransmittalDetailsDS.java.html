@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsTransmittalDetailsDS.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dataservice</a> &gt; <span class="el_source">IrsTransmittalDetailsDS.java</span></div><h1>IrsTransmittalDetailsDS.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dataservice;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * Created by tthakore on 1/8/2016.
+ */
+
+@Service(&quot;irsTransmittalDetailsDS&quot;)
+public class IrsTransmittalDetailsDS {
+
+
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+<span class="fc" id="L22">    private static Logger logger = LoggerFactory.getLogger(IrsTransmittalDetailsDS.class);</span>
+<span class="fc" id="L23">    public IrsTransmittalDetailsDS(){}</span>
+
+<span class="nc" id="L25">    public IrsTransmittalDetailsDS(JdbcTemplate jdbcTemplate){</span>
+<span class="nc" id="L26">        jdbcTemplate = this.jdbcTemplate;</span>
+<span class="nc" id="L27">    }</span>
+
+
+    public String getTransmitStatus(String sourceCd, long sourceUniqueId)
+    {
+<span class="nc" id="L32">        String transmitStatus = &quot;&quot;;</span>
+        try{
+
+        // List&lt;String&gt; transmitStatusList =  this.jdbcTemplate.queryForList(&quot;select TRANSMIT_STATUS from IRS_TRANSMITTAL_DETAILS where SOURCE_CD = '&quot; + sourceCd + &quot;'  and source_unique_id = &quot; + sourceUniqueId, String.class);
+
+<span class="nc" id="L37">            StringBuilder builder = new StringBuilder(&quot;select TRANSMISSION_RECEIPT_ID from irs_transmission_details itd inner join &quot;);</span>
+<span class="nc" id="L38">            builder.append(&quot;irs_record_details_1095b ird on ird.TRANSMISSION_ID = itd.TRANSMISSION_ID inner join &quot;);</span>
+<span class="nc" id="L39">            builder.append(&quot;filer_demographics fd on fd.source_unique_id = ird.source_unique_id and fd.source_cd = ird.source_cd &quot;);</span>
+<span class="nc" id="L40">            builder.append(&quot;where fd.source_unique_id = '&quot;+sourceUniqueId+&quot;' and fd.source_cd = '&quot;+sourceCd+&quot;' order by itd.transfer_date DESC&quot;);</span>
+<span class="nc" id="L41">            List&lt;String&gt; transmitStatusList =  this.jdbcTemplate.queryForList(builder.toString(), String.class);</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (transmitStatusList.isEmpty()) {</span>
+<span class="nc" id="L44">               transmitStatus = &quot;&quot;;</span>
+            } else {
+<span class="nc bnc" id="L46" title="All 4 branches missed.">                transmitStatus = (transmitStatusList.get(0) != null &amp;&amp;  ((String)transmitStatusList.get(0)).length() &gt; 0)?&quot;COMPLETE&quot;:&quot;&quot;;</span>
+            }
+<span class="nc" id="L48">        }catch(Exception ex){</span>
+<span class="nc" id="L49">            logger.error(&quot;--------------------------------------------------------------------------&quot;);</span>
+<span class="nc" id="L50">            logger.error(&quot;Error in IrsTransmittalDetailsDS class method getTransmitStatus()&quot;, ex.getStackTrace().toString());</span>
+<span class="nc" id="L51">            logger.error(&quot;--------------------------------------------------------------------------&quot;);</span>
+<span class="nc" id="L52">        }</span>
+<span class="nc" id="L53">        return transmitStatus;</span>
+    }
+
+    public JdbcTemplate getJdbcTemplate() {
+<span class="nc" id="L57">        return jdbcTemplate;</span>
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+<span class="nc" id="L61">        this.jdbcTemplate = jdbcTemplate;</span>
+<span class="nc" id="L62">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

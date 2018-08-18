@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerCoveredPersonServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.service.impl</a> &gt; <span class="el_source">FilerCoveredPersonServiceImpl.java</span></div><h1>FilerCoveredPersonServiceImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import us.deloitteinnovation.aca.batch.service.FilerCoveredPersonService;
+import us.deloitteinnovation.aca.model.CoveredPerson;
+import us.deloitteinnovation.aca.model.CoveredPersonMapper;
+import us.deloitteinnovation.aca.model.Filer;
+
+import java.util.List;
+
+/**
+ * Created by rgopalani on 12/28/2015.
+ */
+
+<span class="nc" id="L18">public class FilerCoveredPersonServiceImpl implements FilerCoveredPersonService {</span>
+<span class="nc" id="L19">    private static final Logger logger =</span>
+<span class="nc" id="L20">            LoggerFactory.getLogger(FilerCoveredPersonServiceImpl.class);</span>
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public List&lt;CoveredPerson&gt; getCoveredPersonList(long responsiblePersonUniqueId){
+<span class="nc" id="L25">        List&lt;CoveredPerson&gt; rows = null;</span>
+<span class="nc" id="L26">        String sqlStatment = &quot;SELECT * FROM FILER_DEMOGRAPHICS WHERE RESPONSIBLE_PERSON_UNIQUE_ID = &quot; + responsiblePersonUniqueId + &quot; AND FILER_STATUS = 'C' AND STATUS = 'ACTIVE'&quot;;</span>
+        try{
+            //TODO Change this call to use a PreparedStatment instead of the regular Statement
+<span class="nc" id="L29">            rows = jdbcTemplate.query(sqlStatment, new CoveredPersonMapper());</span>
+<span class="nc" id="L30">        }catch(Exception ex){</span>
+<span class="nc" id="L31">            logger.error(&quot;&quot;, ex);</span>
+<span class="nc" id="L32">        }</span>
+<span class="nc" id="L33">        return rows;</span>
+    }
+
+	@Override
+	public List&lt;CoveredPerson&gt; getCoveredPersonList(Filer filer) {
+<span class="nc" id="L38">		List&lt;CoveredPerson&gt; rows = null;</span>
+<span class="nc" id="L39">        String sqlStatment = &quot;SELECT * FROM FILER_DEMOGRAPHICS WHERE RESPONSIBLE_PERSON_UNIQUE_ID = &quot; + filer.getSourceUniqueId() + &quot; AND FILER_STATUS = 'C' AND STATUS = 'ACTIVE'&quot;;</span>
+        try{
+            //TODO Change this call to use a PreparedStatment instead of the regular Statement
+<span class="nc" id="L42">            rows = jdbcTemplate.query(sqlStatment, new CoveredPersonMapper());</span>
+<span class="nc" id="L43">        }catch(Exception ex){</span>
+<span class="nc" id="L44">            logger.error(&quot;&quot;, ex);</span>
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">        return rows;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

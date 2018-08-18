@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceCoverMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">SourceCoverMessage.java</span></div><h1>SourceCoverMessage.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+
+
+/**
+ * The persistent class for the source_cover_message database table.
+ *
+ */
+@Entity
+@Table(name=&quot;SOURCE_COVER_MESSAGE&quot;)
+public class SourceCoverMessage implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Column(name=&quot;COVER_MESSAGE_VT&quot;, columnDefinition = &quot;nvarchar&quot;)
+    private String coverMessageDe;
+
+    @Column(name=&quot;COVER_MESSAGE_EN&quot;, columnDefinition = &quot;nvarchar&quot;)
+    private String coverMessageEn;
+
+    @Column(name=&quot;COVER_MESSAGE_SP&quot;, columnDefinition = &quot;nvarchar&quot;)
+    private String coverMessageSp;
+
+    @Column(name=&quot;LANGUAGE_CD&quot;)
+    private String languageCd;
+
+    @Id
+    @Column(name=&quot;SOURCE_CD&quot;)
+    private String sourceCd;
+
+<span class="nc" id="L35">    public SourceCoverMessage() {</span>
+<span class="nc" id="L36">    }</span>
+
+
+
+
+
+    public String getCoverMessageDe() {
+<span class="nc" id="L43">        return this.coverMessageDe;</span>
+    }
+
+    public void setCoverMessageDe(String coverMessageDe) {
+<span class="nc" id="L47">        this.coverMessageDe = coverMessageDe;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getCoverMessageEn() {
+<span class="nc" id="L51">        return this.coverMessageEn;</span>
+    }
+
+    public void setCoverMessageEn(String coverMessageEn) {
+<span class="nc" id="L55">        this.coverMessageEn = coverMessageEn;</span>
+<span class="nc" id="L56">    }</span>
+
+    public String getCoverMessageSp() {
+<span class="nc" id="L59">        return this.coverMessageSp;</span>
+    }
+
+    public void setCoverMessageSp(String coverMessageSp) {
+<span class="nc" id="L63">        this.coverMessageSp = coverMessageSp;</span>
+<span class="nc" id="L64">    }</span>
+
+    public String getLanguageCd() {
+<span class="nc" id="L67">        return this.languageCd;</span>
+    }
+
+    public void setLanguageCd(String languageCd) {
+<span class="nc" id="L71">        this.languageCd = languageCd;</span>
+<span class="nc" id="L72">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L75">        return this.sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L79">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L80">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

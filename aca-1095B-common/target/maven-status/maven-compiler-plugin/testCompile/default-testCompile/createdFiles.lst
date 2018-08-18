@@ -1,0 +1,17 @@
+us\deloitteinnovation\aca\AbstractCommonTestConfig.class
+us\deloitteinnovation\aca\batch\dataservice\SourceSystemConfigDataServiceIntegTest.class
+us\deloitteinnovation\aca\repository\FilerDemographicTestRepository.class
+us\deloitteinnovation\aca\repository\PrintDetailsTestRespository.class
+us\deloitteinnovation\aca\repository\IrsTransmissionDetailsRepositoryIntegTest.class
+us\deloitteinnovation\aca\FlatFileImportTestConfiguration.class
+us\deloitteinnovation\aca\repository\ExceptionReportRepositoryTest.class
+us\deloitteinnovation\aca\repository\IrsTransmissionErrorsRepositoryIntegTest.class
+us\deloitteinnovation\aca\batch\CleanBatchTables.class
+us\deloitteinnovation\aca\repository\IrsSubmissionDetailsRepositoryIntegTest.class
+us\deloitteinnovation\aca\repository\IrsRecordDetails1095BRepositoryIntegTest.class
+us\deloitteinnovation\aca\util\ConvertTest.class
+us\deloitteinnovation\aca\model\FilerMapperTest.class
+us\deloitteinnovation\aca\repository\BatchInfoRepositoryTest.class
+us\deloitteinnovation\aca\repository\FilerCoverageSourceTestRepository.class
+us\deloitteinnovation\aca\repository\Irs1095XMLRepositoryTest.class
+us\deloitteinnovation\aca\repository\SourceSystemConfigTestRepository.class

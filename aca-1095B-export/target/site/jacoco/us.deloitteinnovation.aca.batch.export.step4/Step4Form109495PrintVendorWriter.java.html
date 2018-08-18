@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4Form109495PrintVendorWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step4</a> &gt; <span class="el_source">Step4Form109495PrintVendorWriter.java</span></div><h1>Step4Form109495PrintVendorWriter.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step4;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+import us.deloitteinnovation.aca.exception.PrintVendorFileNameVerificationDecider;
+import us.deloitteinnovation.aca.jaxb.JaxbUtils;
+import us.deloitteinnovation.aca.repository.PrintVendorJdbcRepository;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.ext.aca.air._7.ACABulkBusinessHeaderRequestType;
+import us.gov.treasury.irs.ext.aca.air._7.ACATrnsmtManifestReqDtlType;
+import us.gov.treasury.irs.msg.acauibusinessheader.TransmitterACAUIBusinessHeaderType;
+import us.deloitteinnovation.aca.entity.FilerDemographic;
+
+import javax.xml.bind.JAXBElement;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ *
+ */
+<span class="nc" id="L32">public class Step4Form109495PrintVendorWriter implements ItemWriter&lt;Step4ManifestData&gt; {</span>
+
+<span class="nc" id="L34">    private static final Logger LOG = LoggerFactory.getLogger(Step4Form109495PrintVendorWriter.class) ;</span>
+
+    @Autowired
+    @Qualifier(&quot;jaxb2Marshaller&quot;)
+    protected Jaxb2Marshaller jaxb2Marshaller;
+
+    @Autowired
+    ExportJob1095Repository exportJobRepository ;
+    
+    @Autowired
+    PrintVendorJdbcRepository printVendorJdbcRepository;
+    
+    @Autowired
+    PrintVendorFileNameVerificationDecider printVendorFileNameVerificationDecider;
+
+<span class="nc" id="L49">    us.gov.treasury.irs.msg.acauibusinessheader.ObjectFactory</span>
+        headerObjectFactory = new us.gov.treasury.irs.msg.acauibusinessheader.ObjectFactory() ;
+
+<span class="nc" id="L52">    us.gov.treasury.irs.ext.aca.air._7.ObjectFactory</span>
+            air7ObjectFactory = new us.gov.treasury.irs.ext.aca.air._7.ObjectFactory();
+
+    StepExecution stepExecution ;
+
+    @Autowired
+    ProfileProperties profileProperties;
+
+    @Override
+    public void write(List&lt;? extends Step4ManifestData&gt; list) throws Exception {
+<span class="nc" id="L62">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L63">        File outputDir = ExportUtil.getOutputDirectory(state, profileProperties) ;</span>
+ 
+        TransmitterACAUIBusinessHeaderType header ;
+        JAXBElement&lt;TransmitterACAUIBusinessHeaderType&gt; rootElementDoc ;
+        ACABulkBusinessHeaderRequestType headerRequestType ;
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (Step4ManifestData manifestData : list) {</span>
+<span class="nc" id="L70">            ACATrnsmtManifestReqDtlType manifest = manifestData.acaTrnsmtManifestReqDtlType ;</span>
+<span class="nc" id="L71">            headerRequestType = air7ObjectFactory.createACABulkBusinessHeaderRequestType() ;</span>
+<span class="nc" id="L72">            headerRequestType.setTimestamp(JaxbUtils.createXmlGregorianCalendarNoTimezone(new Date()));</span>
+<span class="nc" id="L73">            headerRequestType.setUniqueTransmissionId(generateUniqueTransmissionId(manifestData.getTcc()));</span>
+
+<span class="nc" id="L75">            header = headerObjectFactory.createTransmitterACAUIBusinessHeaderType() ; </span>
+<span class="nc" id="L76">            header.setACATransmitterManifestReqDtl(manifest);</span>
+<span class="nc" id="L77">            header.setACABusinessHeader(headerRequestType);</span>
+<span class="nc" id="L78">            rootElementDoc = headerObjectFactory.createACAUIBusinessHeader(header) ;</span>
+
+<span class="nc" id="L80">            String filename = createManifestFilename(manifestData.acaTrnsmtManifestReqDtlType.getDocumentSystemFileNm()) ;</span>
+<span class="nc" id="L81">            File outputFile = new File(outputDir, filename) ;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L83">                LOG.debug(&quot;Step 4 writing XML to {}&quot;, outputFile.getAbsoluteFile()) ;</span>
+            }
+            
+<span class="nc" id="L86">            List&lt;PrintDetail&gt; printDetailList = (List&lt;PrintDetail&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;PRINTDETAILSLIST&quot;);</span>
+<span class="nc" id="L87">            List&lt;FilerDemographic&gt; filerDemographicList = (List&lt;FilerDemographic&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;FILERDEMOSTATUS&quot;);</span>
+<span class="nc" id="L88">            LOG.debug(&quot;List of Print Details ---&gt;  &quot;+printDetailList);</span>
+            
+            try{
+<span class="nc" id="L91">            	ExportUtil.writeXml(jaxb2Marshaller, outputFile, rootElementDoc);</span>
+<span class="nc" id="L92">            	ExportUtil.addManifestFilename(stepExecution, filename) ;</span>
+<span class="nc" id="L93">            	printVendorJdbcRepository.insertPrintDetails(printDetailList);</span>
+<span class="nc" id="L94">            	printVendorJdbcRepository.updateFilerDemographicStatus(filerDemographicList);</span>
+<span class="nc" id="L95">            }catch(Exception excpetion){</span>
+<span class="nc" id="L96">            	LOG.error(excpetion.getMessage(),excpetion);</span>
+<span class="nc" id="L97">            	printVendorFileNameVerificationDecider.decide(stepExecution.getJobExecution(), stepExecution);</span>
+<span class="nc" id="L98">            }</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">    }</span>
+
+    /**
+     * See section 5.3.3 Uniquely Identifying a Transmission.
+     * @param transmitterControlCode 5 characters alphanumeric field that will contain the transmitters TCC and is mandatory â€“
+     *                                enter the TCC that the IRS assigned when the transmitter applied to eFile. Note, TCCs do not include lower case characters.
+     * @return   Example 550e8400-e29b-41d4-a716-446655440000:SYS12:12ABC::T
+     */
+    protected String generateUniqueTransmissionId(String transmitterControlCode) {
+<span class="nc" id="L109">        StringBuilder b = new StringBuilder() ;</span>
+<span class="nc" id="L110">        b.append(UUID.randomUUID().toString()) ;</span>
+<span class="nc" id="L111">        b.append(&quot;:SYS12:&quot;) ;</span>
+<span class="nc" id="L112">        b.append(transmitterControlCode) ;</span>
+<span class="nc" id="L113">        b.append(&quot;::T&quot;) ;</span>
+<span class="nc" id="L114">        return b.toString() ;</span>
+    }
+
+    /**
+     * The manifest filename isn't a required standard, but it is recommended to be:
+     * Manifest_Form Data File Name (without extension)&gt;.xml
+     * @param form109495bFilename
+     * @return
+     */
+    protected String createManifestFilename(String form109495bFilename) {
+<span class="nc" id="L124">        return &quot;Manifest_&quot; + form109495bFilename ;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L129">        this.stepExecution = stepExecution ;</span>
+<span class="nc" id="L130">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

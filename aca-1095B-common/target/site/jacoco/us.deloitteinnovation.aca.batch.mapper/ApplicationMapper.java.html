@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.mapper</a> &gt; <span class="el_source">ApplicationMapper.java</span></div><h1>ApplicationMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.mapper;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.BindException;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicPKDto;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.CORRECTION;
+
+/**
+ * Maps a field set to a FilerDemographicDto object.
+ */
+@Component
+<span class="fc" id="L27">public class ApplicationMapper implements FieldSetMapper&lt;FilerDemographicDto&gt; {</span>
+
+    //private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationMapper.class);
+
+    @Autowired
+    private ProfileProperties profileProperties;
+
+    /**
+     * @param fieldSet the {@link FieldSet} to map
+     * @param line
+     * @return
+     * @throws BindException
+     */
+    public FilerDemographicDto mapFieldSet(FieldSet fieldSet, int line) throws BindException {
+<span class="nc" id="L41">        int taxYear = NumberUtils.toInt(readString(fieldSet, BatchConstants.TAX_YEAR));</span>
+<span class="nc" id="L42">        FilerDemographicDto filerDemographic = new FilerDemographicDto();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (!StringUtils.isEmpty(readString(fieldSet, BatchConstants.RECIPIENT_LANGUAGE_PREFERENCE))) {</span>
+<span class="nc" id="L44">            filerDemographic.setLanguagePreference(readString(fieldSet, BatchConstants.RECIPIENT_LANGUAGE_PREFERENCE));</span>
+        } else {
+<span class="nc" id="L46">            filerDemographic.setLanguagePreference(&quot;&quot;);</span>
+        }
+
+<span class="nc" id="L49">        FilerDemographicPKDto demographicPK = new FilerDemographicPKDto();</span>
+<span class="nc" id="L50">        demographicPK.setSourceUniqueId(readString(fieldSet, BatchConstants.RECIPIENT_UNIQUE_ID));</span>
+<span class="nc" id="L51">        demographicPK.setTaxYear(readString(fieldSet, BatchConstants.TAX_YEAR));</span>
+<span class="nc" id="L52">        filerDemographic.setId(demographicPK);</span>
+<span class="nc" id="L53">        filerDemographic.setCorrection(readString(fieldSet, CORRECTION));</span>
+<span class="nc" id="L54">        filerDemographic.setRecipientFirstName(readString(fieldSet, BatchConstants.RECIPIENT_FIRST_NAME));</span>
+<span class="nc" id="L55">        filerDemographic.setRecipientMiddleName(readString(fieldSet, BatchConstants.RECIPIENT_MIDDLE_NAME));</span>
+<span class="nc" id="L56">        filerDemographic.setRecipientLastName(readString(fieldSet, BatchConstants.RECIPIENT_LAST_NAME));</span>
+<span class="nc" id="L57">        filerDemographic.setRecepientSuffixName(readString(fieldSet, BatchConstants.RECIPIENT_NAME_SUFFIX));</span>
+<span class="nc" id="L58">        filerDemographic.setRecipientSsn(readString(fieldSet, CommonDataConstants.RECIPIENT_SSN));</span>
+<span class="nc" id="L59">        filerDemographic.setRecipientTin(readString(fieldSet, CommonDataConstants.RECIPIENT_TIN));</span>
+<span class="nc" id="L60">        filerDemographic.setRecipientDobStr(readString(fieldSet, CommonDataConstants.RECIPIENT_DOB));</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (BatchUtils.validateDate(fieldSet, CommonDataConstants.RECIPIENT_DOB, BatchConstants.RECIPIENT_DOB_REGEX)) {</span>
+<span class="nc" id="L62">            filerDemographic.setRecipientDob(BatchUtils.getDate(</span>
+<span class="nc" id="L63">                    readString(fieldSet, CommonDataConstants.RECIPIENT_DOB)));</span>
+        }
+
+<span class="nc" id="L66">        filerDemographic.setRecipientAddressLine1(readString(fieldSet, BatchConstants.RECIPIENT_ADDRESS_LINE_1));</span>
+<span class="nc" id="L67">        filerDemographic.setRecipientAddressLine2(readString(fieldSet, BatchConstants.RECIPIENT_ADDRESS_LINE_2));</span>
+<span class="nc" id="L68">        filerDemographic.setRecipientCity(readString(fieldSet, BatchConstants.RECIPIENT_CITY));</span>
+<span class="nc" id="L69">        filerDemographic.setRecipientState(readString(fieldSet, BatchConstants.RECIPIENT_STATE_CODE));</span>
+<span class="nc" id="L70">        filerDemographic.setRecipientZip4(readString(fieldSet, BatchConstants.RECIPIENT_ZIP_4));</span>
+<span class="nc" id="L71">        filerDemographic.setRecipientZip5(readString(fieldSet, BatchConstants.RECIPIENT_ZIP_5));</span>
+<span class="nc" id="L72">        filerDemographic.setPolicyOrigin(readString(fieldSet, BatchConstants.POLICY_ORIGIN));</span>
+
+<span class="nc" id="L74">        Date currentDate = new Date();</span>
+<span class="nc" id="L75">        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd hh:mm:ss a&quot;);</span>
+<span class="nc" id="L76">        String currentTime = simpleDateFormat.format(currentDate);</span>
+
+<span class="nc" id="L78">        final String filerStatus = readString(fieldSet, BatchConstants.FILER_STATUS);</span>
+<span class="nc" id="L79">        filerDemographic.setFilerStatus(filerStatus);</span>
+
+        /** Add filer coverage if filer has it.  Filer status 'N' means 'not covered' */
+<span class="nc" id="L82">        FilerCoverageDto filerCoverage = new FilerCoverageDto();</span>
+<span class="nc" id="L83">        filerCoverage.setId(demographicPK);</span>
+<span class="nc" id="L84">        filerCoverage.setRecipientCaseApplicationId(readString(fieldSet, BatchConstants.RECIPIENT_CASE_APPLICATION_ID));</span>
+<span class="nc" id="L85">        filerCoverage.setProgramName(readString(fieldSet, BatchConstants.POLICY_PROGRAM_NAME));</span>
+
+<span class="nc" id="L87">        final String coverageBeginDateStr = readString(fieldSet, BatchConstants.POLICY_COVERAGE_BEGIN_DT);</span>
+<span class="nc" id="L88">        filerCoverage.setOrigCoverageBeginDtStr(coverageBeginDateStr);</span>
+<span class="nc" id="L89">        Date coverageBeginDate = BatchUtils.getDate(coverageBeginDateStr);</span>
+<span class="nc" id="L90">        filerCoverage.setOrigCoverageBeginDt(coverageBeginDate);</span>
+
+<span class="nc" id="L92">        final String coverageEndDateStr = readString(fieldSet, BatchConstants.POLICY_COVERAGE_END_DT);</span>
+<span class="nc" id="L93">        filerCoverage.setOrigCoverageEndDtStr(coverageEndDateStr);</span>
+<span class="nc" id="L94">        Date coverageEndDate = BatchUtils.getDate(coverageEndDateStr);</span>
+<span class="nc" id="L95">        filerCoverage.setOrigCoverageEndDt(coverageEndDate);</span>
+
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (filerCoverage.getOrigCoverageBeginDt() != null &amp;&amp; filerCoverage.getOrigCoverageEndDt() != null) {</span>
+<span class="nc" id="L98">            this.getCoverageMonths(taxYear, filerCoverage);</span>
+        }
+<span class="nc" id="L100">        filerCoverage.setUpdatedBy(&quot;System&quot;);</span>
+<span class="nc" id="L101">        filerCoverage.setUpdatedDt(currentTime);</span>
+<span class="nc" id="L102">        filerDemographic.updateCoverageMonths(filerCoverage);</span>
+<span class="nc" id="L103">        filerDemographic.addFilerCoverage(filerCoverage);   // add this regardless of filer status because coverage dates</span>
+        // of 99999999 or 00000000 can be otherwise meaningful
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        filerDemographic.setActive(!&quot;N&quot;.equals(filerDemographic.getFilerStatus()));  // record with no coverage is set as inactive</span>
+
+<span class="nc" id="L107">        filerDemographic.setShopIdentifier(readString(fieldSet, BatchConstants.POLICY_SHOP_IDENTIFIER));</span>
+<span class="nc" id="L108">        filerDemographic.setEmployerName(readString(fieldSet, BatchConstants.EMPLOYER_NAME));</span>
+<span class="nc" id="L109">        filerDemographic.setEmployerIdentificationNumber(readString(fieldSet, BatchConstants.EMPLOYER_IDENTIFICATION_NUMBER));</span>
+<span class="nc" id="L110">        filerDemographic.setEmployerAddressLine1(readString(fieldSet, BatchConstants.EMPLOYER_ADDRESS_LINE_1));</span>
+<span class="nc" id="L111">        filerDemographic.setEmployerAddressLine2(readString(fieldSet, BatchConstants.EMPLOYER_ADDRESS_LINE_2));</span>
+<span class="nc" id="L112">        filerDemographic.setEmployerCityOrTown(readString(fieldSet, BatchConstants.EMPLOYER_CITY_OR_TOWN));</span>
+<span class="nc" id="L113">        filerDemographic.setEmployerStateOrProvince(readString(fieldSet, BatchConstants.EMPLOYER_STATE_OR_PROVINCE));</span>
+<span class="nc" id="L114">        filerDemographic.setEmployerCountry(readString(fieldSet, BatchConstants.EMPLOYER_COUNTRY));</span>
+<span class="nc" id="L115">        filerDemographic.setZipOrPostalCode(readString(fieldSet, BatchConstants.EMPLOYER_ZIP_OR_FOREIGN_POSTAL_CODE));</span>
+<span class="nc" id="L116">        filerDemographic.setEmployerContactNo(readString(fieldSet, BatchConstants.EMPLOYER_CONTACT_NO));</span>
+<span class="nc" id="L117">        filerDemographic.setProviderName(readString(fieldSet, BatchConstants.PROVIDER_NAME));</span>
+<span class="nc" id="L118">        final String providerIdentificationNumber = StringUtils.trimToEmpty(</span>
+<span class="nc" id="L119">                readString(fieldSet, BatchConstants.PROVIDER_IDENTIFICATION_NUMBER)).replace(&quot;-&quot;, &quot;&quot;);</span>
+<span class="nc" id="L120">        filerDemographic.setProviderIdentificationNumber(providerIdentificationNumber);</span>
+<span class="nc" id="L121">        filerDemographic.setProviderContactNo(readString(fieldSet, BatchConstants.PROVIDER_CONTACT_NUMBER));</span>
+<span class="nc" id="L122">        filerDemographic.setProviderAddressLine1(readString(fieldSet, BatchConstants.PROVIDER_ADDRESS_LINE_1));</span>
+<span class="nc" id="L123">        filerDemographic.setProviderAddressLine2(readString(fieldSet, BatchConstants.PROVIDER_ADDRESS_LINE_2));</span>
+<span class="nc" id="L124">        filerDemographic.setProviderCityOrTown(readString(fieldSet, BatchConstants.PROVIDER_CITY_OR_TOWN));</span>
+<span class="nc" id="L125">        filerDemographic.setProviderStateOrProvince(readString(fieldSet, BatchConstants.PROVIDER_STATE_OR_PROVINCE));</span>
+<span class="nc" id="L126">        filerDemographic.setProviderCountry(readString(fieldSet, BatchConstants.PROVIDER_COUNTRY));</span>
+<span class="nc" id="L127">        filerDemographic.setProviderZipOrPostalCode(readString(fieldSet, BatchConstants.PROVIDER_ZIP_OR_FOREIGN_POSTAL_CODE));</span>
+<span class="nc" id="L128">        String respPersonUniqueId = readString(fieldSet, BatchConstants.RESPONSIBLE_PERSON_UNIQUE_ID);</span>
+<span class="nc" id="L129">        Pattern pattern = Pattern.compile(&quot;[0-9]+&quot;);</span>
+<span class="nc bnc" id="L130" title="All 6 branches missed.">        if (respPersonUniqueId == null || (respPersonUniqueId != null &amp;&amp; pattern.matcher(respPersonUniqueId).matches())) {</span>
+<span class="nc" id="L131">            final long responsiblePersonUniqueId = NumberUtils.toLong(respPersonUniqueId);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (&quot;C&quot;.equalsIgnoreCase(filerStatus)) {</span>
+<span class="nc" id="L133">                filerDemographic.setResponsiblePersonUniqueId(Long.toString(responsiblePersonUniqueId));</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            } else if (&quot;R&quot;.equalsIgnoreCase(filerStatus)) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                if (Long.valueOf(responsiblePersonUniqueId) != 0L) {</span>
+<span class="nc" id="L136">                    filerDemographic.setResponsiblePersonUniqueId(Long.toString(responsiblePersonUniqueId));</span>
+                } else {
+<span class="nc" id="L138">                    filerDemographic.setResponsiblePersonUniqueId(Long.toString(NumberUtils.toLong(readString(fieldSet, BatchConstants.RECIPIENT_UNIQUE_ID))));</span>
+                }
+            }
+<span class="nc" id="L141">        } else {</span>
+<span class="nc" id="L142">            filerDemographic.setResponsiblePersonUniqueId(respPersonUniqueId);</span>
+        }
+<span class="nc" id="L144">        filerDemographic.setCommunicationPreference(readString(fieldSet, BatchConstants.COMM_PREFERENCE));</span>
+<span class="nc" id="L145">        filerDemographic.seteMail(readString(fieldSet, BatchConstants.EMAIL));</span>
+<span class="nc" id="L146">        filerDemographic.setMailedForm(readString(fieldSet, BatchConstants.MAILED_FORM));</span>
+<span class="nc" id="L147">        filerDemographic.setLineNumber(line);</span>
+<span class="nc" id="L148">        filerDemographic.setUpdatedBy(&quot;File Ingestion&quot;);</span>
+<span class="nc" id="L149">        filerDemographic.setUpdatedDt(currentTime);</span>
+        // filerDemographic.setFilerCoverages(filerCoverage);
+<span class="nc" id="L151">        return filerDemographic;</span>
+    }
+
+    private String readString(final FieldSet fieldSet, final String fieldName) {
+<span class="nc" id="L155">        String fieldValue = StringUtils.trimToNull(fieldSet.readString(fieldName));</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">        if (StringUtils.isNotBlank(fieldValue) &amp;&amp; fieldValue.contains(&quot;\&quot;&quot;)) {</span>
+<span class="nc" id="L157">            fieldValue = fieldValue.replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+        }
+<span class="nc" id="L159">        return fieldValue;</span>
+    }
+
+    private void getCoverageMonths(int taxYear, FilerCoverageDto filerCoverage) {
+<span class="nc" id="L163">        String coverageStartDate = filerCoverage.getOrigCoverageBeginDtStr();</span>
+<span class="nc" id="L164">        String coverageEndDate = filerCoverage.getOrigCoverageEndDtStr();</span>
+<span class="nc" id="L165">        int coverageStarDateYear = Integer.parseInt(coverageStartDate.substring(4, 8));</span>
+<span class="nc" id="L166">        int coverageEndDateYear = Integer.parseInt(coverageEndDate.substring(4, 8));</span>
+<span class="nc bnc" id="L167" title="All 4 branches missed.">        if ((coverageStarDateYear &lt; taxYear) &amp;&amp; (coverageEndDateYear &gt; taxYear)) {</span>
+<span class="nc" id="L168">            int startMonth = BatchUtils.getCoverageMonth(BatchUtils.getDate(BatchConstants.COVERAGE_START_DATE_DEFAULT));</span>
+<span class="nc" id="L169">            int endMonth = BatchUtils.getCoverageMonth(BatchUtils.getDate(BatchConstants.COVERAGE_END_DATE_DEFAULT));</span>
+<span class="nc" id="L170">            BatchUtils.setMonth(filerCoverage, startMonth, endMonth);</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">        } else if ((coverageStarDateYear &lt; taxYear) &amp;&amp; (coverageEndDateYear == taxYear)) {</span>
+<span class="nc" id="L172">            int startMonth = BatchUtils.getCoverageMonth(BatchUtils.getDate(BatchConstants.COVERAGE_START_DATE_DEFAULT));</span>
+<span class="nc" id="L173">            int endMonth = Integer.parseInt(coverageEndDate.substring(0, 2));</span>
+<span class="nc" id="L174">            BatchUtils.setMonth(filerCoverage, startMonth, endMonth);</span>
+<span class="nc bnc" id="L175" title="All 4 branches missed.">        } else if ((coverageStarDateYear == taxYear) &amp;&amp; (coverageEndDateYear == taxYear)) {</span>
+<span class="nc" id="L176">            int startMonth = Integer.parseInt(coverageStartDate.substring(0, 2));</span>
+<span class="nc" id="L177">            int endMonth = Integer.parseInt(coverageEndDate.substring(0, 2));</span>
+<span class="nc" id="L178">            BatchUtils.setMonth(filerCoverage, startMonth, endMonth);</span>
+<span class="nc bnc" id="L179" title="All 4 branches missed.">        } else if ((coverageStarDateYear == taxYear) &amp;&amp; (coverageEndDateYear &gt; taxYear)) {</span>
+<span class="nc" id="L180">            int startMonth = Integer.parseInt(coverageStartDate.substring(0, 2));</span>
+<span class="nc" id="L181">            int endMonth = BatchUtils.getCoverageMonth(BatchUtils.getDate(BatchConstants.COVERAGE_END_DATE_DEFAULT));</span>
+<span class="nc" id="L182">            BatchUtils.setMonth(filerCoverage, startMonth, endMonth);</span>
+        }
+<span class="nc" id="L184">    }</span>
+
+    public ProfileProperties getProfileProperties() {
+<span class="nc" id="L187">        return profileProperties;</span>
+    }
+
+    public void setProfileProperties(ProfileProperties profileProperties) {
+<span class="nc" id="L191">        this.profileProperties = profileProperties;</span>
+<span class="nc" id="L192">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

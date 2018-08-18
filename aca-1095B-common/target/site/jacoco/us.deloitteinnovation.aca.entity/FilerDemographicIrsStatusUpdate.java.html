@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicIrsStatusUpdate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerDemographicIrsStatusUpdate.java</span></div><h1>FilerDemographicIrsStatusUpdate.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+
+import org.hibernate.annotations.BatchSize;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * The persistent class for the filer_demographics database table.
+ *..
+ */
+@Entity
+@BatchSize(size=200)
+@Table(name=&quot;filer_demographics&quot;)
+<span class="nc" id="L17">public class FilerDemographicIrsStatusUpdate implements Serializable {</span>
+	private static final long serialVersionUID = 1L;
+	@EmbeddedId
+	private FilerDemographicPK id;
+
+	public FilerDemographicPK getId() {
+<span class="nc" id="L23">		return this.id;</span>
+	}
+
+	public void setId(FilerDemographicPK filerDemographicPK) {
+<span class="nc" id="L27">		 this.id = filerDemographicPK;</span>
+<span class="nc" id="L28">	}</span>
+
+
+	@Column(name=&quot;IRS_TRANSMISSION_STATUS_CD&quot;)
+	private String irsTransmissionCode;
+
+
+	@Column(name=&quot;UPDATED_BY&quot;)
+	private String updatedBy;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;UPDATED_DATE&quot;)
+	private Date updatedDt;
+
+
+
+	public String getIrsTransmissionCode() {
+<span class="nc" id="L45">		return irsTransmissionCode;</span>
+	}
+
+	public void setIrsTransmissionCode(String irsTransmissionCode) {
+<span class="nc" id="L49">		this.irsTransmissionCode = irsTransmissionCode;</span>
+<span class="nc" id="L50">	}</span>
+
+	public String getUpdatedBy() {
+<span class="nc" id="L53">		return updatedBy;</span>
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L57">		this.updatedBy = updatedBy;</span>
+<span class="nc" id="L58">	}</span>
+
+	public Date getUpdatedDt() {
+<span class="nc" id="L61">		return updatedDt;</span>
+	}
+
+	public void setUpdatedDt(Date updatedDt) {
+<span class="nc" id="L65">		this.updatedDt = updatedDt;</span>
+<span class="nc" id="L66">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

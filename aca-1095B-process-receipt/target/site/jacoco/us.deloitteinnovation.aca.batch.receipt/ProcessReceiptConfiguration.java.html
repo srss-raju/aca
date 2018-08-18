@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProcessReceiptConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Process Receipt Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.receipt</a> &gt; <span class="el_source">ProcessReceiptConfiguration.java</span></div><h1>ProcessReceiptConfiguration.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.receipt;
+
+import java.io.File;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import us.deloitteinnovation.aca.JpaConfiguration;
+import us.deloitteinnovation.aca.batch.receipt.dto.ProcessReceiptDto;
+import us.deloitteinnovation.aca.batch.receipt.dto.StepResult;
+import us.deloitteinnovation.aca.batch.receipt.reader.ConfirmationFileProcessor;
+import us.deloitteinnovation.aca.batch.receipt.reader.ConfirmationFileReader;
+import us.deloitteinnovation.aca.batch.receipt.reader.ConfirmationFileWriter;
+import us.deloitteinnovation.aca.batch.receipt.repository.PrintDetailsMailRepository;
+import us.deloitteinnovation.aca.batch.receipt.step.ProcessReceiptProcessor;
+import us.deloitteinnovation.aca.batch.receipt.step.ProcessReceiptReader;
+import us.deloitteinnovation.aca.batch.receipt.step.ProcessReceiptWriter;
+import us.deloitteinnovation.aca.batch.receipt.util.BatchHistoryCleanupTasklet;
+import us.deloitteinnovation.aca.batch.receipt.util.ProcessReceiptConstants;
+import us.deloitteinnovation.aca.repository.PrintVendorJdbcRepository;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+/**
+ * This file reads the csv file sent by Print Vendor and updates the status in database according to information provided in the file
+ *
+ * @author RajeshKumar B
+ *
+ */
+@Configuration
+@EnableBatchProcessing
+@Import(JpaConfiguration.class)
+<span class="nc" id="L44">public class ProcessReceiptConfiguration {</span>
+
+<span class="nc" id="L46">    static final Logger LOGGER = LoggerFactory.getLogger(ProcessReceiptConfiguration.class);</span>
+
+    @Autowired
+    JobBuilderFactory jobs;
+    @Autowired
+    StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    ProfileProperties profileProperties;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Bean
+    public PrintDetailsMailRepository printDetailsMailRepository() {
+<span class="nc" id="L61">        final PrintDetailsMailRepository repo = new PrintDetailsMailRepository();</span>
+<span class="nc" id="L62">        repo.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L63">        return repo;</span>
+    }
+
+    @Bean
+    @StepScope
+    public ProcessReceiptReader processReceiptReader() {
+<span class="nc" id="L69">        return new ProcessReceiptReader();</span>
+    }
+
+    @Bean
+    @StepScope
+    public ProcessReceiptProcessor processReceiptProcessor() {
+<span class="nc" id="L75">        return new ProcessReceiptProcessor();</span>
+    }
+
+    @Bean
+    @StepScope
+    public ProcessReceiptWriter processReceiptWriter() {
+<span class="nc" id="L81">        return new ProcessReceiptWriter();</span>
+    }
+
+    @Bean
+    public ProcessReceiptListener processReceiptListener() {
+<span class="nc" id="L86">        return new ProcessReceiptListener();</span>
+    }
+
+    @Bean
+    @StepScope
+    public BatchHistoryCleanupTasklet batchHistoryCleanupTasklet() {
+<span class="nc" id="L92">        final BatchHistoryCleanupTasklet step5Tasklet = new BatchHistoryCleanupTasklet();</span>
+<span class="nc" id="L93">        step5Tasklet.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L94">        return step5Tasklet;</span>
+    }
+
+    @Bean
+    public Step process1095BReceiptFile(ProcessReceiptReader readReceiptFile, ProcessReceiptProcessor processReceiptProcessor,
+            ProcessReceiptWriter processReceiptWriter, ProcessReceiptListener processReceiptListener) {
+<span class="nc" id="L100">        return stepBuilderFactory.get(&quot;process1095BReceiptFile&quot;).&lt;ProcessReceiptDto, ProcessReceiptDto&gt; chunk(ProcessReceiptConstants.RECORDSSIZE)</span>
+<span class="nc" id="L101">                .reader(readReceiptFile).processor(processReceiptProcessor).writer(processReceiptWriter).listener(processReceiptListener).build();</span>
+    }
+
+    @Bean
+    public Step cleanupBatchMetaData(BatchHistoryCleanupTasklet cleanupTasklet) {
+<span class="nc" id="L106">        return stepBuilderFactory.get(&quot;cleanupBatchMetaData&quot;).tasklet(cleanupTasklet).build();</span>
+    }
+
+    @Bean
+    public Step confirmationFileProcessStep(ConfirmationFileReader confirmationFileReader, ConfirmationFileProcessor confirmationFileProcessor,
+            ConfirmationFileWriter confirmationFileWriter, ProcessReceiptListener processReceiptListener) {
+<span class="nc" id="L112">        return stepBuilderFactory.get(&quot;confirmationFileProcessStep&quot;).&lt;File, StepResult&gt; chunk(1).reader(confirmationFileReader)</span>
+<span class="nc" id="L113">                .processor(confirmationFileProcessor).writer(confirmationFileWriter).build();</span>
+    }
+
+    @Bean
+    public ConfirmationFileReader confirmationFileReader() {
+<span class="nc" id="L118">        return new ConfirmationFileReader();</span>
+    }
+
+    @Bean
+    public ConfirmationFileProcessor confirmationFileProcessor() {
+<span class="nc" id="L123">        return new ConfirmationFileProcessor();</span>
+    }
+
+    @Bean
+    public ConfirmationFileWriter confirmationFileWriter() {
+<span class="nc" id="L128">        return new ConfirmationFileWriter();</span>
+    }
+
+    @Bean
+    public PrintVendorJdbcRepository printVendorJdbcRepository() {
+<span class="nc" id="L133">        final PrintVendorJdbcRepository printVendorJdbcRepository = new PrintVendorJdbcRepository();</span>
+<span class="nc" id="L134">        printVendorJdbcRepository.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L135">        return printVendorJdbcRepository;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

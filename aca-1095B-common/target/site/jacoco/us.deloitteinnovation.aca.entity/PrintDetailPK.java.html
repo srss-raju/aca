@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintDetailPK.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">PrintDetailPK.java</span></div><h1>PrintDetailPK.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+
+/**
+ * The primary key class for the print_details database table.
+ * 
+ */
+@Embeddable
+public class PrintDetailPK implements Serializable {
+	//default serial version id, required for serializable classes.
+	private static final long serialVersionUID = 2L;
+
+	@Column(name=&quot;SOURCE_UNIQUE_ID&quot;)
+	private long sourceUniqueId;
+
+	@Column(name=&quot;SOURCE_CD&quot;)
+	private String sourceCd;
+
+
+
+	@Column(name=&quot;TAX_YEAR&quot;)
+	private String taxYear;
+
+
+
+	@Column(name=&quot;PRINT_FILE_NAME&quot;)
+	private String printFileName;
+
+<span class="nc" id="L32">	public PrintDetailPK() {</span>
+<span class="nc" id="L33">	}</span>
+	public long getSourceUniqueId() {
+<span class="nc" id="L35">		return this.sourceUniqueId;</span>
+	}
+	public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L38">		this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L39">	}</span>
+	public String getSourceCd() {
+<span class="nc" id="L41">		return this.sourceCd;</span>
+	}
+	public void setSourceCd(String sourceCd) {
+<span class="nc" id="L44">		this.sourceCd = sourceCd;</span>
+<span class="nc" id="L45">	}</span>
+
+	public boolean equals(Object other) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (this == other) {</span>
+<span class="nc" id="L49">			return true;</span>
+		}
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (!(other instanceof PrintDetailPK)) {</span>
+<span class="nc" id="L52">			return false;</span>
+		}
+<span class="nc" id="L54">		PrintDetailPK castOther = (PrintDetailPK)other;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		return </span>
+			(this.sourceUniqueId == castOther.sourceUniqueId)
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			&amp;&amp; this.sourceCd.equals(castOther.sourceCd);</span>
+	}
+
+	public String getTaxYear() {
+<span class="nc" id="L61">		return taxYear;</span>
+	}
+
+	public void setTaxYear(String taxYear) {
+<span class="nc" id="L65">		this.taxYear = taxYear;</span>
+<span class="nc" id="L66">	}</span>
+	public String getPrintFileName() {
+<span class="nc" id="L68">		return printFileName;</span>
+	}
+
+	public void setPrintFileName(String printFileName) {
+<span class="nc" id="L72">		this.printFileName = printFileName;</span>
+<span class="nc" id="L73">	}</span>
+
+	public int hashCode() {
+<span class="nc" id="L76">		final int prime = 31;</span>
+<span class="nc" id="L77">		int hash = 17;</span>
+<span class="nc" id="L78">		hash = hash * prime + (int) this.sourceUniqueId;</span>
+<span class="nc" id="L79">		hash = hash * prime + this.sourceCd.hashCode();</span>
+		
+<span class="nc" id="L81">		return hash;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

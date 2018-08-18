@@ -1,0 +1,30 @@
+<div ng-include src="'views/state-header-common.html'"></div>
+<div class="cw-bg-wrapper">
+  <div class="scroll-container cw-login-container login-error-view">
+    <div class="error-panel">
+      <div class="failure-banner row-margin-top" tabindex="1" aria-label="Incorrect Login, entered username and password are incorrect. Multiple failed login attempts will result in Account Locked ">
+        <div class="text-center row-padding-top10">
+          <span class="failure-icon"></span>
+          <span class="login-error-heading">INCORRECT LOGIN</span>
+        </div>
+        <div class="text-center row-padding-bottom10">
+          <div class="login-error">Username and password is incorrect.Please sign in again</div>
+          <div class="login-error">Multiple failed login attempts will result in Account Locked</div>
+       </div>
+      </div>
+      <div class="form-group margin-top-28px text-center">
+        <input type="submit" class="btn btn-orange btn-search-user"  tabindex="2" ui-sref="siteminder-login" value="Sign in"/>
+      </div>
+      <div class="form-group text-center">
+        <a ui-sref="forgot-password"  tabindex="2">Forgot password?</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    $('.failure-banner').focus();
+  })();
+</script>
+

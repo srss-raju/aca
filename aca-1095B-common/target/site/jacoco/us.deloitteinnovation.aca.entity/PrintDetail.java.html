@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintDetail.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">PrintDetail.java</span></div><h1>PrintDetail.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+
+/**
+ * The persistent class for the print_details database table.
+ * 
+ */
+@Entity
+@Table(name=&quot;print_details&quot;)
+public class PrintDetail implements Serializable, Comparable&lt;PrintDetail&gt; {
+	private static final long serialVersionUID = 1L;
+
+	@EmbeddedId
+	private PrintDetailPK id;
+
+	@Column(name=&quot;BATCH_ID&quot;)
+	private Integer batchId;
+
+
+
+	@Column(name=&quot;PRINT_REASON&quot;)
+	private String printReason;
+
+	@Column(name= CommonDataConstants.PrintStatus.PRINT_STATUS)
+	private String printStatus;
+	
+	@Column(name=&quot;ORIGINAL_FORM_STATUS&quot;)
+	private String originalFormStatus;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;LAST_MAIL_REQUESTED_DATE&quot;)
+	private Date lastMailRequestedDate;
+
+	@Column(name=&quot;UPDATED_BY&quot;)
+	private String updatedBy;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;UPDATED_DATE&quot;)
+	private Date updatedDt;
+
+	@Column(name=&quot;CORRECTION_INDICATOR&quot;)
+	private Integer correctionIndicator;
+
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;CREATED_DATE&quot;)
+	private Date createdDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name=&quot;MAILED_DATE&quot;)
+    private Date mailedDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name=&quot;ACKNOWLEDGE_DATE&quot;)
+    private Date acknowledgeDate;
+
+<span class="nc" id="L63">	public PrintDetail() {</span>
+<span class="nc" id="L64">	}</span>
+
+
+	public Integer getBatchId() {
+<span class="nc" id="L68">		return batchId;</span>
+	}
+
+	public void setBatchId(Integer batchId) {
+<span class="nc" id="L72">		this.batchId = batchId;</span>
+<span class="nc" id="L73">	}</span>
+
+
+
+
+
+	public String getPrintReason() {
+<span class="nc" id="L80">		return this.printReason;</span>
+	}
+
+	public void setPrintReason(String printReason) {
+<span class="nc" id="L84">		this.printReason = printReason;</span>
+<span class="nc" id="L85">	}</span>
+
+	public String getPrintStatus() {
+<span class="nc" id="L88">		return this.printStatus;</span>
+	}
+
+	public void setPrintStatus(String printStatus) {
+<span class="nc" id="L92">		this.printStatus = printStatus;</span>
+<span class="nc" id="L93">	}</span>
+
+	public String getUpdatedBy() {
+<span class="nc" id="L96">		return this.updatedBy;</span>
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L100">		this.updatedBy = updatedBy;</span>
+<span class="nc" id="L101">	}</span>
+
+	public Date getUpdatedDt() {
+<span class="nc" id="L104">		return this.updatedDt;</span>
+	}
+
+	public void setUpdatedDt(Date updatedDt) {
+<span class="nc" id="L108">		this.updatedDt = updatedDt;</span>
+<span class="nc" id="L109">	}</span>
+
+
+	public PrintDetailPK getId() {
+<span class="nc" id="L113">		return id;</span>
+	}
+
+	public void setId(PrintDetailPK id) {
+<span class="nc" id="L117">		this.id = id;</span>
+<span class="nc" id="L118">	}</span>
+
+	public Date getLastMailRequestedDate() {
+<span class="nc" id="L121">		return lastMailRequestedDate;</span>
+	}
+
+	public void setLastMailRequestedDate(Date lastMailRequestedDate) {
+<span class="nc" id="L125">		this.lastMailRequestedDate = lastMailRequestedDate;</span>
+<span class="nc" id="L126">	}</span>
+
+
+	public String getOriginalFormStatus() {
+<span class="nc" id="L130">		return originalFormStatus;</span>
+	}
+
+
+	public void setOriginalFormStatus(String originalFormStatus) {
+<span class="nc" id="L135">		this.originalFormStatus = originalFormStatus;</span>
+<span class="nc" id="L136">	}</span>
+
+	public Date getCreatedDate() {
+<span class="nc" id="L139">		return createdDate;</span>
+	}
+
+	public void setCreatedDate(Date createdDate) {
+<span class="nc" id="L143">		this.createdDate = createdDate;</span>
+<span class="nc" id="L144">	}</span>
+
+
+	public int getCorrectionIndicator() {
+<span class="nc" id="L148">		return correctionIndicator;</span>
+	}
+
+
+	public void setCorrectionIndicator(int correctionIndicator) {
+<span class="nc" id="L153">		this.correctionIndicator = correctionIndicator;</span>
+<span class="nc" id="L154">	}</span>
+
+    public Date getMailedDate() {
+<span class="nc" id="L157">        return mailedDate;</span>
+    }
+
+    public void setMailedDate(Date mailedDate) {
+<span class="nc" id="L161">        this.mailedDate = mailedDate;</span>
+<span class="nc" id="L162">    }</span>
+
+    public Date getAcknowledgeDate() {
+<span class="nc" id="L165">        return acknowledgeDate;</span>
+    }
+
+    public void setAcknowledgeDate(Date acknowledgeDate) {
+<span class="nc" id="L169">        this.acknowledgeDate = acknowledgeDate;</span>
+<span class="nc" id="L170">    }</span>
+
+    @Override
+    public int compareTo(PrintDetail o) {
+<span class="nc" id="L174">        return this.getCreatedDate().compareTo(o.getCreatedDate());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

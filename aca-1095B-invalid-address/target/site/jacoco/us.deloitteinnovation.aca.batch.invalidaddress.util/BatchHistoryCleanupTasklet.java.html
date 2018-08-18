@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchHistoryCleanupTasklet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Invalid Address Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.invalidaddress.util</a> &gt; <span class="el_source">BatchHistoryCleanupTasklet.java</span></div><h1>BatchHistoryCleanupTasklet.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.invalidaddress.util;
+
+/**
+ * Created by bhchaganti on 5/13/2016.
+ */
+
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.repository.dao.AbstractJdbcBatchMetadataDao;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/**
+ * Tasklet used to delete data from Spring Batch Metadata tables that are N months old.
+ * &lt;p&gt;
+ * &lt;p&gt;
+ * The row numbers in the 6 tables of Spring Batch may increase a lot. This tasklet cleans the
+ * Spring Batch database by removing old job instances executions and keep the historic of recent
+ * job executions.&lt;br&gt;
+ * Spring Batch tables prefix could be customized by the {@link #setTablePrefix(String)}&lt;br&gt;
+ * &lt;/p&gt;
+ *
+ */
+
+<span class="nc" id="L37">public class BatchHistoryCleanupTasklet implements Tasklet, InitializingBean {</span>
+
+    /**
+     * SQL statements removing step and job executions compared to a given date.
+     */
+    private static final String SQL_DELETE_BATCH_STEP_EXECUTION_CONTEXT = &quot;DELETE FROM %PREFIX%STEP_EXECUTION_CONTEXT WHERE STEP_EXECUTION_ID IN (SELECT STEP_EXECUTION_ID FROM %PREFIX%STEP_EXECUTION WHERE JOB_EXECUTION_ID IN (SELECT JOB_EXECUTION_ID FROM  %PREFIX%JOB_EXECUTION where CREATE_TIME &lt; ?))&quot;;
+    private static final String SQL_DELETE_BATCH_STEP_EXECUTION = &quot;DELETE FROM %PREFIX%STEP_EXECUTION WHERE JOB_EXECUTION_ID IN (SELECT JOB_EXECUTION_ID FROM %PREFIX%JOB_EXECUTION where CREATE_TIME &lt; ?)&quot;;
+    private static final String SQL_DELETE_BATCH_JOB_EXECUTION_CONTEXT = &quot;DELETE FROM %PREFIX%JOB_EXECUTION_CONTEXT WHERE JOB_EXECUTION_ID IN (SELECT JOB_EXECUTION_ID FROM  %PREFIX%JOB_EXECUTION where CREATE_TIME &lt; ?)&quot;;
+    private static final String SQL_DELETE_BATCH_JOB_EXECUTION_PARAMS = &quot;DELETE FROM %PREFIX%JOB_EXECUTION_PARAMS WHERE JOB_EXECUTION_ID IN (SELECT JOB_EXECUTION_ID FROM %PREFIX%JOB_EXECUTION where CREATE_TIME &lt; ?)&quot;;
+    private static final String SQL_DELETE_BATCH_JOB_EXECUTION = &quot;DELETE FROM %PREFIX%JOB_EXECUTION where CREATE_TIME &lt; ?&quot;;
+    private static final String SQL_DELETE_BATCH_JOB_INSTANCE = &quot;DELETE FROM %PREFIX%JOB_INSTANCE WHERE JOB_INSTANCE_ID NOT IN (SELECT JOB_INSTANCE_ID FROM %PREFIX%JOB_EXECUTION)&quot;;
+
+    /**
+     * Default value for the table prefix property.
+     */
+    private static final String DEFAULT_TABLE_PREFIX = AbstractJdbcBatchMetadataDao.DEFAULT_TABLE_PREFIX;
+
+    /**
+     * Default value for the data retention (in month and days)
+     * Set this value to non-zero if retention is required.
+     * Ex:Value of 3 will retain last 3 months of batch execution history
+     */
+<span class="nc" id="L59">    private static final Integer DEFAULT_RETENTION_DAYS = 1;</span>
+<span class="nc" id="L60">    private static final Logger LOG = LoggerFactory.getLogger(BatchHistoryCleanupTasklet.class);</span>
+<span class="nc" id="L61">    private String tablePrefix = DEFAULT_TABLE_PREFIX;</span>
+<span class="nc" id="L62">    private Integer historicRetentionMonth = DEFAULT_RETENTION_DAYS;</span>
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+<span class="nc" id="L67">        int totalCount = 0;</span>
+<span class="nc" id="L68">        Date date = DateUtils.addDays(new Date(), -historicRetentionMonth);</span>
+<span class="nc" id="L69">        DateFormat df = new SimpleDateFormat();</span>
+<span class="nc" id="L70">        LOG.info(&quot;Remove the Spring Batch history before the {}&quot;, df.format(date));</span>
+
+<span class="nc" id="L72">        int rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_STEP_EXECUTION_CONTEXT), date);</span>
+<span class="nc" id="L73">        LOG.info(&quot;Deleted rows number from the BATCH_STEP_EXECUTION_CONTEXT table: {}&quot;, rowCount);</span>
+<span class="nc" id="L74">        totalCount += rowCount;</span>
+
+<span class="nc" id="L76">        rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_STEP_EXECUTION), date);</span>
+<span class="nc" id="L77">        LOG.info(&quot;Deleted rows number from the BATCH_STEP_EXECUTION table: {}&quot;, rowCount);</span>
+<span class="nc" id="L78">        totalCount += rowCount;</span>
+
+<span class="nc" id="L80">        rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_JOB_EXECUTION_CONTEXT), date);</span>
+<span class="nc" id="L81">        LOG.info(&quot;Deleted rows number from the BATCH_JOB_EXECUTION_CONTEXT table: {}&quot;, rowCount);</span>
+<span class="nc" id="L82">        totalCount += rowCount;</span>
+
+<span class="nc" id="L84">        rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_JOB_EXECUTION_PARAMS), date);</span>
+<span class="nc" id="L85">        LOG.info(&quot;Deleted rows number from the BATCH_JOB_EXECUTION_PARAMS table: {}&quot;, rowCount);</span>
+<span class="nc" id="L86">        totalCount += rowCount;</span>
+
+<span class="nc" id="L88">        rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_JOB_EXECUTION), date);</span>
+<span class="nc" id="L89">        LOG.info(&quot;Deleted rows number from the BATCH_JOB_EXECUTION table: {}&quot;, rowCount);</span>
+<span class="nc" id="L90">        totalCount += rowCount;</span>
+
+<span class="nc" id="L92">        rowCount = jdbcTemplate.update(getQuery(SQL_DELETE_BATCH_JOB_INSTANCE));</span>
+<span class="nc" id="L93">        LOG.info(&quot;Deleted rows number from the BATCH_JOB_INSTANCE table: {}&quot;, rowCount);</span>
+<span class="nc" id="L94">        totalCount += rowCount;</span>
+
+<span class="nc" id="L96">        contribution.incrementWriteCount(totalCount);</span>
+
+<span class="nc" id="L98">        return RepeatStatus.FINISHED;</span>
+    }
+
+    protected String getQuery(String base) {
+<span class="nc" id="L102">        return StringUtils.replace(base, &quot;%PREFIX%&quot;, tablePrefix);</span>
+    }
+
+    public void setTablePrefix(String tablePrefix) {
+<span class="nc" id="L106">        this.tablePrefix = tablePrefix;</span>
+<span class="nc" id="L107">    }</span>
+
+    public void setHistoricRetentionMonth(Integer historicRetentionMonth) {
+<span class="nc" id="L110">        this.historicRetentionMonth = historicRetentionMonth;</span>
+<span class="nc" id="L111">    }</span>
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+<span class="nc" id="L114">        this.jdbcTemplate = jdbcTemplate;</span>
+<span class="nc" id="L115">    }</span>
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+<span class="nc" id="L119">        Assert.notNull(jdbcTemplate);</span>
+<span class="nc" id="L120">    }</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

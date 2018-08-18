@@ -1,0 +1,475 @@
+
+<div class="cw-view-form-actual">
+  <!-- Below is IE hack for proper printing of 1095B form-->
+  <style media="print">
+    @page {
+      size: 8.5in 11in;
+      margin: 0.5in 0.25in 0.5in 0.25in;
+    }
+  </style>
+
+  <div class="form-page">
+
+    <div class="cw-form-page1">
+      <div class="cf-info">Substitute Form</div>
+
+      <div class="cf-title">
+        <div class="cf-title-part1">
+          <div>Form <span class="cf-title-bold">1095-B</span></div>
+          <div class="cf-title-part1-text">Department of the Treasury Internal Revenue Service</div>
+        </div>
+
+        <div class="cf-title-part2">
+          <div>
+            <span class="cf-title-status" ng-if="vm.cwData.correctionIndicator == '1'">Corrected</span>
+            <span class="cf-title-bold">Health Coverage</span>
+          </div>
+
+          <div class="cf-title-part2-info">Do not attach to your tax return. Keep for your records.
+          </div>
+
+          <div class="cf-title-part2-tagline">Information about Form 1095-B and its separate instructions is at
+            <a class="cf-link-title" tabindex="-1" href="http://www.irs.gov/form1095b">www.irs.gov/form1095b</a>
+          </div>
+
+        </div>
+
+        <div class="cf-title-part3">
+          <div class="cf-title-status-options">
+            <div class="cf-checkbox"></div>
+            <div class="cf-title-status-box">Void</div>
+          </div>
+          <div class="cf-title-status-options">
+            <div class="cf-checkbox">
+              <div class="cf-mark" ng-if="vm.cwData.correctionIndicator == '2'">
+                X
+              </div>
+            </div>
+            <div class="cf-title-status-box">Corrected</div>
+          </div>
+        </div>
+
+        <div class="cf-title-part4">
+          <div class="cf-title-no1">5601{{vm.cwData.taxYear | limitTo: -2}}</div>
+          <div class="cf-title-bold">{{vm.cwData.taxYear}}</div>
+          <div class="cf-title-no2">OMB No. 1545-2252</div>
+        </div>
+      </div>
+
+      <div class="cf-content">
+
+        <div class="cf-width-50p cf-height-20">
+          <div class="cf-part cf-height-100p cf-bold">Part <span>&#8544;</span></div>
+          <div class="cf-height-100p">Responsible Individual</div>
+        </div>
+        <div class="cf-width-50p cf-height-20">
+          <div class="cf-part cf-height-100p cf-bold">Part <span>&#8545;</span></div>
+          <div class="cf-height-100p">Employer Sponsored Coverage (see instructions)</div>
+        </div>
+
+        <div class="cf-width-50p cf-height-130 cf-border cf-text">
+          <div class="cf-name">
+            {{vm.cwData.recipientFirstName}} {{vm.cwData.recipientLastName}}
+          </div>
+          <div class="cf-street-1">
+            {{vm.cwData.recipientDOBAddressLine1}}
+          </div>
+          <div class="cf-street-2">
+            {{vm.cwData.recipientDOBAddressLine2}}
+          </div>
+          <div class="cf-city">
+            {{vm.cwData.recipientCity}}, {{vm.cwData.recipientState}} {{vm.cwData.recipientZip}}
+          </div>
+        </div>
+        <div class="cf-width-50p cf-height-130 cf-border-right-rem cf-text">
+          <div>
+            Intentionally Blank
+          </div>
+        </div>
+
+
+        <div class="cf-width-50p cf-height-30 cf-border-left-right">
+
+          <div class="cf-width-50p cf-border-right cf-numbers" ng-if="vm.cwData.uidNumber">DOB: Intentionally Blank</div>
+          <div class="cf-width-50p cf-border-right cf-numbers" ng-if="!vm.cwData.uidNumber">DOB: {{vm.cwData.recipientDOB}}</div>
+
+          <div class="cf-width-50p cf-numbers" ng-if="vm.cwData.uidNumber">{{vm.cwData.uidType}}: {{vm.cwData.uidNumber}}</div>
+          <div class="cf-width-50p cf-numbers" ng-if="!vm.cwData.uidNumber">SSN/TIN: Intentionally Blank</div>
+
+        </div>
+        <div class="cf-width-50p cf-height-30 cf-border-right">
+          <div class="cf-numbers">
+            EIN: Intentionally Blank
+          </div>
+        </div>
+
+
+        <div class="cf-width-50p cf-height-180 cf-border">
+          <div class="cf-height-50p cf-text-detail">
+            <div class="cf-valign">
+              <div>Enter letter identifying Origin of the Health Coverage</div>
+              <div>(see instructions for codes): .....................................</div>
+              <div class="cf-checkbox">
+                <div class="cf-policy">{{vm.cwData.policyOrigin}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="cf-height-50p cf-border-top cf-text-detail">
+            <div class="cf-valign">Reserved</div>
+          </div>
+        </div>
+        <div class="cf-width-50p cf-height-180 cf-border-bottom">
+
+          <div class="cf-height-20 cf-border-top">
+            <div class="cf-part cf-height-100p cf-bold">Part <span>&#8546;</span></div>
+            <div class="cf-height-100p">Issuer or Other Coverage Provider (see instructions)</div>
+          </div>
+
+          <div class="cf-height-130 cf-border-top-right cf-text">
+            <div class="cf-name">
+              {{vm.cwData.providerName}}
+            </div>
+            <div class="cf-street-1">
+              {{vm.cwData.providerDOBAddressLine1}}
+            </div>
+            <div class="cf-street-2">
+              {{vm.cwData.providerDOBAddressLine2}}
+            </div>
+            <div class="cf-city">
+              {{vm.cwData.providerCity}}, {{vm.cwData.providerState}} {{vm.cwData.providerZipCode5}}
+            </div>
+          </div>
+
+          <div class="cf-height-30 cf-border-top-right">
+            <div class="cf-width-50p cf-height-100p cf-border-right cf-numbers">EIN: {{vm.cwData.providerEIN}}</div>
+            <div class="cf-width-50p cf-height-100p cf-numbers">Telephone #: {{vm.cwData.providerContactNo}}</div>
+          </div>
+        </div>
+
+
+        <div class="cf-width-100p cf-height-20">
+          <div class="cf-part cf-height-100p cf-bold">Part <span>&#8547;</span></div>
+          <div class="cf-height-100p">Covered Individuals (Enter the information for each covered individual(s).)</div>
+        </div>
+
+
+        <div class="cf-width-50p cf-height-50 cf-border cf-entries">
+          <div class="cf-width-140 cf-height-100p">
+            <div class="cf-valign">(a) Name of covered individual(s)</div>
+          </div>
+          <div class="cf-width-90 cf-height-100p cf-border-left-right">
+            <div class="cf-valign">(b) SSN or other TIN</div>
+          </div>
+          <div class="cf-width-90 cf-height-100p cf-border-right">
+            <div class="cf-valign">(c) DOB (If SSN or other TIN is not available)</div>
+          </div>
+          <div class="cf-width-50 cf-height-100p">
+            <div class="cf-valign">(d) Covered all 12 months</div>
+          </div>
+        </div>
+        <div class="cf-width-50p cf-height-50 cf-border-top-bottom cf-entries">
+          <div class="cf-height-50p cf-border-bottom cf-border-right">
+            <div class="cf-valign">(e) Months of coverage</div>
+          </div>
+          <div class="cf-height-50p">
+            <div class="cf-month-name">
+              <div class="cf-valign">Jan</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Feb</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Mar</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Apr</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">May</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Jun</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Jul</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Aug</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Sep</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Oct</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Nov</div>
+            </div>
+            <div class="cf-month-name">
+              <div class="cf-valign">Dec</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Months entries -->
+        <div ng-repeat="entry in vm.cwData.coverageInfoDTOs |limitTo: 12"
+             ng-init="all = (entry.jan === '1' && entry.feb === '1' && entry.mar === '1' && entry.apr === '1' && entry.may === '1' && entry.jun === '1' && entry.jul === '1' && entry.aug === '1' && entry.sep === '1' && entry.oct === '1' && entry.nov === '1' && entry.dec === '1' ? 'x' : '') ">
+          <div class="cf-width-50p cf-height-30 cf-border-bottom-rem">
+            <div class="cf-width-140 cf-height-100p cf-padding-left-7 cf-name-entry">
+              <div class="cf-valign">
+                <span>{{entry.recipientName}}</span>
+              </div>
+            </div>
+            <div class="cf-width-90 cf-height-100p cf-entries">
+              <div class="cf-valign">
+                <span ng-if="entry.recipientUID">{{entry.recipientUID}}</span>
+                <span ng-if="!entry.recipientUID">---</span>
+              </div>
+            </div>
+            <div class="cf-width-90 cf-height-100p cf-border-right cf-entries">
+              <div class="cf-valign">
+                <span ng-if="entry.recipientUID">---</span>
+                <span ng-if="!entry.recipientUID">{{entry.recipientDOB}}</span>
+              </div>
+            </div>
+            <div class="cf-width-50 cf-height-100p cf-entries">
+              <div class="cf-valign">
+                {{all}}
+              </div>
+            </div>
+          </div>
+          <div class="cf-width-50p cf-height-30 cf-border-bottom cf-entries">
+            <div class="cf-height-100p">
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.jan === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.feb === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.mar === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.apr === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.may === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.jun === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.jul === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.aug === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.sep === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.oct === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.nov === '1' ? 'x' : ''}}</div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign">{{all === '' && entry.dec === '1' ? 'x' : ''}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div ng-repeat="entry in vm.emptyArray(12 - vm.cwData.coverageInfoDTOs.length) track by $index">
+          <div class="cf-width-50p cf-height-30 cf-border-bottom-rem">
+            <div class="cf-width-320 cf-height-100p cf-border-right cf-padding-left-7">
+              <div class="cf-valign">
+
+              </div>
+            </div>
+            <div class="cf-width-50 cf-height-100p">
+              <div class="cf-valign">
+
+              </div>
+            </div>
+          </div>
+          <div class="cf-width-50p cf-height-30 cf-border-bottom">
+            <div class="cf-height-100p">
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+              <div class="cf-month-name">
+                <div class="cf-valign cf-halign"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cf-privacy">For Privacy Act and Paperwork Reduction Act Notice, see separate instructions.</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="form-page">
+    <div class="cw-form-page2">
+
+      <div class="cf-title cf-border-bottom">
+        <div class="cf-form-name">Form 1095-B ({{vm.cwData.taxYear}})</div>
+        <div class="cf-page-no">Page <span class="cf-bold">2</span></div>
+      </div>
+
+      <div class="cf-content">
+
+        <div class="cf-width-50p cf-padding-right-2p">
+          <div class="cf-instructions cf-bold">Instructions for Recipient</div>
+          <p>
+            This Form 1095-B provides information needed to report on your income tax return that you, your spouse (if
+            you file a joint return), and individuals you claim as dependents had qualifying health coverage (referred
+            to as “minimum essential coverage”) for some or all months during the year. Individuals who don't have
+            minimum essential coverage and don't qualify for an exemption from this requirement may be liable for the
+            individual shared responsibility payment.
+          </p>
+
+          <p>
+            Minimum essential coverage includes government-sponsored programs, eligible employer-sponsored plans,
+            individual market plans, and other coverage the Department of Health and Human Services designates as
+            minimum essential coverage. For more information on the requirement to have minimum essential coverage and
+            what is minimum essential coverage, see <a class="cf-link" tabindex="-1"
+                                                       href="http://www.irs.gov/affordable-care-act/individuals-and-families/individual-shared-responsibility-provision">www.irs.gov/affordable-care-act/individuals-and-families/individual-shared-responsibility-provision</a>.
+          </p>
+
+          <p>
+            <span class="cf-bold cf-italic">TIP: </span>
+            <span class="cf-italic">
+            Providers of minimum essential coverage are required to furnish only one Form 1095-B for all individuals
+            whose coverage is reported on that form. As the recipient of this Form 1095-B, you should provide a copy to
+            other individuals covered under the policy if they request it for their records.
+            </span>
+          </p>
+
+          <p>
+            <span class="cf-bold">Part I. Responsible Individual</span>, reports information about you and the coverage,
+            including your social security number (SSN) or other taxpayer identification number (TIN), if applicable.
+            For your protection, this form may show only the last four digits. However, the coverage provider is
+            required to report your complete SSN or other TIN, if applicable to the IRS. Your date of birth will be
+            entered only if the SSN is blank.
+          </p>
+
+
+          <p>
+            <span class="cf-bold cf-italic">IMPORTANT: </span>
+            <span class="cf-italic">
+            If you don't provide your SSN or other TIN and the SSNs or other TINs of all covered individuals to the
+            sponsor of the coverage, the IRS may not be able to match the Form 1095-B with the individuals to determine
+            that they have complied with the individual shared responsibility provision.
+            </span>
+          </p>
+
+        </div>
+
+        <div class="cf-width-50p cf-padding-left-2p">
+
+          <span class="cf-bold">Origin of the Health Coverage code.</span>
+          This is the code for the type of coverage in which you or other covered individuals were enrolled. Only one
+          letter will be entered on this line.
+
+          <div class="padding-left10 row-padding-bottom10">
+            <div>
+              A. Small Business Health Options Program (SHOP)
+            </div>
+            <div>
+              B. Employer-sponsored coverage
+            </div>
+            <div>
+              C. Government-sponsored program
+            </div>
+            <div>
+              D. Individual market insurance
+            </div>
+            <div>
+              E. Multiemployer plan
+            </div>
+            <div>
+              F. Other designated minimum essential coverage.
+            </div>
+          </div>
+
+
+          <p>
+            <span class="cf-bold cf-italic">TIP: </span>
+            <span class="cf-italic">
+            If you or another family member received health insurance coverage through a Health Insurance Marketplace
+            (also known as an Exchange), that coverage will generally be reported on a Form 1095-A rather than a Form
+            1095-B. If you or another family member received employer-sponsored coverage, that coverage may be reported
+            on a Form 1095-C (Part III) rather than a Form 1095-B. For more information, see <a class="cf-link"
+                                                                                                tabindex="-1"
+                                                                                                href="http://www.irs.gov/affordable-care-act/questions-and-answers-about-health-care-information-forms-for-individuals">www.irs.gov/affordable-care-act/questions-and-answers-about-health-care-information-forms-for-individuals</a>.
+            </span>
+          </p>
+
+          <p>
+            <span class="cf-bold">Part II. Employer-Sponsored Coverage.</span>
+            If you had employer-sponsored health coverage, this part may provide information about the employer
+            sponsoring the coverage. This part may show only the last four digits of the employer's EIN. This part may
+            also be left blank, even if you had employer-sponsored health coverage. If this part is blank, you do not
+            need to fill in the information or return it to your employer or other coverage provider.
+          </p>
+
+          <p>
+            <span class="cf-bold">Part III. Issuer or Other Coverage Provider.</span>
+            This part reports information about the coverage provider (insurance company, employer providing
+            self-insured coverage, government agency sponsoring coverage under a government program such as Medicaid or
+            Medicare, or other coverage sponsor). Underneath, is a telephone number for the coverage provider that you
+            can call if you have questions about the information reported on the form.
+          </p>
+
+          <p>
+            <span class="cf-bold">Part IV. Covered Individuals.</span>
+            This part reports the name, SSN or other TIN, and coverage information for each covered individual. A date
+            of birth will be entered in column (c) only if SSN or other TIN isn't entered in column (b). Column (d) will
+            be checked if the individual was covered for at least one day in every month of the year. For individuals
+            who were covered for some but not all months, information will be entered in column (e) indicating the
+            months for which these individuals were covered.
+          </p>
+        </div>
+
+      </div>
+
+
+    </div>
+  </div>
+
+</div>

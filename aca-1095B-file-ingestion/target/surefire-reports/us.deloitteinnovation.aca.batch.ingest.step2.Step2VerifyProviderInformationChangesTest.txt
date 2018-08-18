@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyProviderInformationChangesTest
+-------------------------------------------------------------------------------
+Tests run: 86, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 1.518 sec - in us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyProviderInformationChangesTest

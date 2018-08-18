@@ -1,0 +1,8 @@
+<!-- isParent is boolean flag denoting if bread crumb is on parent state  -->
+<ul class="chevron-breadcrumb padding-top-bottom8" ng-show="!isParent">
+  <li ng-repeat="list in listBreadcrumb" ng-switch on="$last">
+    <a ng-switch-when="false" tabindex="{{modalBox == true ? -1:($index + 11000)}}"
+       ui-sref={{list.stateName}} ui-sref-opts="{location : list.isParent}">{{list.displayName}}</a>
+    <span ng-switch-when="true" >{{list.displayName}}</span>
+  </li>
+</ul>

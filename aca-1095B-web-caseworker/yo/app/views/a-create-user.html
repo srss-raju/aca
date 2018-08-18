@@ -1,0 +1,73 @@
+<div class="scroll-container container-white">
+  <div class="margin-indent-container admin-create-user-view outline-none" role="main">
+
+      <!--error/success message-->
+    <div class="row outline-none" ng-show="userNotFound">
+      <div class="margin-bottom10px outline-none errormessage" aria-label="{{errorMessage}}" tabindex="10" failure-banner show-flag="userNotFound" error-message="errorMessage"></div>
+    </div>
+    <div class="row outline-none" ng-show="successFlag">
+      <div class="margin-bottom10px outline-none successmessage" aria-label="{{successMessage}}" tabindex="11" success-banner show-flag="successFlag" success-message="successMessage"></div>
+    </div>
+
+    <!-- Screen title-->
+    <div class="row margin-bottom25">
+      <div class="col-md-5 no-padding outline-none title" tabindex="1" aria-label="{{arialabel.title}}">
+        <span class="screen-title-action">{{label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+      </div>
+      <div class="col-md-7 text-right">
+        <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+      </div>
+    </div>
+
+    <!--input fields-->
+    <div class="input-create-user padding25 padding-bottom-65 padding-top50">
+      <form name="adminCreateUser" role="form" novalidate ng-model-options="{updateOn:'default blur',debounce:{'default':500,'blur':0}}">
+          <!--first row-->
+          <div class="row">
+            <div class="form-group col-md-offset-1 col-md-4 margin-bottom52">
+              <input type="text" class="form-control background-transparent" name="firstname"
+                   placeholder="First Name" ng-model="createAdmin.fname" name="fname" ng-maxlength="30" tabindex="2" aria-label="{{arialabel.firstname}}" required floating-validation>
+            </div>
+          <div class="form-group col-md-4 col-md-offset-2 margin-bottom52">
+            <input type="text" class="form-control background-transparent" name="lastname"
+                   placeholder="Last Name" ng-model="createAdmin.lname" name="lname" ng-maxlength="30" tabindex="3" aria-label="{{arialabel.lastname}}" required floating-validation>
+          </div>
+            </div>
+          <!--second row-->
+          <div class="row">
+            <div class="form-group col-md-offset-1 col-md-4 margin-bottom0">
+              <input type="email" class="form-control background-transparent" name="email" placeholder="Email ID" tabindex="4"
+                     ng-model="createAdmin.email" name="email" aria-label="{{arialabel.email}}" required floating-validation>
+            </div>
+            <div class="form-group col-md-4 col-md-offset-2 margin-bottom0">
+              <select class="form-control background-transparent text-black-reg" ng-model="createAdmin.role" tabindex="5"
+                      placeholder='Role' name='role'  aria-label="{{arialabel.role}}" required floating-validation data-ng-options="role.value for role in roles">
+                <option class="text-black-reg" value="">Select Role</option>
+                <!--<option class="text-black-reg" data-ng-repeat="role in roles" value="{{role.value}}">{{role.value}}</option>-->
+              </select>
+            </div>
+          </div>
+      </form>
+    </div>
+    <div class="row row-padding-top30 text-center" ng-show="spinnerShow">
+      <i class="fa fa-spinner fa-4x fa-pulse color-spinner"></i>
+    </div>
+    <!--buttons displayed on the screen-->
+    <div class="row text-center row-padding-top20" ng-switch on="buttonswitch">
+    <!--cancel and create button-->
+      <div ng-switch-when="create">
+        <button class="btn btn-dark-gray btn-search-user outline-none" tabindex="6"
+                ng-click="cancel_user()" aria-label="{{arialabel.cancel}}">{{label.cancel}}</button>
+        <button class="btn btn-orange btn-search-user outline-none margin-side25" tabindex="7" ng-click="create_user()" ng-disabled="adminCreateUser.$invalid"
+                aria-label="{{arialabel.create}}">{{label.create}}</button>
+      </div>
+
+      <!--back button on creation-->
+      <div ng-switch-when="created">
+        <button class="backbutton btn btn-dark-gray btn-search-user outline-none" id="backbutton" tabindex="8"
+                ng-click="go_back()" aria-label="{{arialabel.back}}">{{label.back}}</button>
+      </div>
+    </div>
+  </div>
+</div>

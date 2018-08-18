@@ -1,0 +1,5 @@
+[
+      {"stateName" : "Indiana", "stateCode" : "IN", "stateInfo" : [{"year": "2015", "staticStatus": "Dynamic"}, {"year": "2016", "staticStatus": "Static"}] },
+      {"stateName" : "Arkansas", "stateCode" : "AR", "stateInfo" : [{"year": "2015", "staticStatus": "dynamic"}, {"year": "2016", "staticStatus": "static"}] },
+      {"stateName" : "Louisiana", "stateCode" : "LA", "stateInfo" : [{"year": "2015", "staticStatus": "dynamic"}, {"year": "2016", "staticStatus": "static"}] }
+]

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step1ProcessorListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.listener</a> &gt; <span class="el_source">Step1ProcessorListener.java</span></div><h1>Step1ProcessorListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.listener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ItemProcessListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.service.FilerCoveredPersonService;
+import us.deloitteinnovation.aca.model.CoveredPerson;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.util.Convert;
+
+import java.util.List;
+import java.util.TreeMap;
+
+/**
+ * Loads dependents for all Filers loaded in the Step 1 reader.  I would prefer to have that done within the reader itself,
+ * this this code was already written, so I'm leaving it as-is.
+ */
+<span class="nc" id="L20">public class Step1ProcessorListener implements ItemProcessListener&lt;Step1Form1095Dto, Step1Form1095Dto&gt;{</span>
+
+<span class="nc" id="L22">    private static final Logger LOG = LoggerFactory.getLogger(Step1ProcessorListener.class) ;</span>
+
+    @Autowired
+    FilerCoveredPersonService coveredPersonDataService;
+
+    @Override
+    public void beforeProcess(Step1Form1095Dto dto) {
+<span class="nc" id="L29">        Filer filer = dto.getFiler() ;</span>
+<span class="nc" id="L30">        TreeMap&lt;String, CoveredPerson&gt; coveredPeople = new TreeMap&lt;String, CoveredPerson&gt;();</span>
+
+<span class="nc bnc" id="L32" title="All 4 branches missed.">        if((!filer.getFilerStatus().equals(null)) &amp;&amp; filer.getFilerStatus().equals(&quot;R&quot;))</span>
+<span class="nc" id="L33">            coveredPeople.put(&quot;CP1&quot;, Convert.getCoveredPersonFromFiler(filer));</span>
+
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if(filer.getCoveredPersonSize()&gt;1) {</span>
+<span class="nc" id="L36">            List&lt;CoveredPerson&gt; coveredPersonList = coveredPersonDataService.getCoveredPersonList(filer.getSourceUniqueId());</span>
+<span class="nc" id="L37">            int i=2;</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">            for (CoveredPerson coveredPerson : coveredPersonList) {</span>
+<span class="nc" id="L39">                coveredPeople.put(&quot;CP&quot;+i, coveredPerson);</span>
+<span class="nc" id="L40">                i++;</span>
+<span class="nc" id="L41">            }</span>
+
+        }
+
+<span class="nc" id="L45">        filer.setCoveredpersons(coveredPeople);</span>
+<span class="nc" id="L46">        filer.setCoveredPersonSize(coveredPeople.size());</span>
+<span class="nc" id="L47">    }</span>
+
+    @Override
+    public void afterProcess(Step1Form1095Dto item, Step1Form1095Dto result) {
+
+<span class="nc" id="L52">    }</span>
+
+    @Override
+    public void onProcessError(Step1Form1095Dto item, Exception e) {
+<span class="nc" id="L56">        LOG.error(&quot;Step1 processor on filer source cd {}, source unique id {}&quot;, item.getFiler().getSourceCd(), item.getFiler().getSourceUniqueId(), e) ;</span>
+<span class="nc" id="L57">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

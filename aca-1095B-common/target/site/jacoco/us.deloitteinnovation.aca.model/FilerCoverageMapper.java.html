@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerCoverageMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">FilerCoverageMapper.java</span></div><h1>FilerCoverageMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import org.springframework.jdbc.core.RowMapper;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Created by Kkethireddy on 25-10-2015.
+ */
+<span class="nc" id="L12">public class FilerCoverageMapper  implements RowMapper&lt;FilerCoverage&gt; {</span>
+
+    @Override
+    public FilerCoverage mapRow(ResultSet rs, int rowNum) throws SQLException {
+<span class="nc" id="L16">        FilerCoverage filerCoverage = new FilerCoverage();</span>
+<span class="nc" id="L17">        filerCoverage.setSourceUniqueId(rs.getString(CommonDataConstants.SOURCE_UNIQUE_ID));</span>
+<span class="nc" id="L18">        filerCoverage.setSourceCd(rs.getString(CommonDataConstants.SOURCE_CD));</span>
+<span class="nc" id="L19">        filerCoverage.setJan(rs.getString(CommonDataConstants.JAN));</span>
+<span class="nc" id="L20">        filerCoverage.setFeb(rs.getString(CommonDataConstants.FEB));</span>
+<span class="nc" id="L21">        filerCoverage.setMar(rs.getString(CommonDataConstants.MAR));</span>
+<span class="nc" id="L22">        filerCoverage.setApr(rs.getString(CommonDataConstants.APR));</span>
+<span class="nc" id="L23">        filerCoverage.setMay(rs.getString(CommonDataConstants.MAY));</span>
+<span class="nc" id="L24">        filerCoverage.setJun(rs.getString(CommonDataConstants.JUN));</span>
+<span class="nc" id="L25">        filerCoverage.setJul(rs.getString(CommonDataConstants.JUL));</span>
+<span class="nc" id="L26">        filerCoverage.setAug(rs.getString(CommonDataConstants.AUG));</span>
+<span class="nc" id="L27">        filerCoverage.setSep(rs.getString(CommonDataConstants.SEP));</span>
+<span class="nc" id="L28">        filerCoverage.setOct(rs.getString(CommonDataConstants.OCT));</span>
+<span class="nc" id="L29">        filerCoverage.setNov(rs.getString(CommonDataConstants.NOV));</span>
+<span class="nc" id="L30">        filerCoverage.setDec(rs.getString(CommonDataConstants.DEC));</span>
+<span class="nc" id="L31">        filerCoverage.setComments(rs.getString(CommonDataConstants.COMMENTS));</span>
+<span class="nc" id="L32">        filerCoverage.setUpdatedBy(rs.getString(CommonDataConstants.UPDATED_BY));</span>
+<span class="nc" id="L33">        return filerCoverage;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

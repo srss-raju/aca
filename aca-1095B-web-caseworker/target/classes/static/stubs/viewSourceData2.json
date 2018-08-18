@@ -1,0 +1,144 @@
+{
+  "filerInfo": {
+    "filerID": "INFSSICE_2200220043_2016",
+    "firstName": "sapthafds",
+    "lastName": "giri1fds",
+    "uidNumber": "xxx-xx-1376",
+    "uidType": "SSN",
+    "lastModifiedDate": "11/17/2016 12:00:00 AM",
+    "filerStatus": "R",
+    "status": "ACTIVE",
+    "formStatus": "GENERATED",
+    "printStatus": "",
+    "dob": "03/04/1985"
+  },
+  "currentForm": {
+    "formID": "INFSSICE_2200220043_2016",
+    "generatedBy": "IndianaUser",
+    "lastModifiedDate": "11/17/2016 12:00:00 AM",
+    "addressLine1": "jamistreetjamistreetjamistrfds",
+    "addressLine2": "jamistreetjamistreetjamistfds",
+    "city": "atlanta1fds",
+    "state": "IN",
+    "zipcode": "30008",
+    "email": "",
+    "status": "ACTIVE",
+    "formStatus": "REGENERATE",
+    "printStatus": "",
+    "mailStatus": "Y",
+    "pdfStatus": "GENERATED",
+    "comments": "fds and Edited coverage details",
+    "pdfAvailable": false
+  },
+  "filerCoverageInfo": [
+    {
+      "month": "Jan",
+      "covered": "1"
+    },
+    {
+      "month": "Feb",
+      "covered": "0"
+    },
+    {
+      "month": "Mar",
+      "covered": "0"
+    },
+    {
+      "month": "Apr",
+      "covered": "0"
+    },
+    {
+      "month": "May",
+      "covered": "0"
+    },
+    {
+      "month": "Jun",
+      "covered": "0"
+    },
+    {
+      "month": "Jul",
+      "covered": "0"
+    },
+    {
+      "month": "Aug",
+      "covered": "0"
+    },
+    {
+      "month": "Sep",
+      "covered": "0"
+    },
+    {
+      "month": "Oct",
+      "covered": "0"
+    },
+    {
+      "month": "Nov",
+      "covered": "0"
+    },
+    {
+      "month": "Dec",
+      "covered": "0"
+    }
+  ],
+  "coverageSources": [
+    {
+      "filerSourceInfo": [
+        {
+          "month": "Jan",
+          "covered": "1"
+        },
+        {
+          "month": "Feb",
+          "covered": "0"
+        },
+        {
+          "month": "Mar",
+          "covered": "0"
+        },
+        {
+          "month": "Apr",
+          "covered": "0"
+        },
+        {
+          "month": "May",
+          "covered": "0"
+        },
+        {
+          "month": "Jun",
+          "covered": "0"
+        },
+        {
+          "month": "Jul",
+          "covered": "0"
+        },
+        {
+          "month": "Aug",
+          "covered": "0"
+        },
+        {
+          "month": "Sep",
+          "covered": "0"
+        },
+        {
+          "month": "Oct",
+          "covered": "0"
+        },
+        {
+          "month": "Nov",
+          "covered": "0"
+        },
+        {
+          "month": "Dec",
+          "covered": "0"
+        }
+      ],
+      "source": "CHIP",
+      "caseID": "NS5500015",
+      "comments": "fds",
+      "lastModifiedDate": "11/17/2016 01:53:08 AM",
+      "coverageSourceId": "INFSSICE_2200220043_2758446"
+    }
+  ],
+  "comments": "fds and Edited coverage details",
+  "coverageUpdated": false
+}

@@ -1,0 +1,56 @@
+<div class="scroll-container">
+  <div class="margin-indent-container" role="main" ng-switch on="dataLoad">
+    <div class="col-md-12" ng-switch-when="true">
+      <!-- Success and Failure banner for Send Mail-->
+      <div class="row">
+        <div class="col-md-12 no-padding row-padding-bottom10">
+          <div class="margin-top-5px" success-banner show-flag="sendMailSuccess" success-message="sendMailMsg.successLabel"></div>
+          <div class="margin-top-5px" failure-banner show-flag="sendMailFail" error-message="sendMailMsg.errorLabel + viewData.contactInfo"></div>
+        </div>
+      </div>
+
+      <!-- Screen title-->
+      <div class="row row-margin">
+        <div class="col-md-5 no-padding screen-title" tabindex="1" aria-label="{{ariaLabel.title}}">
+          <span class="screen-title-action">{{label.titleAction}}</span>
+          <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+        </div>
+        <div class="col-md-7 text-right">
+          <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+        </div>
+      </div>
+
+      <div class="row row-margin margin-left-25px" tabindex="2" aria-label="{{ariaLabel.details}}">
+        <div class="col-md-4 no-padding">
+          <span class="text-gray-bold">{{label.lastModified}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{historicData.lastModifiedDate || 'No Data'}} </span>
+        </div>
+        <div class="col-md-8 no-padding">
+          <span class="text-gray-bold">{{label.comments}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{historicData.comments || '--'}} </span>
+        </div>
+      </div>
+      <div class="row row-margin margin-left-25px">
+        <div class="col-md-4 no-padding">
+          <span class="text-gray-bold">{{label.generatedBy}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{historicData.generatedBy || 'No Data'}} </span>
+        </div>
+      </div>
+
+      <!-- PDF Iframe -->
+      <div class="row row-margin" ng-switch on="pdfLoad">
+        <div id="frame-wrap overflow-auto" ng-switch-when="true">
+          <div data-display-file="fileObject"></div>
+        </div>
+        <div class="col-md-12 text-center" ng-switch-when="false">
+          <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-md-12 text-center" ng-switch-when="false">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+
+  </div>
+</div>

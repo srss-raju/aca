@@ -1,0 +1,56 @@
+<div class="scroll-container container-white">
+  <div class="margin-indent-container admin-dashboard-view outline-none" role="main">
+
+    <!-- Screen title-->
+      <div class="row margin-bottom65 outline-none admindashtitle" tabindex="1" aria-label="{{arialabel.title}}">
+      <div class="col-md-5 no-padding">
+        <span class="screen-title-action">{{label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+      </div>
+      <div class="col-md-7 text-right">
+        <aca-breadcrumb is-parent="true" ></aca-breadcrumb>
+      </div>
+    </div>
+
+    <!--create and search user buttons-->
+    <div class="row">
+      <div class="col-md-6 no-padding container-dashboard margin-left-65 margin-right-72">
+        <div class="col-md-12 container-inner-dashboard">
+          <div class="text-center text-medium-26">
+            {{label.search}}
+          </div>
+          <div class="text-center text-medium-26">
+            {{label.userdatabase}}
+          </div>
+        </div>
+        <div class="col-md-12 height50 outline-none">
+          <div class="circle-dashboard outline-none" tabindex="2"
+                aria-label="{{arialabel.search}}"  ng-keyup="$event.keyCode == 13 ? goto_search_user() : null" ng-click="goto_search_user()">
+            <span class="symbol-search"></span>
+          </div>
+          <div class="text-center text-medium-18 align-bottom padding-side25">
+            {{label.searchinfo}}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 no-padding margin-side0 container-dashboard margin-right-65">
+        <div class="col-md-12 container-inner-dashboard">
+          <div class="text-center text-medium-26">
+            {{label.create}}
+          </div>
+          <div class="text-center text-medium-26">
+            {{label.newuser}}
+          </div>
+        </div>
+        <div class="col-md-12 height50 outline-none">
+          <div class="circle-dashboard outline-none" tabindex="3" aria-label="{{arialabel.create}}"  ng-keyup="$event.keyCode == 13 ?goto_create_user() : null" ng-click="goto_create_user()">
+            <span class="symbol-add"></span>
+          </div>
+          <div class="text-center text-medium-18 padding-side25 align-bottom">
+            {{label.createinfo}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

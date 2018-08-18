@@ -1,0 +1,12 @@
+<div class="container-fluid text-modal">
+  <div class="row row-margin header">
+    <div class="pull-left title" tabindex="10001">{{label.title}}</div>
+    <i class="fa fa-close fa-lg gray-close-icon pull-right pointer" aca-aria-click="closeFunction()" tabindex="10002" aria-label="'Press enter to close the dialog box or tab to go through the content'"></i>
+  </div>
+  <div class="row row-margin scroll-modal" tabindex="10003" ng-switch on="label.isHTML">
+    <div ng-switch-default>{{label.content}}</div>
+    <div ng-switch-when="true">
+      <div ng-include="label.content"></div>
+    </div>
+  </div>
+</div>

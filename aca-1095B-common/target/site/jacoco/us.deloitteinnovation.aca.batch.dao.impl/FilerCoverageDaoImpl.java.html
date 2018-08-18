@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerCoverageDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dao.impl</a> &gt; <span class="el_source">FilerCoverageDaoImpl.java</span></div><h1>FilerCoverageDaoImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dao.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dao.FilerCoverageDao;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicPKDto;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+
+import static us.deloitteinnovation.aca.batch.constants.BatchQueryConstants.*;
+
+/**
+ * Created by rgopalani on 10/12/2015.
+ */
+<span class="nc" id="L28">public class FilerCoverageDaoImpl extends NamedParameterJdbcDaoSupport implements FilerCoverageDao {</span>
+
+<span class="nc" id="L30">    private final static Logger LOGGER = LoggerFactory.getLogger(FilerCoverageDaoImpl.class);</span>
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+<span class="nc" id="L38">    private int batchSize = 500;</span>
+
+    @Override
+    public void bulkInsert(final List&lt;? extends FilerDemographicDto&gt; filerDemographics) {
+<span class="nc" id="L42">        final Collection&lt;FilerCoverageDto&gt; filerCoverages = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (final FilerDemographicDto fd : filerDemographics) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            if (!&quot;N&quot;.equals(fd.getFilerStatus())) {</span>
+<span class="nc" id="L45">                filerCoverages.addAll(fd.getFilerCoverages());</span>
+            }
+<span class="nc" id="L47">        }</span>
+<span class="nc" id="L48">        this.jdbcTemplate.batchUpdate(INSERT_FILER_COVERAGE, filerCoverages, batchSize,</span>
+<span class="nc" id="L49">                new ParameterizedPreparedStatementSetter&lt;FilerCoverageDto&gt;() {</span>
+                    public void setValues(PreparedStatement pStatement, FilerCoverageDto filerCoverage) {
+<span class="nc" id="L51">                        prepareInsertStatement(pStatement, filerCoverage);</span>
+<span class="nc" id="L52">                    }</span>
+                });
+<span class="nc" id="L54">    }</span>
+
+    private void prepareInsertStatement(final PreparedStatement pStatement, final FilerCoverageDto filerCoverage) {
+        try {
+<span class="nc" id="L58">            BatchUtils.setMonth(1, pStatement, filerCoverage.getApr());</span>
+<span class="nc" id="L59">            BatchUtils.setMonth(2, pStatement, filerCoverage.getAug());</span>
+<span class="nc" id="L60">            BatchUtils.setString(3, pStatement, filerCoverage.getComments());</span>
+<span class="nc" id="L61">            BatchUtils.setMonth(4, pStatement, filerCoverage.getDec());</span>
+<span class="nc" id="L62">            BatchUtils.setMonth(5, pStatement, filerCoverage.getFeb());</span>
+<span class="nc" id="L63">            BatchUtils.setMonth(6, pStatement, filerCoverage.getJan());</span>
+<span class="nc" id="L64">            BatchUtils.setMonth(7, pStatement, filerCoverage.getJul());</span>
+<span class="nc" id="L65">            BatchUtils.setMonth(8, pStatement, filerCoverage.getJun());</span>
+<span class="nc" id="L66">            BatchUtils.setMonth(9, pStatement, filerCoverage.getMar());</span>
+<span class="nc" id="L67">            BatchUtils.setMonth(10, pStatement, filerCoverage.getMay());</span>
+<span class="nc" id="L68">            BatchUtils.setMonth(11, pStatement, filerCoverage.getNov());</span>
+<span class="nc" id="L69">            BatchUtils.setMonth(12, pStatement, filerCoverage.getOct());</span>
+<span class="nc" id="L70">            BatchUtils.setDate(13, pStatement, filerCoverage.getOrigCoverageBeginDt());</span>
+<span class="nc" id="L71">            BatchUtils.setDate(14, pStatement, filerCoverage.getOrigCoverageEndDt());</span>
+<span class="nc" id="L72">            BatchUtils.setMonth(15, pStatement, filerCoverage.getSep());</span>
+<span class="nc" id="L73">            BatchUtils.setString(16, pStatement, filerCoverage.getUpdatedBy());</span>
+<span class="nc" id="L74">            BatchUtils.setString(17, pStatement, filerCoverage.getUpdatedDt());</span>
+<span class="nc" id="L75">            BatchUtils.setString(18, pStatement, filerCoverage.getProgramName());</span>
+<span class="nc" id="L76">            BatchUtils.setString(19, pStatement, filerCoverage.getId().getSourceCd());</span>
+<span class="nc" id="L77">            BatchUtils.setString(20, pStatement, filerCoverage.getId().getSourceUniqueId());</span>
+<span class="nc" id="L78">            BatchUtils.setString(21, pStatement, filerCoverage.getRecipientCaseApplicationId());</span>
+<span class="nc" id="L79">        } catch (SQLException e) {</span>
+<span class="nc" id="L80">            LOGGER.error(e.getMessage());</span>
+<span class="nc" id="L81">        }</span>
+<span class="nc" id="L82">    }</span>
+
+    @Override
+    public int update(FilerDemographicDto filerDemographic) {
+<span class="nc" id="L86">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L87">        int numRows = 0;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        for (FilerCoverageDto filerCoverage : filerDemographic.getFilerCoverages()) {</span>
+<span class="nc" id="L89">            BatchUtils.setMonth(BatchConstants.PARAM_JAN, params, filerCoverage.getJan());</span>
+<span class="nc" id="L90">            BatchUtils.setMonth(BatchConstants.PARAM_FEB, params, filerCoverage.getFeb());</span>
+<span class="nc" id="L91">            BatchUtils.setMonth(BatchConstants.PARAM_MAR, params, filerCoverage.getMar());</span>
+<span class="nc" id="L92">            BatchUtils.setMonth(BatchConstants.PARAM_APR, params, filerCoverage.getApr());</span>
+<span class="nc" id="L93">            BatchUtils.setMonth(BatchConstants.PARAM_MAY, params, filerCoverage.getMay());</span>
+<span class="nc" id="L94">            BatchUtils.setMonth(BatchConstants.PARAM_JUN, params, filerCoverage.getJun());</span>
+<span class="nc" id="L95">            BatchUtils.setMonth(BatchConstants.PARAM_JUL, params, filerCoverage.getJul());</span>
+<span class="nc" id="L96">            BatchUtils.setMonth(BatchConstants.PARAM_AUG, params, filerCoverage.getAug());</span>
+<span class="nc" id="L97">            BatchUtils.setMonth(BatchConstants.PARAM_SEP, params, filerCoverage.getSep());</span>
+<span class="nc" id="L98">            BatchUtils.setMonth(BatchConstants.PARAM_OCT, params, filerCoverage.getOct());</span>
+<span class="nc" id="L99">            BatchUtils.setMonth(BatchConstants.PARAM_NOV, params, filerCoverage.getNov());</span>
+<span class="nc" id="L100">            BatchUtils.setMonth(BatchConstants.PARAM_DEC, params, filerCoverage.getDec());</span>
+<span class="nc" id="L101">            BatchUtils.setDate(BatchConstants.PARAM_ORIG_COVERAGE_BEGIN_DATE, params, filerCoverage.getOrigCoverageBeginDt());</span>
+<span class="nc" id="L102">            BatchUtils.setDate(BatchConstants.PARAM_ORIG_COVERAGE_END_DATE, params, filerCoverage.getOrigCoverageEndDt());</span>
+<span class="nc" id="L103">            BatchUtils.setString(BatchConstants.PARAM_PROGRAM_NAME, params, filerCoverage.getProgramName());</span>
+<span class="nc" id="L104">            BatchUtils.setString(BatchConstants.PARAM_UPDATED_BY, params, filerCoverage.getUpdatedBy());</span>
+<span class="nc" id="L105">            BatchUtils.setString(BatchConstants.PARAM_UPDATED_DATE, params, filerCoverage.getUpdatedDt());</span>
+<span class="nc" id="L106">            BatchUtils.setString(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, params, filerCoverage.getId().getSourceUniqueId());</span>
+<span class="nc" id="L107">            BatchUtils.setString(BatchConstants.PARAM_SOURCE_CD, params, filerCoverage.getId().getSourceCd());</span>
+<span class="nc" id="L108">            BatchUtils.setString(BatchConstants.PARAM_RECIPIENT_CASE_APPLICATION_ID, params, filerCoverage.getRecipientCaseApplicationId());</span>
+<span class="nc" id="L109">            numRows += this.namedParameterJdbcTemplate.update(UPDATE_FILER_COVERAGE, params);</span>
+<span class="nc" id="L110">        }</span>
+<span class="nc" id="L111">        return numRows;</span>
+    }
+
+    @Override
+    public int[] daleteAll(Set&lt;FilerDemographicPKDto&gt; ids) {
+<span class="nc" id="L116">        final SqlParameterSource[] paramSources = new SqlParameterSource[ids.size()];</span>
+<span class="nc" id="L117">        final Iterator&lt;FilerDemographicPKDto&gt; idIter = ids.iterator();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (int i = 0; i &lt; paramSources.length; i++) {</span>
+<span class="nc" id="L119">            final Map&lt;String, String&gt; params = new HashMap&lt;&gt;(2);</span>
+<span class="nc" id="L120">            final FilerDemographicPKDto id = idIter.next();</span>
+<span class="nc" id="L121">            params.put(&quot;sourceUniqueId&quot;, id.getSourceUniqueId());</span>
+<span class="nc" id="L122">            params.put(&quot;sourceCd&quot;, id.getSourceCd());</span>
+<span class="nc" id="L123">            paramSources[i] = new MapSqlParameterSource(params);</span>
+        }
+<span class="nc" id="L125">        return namedParameterJdbcTemplate.batchUpdate(DELETE_FILER_COVERAGES_FOR_FD, paramSources);</span>
+    }
+
+    public int daleteAll(FilerDemographicDto filerDemographic) {
+<span class="nc" id="L129">        final Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L130">        BatchUtils.setString(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, params, filerDemographic.getId().getSourceUniqueId());</span>
+<span class="nc" id="L131">        BatchUtils.setString(BatchConstants.PARAM_SOURCE_CD, params, filerDemographic.getId().getSourceCd());</span>
+<span class="nc" id="L132">        return namedParameterJdbcTemplate.update(DELETE_FILER_COVERAGES_FOR_FD, params);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

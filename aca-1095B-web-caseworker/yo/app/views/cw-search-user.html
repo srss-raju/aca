@@ -1,0 +1,181 @@
+<div class="scroll-container container-grey search-user">
+  <div class="margin-indent-container outline-none" role="main">
+
+    <!--success/error message-->
+    <div class="row">
+      <div class="margin-bottom10px errorfocus" tabindex="-1" failure-banner show-flag="su.userNotFound"
+           error-message="su.errorMessage" aria-label={{su.errorMessage}}>
+      </div>
+    </div>
+
+    <!-- Screen title-->
+    <div class="row row-margin initial-focus" tabindex="1" aria-label="{{su.cwSearchUser.title}}">
+      <div class="col-md-3 no-padding-left">
+        <span class="screen-title-action">{{su.label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{su.label.titleDescription}}</span>
+      </div>
+      <div class="col-md-9 no-padding">
+        <span class="pull-right transform-50">
+          <i class="info-message-color fa fa-asterisk"></i>
+          <span class="text-italic-info-new">{{su.label.infomessage}}</span>
+        </span>
+      </div>
+      <!-- Information message-->
+
+      <div class="col-md-7 text-right">
+        <aca-breadcrumb is-parent="true"></aca-breadcrumb>
+      </div>
+    </div>
+
+    <!-- Search Fields-->
+    <div class="row finduser background-color-search-user padding25 row-padding-bottom40 padding-top36 container-round outline-none"
+      aria-label="{{su.cwSearchUser.finduser}}">
+      <div class="row">
+        <form role="form" name="su.searchuserform" autocomplete="off" novalidate
+              ng-model-options="{updateOn:'default blur',debounce:{'default':500,'blur':0}}">
+          <!--input fields-->
+          <div class="col-sm-9">
+
+            <div class="row fullname">
+              <div class="form-group col-sm-5 pull-left">
+                <input type="text" class="form-control background-transparent text-black-reg text-ellipsis"
+                       autocomplete="off" tabindex="2"
+                       placeholder='First Name (Optional)' ng-model="su.searchmodel.userFname" name="firstName"
+                       ng-change="su.changeField()" ng-maxlength="30" aria-label="{{su.cwSearchUser.firstName}}"
+                       floating-label>
+              </div>
+              <div class="form-group col-sm-5 col-sm-offset-1 pull-right">
+                <input type="text" style="display: none">
+                <input type="text" class="form-control background-transparent text-black-reg" placeholder="Last Name"
+                       ng-model="su.searchmodel.userLname" tabindex="3"
+                       autocomplete="off"
+                       name="lastName" ng-maxlength="30" aria-label="{{su.cwSearchUser.lastName}}"
+                       ng-change="su.changeField()" floating-label>
+              </div>
+            </div>
+
+            <div class="row dob">
+              <div class="form-group col-sm-5 pull-left">
+                <input type="password" style="display: none">
+                <input type="password" class="form-control background-transparent text-black-reg" tabindex="4"
+                       placeholder='Social Security Number' ng-model="su.searchmodel.ssn"
+                       ng-maxlength="9" name="ssn" autocomplete="off" floating-label
+                       ng-pattern="/^\d+$/" ng-minlength="9" ng-change="su.changeField()"
+                       aria-label="{{su.cwSearchUser.ssn}}">
+              </div>
+              <div class="col-sm-5 pull-right no-padding">
+                <aca-date-picker-floating-label ng-model="su.searchmodel.dob" name="dob" placeholder="'Date of Birth'"
+                                                fn-change="su.changeField()"
+                                                clear="'clear'"></aca-date-picker-floating-label>
+              </div>
+            </div>
+
+            <div class="row tin">
+              <div class="form-group col-sm-5 pull-left">
+                <input type="password" class="form-control background-transparent text-black-reg"
+                       placeholder="Tax Identification Number" tabindex="6"
+                       ng-model="su.searchmodel.tin" name="tin" aria-label="{{su.cwSearchUser.tin}}" autocomplete="off"
+                       ng-pattern="/^\d+$/" ng-minlength="9" ng-maxlength="9" ng-change="su.changeField()" floating-label>
+              </div>
+              <div class="form-group col-sm-5 pull-right">
+                <label for="tax_year" class="fixed-float-label">Tax Year</label>
+                <select class="form-control background-transparent text-black-reg" tabindex="7"
+                        ng-model="su.searchmodel.taxYear" name="year" id="tax_year" placeholder="Tax Year"
+                        aria-label="{{su.cwSearchUser.year}}" ng-change="su.changeField()">
+                  <!--<option class="placeholder text-black-reg" value="">Tax Year</option>-->
+                  <option ng-repeat='year in su.taxYears' value="{{year.value}}">
+                    {{year.value}}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+          <!--buttons to clear and search-->
+          <div class="button-search-user text-center padding25 col-sm-3">
+            <div class="row">
+              <button class="btn btn-dark-gray btn-search-user margin-bottom5 outline-none" tabindex="8"
+                      ng-click="su.clearSearch()" type="reset">
+                Clear Search
+              </button>
+            </div>
+            <div class="row">
+              <button class="btn btn-orange btn-search-user outline-none" ng-click="su.searchUser()" type="submit"
+                      tabindex="9"
+                      ng-disabled="su.disableSearch">Search
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--spinner during the call-->
+    <div class="row row-padding-top30 text-center" ng-show="su.spinnerShow">
+      <i class="fa fa-spinner fa-4x fa-pulse color-spinner"></i>
+    </div>
+
+    <!--displays the user on search-->
+    <div class="row displayuser row-padding-top30" ng-switch on="su.showDetails">
+      <div ng-switch-when="true">
+        <div class="col-md-12 padding-side25 table-head text-white-heading16-med padding-top1">
+          <div class="col-md-3">{{su.label.name}}</div>
+          <div class="col-md-9">
+            <div class="col-md-2">{{su.label.ssn}}</div>
+            <div class="col-md-3">{{su.label.dob}}</div>
+            <div class="col-md-2">{{su.label.tin}}</div>
+            <div class="col-md-3">{{su.label.form}}</div>
+            <div class="col-md-2">{{su.label.status}}</div>
+          </div>
+        </div>
+
+        <div class="table-data">
+          <div class="col-md-12 text-black-reg" ng-repeat="record in su.caseworkerData">
+            <div class="col-md-3" ellipsis-popover hoverlength="30"
+                 display="record.recipientFirstName + ' ' + record.recipientLastName"></div>
+            <div class="col-md-9">
+              <div class="col-md-2">{{record.recipientSsn || 'No Data'}}</div>
+              <div class="col-md-3">{{record.recipientDob || 'No Data'}}</div>
+              <div class="col-md-2">{{record.recipientTin || 'No Data'}}</div>
+
+              <div class="col-md-3">
+
+                <div ng-if="record.filerStatus === 'C'" class="viewhover" data-content={{su.label.viewHover}}
+                     data-placement="bottom" rel="popover" data-trigger="hover">
+                  <i class="fa fa-eye grey-icon"></i>
+                  <span class="outline-none grey-icon text-decoration-underline" tabindex="-1">{{su.label.view}}</span>
+                </div>
+
+                <div ng-if="record.filerStatus === 'R'||record.filerStatus === 'N'">
+                  <i class="fa fa-eye blue-button"></i>
+                  <a class="outline-none viewLink" tabindex="{{10 + $index}}"
+                     aria-label="{{su.cwSearchUser.view}}"
+                     ng-keyup="$event.keyCode == 13 ? su.goToViewUser(record.filerID) : null"
+                     ng-click="su.goToViewUser(record.filerID)">{{su.label.view}}</a>
+                </div>
+
+              </div>
+
+              <div class="col-md-2">
+
+                <div ng-if="record.filerStatus === 'C'">
+                  <span class="grey-icon" tabindex="-1">{{record.status.toLowerCase() == 'active' ? 'Active' : record.status.toLowerCase() == 'inactive' ? 'Inactive' : 'No Data' }}</span>
+                </div>
+
+                <div ng-if="record.filerStatus === 'R'||record.filerStatus === 'N'">
+                  <span
+                    ng-class="{'green' : record.status.toLowerCase() == 'active', 'red' : record.status.toLowerCase() != 'active'}"
+                    tabindex="{{10 + $index}}">{{record.status.toLowerCase() == 'active' ? 'Active' : record.status.toLowerCase() == 'inactive' ? 'Inactive' : 'No Data' }}</span>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

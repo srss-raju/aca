@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="3.652" tests="68" errors="0" skipped="1" failures="0">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_91\jre\bin"/>
+    <property name="java.vm.version" value="25.91-b15"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=";"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.script" value=""/>
+    <property name="user.country" value="IN"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="Service Pack 1"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="C:\PROJECTS\ACA1095B\1095b"/>
+    <property name="java.runtime.version" value="1.8.0_91-b15"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.8.0_91\jre\lib\endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="C:\Users\RBONGU~1\AppData\Local\Temp\"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.variant" value=""/>
+    <property name="os.name" value="Windows 7"/>
+    <property name="classworlds.conf" value="C:\softwares\apache-maven-3.2.3\bin\m2.conf"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_91\bin;C:\windows\Sun\Java\bin;C:\windows\system32;C:\windows;C:\Program Files\Java\jdk1.8.0_91\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;c:\Program Files (x86)\Intel\iCLS Client\;c:\Program Files\Intel\iCLS Client\;C:\Program Files\Broadcom\Broadcom 802.11;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;c:\Program Files\WIDCOMM\Bluetooth Software\;c:\Program Files\WIDCOMM\Bluetooth Software\syswow64;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\TortoiseGit\bin;C:\softwares\apache-maven-3.2.3\bin;C:\Program Files (x86)\Git\bin;C:\Program Files (x86)\Bitvise SSH Client;C:\Apache24\bin;C:\Program Files (x86)\MIT\Kerberos\bin;C:\Program Files (x86)\GnuWin32\bin;C:\Projects\sonar-runner-2.4\bin;C:\softwares\software office\sonarqube-6.1\bin\windows-x86-64;C:\Program Files (x86)\Skype\Phone\;C:\Program Files (x86)\scala\bin;C:\softwares\ruby-2.3.1;C:\Program Files\nodejs\;C:\softwares\play\activator-dist-1.3.10\bin;C:\softwares\play\play-2.2.6;c:\Program Files (x86)\Microsoft SQL Server\110\Tools\Binn\ManagementStudio\;c:\Program Files (x86)\Microsoft SQL Server\110\Tools\Binn\;c:\Program Files (x86)\Microsoft SQL Server\110\DTS\Binn\;C:\Ruby23-x64\bin;C:\Users\rbongurala\AppData\Roaming\npm;."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="52.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="6.1"/>
+    <property name="user.home" value="C:\Users\rbongurala"/>
+    <property name="user.timezone" value="Asia/Calcutta"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="java.specification.version" value="1.8"/>
+    <property name="file.encoding" value="Cp1252"/>
+    <property name="user.name" value="rbongurala"/>
+    <property name="java.class.path" value="C:\softwares\apache-maven-3.2.3\boot\plexus-classworlds-2.5.1.jar"/>
+    <property name="java.vm.specification.version" value="1.8"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_91\jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean install sonar:sonar"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="en"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.8.0_91"/>
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.8.0_91\jre\lib\ext;C:\windows\Sun\Java\lib\ext"/>
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_91\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_91\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_91\jre\classes"/>
+    <property name="sun.stderr.encoding" value="cp437"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="C:\softwares\apache-maven-3.2.3"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.stdout.encoding" value="cp437"/>
+    <property name="sun.desktop" value="windows"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+  </properties>
+  <testcase name="testRecipientAddressLine1WithMoreThan35Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="1.363"/>
+  <testcase name="testStateCodeWithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.113"/>
+  <testcase name="testNullRecipientAddressLine2WithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.08"/>
+  <testcase name="testCityWithOnlyNumAndAlphaMoreThan25Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.07"/>
+  <testcase name="testStateCodeWith2Numbers" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.07"/>
+  <testcase name="testRecipientAddressLine2WithNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.059"/>
+  <testcase name="testCityWithOnlySpecialChars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.055"/>
+  <testcase name="testZip5WithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.05"/>
+  <testcase name="testStateCodeWith2SpChar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.052"/>
+  <testcase name="testZip4WithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.036"/>
+  <testcase name="testZip5With5NonNumeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.039"/>
+  <testcase name="testStateCodeWith2letters" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.054"/>
+  <testcase name="testCityWithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.036"/>
+  <testcase name="testNullCity" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.05"/>
+  <testcase name="testStateCodeWithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.031"/>
+  <testcase name="testCityWithOnlyNumAndAlpha" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.034"/>
+  <testcase name="testZip5With6Numeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.052"/>
+  <testcase name="testZip4WithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.04"/>
+  <testcase name="testRecipientAddressLine1WithNumAndSpChar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.029"/>
+  <testcase name="testZip4WithNull" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.028"/>
+  <testcase name="testCityWithOnlyNumbers" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.025"/>
+  <testcase name="testZip4With5NonNumeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.036"/>
+  <testcase name="testRecipientAddressLine2WithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.012"/>
+  <testcase name="testCityWithSpecialCharsNumAndAlphaInBetween" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.032"/>
+  <testcase name="testCityWithOnlySpCharAndNumaMoreThan25Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.036"/>
+  <testcase name="testZip4With4Spchar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.027"/>
+  <testcase name="testCityWithOnlySpecialCharsAndAlpha" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.031"/>
+  <testcase name="testCityWithSpecialCharsNumAndAlphaPrepend" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.043"/>
+  <testcase name="testRecipientAddressLine1WithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.027"/>
+  <testcase name="testNullRecipientAddressLine1" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.034"/>
+  <testcase name="testNullRecipientAddressLine2" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.048"/>
+  <testcase name="testStateCodeWithInvalidUSStateLowerCase" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.03"/>
+  <testcase name="testNullRecipientAddressLine1WithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.038"/>
+  <testcase name="testZip4With4Numeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.028"/>
+  <testcase name="testStateCodeWith3Numbers" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.032"/>
+  <testcase name="testZip4With5Spchar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.028"/>
+  <testcase name="testRecipientAddressLine1With35Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.025"/>
+  <testcase name="testRecipientAddressLine2WithNumAndSpChar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.022"/>
+  <testcase name="testStateCodeWithInvalidUSStateUpperCase" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.027"/>
+  <testcase name="testRecipientAddressLine2With35Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.03"/>
+  <testcase name="testStateCodeWithValidUSStateLowerCase" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.028"/>
+  <testcase name="testStateCodeWith3letters" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.034"/>
+  <testcase name="testStateCodeWith2Alphanum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.037"/>
+  <testcase name="testZip5With4Zeros" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.026"/>
+  <testcase name="testZip5With5Zeros" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.023"/>
+  <testcase name="testZip5WithNullValue" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.022"/>
+  <testcase name="testZip5With6Zeros" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.027"/>
+  <testcase name="testCityWithNotAllowedSpecialCharsAndNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.029"/>
+  <testcase name="testCityWithOnlyAllowedSpecialCharsAndAlphaNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.018"/>
+  <testcase name="testRecipientAddressLine1WithNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.026"/>
+  <testcase name="testCityWithOnlySpCharAndAlphaMoreThan25Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.035"/>
+  <testcase name="testZip4With4NonNumeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.027"/>
+  <testcase name="testCityWithOnlySpecialCharsAndNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.029"/>
+  <testcase name="testRecipientAddressLine2WithAlphaNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.024"/>
+  <testcase name="testStateCodeWithValidUSStateUpperCase" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.02"/>
+  <testcase name="testRecipientAddressLine2WithSpecialChar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.02"/>
+  <testcase name="testZip5With6NonNumeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.025"/>
+  <testcase name="testNullStateCode" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.025"/>
+  <testcase name="testRecipientAddressLine1WithAlphaNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.016"/>
+  <testcase name="testZip5WithSpaces" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.018"/>
+  <testcase name="testZip5With5Numeric" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.062"/>
+  <testcase name="testCityWithNotAllowedSpecialCharsAndAlphaNum" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.02"/>
+  <testcase name="testRecipientAddressLine1WithSpecialChar" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.024"/>
+  <testcase name="testRecipientAddressLine2WithMoreThan35Chars" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.031"/>
+  <testcase name="testCityWithSpace" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.024"/>
+  <testcase name="testCityWithSpecialCharsNumAndAlphaAppend" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.022"/>
+  <testcase name="testProcess" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0">
+    <skipped message="Needs some ground work. Ignoring it for now"/>
+  </testcase>
+  <testcase name="testMinimal" classname="us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest" time="0.008"/>
+</testsuite>

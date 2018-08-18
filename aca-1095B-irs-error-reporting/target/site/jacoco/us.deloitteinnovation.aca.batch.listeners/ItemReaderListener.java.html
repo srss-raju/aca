@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemReaderListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.listeners</a> &gt; <span class="el_source">ItemReaderListener.java</span></div><h1>ItemReaderListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.listeners;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.file.MultiResourceItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore;
+import us.deloitteinnovation.aca.entity.IrsRecordDetails1095B;
+import us.deloitteinnovation.aca.repository.IrsRecordDetails1095BRepository;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Created by tthakore on 4/1/2016.
+ */
+<span class="fc" id="L18">public class ItemReaderListener implements org.springframework.batch.core.ItemReadListener {</span>
+
+<span class="fc" id="L20">    private static Logger logger = LoggerFactory.getLogger(ItemReaderListener.class);</span>
+
+    @Autowired
+    MultiResourceItemReader errorXmlFileReader;
+
+    @Autowired
+    IrsRecordDetails1095BRepository irsRecordDetails1095BRepository;
+
+
+<span class="fc" id="L29">    ErrorReportingObjectStore errorReportingObjectStore = ErrorReportingObjectStore.getInstance();</span>
+
+    @Override
+    public void beforeRead() {
+<span class="nc" id="L33">    }</span>
+
+    /**
+     * afterRead(Object obj)
+     *
+     * @param obj FormBCTransmitterSubmissionDtl gets generated once staxeventitem reader reads xml file
+     *            task is to set current file name and transmission id.
+     *            Once we have current file name and transmission id we will get all the records of that specific transmission and map them with error in processor
+     **/
+    @Override
+    public void afterRead(Object obj) {
+        try {
+<span class="nc" id="L45">            errorReportingObjectStore.setCurrentFileName(errorXmlFileReader.getCurrentResource().getFile().getName().toString());</span>
+<span class="nc" id="L46">            String receiptID = errorReportingObjectStore.getReceiptIdFromFileName(errorXmlFileReader.getCurrentResource().getFile().getName().toString());</span>
+<span class="nc" id="L47">            String transmissionID = errorReportingObjectStore.receiptTransmissionIDMap.get(receiptID).getTransmissionId().toString();</span>
+<span class="nc" id="L48">            getAllRecordsFromReceiptID(transmissionID);</span>
+
+<span class="nc" id="L50">            logger.error(&quot;&lt;=========  currently processing file name = &quot;+errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc" id="L51">        } catch (Exception e) {</span>
+<span class="nc" id="L52">            logger.error(&quot;Error in setting current file name to singleton object&quot;, e);</span>
+<span class="nc" id="L53">            throw new IllegalArgumentException(&quot;current filename can not be set.&quot;);</span>
+<span class="nc" id="L54">        }</span>
+<span class="nc" id="L55">    }</span>
+
+    @Override
+    public void onReadError(Exception var1) {
+<span class="nc" id="L59">    }</span>
+
+
+    /**
+     * getAllRecordsFromReceiptID(String transmissionID)
+     *
+     * @param transmissionID gets transmission id to fetch all the records for that specific transmission to be mapped.
+     **/
+    public void getAllRecordsFromReceiptID(String transmissionID) throws Exception{
+
+<span class="fc" id="L69">        List&lt;IrsRecordDetails1095B&gt; currentTransmissionRecordList = irsRecordDetails1095BRepository.getRecordsDetailsTransactionID(Integer.valueOf(transmissionID));</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        for (IrsRecordDetails1095B item : currentTransmissionRecordList) {</span>
+<span class="fc" id="L71">            String recordPK = item.getId().getTransmissionId() + &quot;|&quot; + item.getId().getSubmissionId() + &quot;|&quot; + item.getId().getRecordId();</span>
+<span class="fc" id="L72">            errorReportingObjectStore.currentTransmissionRecordMap.put(recordPK, item);</span>
+<span class="fc" id="L73">        }</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (currentTransmissionRecordList.size() == 0) {</span>
+<span class="nc" id="L75">            logger.warn(&quot;No record with given transmission id is found in IRS_RECORD_DETAILS_1095B table&quot;);</span>
+        }
+
+<span class="fc" id="L78">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

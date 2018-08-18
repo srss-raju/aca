@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsErrorReportingConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch</a> &gt; <span class="el_source">IrsErrorReportingConfiguration.java</span></div><h1>IrsErrorReportingConfiguration.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.MultiResourceItemReader;
+import org.springframework.batch.item.xml.StaxEventItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import us.deloitteinnovation.aca.batch.dto.ErrorDetailsDTO;
+import us.deloitteinnovation.aca.batch.listeners.IrsErrorHandlingProtocolListener;
+import us.deloitteinnovation.aca.batch.listeners.ItemReaderListener;
+import us.deloitteinnovation.aca.batch.listeners.RecordSkipListener;
+import us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore;
+import us.deloitteinnovation.aca.batch.processor.IrsErrorReportingAppProcessor;
+import us.deloitteinnovation.aca.batch.writer.IrsErrorReportingItemWriter;
+import us.deloitteinnovation.aca.batch.writer.IrsErrorReportingService;
+import us.deloitteinnovation.aca.repository.IrsErrorCodeOwnerMapRepository;
+import us.deloitteinnovation.aca.repository.IrsTransmissionDetailsRepository;
+import us.deloitteinnovation.aca.repository.IrsTransmissionStatusRepository;
+import us.gov.treasury.irs.msg.form1094_1095bctransmittermessage.FormBCTransmitterSubmissionDtl;
+import us.gov.treasury.irs.msg.form1094_1095bctransmittermessage.impl.FormBCTransmitterSubmissionDtlImpl;
+
+import java.io.IOException;
+
+/**
+ * Created by tthakore on 3/25/2016.
+ */
+
+@Configuration
+@EnableBatchProcessing
+<span class="nc" id="L45">public class IrsErrorReportingConfiguration {</span>
+
+<span class="nc" id="L47">    private static Logger logger = LoggerFactory.getLogger(IrsErrorReportingConfiguration.class);</span>
+
+    private String stateName;
+
+
+    @Autowired
+    JobBuilderFactory jobs;
+
+    @Autowired
+    StepBuilderFactory stepBuilderFactory;
+
+
+    @Autowired
+    IrsTransmissionDetailsRepository irsTransmissionService;
+
+    @Autowired
+    IrsTransmissionStatusRepository irsTransmissionStatusService;
+
+    @Autowired
+    IrsErrorCodeOwnerMapRepository irsErrorCodeOwnerMapService;
+
+
+    /**
+     * primary usage of below function is to create a job for error report generation*
+     *
+     * @param errorReportGenarationStep error report generation step
+     * @param protocolListener          this  is the listener for before and after job listeners this will be used to calculate actual time of whole job execution.
+     * @return Job
+     */
+    @Bean
+    public Job errorReportGenerationJob(Step errorReportGenarationStep, final IrsErrorHandlingProtocolListener protocolListener ) {
+
+<span class="nc" id="L79">        ErrorReportingObjectStore.getInstance().setIrsTransmissionService(irsTransmissionService);</span>
+<span class="nc" id="L80">        ErrorReportingObjectStore.getInstance().setIrsTransmissionStatusService(irsTransmissionStatusService);</span>
+<span class="nc" id="L81">        ErrorReportingObjectStore.getInstance().setIrsErrorCodeOwnerMapService(irsErrorCodeOwnerMapService);</span>
+<span class="nc" id="L82">        return jobs.get(&quot;aca1095IrsErrorReportingJob&quot;).preventRestart()</span>
+<span class="nc" id="L83">                .listener(protocolListener)</span>
+<span class="nc" id="L84">                .incrementer(new RunIdIncrementer())</span>
+<span class="nc" id="L85">                .flow(errorReportGenarationStep)</span>
+<span class="nc" id="L86">                .end()</span>
+<span class="nc" id="L87">                .build();</span>
+    }
+
+
+    /**
+     * @param errorReportWriter  will be the item writer which generates dat file as error report an update status into db.
+     * @param errorXmlFileReader this is MultiResourceItemReader item reader since there will be more then one file to read so the
+     *                           target is to read one file at a time process it write it and then
+     *                           move to next file.
+     * @param errorXmlProcessor  this will convert output of XML object to ErrorDetailsDTO which will be then processed by writer.
+     * @param itemReaderListener this item reader listener is used to get currently processed file name take transmission id out
+     *                           of it and load all the records for that specific transmission id to update there status as ACCEPTED or ERROR.
+     * @return Step returns steps for error report job this step  containes readers writters and processors to read and process xml.
+     **/
+    @Bean
+    public Step errorReportGenarationStep(MultiResourceItemReader errorXmlFileReader, ItemProcessor errorXmlProcessor, ItemWriter errorReportWriter, ItemReaderListener itemReaderListener, RecordSkipListener recordSkipListener) {
+        //Added skip listner for the batch job reason in case there are multiple files and one file is failing batch job should not stop if you want to see why specific file did not get processed goto logs with info level and check there.
+<span class="nc" id="L104">        Step step = stepBuilderFactory.get(&quot;aca1095IrsErrorReportingStep&quot;).chunk(1)</span>
+<span class="nc" id="L105">                .reader(errorXmlFileReader)</span>
+<span class="nc" id="L106">                .listener(itemReaderListener)</span>
+<span class="nc" id="L107">                .processor(errorXmlProcessor)</span>
+<span class="nc" id="L108">                .writer(errorReportWriter).faultTolerant()</span>
+<span class="nc" id="L109">                .skip(Exception.class).noRetry(Exception.class)</span>
+<span class="nc" id="L110">                .skipLimit(Integer.MAX_VALUE).listener(recordSkipListener)</span>
+<span class="nc" id="L111">                .build();</span>
+
+<span class="nc" id="L113">        return step;</span>
+
+    }
+
+
+    /**
+     * @return ItemProcessor&lt;FormBCTransmitterSubmissionDtl,ErrorDetailsDTO&gt;
+     * item processor for above step takes  FormBCTransmitterSubmissionDtl and ouputs ErrorDetailsDTO to generate xml and map status to DB.
+     */
+    @Bean
+    public ItemProcessor&lt;FormBCTransmitterSubmissionDtl, ErrorDetailsDTO&gt; errorXmlProcessor() {
+<span class="nc" id="L124">        IrsErrorReportingAppProcessor irsErrorReportingAppProcessor = new IrsErrorReportingAppProcessor();</span>
+<span class="nc" id="L125">        return irsErrorReportingAppProcessor;</span>
+
+    }
+
+    /**
+     * @param state this is will be state abbreviation which will be passed through job paramater.
+     *              this function contains StaxEventItemReader which is being used to read error xml and generate XML object using JAXB unmarshaller
+     * @return MultiResourceItemReader
+     **/
+    @Bean
+    @Qualifier(&quot;reader&quot;)
+    @StepScope
+    public MultiResourceItemReader errorXmlFileReader(@Value(&quot;#{jobParameters[state]}&quot;) String state) {
+<span class="nc" id="L138">        StaxEventItemReader itemReader = new StaxEventItemReader();</span>
+<span class="nc" id="L139">        MultiResourceItemReader multiResourceItemReader = new MultiResourceItemReader();</span>
+        try {
+<span class="nc" id="L141">            stateName = state;</span>
+<span class="nc" id="L142">            Jaxb2Marshaller marshaller1 = new Jaxb2Marshaller();</span>
+<span class="nc" id="L143">            marshaller1.setClassesToBeBound(FormBCTransmitterSubmissionDtlImpl.class);</span>
+<span class="nc" id="L144">            marshaller1.setSupportDtd(true);</span>
+<span class="nc" id="L145">            itemReader.setFragmentRootElementName(&quot;FormBCTransmitterSubmissionDtl&quot;);</span>
+<span class="nc" id="L146">            itemReader.setUnmarshaller(marshaller1);</span>
+<span class="nc" id="L147">            multiResourceItemReader.setDelegate(itemReader);</span>
+<span class="nc" id="L148">            multiResourceItemReader.setResources(getErrorXmlFiles(state));</span>
+
+
+<span class="nc" id="L151">        } catch (IOException ex) {</span>
+<span class="nc" id="L152">          logger.error(&quot;Error in MultiResourceItemReader&quot;,ex);</span>
+<span class="nc" id="L153">        }</span>
+<span class="nc" id="L154">        return multiResourceItemReader;</span>
+    }
+
+    /**
+     * @return standard item writer for the job.
+     */
+
+    @Bean
+    public ItemWriter&lt;ErrorDetailsDTO&gt; errorReportWriter() {
+<span class="nc" id="L163">        logger.info(&quot;Start of ItemWriter&quot;);</span>
+<span class="nc" id="L164">        IrsErrorReportingItemWriter applicationWriter = new IrsErrorReportingItemWriter();</span>
+<span class="nc" id="L165">        logger.info(&quot;End of ItemWriter&quot;);</span>
+<span class="nc" id="L166">        return applicationWriter;</span>
+    }
+
+    /*all the beans are defined below.*/
+    @Bean
+    public IrsErrorReportingService irsErrorReportingService() {
+<span class="nc" id="L172">    return new IrsErrorReportingService();</span>
+}
+
+    @Bean
+    public IrsErrorHandlingProtocolListener protocolListener() {
+<span class="nc" id="L177">        IrsErrorHandlingProtocolListener irsErrorHandlingProtocolListener = new IrsErrorHandlingProtocolListener();</span>
+<span class="nc" id="L178">        return irsErrorHandlingProtocolListener;</span>
+    }
+
+    public Resource[] getErrorXmlFiles(String stateCode) throws IOException {
+<span class="nc" id="L182">        return ErrorReportingObjectStore.getInstance().getAvailableErrorXml(stateCode);</span>
+    }
+
+    @Bean
+    ItemReaderListener itemReaderListener() {
+<span class="nc" id="L187">        return new ItemReaderListener();</span>
+    }
+
+    @Bean
+<span class="nc" id="L191">    public RecordSkipListener recordSkipListener(){return new RecordSkipListener();}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

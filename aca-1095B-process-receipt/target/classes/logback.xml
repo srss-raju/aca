@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <appender name="LOGFILE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="us.deloitteinnovation.aca" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.springframework" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.springframework.web" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.springframework.beans" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.springframework.jndi" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.hibernate.jdbc" level="ALL" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.hibernate.loader" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="org.springframework.batch" level="ALL" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="com.mchange.v2.log" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+    <logger name="ch.qos.logback" level="INFO" additivity="false"><appender-ref ref="LOGFILE" /></logger>
+
+    <root level="INFO">
+        <appender-ref ref="LOGFILE" />
+    </root>
+</configuration>

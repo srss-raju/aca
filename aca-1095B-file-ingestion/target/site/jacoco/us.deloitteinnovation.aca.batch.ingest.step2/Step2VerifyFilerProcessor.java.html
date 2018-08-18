@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step2VerifyFilerProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step2</a> &gt; <span class="el_source">Step2VerifyFilerProcessor.java</span></div><h1>Step2VerifyFilerProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step2;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.service.ExceptionReportService;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+import us.deloitteinnovation.aca.entity.FilerDemographicStagingEntity;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static us.deloitteinnovation.aca.batch.utils.BatchUtils.*;
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.ALL_NINES_DATE_FLAG;
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.ALL_SIXES_DATE_FLAG;
+
+/**
+ * &lt;p&gt;
+ * Processor class to process individual filer demographic records.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L39">public class Step2VerifyFilerProcessor implements ItemProcessor&lt;FilerDemographicDto, FilerDemographicStagingEntity&gt; {</span>
+
+<span class="fc" id="L41">    private static final Logger LOGGER = LoggerFactory.getLogger(Step2VerifyFilerProcessor.class);</span>
+
+    @Autowired
+    BatchInfoDto batchInfoDto;
+    @Autowired
+    Validator validator;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+    @Autowired
+    ExceptionReportService exceptionReportService;
+    @Autowired
+    Environment env;
+    @Value(&quot;#{jobParameters['YEAR']}&quot;)
+    String taxYearAsBatchArg;
+    // TODO: Can we read the job parameter as @Value(&quot;#{jobParameters[FileIngestionConstants.BATCH_ARG_TAX_YEAR]}&quot;)? Do not want to hard code it here.
+    /**
+     * &lt;p&gt;
+     * Process a filer demographic record returned by ItemWriter
+     * If there are any business exceptions in a record then they are
+     * added to a set of {@link ExceptionReportDto}'s .
+     * If there are no exceptions, then the filer demographic record is returned,
+     * null is returned otherwise
+     * &lt;/p&gt;
+     *
+     * @param filerDemographicDto Individual filer demographic record to process
+     * @return {@link FilerDemographicStagingEntity}
+     * @throws Exception
+     */
+    @Override
+    public FilerDemographicStagingEntity process(FilerDemographicDto filerDemographicDto) throws Exception {
+        try {
+<span class="nc" id="L72">            boolean hasExceptions = false;</span>
+<span class="nc" id="L73">            boolean hasWarnings = false;</span>
+<span class="nc" id="L74">            Set&lt;ExceptionReportDto&gt; exceptionReportDtoSet = new HashSet();</span>
+<span class="nc" id="L75">            filerDemographicDto.getId().setSourceCd(this.batchInfoDto.getSourceCode());</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L77">                LOGGER.info(&quot;Processing {} {} with RID {}&quot;,</span>
+<span class="nc" id="L78">                        filerDemographicDto.getRecipientFirstName(),</span>
+<span class="nc" id="L79">                        filerDemographicDto.getRecipientLastName(),</span>
+<span class="nc" id="L80">                        filerDemographicDto.getId().getSourceUniqueId());</span>
+
+            }
+            // Verify RID data
+<span class="nc" id="L84">            BindingResult ridDataViolations = bindAndValidate(filerDemographicDto.getId(), validator);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (ridDataViolations.hasErrors()) {</span>
+<span class="nc" id="L86">                hasExceptions = true;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                for (ObjectError error : ridDataViolations.getAllErrors()) {</span>
+<span class="nc" id="L88">                    ExceptionReportDto exceptionReport = constructExceptionReport(error, filerDemographicDto);</span>
+<span class="nc" id="L89">                    exceptionReportDtoSet.add(exceptionReport);</span>
+<span class="nc" id="L90">                }</span>
+            }
+            // Verify for all zero's in RID
+<span class="nc" id="L93">            String recipientUniqueId = filerDemographicDto.getId().getSourceUniqueId();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (StringUtils.isNotBlank(recipientUniqueId)) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (recipientUniqueId.matches(&quot;^[0]+$&quot;)) {</span>
+<span class="nc" id="L96">                    hasExceptions = true;</span>
+<span class="nc" id="L97">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;rid.content.all.zeros.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L98">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // Verify coverage details like case/application id etc.
+<span class="nc" id="L102">            BindingResult coverageDtoValidations = bindAndValidate((filerDemographicDto.getFilerCoverage()), validator);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (coverageDtoValidations.hasErrors()) {</span>
+<span class="nc" id="L104">                hasExceptions = true;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                for (ObjectError error : coverageDtoValidations.getAllErrors()) {</span>
+<span class="nc" id="L106">                    ExceptionReportDto exceptionReport = constructExceptionReport(error, filerDemographicDto);</span>
+<span class="nc" id="L107">                    exceptionReportDtoSet.add(exceptionReport);</span>
+<span class="nc" id="L108">                }</span>
+            }
+            // Verify filer demographics details.
+<span class="nc" id="L111">            BindingResult validationResult = bindAndValidate(filerDemographicDto, validator);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (validationResult.hasErrors()) {</span>
+<span class="nc" id="L113">                hasExceptions = true;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                for (ObjectError error : validationResult.getAllErrors()) {</span>
+<span class="nc" id="L115">                    ExceptionReportDto exceptionReport = constructExceptionReport(error, filerDemographicDto);</span>
+<span class="nc" id="L116">                    exceptionReportDtoSet.add(exceptionReport);</span>
+<span class="nc" id="L117">                }</span>
+            }
+            // Check if SSN has sequential numbers in it.
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (isSequentialNumbers(filerDemographicDto.getRecipientSsn())) {</span>
+<span class="nc" id="L121">                hasExceptions = true;</span>
+<span class="nc" id="L122">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.ssn.sequential.numbers.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L123">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check if SSN has repeating numbers in it
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (isConsecutiveNumbers(filerDemographicDto.getRecipientSsn())) {</span>
+<span class="nc" id="L127">                hasExceptions = true;</span>
+<span class="nc" id="L128">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.ssn.consecutive.numbers.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L129">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check if TIN has sequential numbers in it.
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (isSequentialNumbers(filerDemographicDto.getRecipientTin())) {</span>
+<span class="nc" id="L133">                hasExceptions = true;</span>
+<span class="nc" id="L134">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.tin.sequential.numbers.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L135">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check if TIN has repeating numbers in it
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (isConsecutiveNumbers(filerDemographicDto.getRecipientTin())) {</span>
+<span class="nc" id="L139">                hasExceptions = true;</span>
+<span class="nc" id="L140">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.tin.consecutive.numbers.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L141">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check if the tax year matches with the tax year mentioned in the job parameter
+<span class="nc" id="L144">            String taxYearFromDto = filerDemographicDto.getId().getTaxYear();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (!taxYearAsBatchArg.equals(taxYearFromDto)) {</span>
+<span class="nc" id="L146">                hasExceptions = true;</span>
+<span class="nc" id="L147">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;tax.year.mismatch.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L148">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // DOB data check. See sec 3.1.1  row 11 of ICD.
+<span class="nc" id="L151">            Date recipientDob = filerDemographicDto.getRecipientDob();</span>
+<span class="nc" id="L152">            Calendar dobCalendar = Calendar.getInstance();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (recipientDob != null) {</span>
+<span class="nc" id="L154">                dobCalendar.setTime(recipientDob);</span>
+<span class="nc" id="L155">                Calendar taxYearCalendar = Calendar.getInstance();</span>
+<span class="nc" id="L156">                taxYearCalendar.set(Calendar.YEAR, Integer.parseInt(taxYearAsBatchArg));</span>
+<span class="nc" id="L157">                taxYearCalendar.set(Calendar.MONTH, Calendar.DECEMBER);</span>
+<span class="nc" id="L158">                taxYearCalendar.set(Calendar.DAY_OF_MONTH, 31); // Last day of December</span>
+
+
+<span class="nc bnc" id="L161" title="All 4 branches missed.">                if (!(dobCalendar.before(taxYearCalendar) || dobCalendar.equals(taxYearCalendar))) {</span>
+<span class="nc" id="L162">                    hasExceptions = true;</span>
+<span class="nc" id="L163">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.dob.date.comparison.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L164">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+                // DOB should not be greater than 120 years prior to tax year in batch argument.
+<span class="nc" id="L167">                taxYearCalendar.clear();</span>
+<span class="nc" id="L168">                taxYearCalendar.setTime(recipientDob);</span>
+<span class="nc" id="L169">                taxYearCalendar.set(Calendar.YEAR, Integer.parseInt(taxYearAsBatchArg) - 120);</span>
+<span class="nc" id="L170">                taxYearCalendar.set(Calendar.MONTH, Calendar.DECEMBER);</span>
+<span class="nc" id="L171">                taxYearCalendar.set(Calendar.DAY_OF_MONTH, 31); // Last day of December</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                if ((dobCalendar.before(taxYearCalendar))) {</span>
+<span class="nc" id="L173">                    hasExceptions = true;</span>
+<span class="nc" id="L174">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.dob.date.comparison.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L175">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // Check for all zero's in Zip5
+<span class="nc" id="L179">            String recipientZip5 = filerDemographicDto.getRecepientZip5();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            if (StringUtils.isNotBlank(recipientZip5)) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                if (recipientZip5.matches(&quot;^[0]+$&quot;)) {</span>
+<span class="nc" id="L182">                    hasExceptions = true;</span>
+<span class="nc" id="L183">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.zip5.allzeros.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L184">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // Check for repeated allowed special characters in Recipient Address line 1
+<span class="nc" id="L188">            String recipientAddressLine1 = filerDemographicDto.getRecipientAddressLine1();</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (StringUtils.isNotBlank(recipientAddressLine1)) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                if (containsRepeatedAllowedSpecialChars(recipientAddressLine1)) {</span>
+<span class="nc" id="L191">                    hasExceptions = true;</span>
+<span class="nc" id="L192">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.address.line1.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L193">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // Check to see if has allowed special characters
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (StringUtils.isNotBlank(recipientAddressLine1)) {</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                if (!containsAllowedSpecialCharacters(recipientAddressLine1)) {</span>
+<span class="nc" id="L199">                    hasExceptions = true;</span>
+<span class="nc" id="L200">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.address.line1.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L201">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // Check for repeated allowed special characters in recipient Address line 2
+<span class="nc" id="L205">            String recipientAddressLine2 = filerDemographicDto.getRecipientAddressLine2();</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if (containsRepeatedAllowedSpecialChars(recipientAddressLine2)) {</span>
+<span class="nc" id="L207">                hasExceptions = true;</span>
+<span class="nc" id="L208">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.address.line2.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L209">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check to see if has allowed special characters in recipient address line 2
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            if (!containsAllowedSpecialCharacters(recipientAddressLine2)) {</span>
+<span class="nc" id="L213">                hasExceptions = true;</span>
+<span class="nc" id="L214">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.address.line2.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L215">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Issue warning for recipient address line 2
+<span class="nc bnc" id="L218" title="All 6 branches missed.">            if ((StringUtils.isBlank(recipientAddressLine1) || recipientAddressLine1.trim().length() &lt;= 3) &amp;&amp; StringUtils.isBlank(recipientAddressLine2)) {</span>
+<span class="nc" id="L219">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;recipient.address.line2.warning&quot;), filerDemographicDto);</span>
+<span class="nc" id="L220">                exceptionReportService.save(exceptionReport);</span>
+            }
+            // Check for repeated allowed special characters for provider address line 1
+<span class="nc" id="L223">            String providerAddressLine1 = filerDemographicDto.getProviderAddressLine1();</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            if (containsRepeatedAllowedSpecialChars(providerAddressLine1)) {</span>
+<span class="nc" id="L225">                hasExceptions = true;</span>
+<span class="nc" id="L226">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.address.line1.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L227">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check to see if has allowed special characters in provider address line 1
+<span class="nc bnc" id="L230" title="All 2 branches missed.">            if (!containsAllowedSpecialCharacters(providerAddressLine1)) {</span>
+<span class="nc" id="L231">                hasExceptions = true;</span>
+<span class="nc" id="L232">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.address.line1.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L233">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check for repeated allowed special characters for provider address line 2
+<span class="nc" id="L236">            String providerAddressLine2 = filerDemographicDto.getProviderAddressLine2();</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            if (containsRepeatedAllowedSpecialChars(providerAddressLine2)) {</span>
+<span class="nc" id="L238">                hasExceptions = true;</span>
+<span class="nc" id="L239">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.address.line2.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L240">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // Check to see if has allowed special characters in provider address line 2
+<span class="nc bnc" id="L243" title="All 2 branches missed.">            if (!containsAllowedSpecialCharacters(providerAddressLine2)) {</span>
+<span class="nc" id="L244">                hasExceptions = true;</span>
+<span class="nc" id="L245">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.address.line2.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L246">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+
+            // Issue warning for provider address line 2
+<span class="nc bnc" id="L250" title="All 6 branches missed.">            if ((StringUtils.isBlank(providerAddressLine1) || providerAddressLine1.trim().length() &lt;= 3) &amp;&amp; StringUtils.isBlank(providerAddressLine2)) {</span>
+<span class="nc" id="L251">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.address.line2.warning&quot;), filerDemographicDto);</span>
+<span class="nc" id="L252">                exceptionReportService.save(exceptionReport);</span>
+            }
+            // Check allowed special characters for provider city or town
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            if (!containsAllowedSpecialCharactersForProviderCity(filerDemographicDto.getProviderCityOrTown())) {</span>
+<span class="nc" id="L256">                hasExceptions = true;</span>
+<span class="nc" id="L257">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;provider.city.or.town.allowed.spchar.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L258">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+
+            // ICD ER22.2. Checks for all 6's or all 9's in coverage begin date
+<span class="nc" id="L262">            String correctionCode = filerDemographicDto.getCorrection();</span>
+<span class="nc" id="L263">            String originalCoverageBeginDt = filerDemographicDto.getFilerCoverage().getOrigCoverageBeginDtStr();</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (!isCoverageDateValid(correctionCode, originalCoverageBeginDt)) {</span>
+<span class="nc" id="L265">                hasExceptions = true;</span>
+<span class="nc" id="L266">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.begin.date.value.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L267">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // ICD ER22.3. Checks for the coverage begin date year
+<span class="nc" id="L270">            String taxYear = filerDemographicDto.getId().getTaxYear();</span>
+<span class="nc" id="L271">            Date coverageBeginDate = filerDemographicDto.getFilerCoverage().getOrigCoverageBeginDt();</span>
+<span class="nc bnc" id="L272" title="All 4 branches missed.">            boolean allSixAllNineFlagForCoverageBeginDt = ALL_SIXES_DATE_FLAG.equals(originalCoverageBeginDt) || ALL_NINES_DATE_FLAG.equals(originalCoverageBeginDt);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">            if (!allSixAllNineFlagForCoverageBeginDt</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                    &amp;&amp; !isCoverageTaxYearValid(taxYear, coverageBeginDate)) {</span>
+<span class="nc" id="L275">                hasExceptions = true;</span>
+<span class="nc" id="L276">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.begin.date.tax.year.value.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L277">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // ICD ER22.4. Checks for coverage month and DOB month
+<span class="nc bnc" id="L280" title="All 2 branches missed.">            if (!allSixAllNineFlagForCoverageBeginDt</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">                    &amp;&amp; !isCoverageMonthValid(coverageBeginDate, recipientDob)) {</span>
+<span class="nc" id="L282">                hasExceptions = true;</span>
+<span class="nc" id="L283">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.begin.date.month.value.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L284">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // ICD ER23.2. Checks for all 6's or all 9's in coverage begin date
+<span class="nc" id="L287">            String originalCoverageEndDt = filerDemographicDto.getFilerCoverage().getOrigCoverageEndDtStr();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">            if (!isCoverageDateValid(correctionCode, originalCoverageEndDt)) {</span>
+<span class="nc" id="L289">                hasExceptions = true;</span>
+<span class="nc" id="L290">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.end.date.value.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L291">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+
+            // ICD ER23.4. Checks for the coverage begin date year
+<span class="nc" id="L295">            Date coverageEndDate = filerDemographicDto.getFilerCoverage().getOrigCoverageEndDt();</span>
+<span class="nc bnc" id="L296" title="All 4 branches missed.">            boolean allSixAllNineFlagForCoverageEndDt = ALL_SIXES_DATE_FLAG.equals(originalCoverageEndDt) || ALL_NINES_DATE_FLAG.equals(originalCoverageEndDt);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            if (!allSixAllNineFlagForCoverageEndDt</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                    &amp;&amp; !isCoverageTaxYearValid(taxYear, coverageEndDate)) {</span>
+<span class="nc" id="L299">                hasExceptions = true;</span>
+<span class="nc" id="L300">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.end.date.tax.year.value.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L301">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // ICD ER23.3. Checks if begin date is before end date
+<span class="nc bnc" id="L304" title="All 4 branches missed.">            if (!allSixAllNineFlagForCoverageBeginDt &amp;&amp;</span>
+                    !allSixAllNineFlagForCoverageEndDt &amp;&amp;
+<span class="nc bnc" id="L306" title="All 2 branches missed.">                    !isBeginDateBeforeEndDate(coverageBeginDate, coverageEndDate)) {</span>
+<span class="nc" id="L307">                hasExceptions = true;</span>
+<span class="nc" id="L308">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.end.date.before.begin.date.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L309">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // ICD ER23.5 Check if coverage begin an end date are equal if they are all 6's or all 9's
+<span class="nc bnc" id="L312" title="All 2 branches missed.">            if (ALL_NINES_DATE_FLAG.equals(originalCoverageBeginDt) ||</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">                    ALL_NINES_DATE_FLAG.equals(originalCoverageEndDt)) {</span>
+<span class="nc bnc" id="L314" title="All 4 branches missed.">                if (originalCoverageBeginDt != null &amp;&amp; !originalCoverageBeginDt.equals(originalCoverageEndDt)) {</span>
+<span class="nc" id="L315">                    hasExceptions = true;</span>
+<span class="nc" id="L316">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.date.nines.mismatch&quot;), filerDemographicDto);</span>
+<span class="nc" id="L317">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+            // ICD ER23.6 Check if coverage begin an end date are equal if they are all 6's or all 9's
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            if (ALL_SIXES_DATE_FLAG.equals(originalCoverageBeginDt) ||</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                    ALL_SIXES_DATE_FLAG.equals(originalCoverageEndDt)) {</span>
+<span class="nc bnc" id="L323" title="All 4 branches missed.">                if (originalCoverageBeginDt != null &amp;&amp; !originalCoverageBeginDt.equals(originalCoverageEndDt)) {</span>
+<span class="nc" id="L324">                    hasExceptions = true;</span>
+<span class="nc" id="L325">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;original.coverage.date.sixes.mismatch&quot;), filerDemographicDto);</span>
+<span class="nc" id="L326">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+
+<span class="nc" id="L330">            Pattern pattern = Pattern.compile(&quot;[0-9]{0,15}&quot;);</span>
+<span class="nc bnc" id="L331" title="All 4 branches missed.">            if (filerDemographicDto.getFilerStatus() != null &amp;&amp; filerDemographicDto.getFilerStatus().equalsIgnoreCase(&quot;C&quot;)) {</span>
+<span class="nc bnc" id="L332" title="All 6 branches missed.">                if (filerDemographicDto.getResponsiblePersonUniqueId() == null || (filerDemographicDto.getResponsiblePersonUniqueId() != null &amp;&amp; filerDemographicDto.getResponsiblePersonUniqueId().equals(&quot;0&quot;))) {</span>
+<span class="nc" id="L333">                    hasExceptions = true;</span>
+<span class="nc" id="L334">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;responsible.person.unique.id.value.required.when.filer.status.is.C.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L335">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+<span class="nc bnc" id="L338" title="All 4 branches missed.">            if (filerDemographicDto.getFilerStatus() != null &amp;&amp; filerDemographicDto.getFilerStatus().equalsIgnoreCase(&quot;R&quot;)) {</span>
+<span class="nc bnc" id="L339" title="All 6 branches missed.">                if (filerDemographicDto.getResponsiblePersonUniqueId() != null &amp;&amp; filerDemographicDto.getId().getSourceUniqueId() != null &amp;&amp; pattern.matcher(filerDemographicDto.getResponsiblePersonUniqueId()).matches() &amp;&amp;</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">                        filerDemographicDto.getResponsiblePersonUniqueId().compareTo(Long.toString(NumberUtils.toLong(StringUtils.trimToNull(filerDemographicDto.getId().getSourceUniqueId())))) != 0) {</span>
+<span class="nc" id="L341">                    hasExceptions = true;</span>
+<span class="nc" id="L342">                    ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;responsible.person.uniqueid.recipient.uniqueid.mismatch.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L343">                    exceptionReportDtoSet.add(exceptionReport);</span>
+                }
+            }
+
+        /*
+        * ICD ER44.4 Reject record if the filer status is 'C' and
+        * Responsible_person_unique_id and source_unique_id are same.
+        */
+<span class="nc" id="L351">            String filerStatus = filerDemographicDto.getFilerStatus();</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">            if (FileIngestionConstants.FILER_STATUS_COVERED_PERSON.equalsIgnoreCase(filerStatus)) { //Ignoring case because as per ACAB-1638 filer status can be in lower/upper case.</span>
+<span class="nc" id="L353">                String sourceUniqueId = filerDemographicDto.getId().getSourceUniqueId();</span>
+<span class="nc" id="L354">                String responsibleUniqueId = filerDemographicDto.getResponsiblePersonUniqueId();</span>
+<span class="nc bnc" id="L355" title="All 4 branches missed.">                if (StringUtils.isNotBlank(sourceUniqueId) &amp;&amp; StringUtils.isNotBlank(responsibleUniqueId)) {</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">                    if (sourceUniqueId.equals(responsibleUniqueId)) {</span>
+<span class="nc" id="L357">                        hasExceptions = true;</span>
+<span class="nc" id="L358">                        ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;filer.status.c.responsible.person.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L359">                        exceptionReportDtoSet.add(exceptionReport);</span>
+<span class="nc" id="L360">                    } else {</span>
+<span class="nc" id="L361">                        Long lSourceUniqueId = NumberUtils.toLong(sourceUniqueId);</span>
+<span class="nc" id="L362">                        Long lResponsibleUniqueId = NumberUtils.toLong(responsibleUniqueId);</span>
+<span class="nc bnc" id="L363" title="All 8 branches missed.">                        if (lSourceUniqueId == lResponsibleUniqueId &amp;&amp; lResponsibleUniqueId != 0l &amp; lSourceUniqueId != 0l) {</span>
+<span class="nc" id="L364">                            hasExceptions = true;</span>
+<span class="nc" id="L365">                            ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;filer.status.c.responsible.person.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L366">                            exceptionReportDtoSet.add(exceptionReport);</span>
+                        }
+                    }
+                }
+            }
+
+<span class="nc bnc" id="L372" title="All 6 branches missed.">            if (filerDemographicDto.getEmployerCityOrTown() != null || (filerDemographicDto.getEmployerCityOrTown() != null &amp;&amp; filerDemographicDto.getEmployerCityOrTown().equalsIgnoreCase(&quot; &quot;))) {</span>
+<span class="nc" id="L373">                hasExceptions = true;</span>
+<span class="nc" id="L374">                ExceptionReportDto exceptionReport = constructExceptionReport(env.getProperty(&quot;employer.city.value.not.required.error&quot;), filerDemographicDto);</span>
+<span class="nc" id="L375">                exceptionReportDtoSet.add(exceptionReport);</span>
+            }
+            // If there are no exceptions, process the filer demographics record and insert into staging
+<span class="nc bnc" id="L378" title="All 2 branches missed.">            if (!hasExceptions) {</span>
+                // Assign to the entity.
+<span class="nc" id="L380">                FilerDemographicStagingEntity filerDemographicStagingEntity = getStagingEntityFromFilerDemographics(filerDemographicDto);</span>
+<span class="nc" id="L381">                filerDemographicStagingEntity.setSourceUniqueId(Long.parseLong(filerDemographicDto.getId().getSourceUniqueId()));</span>
+<span class="nc" id="L382">                filerDemographicStagingEntity.setSourceCd(filerDemographicDto.getId().getSourceCd());</span>
+<span class="nc" id="L383">                filerDemographicStagingEntity.setRecordSource(FileIngestionConstants.RECORD_SOURCE_FILE);</span>
+<span class="nc" id="L384">                filerDemographicStagingEntity.setRowNumber(filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+<span class="nc" id="L385">                filerDemographicStagingEntity.setFilerStatus(filerDemographicDto.getFilerStatus().toUpperCase());</span>
+<span class="nc" id="L386">                filerDemographicStagingEntity.setCommunicationPreference(filerDemographicDto.getCommunicationPreference().toUpperCase().charAt(0));</span>
+<span class="nc" id="L387">                filerDemographicStagingEntity.setMailedForm(filerDemographicDto.getMailedForm().toUpperCase());</span>
+<span class="nc" id="L388">                filerDemographicStagingEntity.setTaxYear(Integer.parseInt(filerDemographicDto.getId().getTaxYear()));</span>
+<span class="nc" id="L389">                filerDemographicStagingEntity.setOriginalCoverageBeginDt(BatchUtils.getDate(filerDemographicDto.getFilerCoverage().getOrigCoverageBeginDtStr()));</span>
+<span class="nc" id="L390">                filerDemographicStagingEntity.setOriginalCoverageEndDt(BatchUtils.getDate(filerDemographicDto.getFilerCoverage().getOrigCoverageEndDtStr()));</span>
+<span class="nc" id="L391">                filerDemographicStagingEntity.setBatchId(this.batchInfoDto.getBatchId());</span>
+<span class="nc" id="L392">                filerDemographicStagingEntity.setUpdatedDt(new Date());</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">                filerDemographicStagingEntity.setStatus(filerDemographicStagingEntity.isActive() ? FileIngestionConstants.STATUS_ACTIVE : FileIngestionConstants.STATUS_INACTIVE);</span>
+<span class="nc" id="L394">                filerDemographicStagingEntity.setCaseApplicationId(filerDemographicDto.getFilerCoverage().getRecipientCaseApplicationId());</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">                if (filerDemographicDto.getResponsiblePersonUniqueId() != null) {</span>
+<span class="nc" id="L396">                    filerDemographicStagingEntity.setResponsiblePersonUniqueId(Long.valueOf(filerDemographicDto.getResponsiblePersonUniqueId()));</span>
+                }
+<span class="nc" id="L398">                filerDemographicStagingEntity.setProviderContactNo(NumberUtils.toLong(filerDemographicDto.getProviderContactNo()));</span>
+<span class="nc" id="L399">                filerDemographicStagingEntity.setProgramName(filerDemographicDto.getFilerCoverage().getProgramName());</span>
+
+<span class="nc bnc" id="L401" title="All 2 branches missed.">                if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L402">                    LOGGER.info(&quot;Processed {} {} with RID {} at line#: {}&quot;,</span>
+<span class="nc" id="L403">                            filerDemographicDto.getRecipientFirstName(),</span>
+<span class="nc" id="L404">                            filerDemographicDto.getRecipientLastName(),</span>
+<span class="nc" id="L405">                            filerDemographicDto.getId().getSourceUniqueId(),</span>
+<span class="nc" id="L406">                            filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+                }
+<span class="nc" id="L408">                return filerDemographicStagingEntity;</span>
+            } else { // If there are exceptions, then filter out the item and log the exceptions
+<span class="nc bnc" id="L410" title="All 2 branches missed.">                for (ExceptionReportDto exceptionReportDto : exceptionReportDtoSet) {</span>
+<span class="nc" id="L411">                    exceptionReportService.save(exceptionReportDto);</span>
+<span class="nc" id="L412">                }</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">                if (LOGGER.isWarnEnabled()) {</span>
+<span class="nc" id="L414">                    LOGGER.warn(&quot;Filtering out {} {} with RID {} at line#: {}&quot;,</span>
+<span class="nc" id="L415">                            filerDemographicDto.getRecipientFirstName(),</span>
+<span class="nc" id="L416">                            filerDemographicDto.getRecipientLastName(),</span>
+<span class="nc" id="L417">                            filerDemographicDto.getId().getSourceUniqueId(),</span>
+<span class="nc" id="L418">                            filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+                }
+<span class="nc" id="L420">                return null;</span>
+            }
+<span class="nc" id="L422">        } catch (Exception e) {</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">            if (LOGGER.isWarnEnabled()) {</span>
+<span class="nc" id="L424">                LOGGER.warn(&quot;Filtering out {} {} with RID {} at line#: {}&quot;,</span>
+<span class="nc" id="L425">                        filerDemographicDto.getRecipientFirstName(),</span>
+<span class="nc" id="L426">                        filerDemographicDto.getRecipientLastName(),</span>
+<span class="nc" id="L427">                        filerDemographicDto.getId().getSourceUniqueId(),</span>
+<span class="nc" id="L428">                        filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+<span class="nc" id="L429">                LOGGER.warn(&quot;Reason: &quot; + e.getLocalizedMessage());</span>
+            }
+<span class="nc" id="L431">            String message = env.getProperty(&quot;faulty.line.error&quot;);</span>
+<span class="nc" id="L432">            ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L433">            exceptionReportDto.setExDetails(message);</span>
+<span class="nc" id="L434">            exceptionReportDto.setRowNumber(filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+<span class="nc" id="L435">            exceptionReportDto.setSourceUniqueId(Long.valueOf(filerDemographicDto.getId().getSourceUniqueId()));</span>
+<span class="nc" id="L436">            exceptionReportDto.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L437">            exceptionReportService.save(exceptionReportDto);</span>
+<span class="nc" id="L438">            return null;</span>
+        }
+    }
+
+    /* Method to create and return an ExceptionReportDto.
+    *  This dto is populated with details of batch info and
+    *  exception message
+    * */
+    private ExceptionReportDto constructExceptionReport(Object object, FilerDemographicDto filerDemographicDto) {
+<span class="nc" id="L447">        String ridString = filerDemographicDto.getId().getSourceUniqueId();</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">        Long sourceUniqueId = StringUtils.isBlank(ridString) ? 0L : NumberUtils.toLong(ridString);</span>
+<span class="nc" id="L449">        ExceptionReportDto exceptionReport = new ExceptionReportDto();</span>
+<span class="nc" id="L450">        exceptionReport.setSourceUniqueId(sourceUniqueId);</span>
+<span class="nc" id="L451">        exceptionReport.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">        if (object instanceof ObjectError) {</span>
+<span class="nc" id="L453">            ObjectError error = (ObjectError) object;</span>
+<span class="nc" id="L454">            exceptionReport.setExDetails(error.getDefaultMessage());</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">        } else if (object instanceof String) {</span>
+<span class="nc" id="L456">            String envKeyValue = (String) object;</span>
+<span class="nc" id="L457">            exceptionReport.setExDetails(envKeyValue);</span>
+        }
+<span class="nc" id="L459">        exceptionReport.setRowNumber(filerDemographicDto.getLineNumber() - FileIngestionConstants.LINES_TO_SKIP);</span>
+<span class="nc" id="L460">        return exceptionReport;</span>
+    }
+
+    /* Method to return a FilerDemographicStagingEntity with
+    *  with values of matching properties copied from FilerDemographic dto,
+    *  which this processor is processing
+    * */
+    private FilerDemographicStagingEntity getStagingEntityFromFilerDemographics(FilerDemographicDto fdDto) {
+<span class="nc" id="L468">        FilerDemographicStagingEntity filerDemographicStagingEntity = new FilerDemographicStagingEntity();</span>
+<span class="nc" id="L469">        BeanUtils.copyProperties(fdDto, filerDemographicStagingEntity);</span>
+<span class="nc" id="L470">        return filerDemographicStagingEntity;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

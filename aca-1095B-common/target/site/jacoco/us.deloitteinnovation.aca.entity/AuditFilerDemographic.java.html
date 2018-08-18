@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuditFilerDemographic.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">AuditFilerDemographic.java</span></div><h1>AuditFilerDemographic.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.Date;
+import java.sql.Timestamp;
+
+/**
+ * Created by yaojia on 11/11/2016.
+ */
+@Entity
+@Table(name=&quot;A_FILER_DEMOGRAPHICS&quot;)
+<span class="nc" id="L15">public class AuditFilerDemographic {</span>
+
+    @Column(name = &quot;SOURCE_UNIQUE_ID&quot;)
+    private Long sourceUniqueId;
+    @Column(name = &quot;SOURCE_CD&quot;)
+    private String sourceCd;
+    @Column(name = &quot;A_SEQ_NO&quot;)
+    @Id
+    private Integer id;
+    @Column(name = &quot;BATCH_ID&quot;)
+    private Integer batchId;
+    @Column(name = &quot;TAX_YEAR&quot;)
+    private Integer taxYear;
+    @Column(name = &quot;RECIPIENT_FIRST_NAME&quot;)
+    private String recipientFirstName;
+    @Column(name = &quot;RECIPIENT_MIDDLE_NAME&quot;)
+    private String recipientMiddleName;
+    @Column(name = &quot;RECIPIENT_LAST_NAME&quot;)
+    private String recipientLastName;
+    @Column(name = &quot;RECIPIENT_SUFFIX_NAME&quot;)
+    private String recipientSuffixName;
+    @Column(name = &quot;RECIPIENT_SSN&quot;)
+    private String recipientSsn;
+    @Column(name = &quot;RECIPIENT_TIN&quot;)
+    private String recipientTin;
+    @Column(name = &quot;RECIPIENT_DOB&quot;)
+    private Date recipientDob;
+    @Column(name = &quot;RECIPIENT_ADDRESS_LINE_1&quot;)
+    private String recipientAddressLine1;
+    @Column(name = &quot;RECIPIENT_ADDRESS_LINE_2&quot;)
+    private String recipientAddressLine2;
+    @Column(name = &quot;RECIPIENT_CITY&quot;)
+    private String recipientCity;
+    @Column(name = &quot;RECIPIENT_STATE&quot;)
+    private String recipientState;
+    @Column(name = &quot;RECIPIENT_ZIP_5&quot;)
+    private String recipientZip5;
+    @Column(name = &quot;RECIPIENT_ZIP_4&quot;)
+    private String recipientZip4;
+    @Column(name = &quot;RECIPIENT_E_MAIL&quot;)
+    private String recipientEmail;
+    @Column(name = &quot;RECIPIENT_LANGUAGE_PREFERENCE&quot;)
+    private String recipientLanguagePreference;
+    @Column(name = &quot;POLICY_ORIGIN&quot;)
+    private char policyOrigin;
+    @Column(name = &quot;SHOP_IDENTIFIER&quot;)
+    private String shopIdentifier;
+    @Column(name = &quot;EMPLOYER_NAME&quot;)
+    private String employerName;
+    @Column(name = &quot;EMPLOYER_IDENTIFICATION_NUMBER&quot;)
+    private String employerIdentificationNumber;
+    @Column(name = &quot;EMPLOYER_CONTACT_NO&quot;)
+    private Long employerContactNo;
+    @Column(name = &quot;EMPLOYER_ADDRESS_LINE_1&quot;)
+    private String employerAddressLine1;
+    @Column(name = &quot;EMPLOYER_ADDRESS_LINE_2&quot;)
+    private String employerAddressLine2;
+    @Column(name = &quot;EMPLOYER_CITY_OR_TOWN&quot;)
+    private String employerCityOrTown;
+    @Column(name = &quot;EMPLOYER_STATE_OR_PROVINCE&quot;)
+    private String employerStateOrProvince;
+    @Column(name = &quot;EMPLOYER_COUNTRY&quot;)
+    private String employerCountry;
+    @Column(name = &quot;EMPLOYER_ZIP_OR_POSTAL_CODE&quot;)
+    private String employerZipOrPostalCode;
+    @Column(name = &quot;PROVIDER_NAME&quot;)
+    private String providerName;
+    @Column(name = &quot;PROVIDER_IDENTIFICATION_NUMBER&quot;)
+    private String providerIdentificationNumber;
+    @Column(name = &quot;PROVIDER_CONTACT_NO&quot;)
+    private Long providerContactNo;
+    @Column(name = &quot;PROVIDER_ADDRESS_LINE_1&quot;)
+    private String providerAddressLine1;
+    @Column(name = &quot;PROVIDER_ADDRESS_LINE_2&quot;)
+    private String providerAddressLine2;
+    @Column(name = &quot;PROVIDER_CITY_OR_TOWN&quot;)
+    private String providerCityOrTown;
+    @Column(name = &quot;PROVIDER_STATE_OR_PROVINCE&quot;)
+    private String providerStateOrProvince;
+    @Column(name = &quot;PROVIDER_COUNTRY&quot;)
+    private String providerCountry;
+    @Column(name = &quot;PROVIDER_ZIP_OR_POSTAL_CODE&quot;)
+    private String providerZipOrPostalCode;
+    @Column(name = &quot;FILER_STATUS&quot;)
+    private char filerStatus;
+    @Column(name = &quot;COMMUNICATION_PREFERENCE&quot;)
+    private char communicationPreference;
+    @Column(name = &quot;COMMENTS&quot;)
+    private String comments;
+    @Column(name = &quot;UPDATED_BY&quot;)
+    private String updatedBy;
+    @Column(name = &quot;UPDATED_DATE&quot;)
+    private Timestamp updatedDate;
+    @Column(name = &quot;CORRECTION_DATE&quot;)
+    private Timestamp correctionDate;
+    @Column(name = &quot;CORRECTION_CODE&quot;)
+    private String correctionCode;
+    @Column(name = &quot;JAN&quot;)
+    private char jan;
+    @Column(name = &quot;FEB&quot;)
+    private char feb;
+    @Column(name = &quot;MAR&quot;)
+    private char mar;
+    @Column(name = &quot;APR&quot;)
+    private char apr;
+    @Column(name = &quot;MAY&quot;)
+    private char may;
+    @Column(name = &quot;JUN&quot;)
+    private char jun;
+    @Column(name = &quot;JUL&quot;)
+    private char jul;
+    @Column(name = &quot;AUG&quot;)
+    private char aug;
+    @Column(name = &quot;SEP&quot;)
+    private char sep;
+    @Column(name = &quot;OCT&quot;)
+    private char oct;
+    @Column(name = &quot;NOV&quot;)
+    private char nov;
+    @Column(name = &quot;DEC&quot;)
+    private char dec;
+    @Column(name = &quot;FORM_STATUS&quot;)
+    private String formStatus;
+    @Column(name = &quot;FILER_DEMO_SEQ&quot;)
+    private Long filerdemoSeq;
+    @Column(name = &quot;RESPONSIBLE_PERSON_UNIQUE_ID&quot;)
+    private Long responsiblePersonUniqueId;
+    @Column(name = &quot;STATUS&quot;)
+    private String status;
+    @Column(name = &quot;MAILED_FORM&quot;)
+    private String mailedForm;
+    @Column(name = &quot;CHANGEDATE&quot;)
+    private Timestamp changedate;
+    @Column(name = &quot;ACTIVITY&quot;)
+    private String activity;
+    @Column(name = &quot;IRS_TRANSMISSION_STATUS_CD&quot;)
+    private String irsTransmissionStatusCd;
+    @Column(name = &quot;RECORD_CREATED_DATE&quot;)
+    private Timestamp recordCreatedDate;
+    @Column(name = &quot;CORRECTION_INDICATOR&quot;)
+    private Integer correctionIndicator;
+    @Column(name = &quot;RECORD_VERSION&quot;)
+    private Integer recordVersion;
+
+
+    /* Getters and setters */
+    public Long getSourceUniqueId() {
+<span class="nc" id="L162">        return sourceUniqueId;</span>
+    }
+
+    public void setSourceUniqueId(Long sourceUniqueId) {
+<span class="nc" id="L166">        this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L167">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L170">        return sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L174">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L175">    }</span>
+
+    public Integer getId() {
+<span class="nc" id="L178">        return id;</span>
+    }
+
+    public void setId(Integer id) {
+<span class="nc" id="L182">        this.id = id;</span>
+<span class="nc" id="L183">    }</span>
+
+    public Integer getBatchId() {
+<span class="nc" id="L186">        return batchId;</span>
+    }
+
+    public void setBatchId(Integer batchId) {
+<span class="nc" id="L190">        this.batchId = batchId;</span>
+<span class="nc" id="L191">    }</span>
+
+    public Integer getTaxYear() {
+<span class="nc" id="L194">        return taxYear;</span>
+    }
+
+    public void setTaxYear(Integer taxYear) {
+<span class="nc" id="L198">        this.taxYear = taxYear;</span>
+<span class="nc" id="L199">    }</span>
+
+    public String getRecipientFirstName() {
+<span class="nc" id="L202">        return recipientFirstName;</span>
+    }
+
+    public void setRecipientFirstName(String recipientFirstName) {
+<span class="nc" id="L206">        this.recipientFirstName = recipientFirstName;</span>
+<span class="nc" id="L207">    }</span>
+
+    public String getRecipientMiddleName() {
+<span class="nc" id="L210">        return recipientMiddleName;</span>
+    }
+
+    public void setRecipientMiddleName(String recipientMiddleName) {
+<span class="nc" id="L214">        this.recipientMiddleName = recipientMiddleName;</span>
+<span class="nc" id="L215">    }</span>
+
+    public String getRecipientLastName() {
+<span class="nc" id="L218">        return recipientLastName;</span>
+    }
+
+    public void setRecipientLastName(String recipientLastName) {
+<span class="nc" id="L222">        this.recipientLastName = recipientLastName;</span>
+<span class="nc" id="L223">    }</span>
+
+    public String getRecipientSuffixName() {
+<span class="nc" id="L226">        return recipientSuffixName;</span>
+    }
+
+    public void setRecipientSuffixName(String recipientSuffixName) {
+<span class="nc" id="L230">        this.recipientSuffixName = recipientSuffixName;</span>
+<span class="nc" id="L231">    }</span>
+
+    public String getRecipientSsn() {
+<span class="nc" id="L234">        return recipientSsn;</span>
+    }
+
+    public void setRecipientSsn(String recipientSsn) {
+<span class="nc" id="L238">        this.recipientSsn = recipientSsn;</span>
+<span class="nc" id="L239">    }</span>
+
+    public String getRecipientTin() {
+<span class="nc" id="L242">        return recipientTin;</span>
+    }
+
+    public void setRecipientTin(String recipientTin) {
+<span class="nc" id="L246">        this.recipientTin = recipientTin;</span>
+<span class="nc" id="L247">    }</span>
+
+    public Date getRecipientDob() {
+<span class="nc" id="L250">        return recipientDob;</span>
+    }
+
+    public void setRecipientDob(Date recipientDob) {
+<span class="nc" id="L254">        this.recipientDob = recipientDob;</span>
+<span class="nc" id="L255">    }</span>
+
+    public String getRecipientAddressLine1() {
+<span class="nc" id="L258">        return recipientAddressLine1;</span>
+    }
+
+    public void setRecipientAddressLine1(String recipientAddressLine1) {
+<span class="nc" id="L262">        this.recipientAddressLine1 = recipientAddressLine1;</span>
+<span class="nc" id="L263">    }</span>
+
+    public String getRecipientAddressLine2() {
+<span class="nc" id="L266">        return recipientAddressLine2;</span>
+    }
+
+    public void setRecipientAddressLine2(String recipientAddressLine2) {
+<span class="nc" id="L270">        this.recipientAddressLine2 = recipientAddressLine2;</span>
+<span class="nc" id="L271">    }</span>
+
+    public String getRecipientCity() {
+<span class="nc" id="L274">        return recipientCity;</span>
+    }
+
+    public void setRecipientCity(String recipientCity) {
+<span class="nc" id="L278">        this.recipientCity = recipientCity;</span>
+<span class="nc" id="L279">    }</span>
+
+    public String getRecipientState() {
+<span class="nc" id="L282">        return recipientState;</span>
+    }
+
+    public void setRecipientState(String recipientState) {
+<span class="nc" id="L286">        this.recipientState = recipientState;</span>
+<span class="nc" id="L287">    }</span>
+
+    public String getRecipientZip5() {
+<span class="nc" id="L290">        return recipientZip5;</span>
+    }
+
+    public void setRecipientZip5(String recipientZip5) {
+<span class="nc" id="L294">        this.recipientZip5 = recipientZip5;</span>
+<span class="nc" id="L295">    }</span>
+
+    public String getRecipientZip4() {
+<span class="nc" id="L298">        return recipientZip4;</span>
+    }
+
+    public void setRecipientZip4(String recipientZip4) {
+<span class="nc" id="L302">        this.recipientZip4 = recipientZip4;</span>
+<span class="nc" id="L303">    }</span>
+
+    public String getRecipientEmail() {
+<span class="nc" id="L306">        return recipientEmail;</span>
+    }
+
+    public void setRecipientEmail(String recipientEmail) {
+<span class="nc" id="L310">        this.recipientEmail = recipientEmail;</span>
+<span class="nc" id="L311">    }</span>
+
+    public String getRecipientLanguagePreference() {
+<span class="nc" id="L314">        return recipientLanguagePreference;</span>
+    }
+
+    public void setRecipientLanguagePreference(String recipientLanguagePreference) {
+<span class="nc" id="L318">        this.recipientLanguagePreference = recipientLanguagePreference;</span>
+<span class="nc" id="L319">    }</span>
+
+    public char getPolicyOrigin() {
+<span class="nc" id="L322">        return policyOrigin;</span>
+    }
+
+    public void setPolicyOrigin(char policyOrigin) {
+<span class="nc" id="L326">        this.policyOrigin = policyOrigin;</span>
+<span class="nc" id="L327">    }</span>
+
+    public String getShopIdentifier() {
+<span class="nc" id="L330">        return shopIdentifier;</span>
+    }
+
+    public void setShopIdentifier(String shopIdentifier) {
+<span class="nc" id="L334">        this.shopIdentifier = shopIdentifier;</span>
+<span class="nc" id="L335">    }</span>
+
+    public String getEmployerName() {
+<span class="nc" id="L338">        return employerName;</span>
+    }
+
+    public void setEmployerName(String employerName) {
+<span class="nc" id="L342">        this.employerName = employerName;</span>
+<span class="nc" id="L343">    }</span>
+
+    public String getEmployerIdentificationNumber() {
+<span class="nc" id="L346">        return employerIdentificationNumber;</span>
+    }
+
+    public void setEmployerIdentificationNumber(String employerIdentificationNumber) {
+<span class="nc" id="L350">        this.employerIdentificationNumber = employerIdentificationNumber;</span>
+<span class="nc" id="L351">    }</span>
+
+    public Long getEmployerContactNo() {
+<span class="nc" id="L354">        return employerContactNo;</span>
+    }
+
+    public void setEmployerContactNo(Long employerContactNo) {
+<span class="nc" id="L358">        this.employerContactNo = employerContactNo;</span>
+<span class="nc" id="L359">    }</span>
+
+    public String getEmployerAddressLine1() {
+<span class="nc" id="L362">        return employerAddressLine1;</span>
+    }
+
+    public void setEmployerAddressLine1(String employerAddressLine1) {
+<span class="nc" id="L366">        this.employerAddressLine1 = employerAddressLine1;</span>
+<span class="nc" id="L367">    }</span>
+
+    public String getEmployerAddressLine2() {
+<span class="nc" id="L370">        return employerAddressLine2;</span>
+    }
+
+    public void setEmployerAddressLine2(String employerAddressLine2) {
+<span class="nc" id="L374">        this.employerAddressLine2 = employerAddressLine2;</span>
+<span class="nc" id="L375">    }</span>
+
+    public String getEmployerCityOrTown() {
+<span class="nc" id="L378">        return employerCityOrTown;</span>
+    }
+
+    public void setEmployerCityOrTown(String employerCityOrTown) {
+<span class="nc" id="L382">        this.employerCityOrTown = employerCityOrTown;</span>
+<span class="nc" id="L383">    }</span>
+
+    public String getEmployerStateOrProvince() {
+<span class="nc" id="L386">        return employerStateOrProvince;</span>
+    }
+
+    public void setEmployerStateOrProvince(String employerStateOrProvince) {
+<span class="nc" id="L390">        this.employerStateOrProvince = employerStateOrProvince;</span>
+<span class="nc" id="L391">    }</span>
+
+    public String getEmployerCountry() {
+<span class="nc" id="L394">        return employerCountry;</span>
+    }
+
+    public void setEmployerCountry(String employerCountry) {
+<span class="nc" id="L398">        this.employerCountry = employerCountry;</span>
+<span class="nc" id="L399">    }</span>
+
+    public String getEmployerZipOrPostalCode() {
+<span class="nc" id="L402">        return employerZipOrPostalCode;</span>
+    }
+
+    public void setEmployerZipOrPostalCode(String employerZipOrPostalCode) {
+<span class="nc" id="L406">        this.employerZipOrPostalCode = employerZipOrPostalCode;</span>
+<span class="nc" id="L407">    }</span>
+
+    public String getProviderName() {
+<span class="nc" id="L410">        return providerName;</span>
+    }
+
+    public void setProviderName(String providerName) {
+<span class="nc" id="L414">        this.providerName = providerName;</span>
+<span class="nc" id="L415">    }</span>
+
+    public String getProviderIdentificationNumber() {
+<span class="nc" id="L418">        return providerIdentificationNumber;</span>
+    }
+
+    public void setProviderIdentificationNumber(String providerIdentificationNumber) {
+<span class="nc" id="L422">        this.providerIdentificationNumber = providerIdentificationNumber;</span>
+<span class="nc" id="L423">    }</span>
+
+    public Long getProviderContactNo() {
+<span class="nc" id="L426">        return providerContactNo;</span>
+    }
+
+    public void setProviderContactNo(Long providerContactNo) {
+<span class="nc" id="L430">        this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L431">    }</span>
+
+    public String getProviderAddressLine1() {
+<span class="nc" id="L434">        return providerAddressLine1;</span>
+    }
+
+    public void setProviderAddressLine1(String providerAddressLine1) {
+<span class="nc" id="L438">        this.providerAddressLine1 = providerAddressLine1;</span>
+<span class="nc" id="L439">    }</span>
+
+    public String getProviderAddressLine2() {
+<span class="nc" id="L442">        return providerAddressLine2;</span>
+    }
+
+    public void setProviderAddressLine2(String providerAddressLine2) {
+<span class="nc" id="L446">        this.providerAddressLine2 = providerAddressLine2;</span>
+<span class="nc" id="L447">    }</span>
+
+    public String getProviderCityOrTown() {
+<span class="nc" id="L450">        return providerCityOrTown;</span>
+    }
+
+    public void setProviderCityOrTown(String providerCityOrTown) {
+<span class="nc" id="L454">        this.providerCityOrTown = providerCityOrTown;</span>
+<span class="nc" id="L455">    }</span>
+
+    public String getProviderStateOrProvince() {
+<span class="nc" id="L458">        return providerStateOrProvince;</span>
+    }
+
+    public void setProviderStateOrProvince(String providerStateOrProvince) {
+<span class="nc" id="L462">        this.providerStateOrProvince = providerStateOrProvince;</span>
+<span class="nc" id="L463">    }</span>
+
+    public String getProviderCountry() {
+<span class="nc" id="L466">        return providerCountry;</span>
+    }
+
+    public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L470">        this.providerCountry = providerCountry;</span>
+<span class="nc" id="L471">    }</span>
+
+    public String getProviderZipOrPostalCode() {
+<span class="nc" id="L474">        return providerZipOrPostalCode;</span>
+    }
+
+    public void setProviderZipOrPostalCode(String providerZipOrPostalCode) {
+<span class="nc" id="L478">        this.providerZipOrPostalCode = providerZipOrPostalCode;</span>
+<span class="nc" id="L479">    }</span>
+
+    public char getFilerStatus() {
+<span class="nc" id="L482">        return filerStatus;</span>
+    }
+
+    public void setFilerStatus(char filerStatus) {
+<span class="nc" id="L486">        this.filerStatus = filerStatus;</span>
+<span class="nc" id="L487">    }</span>
+
+    public char getCommunicationPreference() {
+<span class="nc" id="L490">        return communicationPreference;</span>
+    }
+
+    public void setCommunicationPreference(char communicationPreference) {
+<span class="nc" id="L494">        this.communicationPreference = communicationPreference;</span>
+<span class="nc" id="L495">    }</span>
+
+    public String getComments() {
+<span class="nc" id="L498">        return comments;</span>
+    }
+
+    public void setComments(String comments) {
+<span class="nc" id="L502">        this.comments = comments;</span>
+<span class="nc" id="L503">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L506">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L510">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L511">    }</span>
+
+    public Timestamp getUpdatedDate() {
+<span class="nc" id="L514">        return updatedDate;</span>
+    }
+
+    public void setUpdatedDate(Timestamp updatedDate) {
+<span class="nc" id="L518">        this.updatedDate = updatedDate;</span>
+<span class="nc" id="L519">    }</span>
+
+    public Timestamp getCorrectionDate() {
+<span class="nc" id="L522">        return correctionDate;</span>
+    }
+
+    public void setCorrectionDate(Timestamp correctionDate) {
+<span class="nc" id="L526">        this.correctionDate = correctionDate;</span>
+<span class="nc" id="L527">    }</span>
+
+    public String getCorrectionCode() {
+<span class="nc" id="L530">        return correctionCode;</span>
+    }
+
+    public void setCorrectionCode(String correctionCode) {
+<span class="nc" id="L534">        this.correctionCode = correctionCode;</span>
+<span class="nc" id="L535">    }</span>
+
+    public char getJan() {
+<span class="nc" id="L538">        return jan;</span>
+    }
+
+    public void setJan(char jan) {
+<span class="nc" id="L542">        this.jan = jan;</span>
+<span class="nc" id="L543">    }</span>
+
+    public char getFeb() {
+<span class="nc" id="L546">        return feb;</span>
+    }
+
+    public void setFeb(char feb) {
+<span class="nc" id="L550">        this.feb = feb;</span>
+<span class="nc" id="L551">    }</span>
+
+    public char getMar() {
+<span class="nc" id="L554">        return mar;</span>
+    }
+
+    public void setMar(char mar) {
+<span class="nc" id="L558">        this.mar = mar;</span>
+<span class="nc" id="L559">    }</span>
+
+    public char getApr() {
+<span class="nc" id="L562">        return apr;</span>
+    }
+
+    public void setApr(char apr) {
+<span class="nc" id="L566">        this.apr = apr;</span>
+<span class="nc" id="L567">    }</span>
+
+    public char getMay() {
+<span class="nc" id="L570">        return may;</span>
+    }
+
+    public void setMay(char may) {
+<span class="nc" id="L574">        this.may = may;</span>
+<span class="nc" id="L575">    }</span>
+
+    public char getJun() {
+<span class="nc" id="L578">        return jun;</span>
+    }
+
+    public void setJun(char jun) {
+<span class="nc" id="L582">        this.jun = jun;</span>
+<span class="nc" id="L583">    }</span>
+
+    public char getJul() {
+<span class="nc" id="L586">        return jul;</span>
+    }
+
+    public void setJul(char jul) {
+<span class="nc" id="L590">        this.jul = jul;</span>
+<span class="nc" id="L591">    }</span>
+
+    public char getAug() {
+<span class="nc" id="L594">        return aug;</span>
+    }
+
+    public void setAug(char aug) {
+<span class="nc" id="L598">        this.aug = aug;</span>
+<span class="nc" id="L599">    }</span>
+
+    public char getSep() {
+<span class="nc" id="L602">        return sep;</span>
+    }
+
+    public void setSep(char sep) {
+<span class="nc" id="L606">        this.sep = sep;</span>
+<span class="nc" id="L607">    }</span>
+
+    public char getOct() {
+<span class="nc" id="L610">        return oct;</span>
+    }
+
+    public void setOct(char oct) {
+<span class="nc" id="L614">        this.oct = oct;</span>
+<span class="nc" id="L615">    }</span>
+
+    public char getNov() {
+<span class="nc" id="L618">        return nov;</span>
+    }
+
+    public void setNov(char nov) {
+<span class="nc" id="L622">        this.nov = nov;</span>
+<span class="nc" id="L623">    }</span>
+
+    public char getDec() {
+<span class="nc" id="L626">        return dec;</span>
+    }
+
+    public void setDec(char dec) {
+<span class="nc" id="L630">        this.dec = dec;</span>
+<span class="nc" id="L631">    }</span>
+
+    public String getFormStatus() {
+<span class="nc" id="L634">        return formStatus;</span>
+    }
+
+    public void setFormStatus(String formStatus) {
+<span class="nc" id="L638">        this.formStatus = formStatus;</span>
+<span class="nc" id="L639">    }</span>
+
+    public Long getFilerdemoSeq() {
+<span class="nc" id="L642">        return filerdemoSeq;</span>
+    }
+
+    public void setFilerdemoSeq(Long filerdemoSeq) {
+<span class="nc" id="L646">        this.filerdemoSeq = filerdemoSeq;</span>
+<span class="nc" id="L647">    }</span>
+
+    public Long getResponsiblePersonUniqueId() {
+<span class="nc" id="L650">        return responsiblePersonUniqueId;</span>
+    }
+
+    public void setResponsiblePersonUniqueId(Long responsiblePersonUniqueId) {
+<span class="nc" id="L654">        this.responsiblePersonUniqueId = responsiblePersonUniqueId;</span>
+<span class="nc" id="L655">    }</span>
+
+    public String getStatus() {
+<span class="nc" id="L658">        return status;</span>
+    }
+
+    public void setStatus(String status) {
+<span class="nc" id="L662">        this.status = status;</span>
+<span class="nc" id="L663">    }</span>
+
+    public String getMailedForm() {
+<span class="nc" id="L666">        return mailedForm;</span>
+    }
+
+    public void setMailedForm(String mailedForm) {
+<span class="nc" id="L670">        this.mailedForm = mailedForm;</span>
+<span class="nc" id="L671">    }</span>
+
+    public Timestamp getChangedate() {
+<span class="nc" id="L674">        return changedate;</span>
+    }
+
+    public void setChangedate(Timestamp changedate) {
+<span class="nc" id="L678">        this.changedate = changedate;</span>
+<span class="nc" id="L679">    }</span>
+
+    public String getActivity() {
+<span class="nc" id="L682">        return activity;</span>
+    }
+
+    public void setActivity(String activity) {
+<span class="nc" id="L686">        this.activity = activity;</span>
+<span class="nc" id="L687">    }</span>
+
+    public String getIrsTransmissionStatusCd() {
+<span class="nc" id="L690">        return irsTransmissionStatusCd;</span>
+    }
+
+    public void setIrsTransmissionStatusCd(String irsTransmissionStatusCd) {
+<span class="nc" id="L694">        this.irsTransmissionStatusCd = irsTransmissionStatusCd;</span>
+<span class="nc" id="L695">    }</span>
+
+    public Timestamp getRecordCreatedDate() {
+<span class="nc" id="L698">        return recordCreatedDate;</span>
+    }
+
+    public void setRecordCreatedDate(Timestamp recordCreatedDate) {
+<span class="nc" id="L702">        this.recordCreatedDate = recordCreatedDate;</span>
+<span class="nc" id="L703">    }</span>
+
+    public Integer getCorrectionIndicator() {
+<span class="nc" id="L706">        return correctionIndicator;</span>
+    }
+
+    public void setCorrectionIndicator(Integer correctionIndicator) {
+<span class="nc" id="L710">        this.correctionIndicator = correctionIndicator;</span>
+<span class="nc" id="L711">    }</span>
+
+    public Integer getRecordVersion() {
+<span class="nc" id="L714">        return recordVersion;</span>
+    }
+
+    public void setRecordVersion(Integer recordVersion) {
+<span class="nc" id="L718">        this.recordVersion = recordVersion;</span>
+<span class="nc" id="L719">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

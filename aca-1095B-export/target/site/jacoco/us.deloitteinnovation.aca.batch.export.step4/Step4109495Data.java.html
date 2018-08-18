@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4109495Data.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step4</a> &gt; <span class="el_source">Step4109495Data.java</span></div><h1>Step4109495Data.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step4;
+
+import java.io.File;
+
+/**
+ * &lt;p&gt;
+ * Encapsulates information about the 109495B file written during Step 3, that will be required for Step 4 processing.
+ * Since this object will be passed via the Job ExecutionContext, it is important to store and access it as a string,
+ * so that it is persisted correctly to the data store between Steps.
+ *&lt;/p&gt;
+ * &lt;p&gt;The data can be serialized to a String using toString() and reconstituted using fromString().&lt;/p&gt;
+ */
+public class Step4109495Data {
+    /** Full path and name of the file output in Step 3 writer. */
+    public File filename ;
+
+    /** Number of payee (1094B) forms written in the file. */
+    public int form1094bCount ;
+
+    /** Number of payer (1095B) forms written in the file. */
+    public int form1095bCount ;
+
+<span class="nc" id="L23">    public Step4109495Data() {</span>
+        // Intentionally empty
+<span class="nc" id="L25">    }</span>
+
+<span class="nc" id="L27">    public Step4109495Data(File filename, int form1094bCount, int form1095bCount) {</span>
+<span class="nc" id="L28">        this.filename = filename;</span>
+<span class="nc" id="L29">        this.form1094bCount = form1094bCount;</span>
+<span class="nc" id="L30">        this.form1095bCount = form1095bCount;</span>
+<span class="nc" id="L31">    }</span>
+
+    public File getFilename() {
+<span class="nc" id="L34">        return filename;</span>
+    }
+
+    public void setFilename(File filename) {
+<span class="nc" id="L38">        this.filename = filename;</span>
+<span class="nc" id="L39">    }</span>
+
+    public int getForm1094bCount() {
+<span class="nc" id="L42">        return form1094bCount;</span>
+    }
+
+    public void setForm1094bCount(int form1094bCount) {
+<span class="nc" id="L46">        this.form1094bCount = form1094bCount;</span>
+<span class="nc" id="L47">    }</span>
+
+    public int getForm1095bCount() {
+<span class="nc" id="L50">        return form1095bCount;</span>
+    }
+
+    public void setForm1095bCount(int form1095bCount) {
+<span class="nc" id="L54">        this.form1095bCount = form1095bCount;</span>
+<span class="nc" id="L55">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L59">        return filename.getAbsolutePath() + &quot;|&quot; + form1094bCount + &quot;|&quot; + form1095bCount ;</span>
+    }
+
+    /**
+     *
+     * @param input
+     * @return  Creates a new object based on the parameters from a toString() call.
+     * @see #toString()
+     */
+    public static Step4109495Data fromString(String input) {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (input == null) {</span>
+<span class="nc" id="L70">            throw new IllegalArgumentException(&quot;Input string is required.&quot;) ;</span>
+        }
+
+<span class="nc" id="L73">        String [] parse = input.split(&quot;\\|&quot;) ;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (parse.length != 3) {</span>
+<span class="nc" id="L75">            throw new IllegalArgumentException(&quot;Input string '&quot; + input + &quot;' should be pipe delimited with 3 values.&quot;) ;</span>
+        }
+
+<span class="nc" id="L78">        Step4109495Data data = new Step4109495Data() ;</span>
+<span class="nc" id="L79">        data.filename = new File(parse[0]) ;</span>
+<span class="nc" id="L80">        data.form1094bCount = Integer.parseInt(parse[1]) ;</span>
+<span class="nc" id="L81">        data.form1095bCount = Integer.parseInt(parse[2]) ;</span>
+<span class="nc" id="L82">        return data ;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

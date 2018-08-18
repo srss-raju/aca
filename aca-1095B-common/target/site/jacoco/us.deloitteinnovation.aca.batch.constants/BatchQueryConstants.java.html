@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchQueryConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.constants</a> &gt; <span class="el_source">BatchQueryConstants.java</span></div><h1>BatchQueryConstants.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.constants;
+
+import static us.deloitteinnovation.aca.batch.constants.BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER;
+import static us.deloitteinnovation.aca.batch.constants.BatchConstants.PARAM_SOURCE_CD;
+
+/**
+ * Created by rgopalani on 10/12/2015.
+ */
+public interface BatchQueryConstants {
+
+<span class="nc" id="L11">    String INSERT_IRS_TRANSMIT_DETAILS = new StringBuilder(&quot; INSERT INTO IRS_TRANSMITTAL_DETAILS&quot;)</span>
+<span class="nc" id="L12">            .append(&quot; (BATCH_ID,SOURCE_UNIQUE_ID,SOURCE_CD,TRANSMIT_STATUS,TRANSMIT_FILE_NAME,UPDATED_BY,UPDATED_DATE) &quot;)</span>
+<span class="nc" id="L13">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L14">            .append(&quot; ( :batchId,:sourceUniqueId,:sourceCd,:transmitStatus,:transmitFileName,:updatedBy,:updatedDate) &quot;).toString();</span>
+
+<span class="nc" id="L16">    String INSERT_FILER_DEMOGRAPHICS = new StringBuilder(&quot; INSERT INTO FILER_DEMOGRAPHICS&quot;)</span>
+<span class="nc" id="L17">            .append(&quot; (BATCH_ID, COMMENTS, COMMUNICATION_PREFERENCE, CORRECTION_CODE, CORRECTION_DATE, RECIPIENT_E_MAIL, EMPLOYER_ADDRESS_LINE_1, EMPLOYER_ADDRESS_LINE_2, EMPLOYER_CITY_OR_TOWN, EMPLOYER_CONTACT_NO, EMPLOYER_COUNTRY, EMPLOYER_IDENTIFICATION_NUMBER, EMPLOYER_NAME, EMPLOYER_STATE_OR_PROVINCE, FILER_STATUS, RECIPIENT_LANGUAGE_PREFERENCE, POLICY_ORIGIN,  PROVIDER_ADDRESS_LINE_1, PROVIDER_ADDRESS_LINE_2, PROVIDER_CITY_OR_TOWN, PROVIDER_CONTACT_NO, PROVIDER_COUNTRY, PROVIDER_IDENTIFICATION_NUMBER, PROVIDER_NAME, PROVIDER_STATE_OR_PROVINCE, PROVIDER_ZIP_OR_POSTAL_CODE, RECIPIENT_ADDRESS_LINE_1, RECIPIENT_ADDRESS_LINE_2,  RECIPIENT_CITY, RECIPIENT_DOB, RECIPIENT_FIRST_NAME, RECIPIENT_LAST_NAME, RECIPIENT_MIDDLE_NAME, RECIPIENT_SSN, RECIPIENT_STATE, RECIPIENT_SUFFIX_NAME, RECIPIENT_TIN, RECIPIENT_ZIP_4, RECIPIENT_ZIP_5, RESPONSIBLE_PERSON_UNIQUE_ID, SHOP_IDENTIFIER, TAX_YEAR, UPDATED_BY, UPDATED_DATE, EMPLOYER_ZIP_OR_POSTAL_CODE, JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC, STATUS, MAILED_FORM, SOURCE_CD, SOURCE_UNIQUE_ID,FILER_DEMO_SEQ ) &quot;)</span>
+<span class="nc" id="L18">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L19">            .append(&quot;(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (NEXT VALUE FOR SEQUENCE_NO_SEQ) )&quot;).toString();</span>
+
+
+
+<span class="nc" id="L23">        String INSERT_FILER_DEMOGRAPHICS_FILE_INGESTION = new StringBuilder(&quot; INSERT INTO FILER_DEMOGRAPHICS&quot;)</span>
+<span class="nc" id="L24">                .append(&quot; (BATCH_ID, COMMENTS, COMMUNICATION_PREFERENCE, CORRECTION_CODE, CORRECTION_DATE, RECIPIENT_E_MAIL, EMPLOYER_ADDRESS_LINE_1, EMPLOYER_ADDRESS_LINE_2, EMPLOYER_CITY_OR_TOWN, EMPLOYER_CONTACT_NO, EMPLOYER_COUNTRY, EMPLOYER_IDENTIFICATION_NUMBER, EMPLOYER_NAME, EMPLOYER_STATE_OR_PROVINCE, FILER_STATUS, RECIPIENT_LANGUAGE_PREFERENCE, POLICY_ORIGIN,  PROVIDER_ADDRESS_LINE_1, PROVIDER_ADDRESS_LINE_2, PROVIDER_CITY_OR_TOWN, PROVIDER_CONTACT_NO, PROVIDER_COUNTRY, PROVIDER_IDENTIFICATION_NUMBER, PROVIDER_NAME, PROVIDER_STATE_OR_PROVINCE, PROVIDER_ZIP_OR_POSTAL_CODE, RECIPIENT_ADDRESS_LINE_1, RECIPIENT_ADDRESS_LINE_2,  RECIPIENT_CITY, RECIPIENT_DOB, RECIPIENT_FIRST_NAME, RECIPIENT_LAST_NAME, RECIPIENT_MIDDLE_NAME, RECIPIENT_SSN, RECIPIENT_STATE, RECIPIENT_SUFFIX_NAME, RECIPIENT_TIN, RECIPIENT_ZIP_4, RECIPIENT_ZIP_5, RESPONSIBLE_PERSON_UNIQUE_ID, SHOP_IDENTIFIER, TAX_YEAR, UPDATED_BY, UPDATED_DATE, EMPLOYER_ZIP_OR_POSTAL_CODE, JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC, STATUS, MAILED_FORM, SOURCE_CD,SOURCE_UNIQUE_ID,RECORD_CREATED_DATE,RECORD_VERSION,CORRECTION_INDICATOR,FILER_DEMO_SEQ ) &quot;)</span>
+<span class="nc" id="L25">                .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L26">                .append(&quot;(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?, (NEXT VALUE FOR SEQUENCE_NO_SEQ) )&quot;).toString();</span>
+
+
+
+<span class="nc" id="L30">    String INSERT_FILER_COVERAGE = new StringBuilder(&quot; INSERT  INTO   FILER_COVERAGE_SOURCE&quot;)</span>
+<span class="nc" id="L31">            .append(&quot; (APR, AUG, COMMENTS, DEC, FEB, JAN, JUL, JUN, MAR, MAY, NOV, OCT, ORIG_COVERAGE_BEGIN_DATE, ORIG_COVERAGE_END_DATE, SEP, UPDATED_BY, UPDATED_DATE, PROGRAM_NAME,SOURCE_CD, SOURCE_UNIQUE_ID,CASE_APPLICATION_ID,TAX_YEAR,RECORD_CREATED_DATE,COVERAGE_SEQ_NO,FILER_DEMO_SEQ ) &quot;)</span>
+<span class="nc" id="L32">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L33">            .append(&quot;(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,(NEXT VALUE FOR COVERAGE_SEQ),&quot;)</span>
+<span class="nc" id="L34">            .append(&quot;null)&quot;)</span>
+<span class="nc" id="L35">            .toString();</span>
+
+    // we are no longer using FILER_DEMO_SEQ in the FILER_COVERAGE_SOURCE table.
+<span class="nc" id="L38">    String INSERT_FILER_COVERAGE_INCREMENT_SEQ = new StringBuilder(&quot; INSERT  INTO   FILER_COVERAGE_SOURCE&quot;)</span>
+<span class="nc" id="L39">            .append(&quot; (APR, AUG, COMMENTS, DEC, FEB, JAN, JUL, JUN, MAR, MAY, NOV, OCT, ORIG_COVERAGE_BEGIN_DATE,&quot;)</span>
+<span class="nc" id="L40">            .append(&quot; ORIG_COVERAGE_END_DATE, SEP, UPDATED_BY, UPDATED_DATE, PROGRAM_NAME,SOURCE_CD, SOURCE_UNIQUE_ID,&quot;)</span>
+<span class="nc" id="L41">            .append(&quot; CASE_APPLICATION_ID,COVERAGE_SEQ_NO,FILER_DEMO_SEQ) &quot;)</span>
+<span class="nc" id="L42">            .append(&quot; VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,&quot;)</span>
+<span class="nc" id="L43">            .append( &quot;(NEXT VALUE FOR COVERAGE_SEQ),(NEXT VALUE FOR SEQUENCE_NO_SEQ))&quot;)</span>
+<span class="nc" id="L44">            .toString();</span>
+
+<span class="nc" id="L46">    String INSERT_BATCH_INFO = new StringBuilder(&quot; INSERT INTO BATCH_INFO&quot;)</span>
+<span class="nc" id="L47">            .append(&quot; (BATCH_ID,RECEIVE_DATE) &quot;)</span>
+<span class="nc" id="L48">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L49">            .append(&quot; ( NEXT VALUE FOR BATCH_INFO_SEQ,:receiveDate) &quot;).toString();</span>
+
+<span class="nc" id="L51">    String UPDATE_BATCH_INFO_CODES = new StringBuilder(&quot; UPDATE BATCH_INFO&quot;)</span>
+<span class="nc" id="L52">            .append(&quot; set &quot;)</span>
+<span class="nc" id="L53">            .append(&quot; AGENCY_CD=:agencyCd,&quot; +</span>
+                    &quot;STATE_CD=:stateCd,&quot; +
+                    &quot;SYSTEM_CD=:systemCd,&quot; +
+                    &quot;FILE_VERSION=:fileVersion,&quot; +
+                    &quot;FILENAME=:fileName,&quot; +
+                    &quot;BATCH_TYPE=:batchType &quot; +
+                    &quot;where &quot; +
+<span class="nc" id="L60">                    &quot;batch_id=:batchId &quot;).toString();</span>
+
+<span class="nc" id="L62">    String INSERT_EXCEPTION_REPORT = new StringBuilder(&quot; INSERT INTO EXCEPTION_REPORT &quot;)</span>
+<span class="nc" id="L63">            .append(&quot; ( EXCEPTION_REPORT_ID,EX_DETAILS,BATCH_ID,source_unique_id, row_number ) &quot;)</span>
+<span class="nc" id="L64">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L65">            .append(&quot; ( NEXT VALUE FOR ex_repo_seq,?,?,?,?) &quot;).toString();</span>
+<span class="nc" id="L66">    String UPDATE_BATCH_INFO_COUNTS = new StringBuilder(&quot; UPDATE BATCH_INFO&quot;)</span>
+<span class="nc" id="L67">            .append(&quot; set &quot;)</span>
+<span class="nc" id="L68">            .append(&quot; TOTAL_COUNT=:totalCount,TOTAL_FAIL=:totalFail,TOTAL_PASS=:totalPass where batch_id=:batchId &quot;).toString();</span>
+
+<span class="nc" id="L70">    String INSERT_EXCEPTION_REPORT_ROW_NUM_SOURCE_UNIQUE_ID = new StringBuilder(&quot; INSERT INTO EXCEPTION_REPORT &quot;)</span>
+<span class="nc" id="L71">            .append(&quot; ( EXCEPTION_REPORT_ID,EX_DETAILS,BATCH_ID,ROW_NUMBER,SOURCE_UNIQUE_ID) &quot;)</span>
+<span class="nc" id="L72">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L73">            .append(&quot; ( NEXT VALUE FOR ex_repo_seq,:exDetails,:batchId,:rowNumber,:sourceUniqueId) &quot;).toString();</span>
+
+<span class="nc" id="L75">    String INSERT_EXCEPTION_REPORT_ROW_NUM = new StringBuilder(&quot; INSERT INTO EXCEPTION_REPORT &quot;)</span>
+<span class="nc" id="L76">            .append(&quot; ( EXCEPTION_REPORT_ID,EX_DETAILS,BATCH_ID,ROW_NUMBER) &quot;)</span>
+<span class="nc" id="L77">            .append(&quot; VALUES &quot;)</span>
+<span class="nc" id="L78">            .append(&quot; ( NEXT VALUE FOR ex_repo_seq,:exDetails,:batchId,:rowNumber) &quot;).toString();</span>
+
+<span class="nc" id="L80">    String UPDATE_FILER_DEMOGRAPHICS = new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS &quot;)</span>
+<span class="nc" id="L81">            .append(&quot; set &quot;)</span>
+<span class="nc" id="L82">            .append(&quot; BATCH_ID=:batchId,TAX_YEAR=:taxYear,RECIPIENT_FIRST_NAME=:recipientFirstName,&quot;)</span>
+<span class="nc" id="L83">            .append(&quot;RECIPIENT_MIDDLE_NAME=:recipientMiddleName,RECIPIENT_LAST_NAME=:recipientLastName,&quot;)</span>
+<span class="nc" id="L84">            .append(&quot;RECIPIENT_SUFFIX_NAME=:recipientSuffixName,RECIPIENT_SSN=:recipientSSN,&quot;)</span>
+<span class="nc" id="L85">            .append(&quot;RECIPIENT_TIN=:recipientTin,RECIPIENT_DOB=:recipientDOB,&quot;)</span>
+<span class="nc" id="L86">            .append(&quot;RECIPIENT_ADDRESS_LINE_1=:recipientAddressLine1,&quot;)</span>
+<span class="nc" id="L87">            .append(&quot;RECIPIENT_ADDRESS_LINE_2=:recipientAddressLine2,RECIPIENT_CITY=:recipientCity,&quot;)</span>
+<span class="nc" id="L88">            .append(&quot;RECIPIENT_STATE=:recipientState,RECIPIENT_ZIP_5=:recipientZip5,RECIPIENT_ZIP_4=:recipientZip4,&quot;)</span>
+<span class="nc" id="L89">            .append(&quot;RECIPIENT_E_MAIL=:recipientEmail,RECIPIENT_LANGUAGE_PREFERENCE=:recipientLanguagePreference,&quot;)</span>
+<span class="nc" id="L90">            .append(&quot;POLICY_ORIGIN=:policyOrigin,SHOP_IDENTIFIER=:shopIdentifier,EMPLOYER_NAME=:employerName,&quot;)</span>
+<span class="nc" id="L91">            .append(&quot;EMPLOYER_IDENTIFICATION_NUMBER=:employerIdentificationNumber,&quot;)</span>
+<span class="nc" id="L92">            .append(&quot;EMPLOYER_CONTACT_NO=:employerContactNo,EMPLOYER_ADDRESS_LINE_1=:employerAddressLine1,&quot;)</span>
+<span class="nc" id="L93">            .append(&quot;EMPLOYER_ADDRESS_LINE_2=:employerAddressLine2,EMPLOYER_CITY_OR_TOWN=:employerCityOrTown,&quot;)</span>
+<span class="nc" id="L94">            .append(&quot;EMPLOYER_STATE_OR_PROVINCE=:employerStateOrProvince,EMPLOYER_COUNTRY=:employerCountry,&quot;)</span>
+<span class="nc" id="L95">            .append(&quot;EMPLOYER_ZIP_OR_POSTAL_CODE=:employerZipOrPostalCode,PROVIDER_NAME=:providerName,&quot;)</span>
+<span class="nc" id="L96">            .append(&quot;PROVIDER_IDENTIFICATION_NUMBER=:providerIdentificationNumber,&quot;)</span>
+<span class="nc" id="L97">            .append(&quot;PROVIDER_CONTACT_NO=:providerContactNo,PROVIDER_ADDRESS_LINE_1=:providerAddressLine1,&quot;)</span>
+<span class="nc" id="L98">            .append(&quot;PROVIDER_ADDRESS_LINE_2=:providerAddressLine2,PROVIDER_CITY_OR_TOWN=:providerCityOrTown,&quot;)</span>
+<span class="nc" id="L99">            .append(&quot;PROVIDER_STATE_OR_PROVINCE=:providerStateOrProvince,PROVIDER_COUNTRY=:providerCountry,&quot;)</span>
+<span class="nc" id="L100">            .append(&quot;PROVIDER_ZIP_OR_POSTAL_CODE=:providerZipOrPostalCode,FILER_STATUS=:filerStatus,&quot;)</span>
+<span class="nc" id="L101">            .append(&quot;RESPONSIBLE_PERSON_UNIQUE_ID=:responsiblePersonUniqueId,FILER_DEMO_SEQ=(NEXT VALUE FOR SEQUENCE_NO_SEQ),&quot;)</span>
+<span class="nc" id="L102">            .append(&quot;UPDATED_BY=:updatedBy,UPDATED_DATE=:updatedDate,&quot;)</span>
+<span class="nc" id="L103">            .append(&quot;COMMUNICATION_PREFERENCE=:communicationPreference,CORRECTION_CODE=:correctionCode,&quot;)</span>
+<span class="nc" id="L104">            .append(&quot;MAILED_FORM=:mailedForm,&quot;)</span>
+<span class="nc" id="L105">            .append(&quot;JAN=:jan,FEB=:feb,MAR=:mar,APR=:apr,MAY=:may,JUN=:jun,JUL=:jul,AUG=:aug,SEP=:sep,OCT=:oct,NOV=:nov,DEC=:dec&quot;)</span>
+<span class="nc" id="L106">            .append(&quot; where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd&quot;)</span>
+<span class="nc" id="L107">            .toString();</span>
+
+
+
+<span class="nc" id="L111">        String UPDATE_FILER_DEMOGRAPHICS_FILE_INGESTION  = new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS &quot;)</span>
+<span class="nc" id="L112">        .append(&quot; set &quot;)</span>
+<span class="nc" id="L113">        .append(&quot; BATCH_ID=:batchId ,RECIPIENT_FIRST_NAME=:recipientFirstName,&quot;)</span>
+<span class="nc" id="L114">        .append(&quot;RECIPIENT_MIDDLE_NAME=:recipientMiddleName,RECIPIENT_LAST_NAME=:recipientLastName,&quot;)</span>
+<span class="nc" id="L115">        .append(&quot;RECIPIENT_SUFFIX_NAME=:recipientSuffixName,RECIPIENT_SSN=:recipientSSN,&quot;)</span>
+<span class="nc" id="L116">        .append(&quot;RECIPIENT_TIN=:recipientTin,RECIPIENT_DOB=:recipientDOB,&quot;)</span>
+<span class="nc" id="L117">        .append(&quot;RECIPIENT_ADDRESS_LINE_1=:recipientAddressLine1,&quot;)</span>
+<span class="nc" id="L118">        .append(&quot;RECIPIENT_ADDRESS_LINE_2=:recipientAddressLine2,RECIPIENT_CITY=:recipientCity,&quot;)</span>
+<span class="nc" id="L119">        .append(&quot;RECIPIENT_STATE=:recipientState,RECIPIENT_ZIP_5=:recipientZip5,RECIPIENT_ZIP_4=:recipientZip4,&quot;)</span>
+<span class="nc" id="L120">        .append(&quot;RECIPIENT_E_MAIL=:recipientEmail,RECIPIENT_LANGUAGE_PREFERENCE=:recipientLanguagePreference,&quot;)</span>
+<span class="nc" id="L121">        .append(&quot;POLICY_ORIGIN=:policyOrigin,SHOP_IDENTIFIER=:shopIdentifier,EMPLOYER_NAME=:employerName,&quot;)</span>
+<span class="nc" id="L122">        .append(&quot;EMPLOYER_IDENTIFICATION_NUMBER=:employerIdentificationNumber,&quot;)</span>
+<span class="nc" id="L123">        .append(&quot;EMPLOYER_CONTACT_NO=:employerContactNo,EMPLOYER_ADDRESS_LINE_1=:employerAddressLine1,&quot;)</span>
+<span class="nc" id="L124">        .append(&quot;EMPLOYER_ADDRESS_LINE_2=:employerAddressLine2,EMPLOYER_CITY_OR_TOWN=:employerCityOrTown,&quot;)</span>
+<span class="nc" id="L125">        .append(&quot;EMPLOYER_STATE_OR_PROVINCE=:employerStateOrProvince,EMPLOYER_COUNTRY=:employerCountry,&quot;)</span>
+<span class="nc" id="L126">        .append(&quot;EMPLOYER_ZIP_OR_POSTAL_CODE=:employerZipOrPostalCode,PROVIDER_NAME=:providerName,&quot;)</span>
+<span class="nc" id="L127">        .append(&quot;PROVIDER_IDENTIFICATION_NUMBER=:providerIdentificationNumber,&quot;)</span>
+<span class="nc" id="L128">        .append(&quot;PROVIDER_CONTACT_NO=:providerContactNo,PROVIDER_ADDRESS_LINE_1=:providerAddressLine1,&quot;)</span>
+<span class="nc" id="L129">        .append(&quot;PROVIDER_ADDRESS_LINE_2=:providerAddressLine2,PROVIDER_CITY_OR_TOWN=:providerCityOrTown,&quot;)</span>
+<span class="nc" id="L130">        .append(&quot;PROVIDER_STATE_OR_PROVINCE=:providerStateOrProvince,PROVIDER_COUNTRY=:providerCountry,&quot;)</span>
+<span class="nc" id="L131">        .append(&quot;PROVIDER_ZIP_OR_POSTAL_CODE=:providerZipOrPostalCode,FILER_STATUS=:filerStatus,&quot;)</span>
+<span class="nc" id="L132">                .append(&quot;IRS_TRANSMISSION_STATUS_CD=:irsTransmissionCd,&quot;)</span>
+<span class="nc" id="L133">        .append(&quot;RESPONSIBLE_PERSON_UNIQUE_ID=:responsiblePersonUniqueId,FILER_DEMO_SEQ=(NEXT VALUE FOR SEQUENCE_NO_SEQ),&quot;)</span>
+<span class="nc" id="L134">        .append(&quot;UPDATED_BY=:updatedBy,UPDATED_DATE=:updatedDate,&quot;)</span>
+<span class="nc" id="L135">        .append(&quot;COMMUNICATION_PREFERENCE=:communicationPreference,CORRECTION_CODE=:correctionCode,&quot;)</span>
+<span class="nc" id="L136">        .append(&quot;MAILED_FORM=:mailedForm, FORM_STATUS=:formStatus,&quot;)</span>
+<span class="nc" id="L137">        .append(&quot;JAN=:jan,FEB=:feb,MAR=:mar,APR=:apr,MAY=:may,JUN=:jun,JUL=:jul,AUG=:aug,SEP=:sep,OCT=:oct,NOV=:nov,DEC=:dec, STATUS =:status,  CORRECTION_INDICATOR=:corIndicator, RECORD_VERSION=:recordVersion  &quot;)</span>
+<span class="nc" id="L138">        .append(&quot; where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd and TAX_YEAR=:taxYear  &quot;)</span>
+<span class="nc" id="L139">        .toString();</span>
+
+
+<span class="nc" id="L142">    String MARK_RECORD_AS_REGENERATE= new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS &quot;)</span>
+<span class="nc" id="L143">            .append(&quot; set FORM_STATUS= :formStatus , CORRECTION_INDICATOR=:corCode &quot;)</span>
+<span class="nc" id="L144">            .append(&quot; where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd and TAX_YEAR=:taxYear &quot;)</span>
+<span class="nc" id="L145">            .toString();</span>
+
+<span class="nc" id="L147">    String UPDATE_FILER_DEMOGRAPHICS_VERSION = new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS &quot;)</span>
+<span class="nc" id="L148">            .append(&quot; set RECORD_VERSION = :recordVersion &quot;)</span>
+<span class="nc" id="L149">            .append(&quot; where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd and TAX_YEAR=:taxYear &quot;)</span>
+<span class="nc" id="L150">            .toString();</span>
+
+<span class="nc" id="L152">    String UPDATE_FILER_DEMOGRAPHICS_COVERAGE =</span>
+            new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS set &quot;)
+<span class="nc" id="L154">                    .append(&quot;JAN=:jan,FEB=:feb,MAR=:mar,APR=:apr,MAY=:may,JUN=:jun,JUL=:jul,AUG=:aug,SEP=:sep,OCT=:oct,NOV=:nov,DEC=:dec&quot;)</span>
+<span class="nc" id="L155">                    .append(&quot; where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd&quot;)</span>
+<span class="nc" id="L156">                    .toString();</span>
+
+<span class="nc" id="L158">    String TOGGLE_FILER_DEMOGRAPHICS_ACTIVE =</span>
+            new StringBuilder(&quot; UPDATE FILER_DEMOGRAPHICS &quot;)
+<span class="nc" id="L160">                    .append(&quot; set STATUS = ? ,UPDATED_BY=?,UPDATED_DATE=? &quot;)</span>
+<span class="nc" id="L161">                    .append(&quot; where SOURCE_UNIQUE_ID = ? and SOURCE_CD = ?&quot;)</span>
+<span class="nc" id="L162">                    .toString();</span>
+
+<span class="nc" id="L164">    String UPDATE_FILER_COVERAGE = new StringBuilder(&quot; UPDATE FILER_COVERAGE_SOURCE &quot;)</span>
+<span class="nc" id="L165">            .append(&quot; set &quot;)</span>
+<span class="nc" id="L166">            .append(&quot; JAN=:jan,FEB=:feb,MAR=:mar,APR=:apr,MAY=:may,JUN=:jun,JUL=:jul,AUG=:aug,SEP=:sep,OCT=:oct,NOV=:nov,DEC=:dec,ORIG_COVERAGE_BEGIN_DATE=:originCoverageBeginDate,ORIG_COVERAGE_END_DATE=:originCoverageEndDate,CASE_APPLICATION_ID=:recipientCaseApplicationId,PROGRAM_NAME=:programName,UPDATED_BY=:updatedBy,UPDATED_DATE=:updatedDate where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd&quot;).toString();</span>
+
+<span class="nc" id="L168">    String DELETE_FILER_COVERAGES_FOR_FD =</span>
+            new StringBuilder(&quot; delete from FILER_COVERAGE_SOURCE &quot;)
+<span class="nc" id="L170">                    .append(&quot;  where SOURCE_UNIQUE_ID=:sourceUniqueId and SOURCE_CD=:sourceCd and TAX_YEAR=:taxYear&quot;).toString();</span>
+
+<span class="nc" id="L172">    String SELECT_FILER_DEMOGRAPHICS = new StringBuilder(&quot; select SOURCE_UNIQUE_ID as  sourceUniqueId from FILER_DEMOGRAPHICS where RECIPIENT_SSN=:recipientSSN or RECIPIENT_TIN=:recipientTin &quot;).toString();</span>
+
+    String SELECT_INDIVIDUALS_FOR_PK =
+            &quot; select RECIPIENT_SSN, RECIPIENT_TIN, RECIPIENT_DOB from FILER_DEMOGRAPHICS &quot;
+                    + &quot; where SOURCE_UNIQUE_ID = :&quot; + EX_SOURCE_UNIQUE_ID_NUMBER
+                    + &quot; and SOURCE_CD = :&quot; + PARAM_SOURCE_CD;
+
+<span class="nc" id="L179">    String EXCEPTION_REPORT_DETAILS = new StringBuilder(&quot; select exception_report_id,batch_id,source_unique_id,ex_details,row_number from exception_report where batch_id=&quot;).toString();</span>
+
+<span class="nc" id="L181">    String EXCEPTION_REPORT_COUNT = new StringBuilder(&quot;select count(*) from EXCEPTION_REPORT where batch_id=:batchId&quot;).toString();</span>
+
+<span class="nc" id="L183">    String EXCEPTION_REPORT = new StringBuilder(</span>
+            &quot; select exception_report_id,batch_id,source_unique_id,ex_details,row_number from exception_report where batch_id=:batchId&quot;)
+<span class="nc" id="L185">            .toString();</span>
+
+<span class="nc" id="L187">    String CLEAR_EXCEPTION_REPORT = new StringBuilder(&quot;DELETE FROM EXCEPTION_REPORT&quot;).toString();</span>
+
+
+    String CACHE_LOAD_QUERY =
+        &quot;select&quot;
+        + &quot; fd.SOURCE_UNIQUE_ID, fd.SOURCE_CD, RECIPIENT_SSN, RECIPIENT_TIN, RECIPIENT_DOB,&quot;
+        + &quot; CASE_APPLICATION_ID, PROGRAM_NAME, ORIG_COVERAGE_BEGIN_DATE, ORIG_COVERAGE_END_DATE,&quot;
+        + &quot; CORRECTION_CODE, FILER_STATUS, STATUS, RESPONSIBLE_PERSON_UNIQUE_ID, fd.IRS_TRANSMISSION_STATUS_CD,&quot;
+        + &quot; fd.JAN, fd.FEB, fd.MAR, fd.APR, fd.MAY, fd.JUN, fd.JUL, fd.AUG, fd.SEP, fd.OCT, fd.NOV, fd.DEC&quot;
+        + &quot; from dbo.FILER_DEMOGRAPHICS fd&quot;
+        + &quot; left outer join dbo.FILER_COVERAGE_SOURCE fcs ON&quot;
+        + &quot; fd.SOURCE_UNIQUE_ID = fcs.SOURCE_UNIQUE_ID&quot;
+        + &quot; and fd.SOURCE_CD = fcs.SOURCE_CD&quot;
+        + &quot; where fd.SOURCE_CD = ?&quot;
+        + &quot; order by fd.SOURCE_UNIQUE_ID, fd.SOURCE_CD, fcs.ORIG_COVERAGE_BEGIN_DATE&quot;;
+
+    String SELECT_FILER_DEMO_SEQ_CURRENT_VAL = &quot;SELECT CAST(Current_Value AS BIGINT) FROM SYS.Sequences WHERE name='SEQUENCE_NO_SEQ'&quot;;
+
+    String CLEAR_BATCH_INFO = &quot;DELETE FROM BATCH_INFO&quot;;
+
+    String GET_TOP_BATCH_ID = &quot;SELECT TOP 1 BATCH_ID FROM BATCH_INFO order by BATCH_ID desc&quot;;
+
+    String INSERT_INTO_BUSINESS_RULE_LOG = &quot;insert into BUSINESS_DECISIONS_LOG (&quot;
+            + &quot;TAX_YEAR  ,&quot;
+            + &quot;SOURCE_CD  ,&quot;
+            + &quot;SOURCE_UNIQUE_ID ,&quot;
+            + &quot;BUSINESS_DECISION ,&quot;
+            + &quot;BUSINESS_RULE ,&quot;
+            + &quot;DOB ,&quot;
+            + &quot;CORRECTION_CODE ,&quot;
+            + &quot;BATCH_ID ,&quot;
+            + &quot;ROW_NUMBER ,&quot;
+            + &quot;UPDATED_BY  ,&quot;
+            + &quot;UPDATED_DATE )&quot;
+            + &quot;values (?,?,?,?,?,?,?,?,?,?,?)&quot;;
+
+    String STAGING_COLUMNS_NAME =&quot;[ROW_ID] &quot;+
+            &quot;      ,[SOURCE_UNIQUE_ID] &quot;+
+            &quot;      ,[SOURCE_CD] &quot;+
+            &quot;      ,[BATCH_ID] &quot;+
+            &quot;      ,[TAX_YEAR] &quot;+
+            &quot;      ,[RECIPIENT_FIRST_NAME] &quot;+
+            &quot;      ,[RECIPIENT_MIDDLE_NAME] &quot;+
+            &quot;      ,[RECIPIENT_LAST_NAME] &quot;+
+            &quot;      ,[RECIPIENT_SUFFIX_NAME] &quot;+
+            &quot;      ,[RECIPIENT_SSN] &quot;+
+            &quot;      ,[RECIPIENT_TIN] &quot;+
+            &quot;      ,[RECIPIENT_DOB] &quot;+
+            &quot;      ,[RECIPIENT_ADDRESS_LINE_1] &quot;+
+            &quot;      ,[RECIPIENT_ADDRESS_LINE_2] &quot;+
+            &quot;      ,[RECIPIENT_CITY] &quot;+
+            &quot;      ,[RECIPIENT_STATE] &quot;+
+            &quot;      ,[RECIPIENT_ZIP_5] &quot;+
+            &quot;      ,[RECIPIENT_ZIP_4] &quot;+
+            &quot;      ,[RECIPIENT_E_MAIL] &quot;+
+            &quot;      ,[RECIPIENT_LANGUAGE_PREFERENCE] &quot;+
+            &quot;      ,[POLICY_ORIGIN] &quot;+
+            &quot;      ,[SHOP_IDENTIFIER] &quot;+
+            &quot;      ,[EMPLOYER_NAME] &quot;+
+            &quot;      ,[EMPLOYER_IDENTIFICATION_NUMBER] &quot;+
+            &quot;      ,[EMPLOYER_CONTACT_NO] &quot;+
+            &quot;      ,[EMPLOYER_ADDRESS_LINE_1] &quot;+
+            &quot;      ,[EMPLOYER_ADDRESS_LINE_2] &quot;+
+            &quot;      ,[EMPLOYER_CITY_OR_TOWN] &quot;+
+            &quot;      ,[EMPLOYER_STATE_OR_PROVINCE] &quot;+
+            &quot;      ,[EMPLOYER_COUNTRY] &quot;+
+            &quot;      ,[EMPLOYER_ZIP_OR_POSTAL_CODE] &quot;+
+            &quot;      ,[PROVIDER_NAME] &quot;+
+            &quot;      ,[PROVIDER_IDENTIFICATION_NUMBER] &quot;+
+            &quot;      ,[PROVIDER_CONTACT_NO] &quot;+
+            &quot;      ,[PROVIDER_ADDRESS_LINE_1] &quot;+
+            &quot;      ,[PROVIDER_ADDRESS_LINE_2] &quot;+
+            &quot;      ,[PROVIDER_CITY_OR_TOWN] &quot;+
+            &quot;      ,[PROVIDER_STATE_OR_PROVINCE] &quot;+
+            &quot;      ,[PROVIDER_COUNTRY] &quot;+
+            &quot;      ,[PROVIDER_ZIP_OR_POSTAL_CODE] &quot;+
+            &quot;      ,[FILER_STATUS] &quot;+
+            &quot;      ,[COMMUNICATION_PREFERENCE] &quot;+
+            &quot;      ,[COMMENTS] &quot;+
+            &quot;      ,[UPDATED_BY] &quot;+
+            &quot;      ,[UPDATED_DATE] &quot;+
+            &quot;      ,[CORRECTION_DATE] &quot;+
+            &quot;      ,[CORRECTION_CODE] &quot;+
+            &quot;      ,[FORM_STATUS] &quot;+
+            &quot;      ,[STATUS] &quot;+
+            &quot;      ,[FILER_DEMO_SEQ] &quot;+
+            &quot;      ,[JAN] &quot;+
+            &quot;      ,[FEB] &quot;+
+            &quot;      ,[MAR] &quot;+
+            &quot;      ,[APR] &quot;+
+            &quot;      ,[MAY] &quot;+
+            &quot;      ,[JUN] &quot;+
+            &quot;      ,[JUL] &quot;+
+            &quot;      ,[AUG] &quot;+
+            &quot;      ,[SEP] &quot;+
+            &quot;      ,[OCT] &quot;+
+            &quot;      ,[NOV] &quot;+
+            &quot;      ,[DEC] &quot;+
+            &quot;      ,[RESPONSIBLE_PERSON_UNIQUE_ID] &quot;+
+            &quot;      ,[MAILED_FORM] &quot;+
+            &quot;      ,[IRS_TRANSMISSION_STATUS_CD] &quot;+
+            &quot;      ,[ROW_NUMBER] &quot;+
+            &quot;      ,[RECORD_SOURCE] &quot;+
+            &quot;      ,[ORIG_COVERAGE_BEGIN_DATE] &quot;+
+            &quot;      ,[ORIG_COVERAGE_END_DATE] &quot;+
+            &quot;      ,[CASE_APPLICATION_ID] &quot;+
+            &quot;      ,[PROGRAM_NAME] , [CORRECTION_INDICATOR], [RECORD_VERSION] &quot;;
+    String GET_FILE_NAME_FOR_BATCH_ID = &quot;SELECT FILENAME FROM BATCH_INFO WHERE BATCH_ID = &quot;;
+    String GET_DISTINCT_EXCEPTION_ROW_NUM_FOR_BATCH = &quot;select distinct ROW_NUMBER as SID from EXCEPTION_REPORT where BATCH_ID = &quot;;
+    
+<span class="nc" id="L297">    String UPDATE_BATCH_INFO_PRINTANDPROCESS_XML = new StringBuilder(&quot; UPDATE BATCH_INFO set &quot;).append(&quot; AGENCY_CD=:agencyCd,STATE_CD=:stateCd,SYSTEM_CD=:systemCd,FILE_VERSION=:fileVersion,FILENAME=:fileName, TOTAL_COUNT=:totalCount,TOTAL_FAIL=:totalFail,TOTAL_PASS=:totalPass,BATCH_TYPE=:batchType,REQUISITION_ID=:requisitionId where batch_id=:batchId &quot;).toString();</span>
+    String GET_PASSED_COUNT_FROM_BUSINESS_LOG = &quot;select count(bl.ROW_NUMBER) as SIDCOUNT from BUSINESS_DECISIONS_LOG bl where bl.BUSINESS_DECISION='PASSED' and bl.BATCH_ID = &quot;;
+    String GET_DISTINCT_COUNT_FROM_EXCEPTION_REPORT = &quot;select count(distinct source_unique_id) as SIDCOUNT from EXCEPTION_REPORT where BATCH_ID = &quot;;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=10;IE=11;IE=Edge">
+  <meta charset="utf-8">
+  <title>LaborWise</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- build:css(.) styles/vendor.css -->
+  <!-- bower:css -->
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="bower_components/roboto-fontface/css/roboto-fontface.css" />
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css(.tmp) styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body ng-app="aca1095BUiAppCitizen">
+<div ng-controller="mainCtrl" class="container-fluid">
+  <div class="row main-container no-padding" ui-view>
+  </div>
+  <div class="row footer-container" role="navigation">
+    <div class="col-sm-12">
+      <div class="pull-left">
+        <a target="_blank" class="black" aca-aria-click="privacyStatement()" accesskey="P" tabindex="{{modalBox == true ? -1:10000}}">Privacy Statement</a>
+      </div>
+      <div class="pull-left margin-left-25px">
+        <a target="_blank" class="black" aca-aria-click="termsOfUse()" accesskey="P" tabindex="{{modalBox == true ? -1:10001}}">Terms of Use</a>
+      </div>
+      <div>
+        <span class="pull-right">Copyright © 2017 Deloitte Development LLC. All rights reserved.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-touch/angular-touch.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/recaptcha_ajax/recaptcha_ajax.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+
+<script src="scripts/config.js"></script>
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/app.js"></script>
+
+<script src="scripts/controllers/CitizenHeaderCtrl.js"></script>
+<script src="scripts/controllers/CitizenStateCtrl.js"></script>
+<script src="scripts/controllers/CitizenFormCtrl.js"></script>
+<script src="scripts/controllers/CitizenViewGeneralCtrl.js"></script>
+<script src="scripts/controllers/CitizenViewDetailCtrl.js"></script>
+<script src="scripts/controllers/CitizenStaticCtrl.js"></script>
+
+<script src="scripts/directives/fileViewer.js"></script>
+<script src="scripts/directives/failureBanner.js"></script>
+<script src="scripts/directives/successBanner.js"></script>
+<script src="scripts/directives/acaToggleSwitch.js"></script>
+<script src="scripts/directives/acaCheckBox.js"></script>
+<script src="scripts/directives/acaDatePickerFloatingLabel.js"></script>
+<script src="scripts/directives/acaTypeSelect.js"></script>
+<script src="scripts/directives/acaSelectYear.js"></script>
+<script src="scripts/directives/acaActualForm.js"></script>
+<script src="scripts/directives/acaGoBack.js"></script>
+<script src="scripts/directives/acaAriaClick.js"></script>
+<script src="scripts/directives/acaRecaptcha.js"></script>
+
+<script src="scripts/providers/url.provider.js"></script>
+
+<script src="scripts/services/CitizenService.js"></script>
+<script src="scripts/services/CitizenInactive.js"></script>
+<script src="scripts/services/CitizenSession.js"></script>
+<script src="scripts/services/inactivityModal.js"></script>
+<script src="scripts/services/textModal.js"></script>
+
+<script src="scripts/lib/ngFloatingLabels.js"></script>
+<!-- endbuild -->
+
+</body>
+</html>

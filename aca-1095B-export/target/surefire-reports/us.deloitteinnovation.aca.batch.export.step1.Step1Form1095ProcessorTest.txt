@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.export.step1.Step1Form1095ProcessorTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.44 sec - in us.deloitteinnovation.aca.batch.export.step1.Step1Form1095ProcessorTest

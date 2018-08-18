@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step2Form1094Processor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step2</a> &gt; <span class="el_source">Step2Form1094Processor.java</span></div><h1>Step2Form1094Processor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step2;
+
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemProcessor;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.jaxb.ACA1094BDetailBuilder;
+import us.gov.treasury.irs.common.TINRequestTypeCodeType;
+import us.gov.treasury.irs.ext.aca.air._7.BusinessNameType;
+import us.gov.treasury.irs.ext.aca.air._7.Form1094BUpstreamDetailType;
+
+/**
+ * Converts Filer related information (such as payee and employer) into FORM 1094B AIR7 objects for export to the IRS as XML SOAP message(s).
+ */
+<span class="fc" id="L15">public class Step2Form1094Processor implements ItemProcessor&lt;Step2Form1094Dto, Step2Form1094Dto&gt; {</span>
+
+    StepExecution stepExecution ;
+
+    /**
+     * @param provider
+     * @return  Same DTO object provided as parameter, with the Form1094BUpstreamDetailType created and set.
+     */
+    @Override
+    public Step2Form1094Dto process(Step2Form1094Dto provider) throws Exception {
+<span class="fc" id="L25">        Integer year = ExportUtil.getYear(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="pc bpc" id="L26" title="2 of 4 branches missed.">        if (year == null || year == 0)</span>
+<span class="nc" id="L27">            throw new IllegalArgumentException(&quot;A tax year must be provided to Step2Form1094Processor.  Please ensure&quot; +</span>
+                    &quot; it is correctly defined within the JobParameters.&quot;) ;
+
+<span class="fc" id="L30">        final Form1094BUpstreamDetailType form1094=new ACA1094BDetailBuilder()</span>
+<span class="fc" id="L31">                .setTaxYr(year)</span>
+<span class="fc" id="L32">                .setEmployerEIN(provider.getSourceSystemConfig().getProviderIdentificationNumber())</span>
+<span class="fc" id="L33">                .build();</span>
+
+<span class="fc" id="L35">        BusinessNameType businessNameType = new BusinessNameType() ;</span>
+<span class="fc" id="L36">        businessNameType.setBusinessNameLine1Txt(ExportUtil.sanitize(provider.getSourceSystemConfig().getProviderName()));</span>
+<span class="fc" id="L37">        form1094.setBusinessName(businessNameType);</span>
+<span class="fc" id="L38">        form1094.setTINRequestTypeCd(TINRequestTypeCodeType.BUSINESS_TIN);</span>
+<span class="fc" id="L39">        form1094.setContactNameGrp(ExportUtil.getContactName(provider.getSourceSystemConfig()));</span>
+<span class="fc" id="L40">        form1094.setContactPhoneNum(&quot;&quot; + provider.getSourceSystemConfig().getProviderContactNo());</span>
+<span class="fc" id="L41">        form1094.setMailingAddressGrp(ExportUtil.getBusinessAddressFromSourceSystemConfig(provider.getSourceSystemConfig()));</span>
+<span class="fc" id="L42">        form1094.setTestScenarioId(ExportUtil.getTestScenario(stepExecution.getJobExecution().getExecutionContext()));</span>
+<span class="fc" id="L43">        provider.form1094BUpstreamDetailType = form1094 ;</span>
+<span class="fc" id="L44">        return provider ;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="fc" id="L49">        this.stepExecution = stepExecution ;</span>
+<span class="fc" id="L50">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,53 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step1,Step1RefreshStagingTasklet,172,0,2,0,39,0,6,0,5,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step2,Step2VerifyFilerWriter,62,0,6,0,18,0,7,0,4,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step2,FileNameVerificationDecider,766,0,52,0,164,0,34,0,8,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step2,Step2ProcessorResult,26,0,0,0,11,0,6,0,6,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step2,FileNameVerificationDecider.new Comparator() {...},14,0,0,0,2,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step2,Step2VerifyFilerProcessor,1332,7,184,0,281,2,95,2,3,2
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3FilerDataDtoMapper,622,0,8,0,114,0,9,0,5,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3InitialFilerList,4,11,0,0,2,3,1,2,1,2
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3RecordsUIDValidationResultMap,3,16,0,0,1,4,1,2,1,2
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3InitialRecordListMapper,70,0,2,0,15,0,3,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,BusinessValidationRuleDto,27,60,0,0,9,28,9,16,9,16
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3FilerDataDto,87,354,8,4,14,86,11,39,5,39
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.dto,Step3ValidationMapDto,6,11,0,0,2,5,2,3,2,3
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3,Step3FileIngestionCRVWriter,621,132,105,11,120,30,64,8,8,6
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3,Step3FileIngestionCRVReader,153,280,33,33,34,60,25,18,2,8
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3,Step3DataValidationException,6,14,0,0,2,6,2,3,2,3
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3,Step3FileIngestionCRVProcessor,437,653,66,54,74,149,49,25,1,13
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.listener,FilerVerificationSkipListener,261,0,14,0,49,0,12,0,5,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.listener,ImportFilersJobExecutionListener,95,0,12,0,26,0,11,0,5,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step4,Step4UpdateBatchCountsWriter,50,0,4,0,10,0,5,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step4,Step4UpdateBatchCountsProcessor,24,0,2,0,5,0,4,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step4,Step4UpdateBatchCountsReader,2,42,1,1,1,11,1,2,0,2
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.service.impl,ExceptionReportServiceImpl,25,3,0,0,7,1,6,1,6,1
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.service.impl,FileImportMailerServiceImpl,147,0,12,0,32,0,9,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.service.impl,ReportGenerationServiceImpl,424,0,28,0,63,0,23,0,9,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.service.impl,ReportGenerationServiceImpl.ExceptionReportMapper,27,0,0,0,6,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.mapper,ExceptionReportMapper,146,0,2,0,30,0,5,0,4,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.dao.impl,ExceptionReportDaoImpl,160,0,8,0,34,0,10,0,6,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.validator,USStateCodeValidator,54,0,4,0,12,0,5,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.file.filter,FileExtensionFilter,13,0,0,0,4,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.utils,Step3UpdateRecordsValidationUtils,518,85,95,5,100,19,58,5,8,5
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.utils,Step3OriginalRecordsValidationUtils,320,108,55,5,59,21,31,6,1,6
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.utils,Step3CorrectedRecordsValidationUtils,529,456,133,53,101,95,88,28,6,17
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,Step3RecordValidationServiceImpl,211,0,0,0,36,0,14,0,14,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,FileIngestionServiceImpl.new ParameterizedPreparedStatementSetter() {...},12,0,0,0,3,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,FileIngestionServiceImpl.new ParameterizedPreparedStatementSetter() {...},362,0,2,0,73,0,4,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,FileIngestionServiceImpl.new PreparedStatementSetter() {...},16,0,0,0,3,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,FileIngestionServiceImpl.new ParameterizedPreparedStatementSetter() {...},12,0,0,0,3,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.services.impl,FileIngestionServiceImpl,887,0,18,0,180,0,27,0,18,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.util,StateCode,644,0,0,0,65,0,6,0,6,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.file,InputFileMetaData,83,0,0,0,31,0,21,0,21,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch,FileIngestionConfiguration.new Comparator() {...},14,0,0,0,2,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch,ImportFilersApplication,11,0,0,0,3,0,2,0,2,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch,FileIngestionConfiguration,624,0,2,0,119,0,40,0,39,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch,FileIngestionJobConfiguration,69,0,0,0,23,0,3,0,3,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.dto,ExceptionReportDto,172,0,26,0,52,0,30,0,17,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.dto,BatchCountDto,0,17,0,0,0,7,0,5,0,5
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.listeners,Step3RecordSkipListener,120,0,2,0,31,0,8,0,7,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.ingest.step3.listeners,Step3FIExecutionListener,72,0,0,0,20,0,6,0,6,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.exception,BatchImportException,16,0,0,0,8,0,4,0,4,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.exception,Step2VerifyFilerException,30,0,0,0,14,0,8,0,8,0
+ACA 1095B - File Ingestion Module,us.deloitteinnovation.aca.batch.exception,FileVerificationSkipper,174,0,12,0,37,0,9,0,3,0

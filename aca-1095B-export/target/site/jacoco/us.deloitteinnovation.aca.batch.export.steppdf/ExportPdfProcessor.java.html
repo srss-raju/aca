@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportPdfProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.steppdf</a> &gt; <span class="el_source">ExportPdfProcessor.java</span></div><h1>ExportPdfProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.steppdf;
+
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemProcessor;
+
+/**
+ * Converts Filer Demographics into FORM 1095B AIR7 objects for export to the IRS as XML SOAP message(s).
+ */
+<span class="nc" id="L10">public class ExportPdfProcessor implements ItemProcessor&lt;ExportPdfDto, ExportPdfDto&gt; {</span>
+    StepExecution stepExecution;
+    @Override
+    public ExportPdfDto process(ExportPdfDto exportPdfDto) throws Exception {
+<span class="nc" id="L14">        return exportPdfDto;</span>
+    }
+    
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L19">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L20">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

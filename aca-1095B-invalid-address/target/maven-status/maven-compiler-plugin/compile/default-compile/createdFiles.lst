@@ -1,0 +1,12 @@
+us\deloitteinnovation\aca\Aca109495InvalidAddressApplication.class
+us\deloitteinnovation\aca\batch\invalidaddress\step\InvalidAddressProcessor.class
+us\deloitteinnovation\aca\batch\invalidaddress\step\InvalidAddressWriter.class
+us\deloitteinnovation\aca\batch\invalidaddress\repository\InvalidAddressRepository.class
+us\deloitteinnovation\aca\batch\invalidaddress\step\InvalidAddressReader$NameFilter.class
+us\deloitteinnovation\aca\batch\invalidaddress\util\InvalidAddressConstants.class
+us\deloitteinnovation\aca\batch\invalidaddress\InvalidAddressConfiguration.class
+us\deloitteinnovation\aca\batch\invalidaddress\step\InvalidAddressReader.class
+us\deloitteinnovation\aca\batch\invalidaddress\step\StepResult.class
+us\deloitteinnovation\aca\batch\invalidaddress\InvalidAddressBatchJobConfiguration.class
+us\deloitteinnovation\aca\batch\invalidaddress\InvalidAddressListener.class
+us\deloitteinnovation\aca\batch\invalidaddress\util\BatchHistoryCleanupTasklet.class

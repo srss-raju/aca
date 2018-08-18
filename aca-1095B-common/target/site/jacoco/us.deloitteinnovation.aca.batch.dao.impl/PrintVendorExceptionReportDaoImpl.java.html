@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorExceptionReportDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dao.impl</a> &gt; <span class="el_source">PrintVendorExceptionReportDaoImpl.java</span></div><h1>PrintVendorExceptionReportDaoImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dao.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.BatchQueryConstants;
+import us.deloitteinnovation.aca.batch.dao.PrintVendorExceptionReportDao;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.mapper.PrintVendorExceptionReportMapper;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+import us.deloitteinnovation.aca.exception.PrintVendorExceptionReportDto;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by rgopalani on 10/12/2015.
+ */
+<span class="fc" id="L26">public class PrintVendorExceptionReportDaoImpl extends NamedParameterJdbcDaoSupport implements PrintVendorExceptionReportDao {</span>
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    /**
+     * @param exceptionReport
+     * @return
+     */
+    @Override
+    public int save(PrintVendorExceptionReportDto exceptionReport) {
+<span class="nc" id="L38">        String sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT;</span>
+<span class="nc" id="L39">        final Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L40">        params.put(BatchConstants.BATCH_ID, exceptionReport.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L41">        params.put(BatchConstants.EX_DETAILS, exceptionReport.getExDetails());</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">        if (exceptionReport.getRowNumber() &gt; 0 &amp;&amp; exceptionReport.getSourceUniqueId() &gt; 0) {</span>
+<span class="nc" id="L43">            params.put(BatchConstants.EX_ROW_NUMBER, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L44">            params.put(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, exceptionReport.getSourceUniqueId());</span>
+<span class="nc" id="L45">            sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT_ROW_NUM_SOURCE_UNIQUE_ID;</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        } else if (exceptionReport.getRowNumber() &gt; 0) {</span>
+<span class="nc" id="L47">            params.put(BatchConstants.EX_ROW_NUMBER, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L48">            sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT_ROW_NUM;</span>
+        }
+<span class="nc" id="L50">        return namedParameterJdbcTemplate.update(sql, params);</span>
+    }
+
+    @Override
+    public int getExceptionReportCount(BatchInfoDto batchInfoDto) {
+<span class="nc" id="L55">        final String sql = BatchQueryConstants.EXCEPTION_REPORT_COUNT;</span>
+<span class="nc" id="L56">        final Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L57">        params.put(BatchConstants.BATCH_ID, batchInfoDto.getBatchId());</span>
+<span class="nc" id="L58">        return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);</span>
+    }
+
+    @Override
+    public List&lt;PrintVendorExceptionReportDto&gt; getExceptionReport(BatchInfoDto batchInfoDto) {
+<span class="nc" id="L63">        final String sql = BatchQueryConstants.EXCEPTION_REPORT;</span>
+<span class="nc" id="L64">        final Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L65">        params.put(BatchConstants.BATCH_ID, batchInfoDto.getBatchId());</span>
+<span class="nc" id="L66">        return this.namedParameterJdbcTemplate.query(sql, params, new PrintVendorExceptionReportMapper());</span>
+
+    }
+
+    @Override
+    public void clearAll() {
+<span class="nc" id="L72">        final String sql = BatchQueryConstants.CLEAR_EXCEPTION_REPORT;</span>
+<span class="nc" id="L73">        this.jdbcTemplate.update(sql);</span>
+
+<span class="nc" id="L75">    }</span>
+
+    @Override
+    public int saveReport(PrintVendorExceptionReportDto exceptionReport) {
+
+<span class="nc" id="L80">        final String sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT;</span>
+<span class="nc" id="L81">        final Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+        // EX_DETAILS,BATCH_ID,source_unique_id, row_number
+<span class="nc" id="L83">        params.put(BatchConstants.BATCH_ID, exceptionReport.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L84">        params.put(BatchConstants.EX_DETAILS, exceptionReport.getExDetails());</span>
+<span class="nc" id="L85">        params.put(BatchConstants.EX_ROW_NUMBER, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L86">        params.put(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, exceptionReport.getSourceUniqueId());</span>
+<span class="nc" id="L87">        return jdbcTemplate.update(sql,</span>
+<span class="nc" id="L88">                new Object[] { exceptionReport.getExDetails(), exceptionReport.getBatchInfo().getBatchId(), exceptionReport.getSourceUniqueId(),</span>
+<span class="nc" id="L89">                exceptionReport.getRowNumber() });</span>
+    }
+    
+    @Override
+    public void saveReport(final List&lt;PrintVendorExceptionReportDto&gt; exceptionReportList) {
+
+    	//EX_DETAILS,BATCH_ID,source_unique_id, row_number
+<span class="nc" id="L96">        final String sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT;</span>
+<span class="nc" id="L97">        super.getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {</span>
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+<span class="nc" id="L100">                final PrintVendorExceptionReportDto exceptionReport = exceptionReportList.get(i);</span>
+<span class="nc" id="L101">                ps.setString(1, exceptionReport.getExDetails());</span>
+<span class="nc" id="L102">                ps.setInt(2, exceptionReport.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L103">                ps.setLong(3, exceptionReport.getSourceUniqueId());</span>
+<span class="nc" id="L104">                ps.setInt(4, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L105">            }</span>
+
+            @Override
+            public int getBatchSize() {
+<span class="nc" id="L109">                return exceptionReportList.size();</span>
+            }
+        });
+<span class="nc" id="L112">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JAXBContextFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.gov.treasury.irs.msg.form1094_1095bctransmittermessage.impl</a> &gt; <span class="el_source">JAXBContextFactory.java</span></div><h1>JAXBContextFactory.java</h1><pre class="source lang-java linenums">/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only (&quot;GPL&quot;) or the Common Development
+ * and Distribution License(&quot;CDDL&quot;) (collectively, the &quot;License&quot;).  You
+ * may not use this file except in compliance with the License.  You can
+ * obtain a copy of the License at
+ * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+ * or packager/legal/LICENSE.txt.  See the License for the specific
+ * language governing permissions and limitations under the License.
+ *
+ * When distributing the software, include this License Header Notice in each
+ * file and include the License file at packager/legal/LICENSE.txt.
+ *
+ * GPL Classpath Exception:
+ * Oracle designates this particular file as subject to the &quot;Classpath&quot;
+ * exception as provided by Oracle in the GPL Version 2 section of the License
+ * file that accompanied this code.
+ *
+ * Modifications:
+ * If applicable, add the following below the License Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * &quot;Portions Copyright [year] [name of copyright owner]&quot;
+ *
+ * Contributor(s):
+ * If you wish your version of this file to be governed by only the CDDL or
+ * only the GPL Version 2, indicate your decision by adding &quot;[Contributor]
+ * elects to include this software in this distribution under the [CDDL or GPL
+ * Version 2] license.&quot;  If you don't indicate a single choice of license, a
+ * recipient has the option to distribute your version of this file under
+ * either the CDDL, the GPL Version 2 or to extend the choice of license to
+ * its licensees as provided above.  However, if you add GPL Version 2 code
+ * and therefore, elected the GPL Version 2 license, then the option applies
+ * only if the new code is made subject to such option by the copyright
+ * holder.
+ */
+
+package us.gov.treasury.irs.msg.form1094_1095bctransmittermessage.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+
+/**
+ * This class implements the actual logic of {@link JAXBContext#newInstance}.
+ *
+ * &lt;p&gt;
+ * This class works as a facade and all the actual work is delegated to
+ * a JAXB provider that happens to be in the runtime (not necessarily the JAXB RI.)
+ * This allows the generated code to be run with any JAXB provider.
+ *
+ * &lt;p&gt;
+ * This code is only used when XJC generates interfaces/implementations.
+ *
+ * &lt;p&gt;
+ * The trick to make this work is two ObjectFactory classes that we generate
+ * in the interface/implementation mode.
+ *
+ * &lt;p&gt;
+ * The public ObjectFactory follows the spec, and this is the one that's exposed
+ * to users. The public ObjectFactory refers to interfaces, so they aren't
+ * directly usable by a JAXB 2.0 implementation.
+ *
+ * &lt;p&gt;
+ * The private one lives in the impl package, and this one is indistinguishable
+ * from the ObjectFactory that we generate for the value class generation mode.
+ * This private ObjectFactory refers to implementation classes, which are
+ * also indistinguishable from value classes that JAXB generates.
+ *
+ * &lt;p&gt;
+ * All in all, the private ObjectFactory plus implementation classes give
+ * a JAXB provider an illusion that they are dealing with value classes
+ * that happens to implement some interfaces.
+ *
+ * &lt;p&gt;
+ * In this way, the JAXB RI can provide the portability even for the
+ * interface/implementation generation mode.
+ *
+ * @since 2.0
+ * @author Kohsuke Kawaguchi
+ */
+<span class="nc" id="L89">public class JAXBContextFactory {</span>
+    private static final String DOT_OBJECT_FACTORY = &quot;.ObjectFactory&quot;;
+    private static final String IMPL_DOT_OBJECT_FACTORY = &quot;.impl.ObjectFactory&quot;;
+
+    /**
+     * The JAXB API will invoke this method via reflection
+     */
+    public static JAXBContext createContext( Class[] classes, Map properties ) throws JAXBException {
+<span class="nc" id="L97">        Class[] r = new Class[classes.length];</span>
+<span class="nc" id="L98">        boolean modified = false;</span>
+
+        // find any reference to our 'public' ObjectFactory and
+        // replace that to our 'private' ObjectFactory.
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for( int i=0; i&lt;r.length; i++ ) {</span>
+<span class="nc" id="L103">            Class c = classes[i];</span>
+<span class="nc" id="L104">            String name = c.getName();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if(name.endsWith(DOT_OBJECT_FACTORY)</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            &amp;&amp; !name.endsWith(IMPL_DOT_OBJECT_FACTORY)) {</span>
+                // we never generate into the root package, so no need to worry about FQCN &quot;ObjectFactory&quot;
+
+                // if we find one, tell the real JAXB provider to
+                // load foo.bar.impl.ObjectFactory
+<span class="nc" id="L111">                name = name.substring(0,name.length()-DOT_OBJECT_FACTORY.length())+IMPL_DOT_OBJECT_FACTORY;</span>
+
+                try {
+<span class="nc" id="L114">                    c = getClassClassLoader(c).loadClass(name);</span>
+<span class="nc" id="L115">                } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L116">                    throw new JAXBException(e);</span>
+<span class="nc" id="L117">                }</span>
+
+<span class="nc" id="L119">                modified = true;</span>
+            }
+
+<span class="nc" id="L122">            r[i] = c;</span>
+        }
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if(!modified) {</span>
+            // if the class list doesn't contain any of our classes,
+            // this ContextFactory shouldn't have been called in the first place
+            // if we simply continue, we'll just end up with the infinite recursion.
+
+            // the only case that I can think of where this could happen is
+            // when the user puts additional classes into the JAXB-generated
+            // package and pass them to JAXBContext.newInstance().
+            // Under normal use, this shouldn't happen.
+
+            // anyway, bail out now.
+            // if you hit this problem and wondering how to get around the problem,
+            // subscribe and send a note to users@jaxb.dev.java.net (http://jaxb.dev.java.net/)
+<span class="nc" id="L138">            throw new JAXBException(&quot;Unable to find a JAXB implementation to delegate&quot;);</span>
+        }
+
+        // delegate to the JAXB provider in the system
+<span class="nc" id="L142">        return JAXBContext.newInstance(r,properties);</span>
+    }
+
+
+    /**
+     * The JAXB API will invoke this method via reflection
+     */
+    public static JAXBContext createContext( String contextPath,
+                                             ClassLoader classLoader, Map properties ) throws JAXBException {
+
+<span class="nc" id="L152">        List&lt;Class&gt; classes = new ArrayList&lt;Class&gt;();</span>
+<span class="nc" id="L153">        StringTokenizer tokens = new StringTokenizer(contextPath,&quot;:&quot;);</span>
+
+        // each package should be pointing to a JAXB RI generated
+        // content interface package.
+        //
+        // translate them into a list of private ObjectFactories.
+        try {
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            while(tokens.hasMoreTokens()) {</span>
+<span class="nc" id="L161">                String pkg = tokens.nextToken();</span>
+<span class="nc" id="L162">                classes.add(classLoader.loadClass(pkg+IMPL_DOT_OBJECT_FACTORY));</span>
+<span class="nc" id="L163">            }</span>
+<span class="nc" id="L164">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L165">            throw new JAXBException(e);</span>
+<span class="nc" id="L166">        }</span>
+
+        // delegate to the JAXB provider in the system
+<span class="nc" id="L169">        return JAXBContext.newInstance(classes.toArray(new Class[classes.size()]),properties);</span>
+    }
+    
+    private static ClassLoader getClassClassLoader(final Class c) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (System.getSecurityManager() == null) {</span>
+<span class="nc" id="L174">            return c.getClassLoader();</span>
+        } else {
+<span class="nc" id="L176">            return (ClassLoader) java.security.AccessController.doPrivileged(</span>
+<span class="nc" id="L177">                    new java.security.PrivilegedAction() {</span>
+                        public java.lang.Object run() {
+<span class="nc" id="L179">                            return c.getClassLoader();</span>
+                        }
+                    });
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

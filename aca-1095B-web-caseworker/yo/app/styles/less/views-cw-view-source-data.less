@@ -1,0 +1,101 @@
+.circle-check-fill {
+  display: inline-block;
+  overflow: hidden;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  outline: none;
+  background-color: @dark-moderate-blue;
+  &:after {
+    content: "\f00c";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    color: @white;
+    font-size: 25px;
+    position: relative;
+    top: -6px;
+    left: 2.8px;
+  }
+}
+
+.circle-hollow {
+  height: 26px;
+  width: 26px;
+  margin-top: -2px;
+}
+
+.view-source-container {
+  .popover-content {
+    color: @dark-gray;
+    font-family: Roboto-Regular, Helvetica, Arial;
+    font-size: 12px;
+    padding: 5px;
+  }
+  .popover > .arrow {
+    border-width: 5px;
+    margin-left: -5px;
+  }
+
+  .text-deco-under {
+    text-decoration: underline;
+  }
+  .row-margin {
+    margin-bottom: 25px;
+  }
+  .row {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  background-color: @white;
+
+  .img-check-circle {
+    width: 29px;
+    height: 29px;
+    margin-top: 30%;
+  }
+
+  .hollow-circle {
+    width: 29px;
+    height: 29px;
+    margin-top: 30%;
+  }
+
+  .sdata-view {
+    background-color: rgba(175, 174, 175, 0.1);
+    height: 260px;
+    border-radius: 10px;
+    .row-padding-top20;
+  }
+  .border-ccc {
+    border: 1px solid #ccc;
+    .container-round;
+    padding: 14px 0 9px;
+  }
+}
+
+.checked-circle:after {
+  content: "\f00c";
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  font-size: 26px;
+  color: @white;
+  background-color: @dark-moderate-blue;
+  text-align: center;
+  border-radius: 50%;
+  padding: 3px 1px;
+}
+
+.edit-icon {
+  position: relative;
+  .edit-icon-content {
+    position: absolute;
+    left: -40px;
+  }
+}
+
+
+
+

@@ -1,0 +1,122 @@
+
+<div class="scroll-container">
+
+  <div class="margin-container" role="main" tabindex="1" aria-vm.label="{{vm.ariaLabel.title}}">
+
+    <!-- Success and Failure banner for Send Mail-->
+    <div class="row">
+      <div class="col-md-12 no-padding row-padding-bottom10">
+        <div class="margin-top-5px sendMailSuccess" tabindex="11" success-banner show-flag="vm.sendMailSuccess" success-message="vm.sendMailMsg.successLabel"></div>
+        <div class="margin-top-5px sendMailFailure" tabindex="11" failure-banner show-flag="vm.sendMailFail" error-message="vm.sendMailMsg.errorLabel + vm.citizenData.contactInfo"></div>
+      </div>
+    </div>
+
+    <!-- Screen title-->
+    <div class="row row-margin">
+      <div class="col-md-9 no-padding">
+        <span class="screen-title-action">{{vm.label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{vm.label.titleDescription}}</span>
+      </div>
+    </div>
+
+    <!-- Basic details of the citizen -->
+    <div class="row row-margin">
+
+      <div class="col-md-10">
+        <div class="col-md-4 padding-left10" tabindex="2" aria-vm.label="{{vm.ariaLabel.name}}">
+          <span class="text-gray-bold" >{{vm.label.name}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{vm.citizenData.firstName}}, {{vm.citizenData.lastName}}</span>
+        </div>
+        <div class="col-md-4" tabindex="3" aria-vm.label="{{vm.ariaLabel.dob}}">
+          <span class="text-gray-bold">{{vm.label.dob}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{vm.citizenData.dob}}</span>
+        </div>
+        <div class="col-md-4" tabindex="4" aria-vm.label="{{vm.ariaLabel.ssn}}" ng-hide="!vm.citizenData.uidType || !vm.citizenData.uidNumber">
+          <span class="text-gray-bold">{{vm.citizenData.uidType}}<span class="detail">:</span></span>
+          <span class="text-gray-reg">{{vm.citizenData.uidNumber}}</span>
+        </div>
+      </div>
+
+      <div class="col-md-2 text-right" tabindex="5" aria-vm.label="{{vm.ariaLabel.year}}">
+        <span class="text-gray-bold">{{vm.label.year}}<span class="detail">:</span></span>
+        <span class="dropdown text-gray-reg">
+          <span data-toggle="dropdown">
+            {{vm.citizenData.taxYear}}<span class="fa fa-chevron-down margin-left-5px"></span>
+          </span>
+          <ul class="dropdown-menu">
+            {{vm.citizenData.taxYear}}
+          </ul>
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Available forms -->
+    <div class="row row-padding-top10">
+      <div class="col-md-12 padding-side25 table-head text-white-heading16-med">
+        <div class="col-md-2 no-padding">{{vm.label.form}}</div>
+        <div class="col-md-2">{{vm.label.genDate}}</div>
+        <div class="col-md-3">{{vm.label.address}}</div>
+        <div class="col-md-4">
+          <div class="col-md-7">{{vm.label.city}}</div>
+          <div class="col-md-5">{{vm.label.state}}</div>
+        </div>
+        <div class="col-md-1">{{vm.label.zipCode}}</div>
+      </div>
+
+      <div class="table-data" ng-switch on="vm.citizenData.listFormInfos.length > 0">
+        <div class="col-md-12 text-black-reg" ng-repeat="record in vm.citizenData.listFormInfos" ng-switch-when="true">
+          <div class="col-md-2 no-padding" ng-switch on="vm.citizenData.bFormView">
+            <div class="all-caps text-black-med" ng-switch-when="false" tabindex="8" aria-vm.label="{{vm.ariaLabel.noPreview}}">{{vm.label.noPreviewAvailable}}</div>
+            <div ng-switch-when="true">
+              <span class="icon-margin"><i class="fa fa-file-pdf-o fa-lg blue-icon" tabindex="8" aria-vm.label="{{vm.ariaLabel.preview}}" ng-click="vm.viewPdf(record.docID)" ng-disabled="vm.viewingPdf"></i></span>
+            </div>
+          </div>
+          <div class="col-md-2">{{record.generatedDate}}</div>
+          <div class="col-md-3" tabindex="7" aria-vm.label="{{vm.ariaLabel.address}} {{record.address1}} {{record.address2}} {{record.city}} {{record.state}} zip code {{record.zipcode}}">
+            <div>{{record.address1}}<span ng-show="record.address2 != null || record.address2 != '' "></span></div>
+            <div>{{record.address2}}</div>
+          </div>
+          <div class="col-md-4">
+            <div class="col-md-7">{{record.city}}</div>
+            <div class="col-md-5">{{record.state}}</div>
+          </div>
+          <div class="col-md-1">{{record.zipcode}}</div>
+        </div>
+        <div class="col-md-12 text-black-reg" ng-switch-when="false"> No Data To Display </div>
+    </div>
+
+    <!-- Form View PDF / Send Mail -->
+    <div class="row" ng-switch on="vm.citizenData.bFormView">
+      <div ng-switch-when="true">
+        <div class="row-margin row-margin-top padding-side25 overflow-auto" tabindex="6" aria-vm.label="{{vm.checkAddress.addressCheckMessage}}">
+          <div class="col-md-12 text-gray-heading16-reg no-padding">{{vm.checkAddress.addressCheckMessage}}
+          </div>
+        </div>
+        <div class="col-md-12" ng-show="vm.viewingPdf === true">
+          <div id="frame-wrap overflow-auto">
+            <div data-display-file="vm.fileObject"></div>
+          </div>
+        </div>
+      </div>
+      <div ng-switch-when="false">
+        <div class="row-margin row-padding-top10">
+          <div class="col-md-6 padding-top-bottom5-pct padding-side25 height20em">
+            <div  class="correct-info">
+              <div class="text-gray-heading24-med">{{vm.checkAddress.correctOption}}</div>
+              <div class="text-gray-heading24-reg list-margin" tabindex="9" aria-vm.label="{{vm.ariaLabel.sendMailCorrect}}">{{vm.checkAddress.sendMailMessage}}</div>
+              <button class="btn btn-margin btn-orange row-margin-top"tabindex="10" aria-vm.label="{{vm.ariaLabel.sendMailButton}}" ng-click="vm.sendByMail(vm.citizenData.listFormInfos[0].docID)" ng-disabled="vm.sendMailSuccess || vm.sendMailFail || vm.dateMailedInterval ">{{vm.label.sendMailBtn}}</button>
+            </div>
+          </div>
+          <div class="col-md-6 padding-top-bottom5-pct padding-side25 height20em border-grey-left">
+            <div  class="incorrect-info">
+              <div class="text-gray-heading24-med">{{vm.checkAddress.incorrectOption}}</div>
+              <div class="text-gray-heading24-reg" tabindex="6">{{vm.checkAddress.addressCheckMessage}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceSystemConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">SourceSystemConfig.java</span></div><h1>SourceSystemConfig.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import java.sql.Date;
+
+<span class="nc" id="L5">public class SourceSystemConfig {</span>
+    private int    sourceCdId;
+    private String sourceCd;
+    private String supportViewPdf;
+    private String notFoundMessage;
+    private String incorrectAddressMessage;
+    private String returnAddressLine1;
+    private String returnAddressLine2;
+    private String returnAddressCity;
+    private String returnAddressState;
+    private String returnAddressZip;
+    /**
+     * TCC to utilize in production transmission.
+     */
+    private String transmitterControlCode;
+    private String updatedBy;
+    private Date   updatedDate;
+    private String printPreferences;
+    private String languagePreferences;
+    private String stateAbbreviation;
+    private String stateName;
+    private String providerName;
+    private String providerIdentificationNumber;
+    private String providerContactFirstName ;
+    private String providerContactLastName ;
+    private Long   providerContactNo;
+    private String providerAddressLine1;
+    private String providerAddressLine2;
+    private String providerCityOrTown;
+    private String providerStateOrProvince;
+    private String providerCountry;
+    private String providerZipOrPostalCode;
+    /**
+     * TCC provided by the IRS used by the state for testing.
+     */
+    private String testTcc;
+    /**
+     * TCC provided by the IRS used by Deloitte for testing.
+     */
+    private String deloitteTestTcc;
+    /** Software id assigned to Deloitte by the IRS. */
+    private String softwareId ;
+
+    public int getSourceCdId() {
+<span class="nc" id="L49">        return sourceCdId;</span>
+    }
+
+    public void setSourceCdId(int sourceCdId) {
+<span class="nc" id="L53">        this.sourceCdId = sourceCdId;</span>
+<span class="nc" id="L54">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L57">        return sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L61">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L62">    }</span>
+
+    public String getSupportViewPdf() {
+<span class="nc" id="L65">        return supportViewPdf;</span>
+    }
+
+    public void setSupportViewPdf(String supportViewPdf) {
+<span class="nc" id="L69">        this.supportViewPdf = supportViewPdf;</span>
+<span class="nc" id="L70">    }</span>
+
+    public String getNotFoundMessage() {
+<span class="nc" id="L73">        return notFoundMessage;</span>
+    }
+
+    public void setNotFoundMessage(String notFoundMessage) {
+<span class="nc" id="L77">        this.notFoundMessage = notFoundMessage;</span>
+<span class="nc" id="L78">    }</span>
+
+    public String getIncorrectAddressMessage() {
+<span class="nc" id="L81">        return incorrectAddressMessage;</span>
+    }
+
+    public void setIncorrectAddressMessage(String incorrectAddressMessage) {
+<span class="nc" id="L85">        this.incorrectAddressMessage = incorrectAddressMessage;</span>
+<span class="nc" id="L86">    }</span>
+
+    public String getReturnAddressCity() {
+<span class="nc" id="L89">        return returnAddressCity;</span>
+    }
+
+    public void setReturnAddressCity(String returnAddressCity) {
+<span class="nc" id="L93">        this.returnAddressCity = returnAddressCity;</span>
+<span class="nc" id="L94">    }</span>
+
+    public String getReturnAddressState() {
+<span class="nc" id="L97">        return returnAddressState;</span>
+    }
+
+    public void setReturnAddressState(String returnAddressState) {
+<span class="nc" id="L101">        this.returnAddressState = returnAddressState;</span>
+<span class="nc" id="L102">    }</span>
+
+    public String getReturnAddressZip() {
+<span class="nc" id="L105">        return returnAddressZip;</span>
+    }
+
+    public void setReturnAddressZip(String returnAddressZip) {
+<span class="nc" id="L109">        this.returnAddressZip = returnAddressZip;</span>
+<span class="nc" id="L110">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L113">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L117">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L118">    }</span>
+
+    public Date getUpdatedDate() {
+<span class="nc" id="L121">        return updatedDate;</span>
+    }
+
+    public void setUpdatedDate(Date updatedDate) {
+<span class="nc" id="L125">        this.updatedDate = updatedDate;</span>
+<span class="nc" id="L126">    }</span>
+
+    public String getPrintPreferences() {
+<span class="nc" id="L129">        return printPreferences;</span>
+    }
+
+    public void setPrintPreferences(String printPreferences) {
+<span class="nc" id="L133">        this.printPreferences = printPreferences;</span>
+<span class="nc" id="L134">    }</span>
+
+    public String getLanguagePreferences() {
+<span class="nc" id="L137">        return languagePreferences;</span>
+    }
+
+    public void setLanguagePreferences(String languagePreferences) {
+<span class="nc" id="L141">        this.languagePreferences = languagePreferences;</span>
+<span class="nc" id="L142">    }</span>
+
+    public String getReturnAddressMerged() {
+<span class="nc" id="L145">        return this.returnAddressCity + &quot; &quot; + this.returnAddressState + &quot; &quot; + this.returnAddressZip;</span>
+    }
+
+    public String getReturnAddressLine1() {
+<span class="nc" id="L149">        return returnAddressLine1;</span>
+    }
+
+    public void setReturnAddressLine1(String returnAddressLine1) {
+<span class="nc" id="L153">        this.returnAddressLine1 = returnAddressLine1;</span>
+<span class="nc" id="L154">    }</span>
+
+    public String getReturnAddressLine2() {
+<span class="nc" id="L157">        return returnAddressLine2;</span>
+    }
+
+    public void setReturnAddressLine2(String returnAddressLine2) {
+<span class="nc" id="L161">        this.returnAddressLine2 = returnAddressLine2;</span>
+<span class="nc" id="L162">    }</span>
+
+    public String getStateAbbreviation() {
+<span class="nc" id="L165">        return stateAbbreviation;</span>
+    }
+
+    public void setStateAbbreviation(String stateAbbreviation) {
+<span class="nc" id="L169">        this.stateAbbreviation = stateAbbreviation;</span>
+<span class="nc" id="L170">    }</span>
+
+    public String getTransmitterControlCode() {
+<span class="nc" id="L173">        return transmitterControlCode;</span>
+    }
+
+    public void setTransmitterControlCode(String transmitterControlCode) {
+<span class="nc" id="L177">        this.transmitterControlCode = transmitterControlCode;</span>
+<span class="nc" id="L178">    }</span>
+
+    public String getStateName() {
+<span class="nc" id="L181">        return stateName;</span>
+    }
+
+    public void setStateName(String stateName) {
+<span class="nc" id="L185">        this.stateName = stateName;</span>
+<span class="nc" id="L186">    }</span>
+
+    public String getProviderName() {
+<span class="nc" id="L189">        return providerName;</span>
+    }
+
+    public void setProviderName(String providerName) {
+<span class="nc" id="L193">        this.providerName = providerName;</span>
+<span class="nc" id="L194">    }</span>
+
+    public String getProviderIdentificationNumber() {
+<span class="nc" id="L197">        return providerIdentificationNumber;</span>
+    }
+
+    public void setProviderIdentificationNumber(String providerIdentificationNumber) {
+<span class="nc" id="L201">        this.providerIdentificationNumber = providerIdentificationNumber;</span>
+<span class="nc" id="L202">    }</span>
+
+    public String getProviderContactFirstName() {
+<span class="nc" id="L205">        return providerContactFirstName;</span>
+    }
+
+    public void setProviderContactFirstName(String providerContactFirstName) {
+<span class="nc" id="L209">        this.providerContactFirstName = providerContactFirstName;</span>
+<span class="nc" id="L210">    }</span>
+
+    public String getProviderContactLastName() {
+<span class="nc" id="L213">        return providerContactLastName;</span>
+    }
+
+    public void setProviderContactLastName(String providerContactLastName) {
+<span class="nc" id="L217">        this.providerContactLastName = providerContactLastName;</span>
+<span class="nc" id="L218">    }</span>
+
+    public Long getProviderContactNo() {
+<span class="nc" id="L221">        return providerContactNo;</span>
+    }
+
+    public void setProviderContactNo(Long providerContactNo) {
+<span class="nc" id="L225">        this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L226">    }</span>
+
+    public String getProviderAddressLine1() {
+<span class="nc" id="L229">        return providerAddressLine1;</span>
+    }
+
+    public void setProviderAddressLine1(String providerAddressLine1) {
+<span class="nc" id="L233">        this.providerAddressLine1 = providerAddressLine1;</span>
+<span class="nc" id="L234">    }</span>
+
+    public String getProviderAddressLine2() {
+<span class="nc" id="L237">        return providerAddressLine2;</span>
+    }
+
+    public void setProviderAddressLine2(String providerAddressLine2) {
+<span class="nc" id="L241">        this.providerAddressLine2 = providerAddressLine2;</span>
+<span class="nc" id="L242">    }</span>
+
+    public String getProviderCityOrTown() {
+<span class="nc" id="L245">        return providerCityOrTown;</span>
+    }
+
+    public void setProviderCityOrTown(String providerCityOrTown) {
+<span class="nc" id="L249">        this.providerCityOrTown = providerCityOrTown;</span>
+<span class="nc" id="L250">    }</span>
+
+    public String getProviderStateOrProvince() {
+<span class="nc" id="L253">        return providerStateOrProvince;</span>
+    }
+
+    public void setProviderStateOrProvince(String providerStateOrProvince) {
+<span class="nc" id="L257">        this.providerStateOrProvince = providerStateOrProvince;</span>
+<span class="nc" id="L258">    }</span>
+
+    public String getProviderCountry() {
+<span class="nc" id="L261">        return providerCountry;</span>
+    }
+
+    public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L265">        this.providerCountry = providerCountry;</span>
+<span class="nc" id="L266">    }</span>
+
+    public String getProviderZipOrPostalCode() {
+<span class="nc" id="L269">        return providerZipOrPostalCode;</span>
+    }
+
+    public void setProviderZipOrPostalCode(String providerZipOrPostalCode) {
+<span class="nc" id="L273">        this.providerZipOrPostalCode = providerZipOrPostalCode;</span>
+<span class="nc" id="L274">    }</span>
+
+    public String getTestTcc() {
+<span class="nc" id="L277">        return testTcc;</span>
+    }
+
+    public void setTestTcc(String testTcc) {
+<span class="nc" id="L281">        this.testTcc = testTcc;</span>
+<span class="nc" id="L282">    }</span>
+
+    public String getDeloitteTestTcc() {
+<span class="nc" id="L285">        return deloitteTestTcc;</span>
+    }
+
+    public void setDeloitteTestTcc(String deloitteTestTcc) {
+<span class="nc" id="L289">        this.deloitteTestTcc = deloitteTestTcc;</span>
+<span class="nc" id="L290">    }</span>
+
+    public String getSoftwareId() {
+<span class="nc" id="L293">        return softwareId;</span>
+    }
+
+    public void setSoftwareId(String softwareId) {
+<span class="nc" id="L297">        this.softwareId = softwareId;</span>
+<span class="nc" id="L298">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

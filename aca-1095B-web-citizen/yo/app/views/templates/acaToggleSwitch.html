@@ -1,0 +1,10 @@
+<span ng-hide="typeof(checkedFlg) === 'undefined'">
+  <span class="pull-left aca-toggle-label-left" ng-show="left.flag" ng-class="{'green' : !!checkedFlg}">{{left.label}}</span>
+  <label class="switch switch-green pull-left">
+    <input aria-label="{{readLabel}}" tabindex="4" type="checkbox" role="checkbox" aria-checked="checkedFlg"
+           class="switch-input" name="checkBoxValue" ng-checked="checkedFlg" aca-aria-click="actionFollow();"/>
+    <span class="switch-label"></span>
+    <span class="switch-handle"></span>
+  </label>
+  <span class="pull-left aca-toggle-label-right"  ng-show="right.flag" ng-class="{'green' : !checkedFlg}">{{right.label}}</span>
+</span>

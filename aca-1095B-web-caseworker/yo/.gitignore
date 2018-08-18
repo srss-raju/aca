@@ -1,0 +1,7 @@
+/node_modules
+/bower_components
+/dist
+/app/unicorn/*
+/.tmp
+/.sass-cache
+/app/styles/main.css

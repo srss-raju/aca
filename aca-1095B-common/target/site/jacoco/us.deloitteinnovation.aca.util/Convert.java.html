@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Convert.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.util</a> &gt; <span class="el_source">Convert.java</span></div><h1>Convert.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.util;
+
+import org.apache.commons.lang3.StringUtils;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.model.CoveredPerson;
+import us.deloitteinnovation.aca.model.Filer;
+
+/**
+ * Utility methods to convert simple data objects and structures to other types.
+ */
+<span class="nc" id="L11">public abstract class Convert {</span>
+
+    /**
+     * @param zipCode
+     * @return  Will return a String array of length 2.  The first value will be the first 5 digits of the zip, the second the last 4 (if applicable). Both values may be null!
+     */
+    public static String[] toZipCode(String zipCode) {
+<span class="fc" id="L18">        String [] zipFull = new String[2] ;</span>
+<span class="fc" id="L19">        String zip = zipCode ;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (zip != null) {</span>
+            // Remove non-numeric characters
+<span class="fc" id="L22">            zip = zip.replaceAll(&quot;[^0-9]&quot;, &quot;&quot;);</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">            if (zip.length() &gt; 5) {</span>
+<span class="fc" id="L24">                zipFull[1] = zip.substring(5) ;</span>
+            }
+<span class="fc" id="L26">            zipFull[0] = StringUtils.substring(zip, 0, 5) ;</span>
+        }
+<span class="fc" id="L28">        return zipFull ;</span>
+    }
+
+    /**
+     *
+     * @param filer
+     * @return
+     */
+    public static CoveredPerson getCoveredPersonFromFiler(Filer filer){
+<span class="nc" id="L37">        CoveredPerson coveredPerson = new CoveredPerson();</span>
+<span class="nc" id="L38">        coveredPerson.setSsn(filer.getRecipientSSN());</span>
+<span class="nc" id="L39">        coveredPerson.setTin(filer.getRecipientTIN());</span>
+<span class="nc" id="L40">        coveredPerson.setName(filer.getRecipientName());</span>
+<span class="nc" id="L41">        coveredPerson.setFirstName(filer.getRecipientFirstName());</span>
+<span class="nc" id="L42">        coveredPerson.setMiddleName(filer.getRecipientMiddleName());</span>
+<span class="nc" id="L43">        coveredPerson.setLastName(filer.getRecipientLastName());</span>
+<span class="nc" id="L44">        coveredPerson.setSuffix(filer.getRecipientSuffix());</span>
+
+<span class="nc" id="L46">        coveredPerson.setDob(filer.getRecipientDOB());</span>
+
+<span class="nc" id="L48">        coveredPerson.setDec(filer.getDec());</span>
+<span class="nc" id="L49">        coveredPerson.setJan(filer.getJan());</span>
+<span class="nc" id="L50">        coveredPerson.setFeb(filer.getFeb());</span>
+<span class="nc" id="L51">        coveredPerson.setMar(filer.getMar());</span>
+<span class="nc" id="L52">        coveredPerson.setApr(filer.getApr());</span>
+<span class="nc" id="L53">        coveredPerson.setMay(filer.getMay());</span>
+<span class="nc" id="L54">        coveredPerson.setJun(filer.getJun());</span>
+<span class="nc" id="L55">        coveredPerson.setJul(filer.getJul());</span>
+<span class="nc" id="L56">        coveredPerson.setAug(filer.getAug());</span>
+<span class="nc" id="L57">        coveredPerson.setSep(filer.getSep());</span>
+<span class="nc" id="L58">        coveredPerson.setOct(filer.getOct());</span>
+<span class="nc" id="L59">        coveredPerson.setNov(filer.getNov());</span>
+<span class="nc" id="L60">        coveredPerson.setDec(filer.getDec());</span>
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if(filer.getJan().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                filer.getFeb().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                filer.getMar().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                filer.getApr().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                filer.getMay().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                filer.getJun().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                filer.getJul().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                filer.getAug().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                filer.getSep().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                filer.getOct().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                filer.getNov().equals(CommonEntityConstants.COVERED)&amp;&amp;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                filer.getDec().equals(CommonEntityConstants.COVERED)){</span>
+<span class="nc" id="L74">            coveredPerson.setAll(CommonEntityConstants.CHECKED);</span>
+        } else {
+<span class="nc" id="L76">            coveredPerson.setAll(CommonEntityConstants.UNCHECKED);</span>
+        }
+<span class="nc" id="L78">        return coveredPerson;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

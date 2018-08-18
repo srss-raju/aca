@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorInputFileMetaData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.exception</a> &gt; <span class="el_source">PrintVendorInputFileMetaData.java</span></div><h1>PrintVendorInputFileMetaData.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.exception;
+
+import us.deloitteinnovation.aca.validator.AcceptedValues;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+
+/**
+ * &lt;p&gt;
+ * Class to encapsulate details of a file name.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The name of a file carries certain information about state agencies
+ * who provide these files.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * File name needs to be validated to check if it conforms to a particular
+ * pattern.
+ * &lt;/p&gt;
+ */
+
+<span class="nc" id="L26">public class PrintVendorInputFileMetaData {</span>
+
+    private String fileName;
+
+    @NotNull
+    @PrintVendorUSStateCode(acceptValues = PrintVendorStateCode.class, message = &quot;{filename.state.code.invalid}&quot;)
+    private String stateCode;
+
+    @NotNull
+    @Pattern.List({
+            @Pattern(regexp = &quot;[a-zA-Z]{3}&quot;, message = &quot;{filename.agency.code.invalid}&quot;),
+            @Pattern(regexp = &quot;^(DHS|FSS|DHH)$&quot;, message = &quot;{filename.agency.code.invalid}&quot;)
+    })
+    private String agencyCode;
+
+    @NotNull
+    @Pattern.List({
+            @Pattern(regexp = &quot;[a-zA-Z]{3}&quot;, message = &quot;{filename.system.code.invalid}&quot;),
+            @Pattern(regexp = &quot;^(DSS|ICE|EES)$&quot;, message = &quot;{filename.system.code.invalid}&quot;)
+    })
+    private String systemCode;
+
+    //TODO: If possible, make this variable a java.util.Date type and validate with appropriate annotation if available.
+    @NotNull
+    @Pattern(regexp = &quot;^(0[1-9]|1[012]|99)(0[1-9]|[129][0-9]|3[01])(20)\\d\\d$&quot;, message = &quot;{filename.date.invalid}&quot;)
+    private String date;
+
+    @NotNull
+    @Pattern(regexp = &quot;(^([0-9][1-9])$|^([1-9][0-9])$)&quot;, message = &quot;{filename.version.invalid}&quot;)
+    private String version;
+
+    @NotNull
+    @Pattern(regexp = &quot;(2015|2016)&quot;, message = &quot;{filename.tax.year.invalid}&quot;)
+    private String taxYear;
+
+    @NotNull
+    @AcceptedValues(acceptValues = {&quot;dat&quot;}, message = &quot;{filename.extension.invalid}&quot;)
+    private String extension;
+
+    @NotNull(message = &quot;{filename.record.count.invalid}&quot;)
+    @Min(value = 1, message = &quot;{filename.record.count.invalid}&quot;)
+    private Integer recordCountInHeader;
+
+
+    private Integer recordCountInFile;
+
+    /**
+     * Gets the fileName property of the input file.
+     *
+     * @return fileName
+     */
+    public String getFileName() {
+<span class="nc" id="L78">        return fileName;</span>
+    }
+
+    /**
+     * Sets the fileName property of the input file.
+     * @param fileName name of the input file
+     * @return {@link InputFileMetaData} object with the fileName property set to value specified by fileName parameter
+     */
+    public PrintVendorInputFileMetaData setFileName(String fileName) {
+<span class="nc" id="L87">        this.fileName = fileName;</span>
+<span class="nc" id="L88">        return this;</span>
+    }
+
+    /**
+     * Gets the stateCode property of the input file.
+     * @return stateCode
+     */
+    public String getStateCode() {
+<span class="nc" id="L96">        return stateCode;</span>
+    }
+
+    /**
+     * Sets the stateCode property of the input file.
+     * @param stateCode name of the input file
+     * @return {@link InputFileMetaData} object with the stateCode property set to value specified by stateCode parameter
+     */
+    public PrintVendorInputFileMetaData setStateCode(String stateCode) {
+<span class="nc" id="L105">        this.stateCode = stateCode;</span>
+<span class="nc" id="L106">        return this;</span>
+    }
+
+    /**
+     * Gets the agencyCode property of the input file.
+     * @return agencyCode
+     */
+    public String getAgencyCode() {
+<span class="nc" id="L114">        return agencyCode;</span>
+    }
+
+    /**
+     * Sets the agencyCode property of the input file.
+     * @param agencyCode name of the input file
+     * @return {@link InputFileMetaData} object with the agencyCode property set to value specified by agencyCode parameter
+     */
+    public PrintVendorInputFileMetaData setAgencyCode(String agencyCode) {
+<span class="nc" id="L123">        this.agencyCode = agencyCode;</span>
+<span class="nc" id="L124">        return this;</span>
+    }
+
+    /**
+     * Gets the systemCode property of the input file.
+     * @return systemCode
+     */
+    public String getSystemCode() {
+<span class="nc" id="L132">        return systemCode;</span>
+    }
+
+
+    /**
+     * Sets the systemCode property of the input file.
+     * @param systemCode name of the input file
+     * @return {@link InputFileMetaData} object with the systemCode property set to value specified by systemCode parameter
+     */
+    public PrintVendorInputFileMetaData setSystemCode(String systemCode) {
+<span class="nc" id="L142">        this.systemCode = systemCode;</span>
+<span class="nc" id="L143">        return this;</span>
+    }
+
+    /**
+     * Gets the date property of the input file.
+     * @return date
+     */
+    public String getDate() {
+<span class="nc" id="L151">        return date;</span>
+    }
+
+    /**
+     * Sets the date property of the input file.
+     * @param date name of the input file
+     * @return {@link InputFileMetaData} object with the date property set to value specified by date parameter
+     */
+    public PrintVendorInputFileMetaData setDate(String date) {
+<span class="nc" id="L160">        this.date = date;</span>
+<span class="nc" id="L161">        return this;</span>
+    }
+
+    /**
+     * Gets the version property of the input file.
+     * @return version
+     */
+    public String getVersion() {
+<span class="nc" id="L169">        return version;</span>
+    }
+
+    /**
+     * Sets the version property of the input file.
+     * @param version name of the input file
+     * @return {@link InputFileMetaData} object with the version property set to value specified by version parameter
+     */
+    public PrintVendorInputFileMetaData setVersion(String version) {
+<span class="nc" id="L178">        this.version = version;</span>
+<span class="nc" id="L179">        return this;</span>
+    }
+
+    /**
+     * Gets the taxYear property of the input file.
+     * @return taxYear
+     */
+    public String getTaxYear() {
+<span class="nc" id="L187">        return taxYear;</span>
+    }
+
+    /**
+     * Sets the taxYear property of the input file.
+     * @param taxYear name of the input file
+     * @return {@link InputFileMetaData} object with the taxYear property set to value specified by taxYear parameter
+     */
+    public PrintVendorInputFileMetaData setTaxYear(String taxYear) {
+<span class="nc" id="L196">        this.taxYear = taxYear;</span>
+<span class="nc" id="L197">        return this;</span>
+    }
+
+    /**
+     * Gets the extension property of the input file.
+     * @return extension
+     */
+    public String getExtension() {
+<span class="nc" id="L205">        return extension;</span>
+    }
+
+    /**
+     * Sets the extension property of the input file.
+     * @param extension name of the input file
+     * @return {@link InputFileMetaData} object with the extension property set to value specified by extension parameter
+     */
+    public PrintVendorInputFileMetaData setExtension(String extension) {
+<span class="nc" id="L214">        this.extension = extension;</span>
+<span class="nc" id="L215">        return this;</span>
+    }
+
+
+    /**
+     * Gets the recordCountInHeader property of the input file.
+     * @return recordCountInHeader
+     */
+    public Integer getRecordCountInHeader() {
+<span class="nc" id="L224">        return recordCountInHeader;</span>
+    }
+
+    /**
+     * Sets the recordCountInHeader property of the input file.
+     * @param recordCountInHeader name of the input file
+     * @return {@link InputFileMetaData} object with the recordCountInHeader property set to value specified by recordCountInHeader parameter
+     */
+    public PrintVendorInputFileMetaData setRecordCountInHeader(Integer recordCountInHeader) {
+<span class="nc" id="L233">        this.recordCountInHeader = recordCountInHeader;</span>
+<span class="nc" id="L234">        return this;</span>
+    }
+
+    /**
+     * Gets the recordCountInFile property of the input file.
+     * @return recordCountInFile
+     */
+    public Integer getRecordCountInFile() {
+<span class="nc" id="L242">        return recordCountInFile;</span>
+    }
+
+
+    /**
+     * Sets the recordCountInFile property of the input file.
+     * @param recordCountInFile name of the input file
+     * @return {@link InputFileMetaData} object with the recordCountInFile property set to value specified by recordCountInFile parameter
+     */
+    public PrintVendorInputFileMetaData setRecordCountInFile(Integer recordCountInFile) {
+
+<span class="nc" id="L253">        this.recordCountInFile = recordCountInFile;</span>
+<span class="nc" id="L254">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

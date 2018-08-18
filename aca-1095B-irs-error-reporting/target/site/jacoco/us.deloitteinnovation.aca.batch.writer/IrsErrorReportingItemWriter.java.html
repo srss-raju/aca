@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsErrorReportingItemWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.writer</a> &gt; <span class="el_source">IrsErrorReportingItemWriter.java</span></div><h1>IrsErrorReportingItemWriter.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.writer;
+
+import org.apache.commons.lang3.text.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import us.deloitteinnovation.aca.batch.dto.ErrorDetailsDTO;
+import us.deloitteinnovation.aca.batch.dto.TransmitterErrorDetailGrpDTO;
+import us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore;
+import us.deloitteinnovation.aca.repository.FilerDemographicRepository;
+import us.deloitteinnovation.aca.repository.IrsRecordDetails1095BRepository;
+import us.deloitteinnovation.aca.repository.IrsSubmissionDetailsRepository;
+import us.deloitteinnovation.aca.repository.IrsTransmissionErrorsRepository;
+import us.gov.treasury.irs.common.ErrorMessageDetail;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+/**
+ * Created by tthakore on 3/30/2016.
+ */
+<span class="fc" id="L28">public class IrsErrorReportingItemWriter implements ItemWriter&lt;ErrorDetailsDTO&gt; {</span>
+
+<span class="fc" id="L30">    private ErrorReportingObjectStore errorReportingObjectStore = ErrorReportingObjectStore.getInstance();</span>
+<span class="fc" id="L31">    private static Logger logger = LoggerFactory.getLogger(IrsErrorReportingItemWriter.class);</span>
+
+
+    @Autowired
+    IrsErrorReportingService irsErrorReportingService;
+
+    @Override
+    public void write(final List&lt;? extends ErrorDetailsDTO&gt; items) throws Exception {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if(logger.isDebugEnabled())</span>
+        {
+<span class="fc" id="L41">            logger.debug(&quot;Start of write..... &quot;);</span>
+        }
+<span class="pc bpc" id="L43" title="2 of 4 branches missed.">        if (items.size() &gt; 0 &amp;&amp; items.get(0).getTransmissionID() != null) {</span>
+<span class="nc" id="L44">            generateReportFile(items.get(0));</span>
+<span class="nc" id="L45">            irsErrorReportingService.updateDBStatus(items.get(0));</span>
+<span class="nc" id="L46">            moveFileToArchiveFolder();</span>
+        } else {
+<span class="fc" id="L48">            logger.error(&quot;IrsErrorReportingItemWriter :- File will not get processed either file has record which IRS_transmission_records table does not have  or there is exception in file or there is no file to process...... &quot;);</span>
+        }
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if(logger.isDebugEnabled()) {</span>
+<span class="fc" id="L51">            logger.debug(&quot;End of write..... &quot;);</span>
+        }
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * @param item generates report file for received error xml.
+     **/
+    public void generateReportFile(ErrorDetailsDTO item) throws IOException {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if(logger.isDebugEnabled())</span>
+        {
+<span class="nc" id="L61">            logger.debug(&quot;Start of generateReportFile..... &quot;);</span>
+        }
+
+<span class="nc" id="L64">        String outputFileFolder = errorReportingObjectStore.getOutPutFolderPath();</span>
+<span class="nc" id="L65">        String fileName = errorReportingObjectStore.getReceiptIdFromFileName(errorReportingObjectStore.getCurrentFileName()) + &quot;_&quot; + getDateString() + &quot;_report.dat&quot;;</span>
+<span class="nc" id="L66">        String transmissionID = (item.getTransmissionID());</span>
+<span class="nc" id="L67">        File file = new File(outputFileFolder);</span>
+<span class="nc" id="L68">        File exceptionReportFile = new File(file, fileName);</span>
+<span class="nc" id="L69">        FileWriter fw = new FileWriter(exceptionReportFile.getAbsolutePath());</span>
+<span class="nc" id="L70">        fw.write(&quot;Error File Name :-&quot; + errorReportingObjectStore.getCurrentFileName() + &quot;\n&quot;);</span>
+<span class="nc" id="L71">        fw.write(&quot;Original File Name :-&quot; + errorReportingObjectStore.receiptTransmissionIDMap.get(item.getReceiptID()).getTransmissionFileName() + &quot;\n&quot;);</span>
+<span class="nc" id="L72">        fw.write(&quot;Receipt Id :-&quot; + item.getReceiptID() + &quot;\n&quot;);</span>
+<span class="nc" id="L73">        fw.write(&quot;Transmission Id :-&quot; + transmissionID + &quot;\n&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">       if(item.getSubmissionLvlStatusCd() != null)</span>
+       {
+<span class="nc" id="L76">           fw.write(&quot;Submission Level Status :-&quot; + item.getSubmissionLvlStatusCd() + &quot;\n&quot;);</span>
+       }
+<span class="nc" id="L78">        fw.write(&quot;Summary :- \n\t Total Errors Received :- &quot; + (errorReportingObjectStore.getRecordErrorCount()+ errorReportingObjectStore.getSubmissionErrorCount())+ &quot;\n&quot;);</span>
+<span class="nc" id="L79">        fw.write(&quot;\t Total Number of Records Errors :- &quot; + errorReportingObjectStore.getRecordErrorCount() + &quot;\n&quot;);</span>
+<span class="nc" id="L80">        fw.write(&quot;\t Total Number of Submission Errors :- &quot; + errorReportingObjectStore.getSubmissionErrorCount() + &quot;\n&quot;);</span>
+<span class="nc" id="L81">        fw.write(&quot;Error Details :- \n&quot;);</span>
+        //updated below string format to move error message text to last element and added tab to open .dat file into excel.
+<span class="nc" id="L83">        String formatStr = &quot;%-15s \t%-8s \t%-15s \t%-15s \t%-15s \t%-75s \t%-25s \t%-25s \t%-300s \t%-1000s%n&quot;;</span>
+<span class="nc" id="L84">        fw.write(String.format(formatStr, &quot;SubmissionID&quot;, &quot;Record ID&quot;, &quot;Recipient Id&quot;, &quot;Source Code&quot;, &quot;Error Message Code&quot;, &quot;Error Element&quot;,&quot;Responsible for Triage&quot;,&quot;Error Category&quot;,&quot;Error Message Text&quot;,&quot;Business Rule&quot;));</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (TransmitterErrorDetailGrpDTO errorObject : item.getTransmitterErrorDetailGrps()) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            String submissionID = (errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() != null) ? errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId().split(&quot;\\|&quot;)[1] : errorObject.getTransmitterErrorDetailGrp().getUniqueRecordId().split(&quot;\\|&quot;)[1];</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            String recordID = (errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() != null) ? &quot;&quot; : errorObject.getTransmitterErrorDetailGrp().getUniqueRecordId().split(&quot;\\|&quot;)[2];</span>
+<span class="nc" id="L88">            String recepientID = String.valueOf(errorObject.getRecepientUID());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            String sourceCD = (errorObject.getSourceCD() != null)?errorObject.getSourceCD():&quot;&quot;;</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">            if (errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails() != null &amp;&amp; errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails().size() &gt; 0) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                for (ErrorMessageDetail obj : errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails()) {</span>
+<span class="nc" id="L92">                    String eMsgCode = obj.getErrorMessageCd();</span>
+<span class="nc" id="L93">                    String eMsgText = obj.getErrorMessageTxt();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                    String xPath = (obj.getXpathContent() != null)?obj.getXpathContent():&quot;&quot;;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                    String triageOwner = (errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode) != null)?errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode).getErrorOwner():&quot;N/A&quot;;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                    String buisinessRule = (errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode) != null)?errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode).getBusinessRule():&quot;N/A&quot;;</span>
+<span class="nc" id="L97">                            logger.info(&quot;writing into report file sourceUnique ID {}&quot;, recepientID);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                    String errorCategory = (errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode) != null)?errorReportingObjectStore.irsErrorCodeOwnerMapEntity.get(eMsgCode).getErrorReportCategory():&quot;N/A&quot;;</span>
+
+<span class="nc" id="L100">                    fw.write(String.format(formatStr, submissionID, recordID, recepientID, sourceCD, eMsgCode,  xPath,triageOwner,errorCategory,eMsgText,buisinessRule));</span>
+<span class="nc" id="L101">                }</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            } else if (submissionID != null) {</span>
+                //commented  code to remove submission id  from report file which does not have error details grp and error message code.
+               // fw.write(String.format(formatStr, submissionID, recordID, recepientID, sourceCD, &quot;&quot;, &quot;&quot;, &quot;&quot;));
+            }
+<span class="nc" id="L106">        }</span>
+<span class="nc" id="L107">        fw.close();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if(logger.isDebugEnabled())</span>
+        {
+<span class="nc" id="L110">            logger.debug(&quot;End of generateReportFile..... &quot;);</span>
+        }
+<span class="nc" id="L112">    }</span>
+
+    public String getDateString() {
+<span class="fc" id="L115">        java.util.Date date = new java.util.Date(System.currentTimeMillis());</span>
+<span class="fc" id="L116">        SimpleDateFormat outputDateFormat = new SimpleDateFormat(&quot;MMddYYYY&quot;);</span>
+<span class="fc" id="L117">        return outputDateFormat.format(date);</span>
+    }
+
+    public void moveFileToArchiveFolder() {
+<span class="nc" id="L121">        File xmlFile = new File(errorReportingObjectStore.getInputFolderPath()+&quot;XML/&quot;+ errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (xmlFile.renameTo(new File(errorReportingObjectStore.getInputFolderPath() + &quot;Processed/&quot; + xmlFile.getName()))) {</span>
+<span class="nc" id="L123">            logger.info(&quot;File is moved successfully! filename :-&quot; + errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc" id="L124">            xmlFile.delete();</span>
+        } else {
+<span class="nc" id="L126">            logger.info(&quot;Error in moving and deleting file filename :- {}&quot;,errorReportingObjectStore.getCurrentFileName());</span>
+        }
+<span class="nc" id="L128">        errorReportingObjectStore.getProcessedFileNameList().add(errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc" id="L129">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

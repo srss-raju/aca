@@ -1,0 +1,16 @@
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\step\ProcessReceiptReader.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\Aca109495ProcessReceiptApplication.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\reader\ConfirmationFileWriter.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\util\ProcessReceiptUtil.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\ProcessReceiptListener.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\reader\ConfirmationFileReader.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\dto\ProcessReceiptDto.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\util\BatchHistoryCleanupTasklet.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\reader\ConfirmationFileProcessor.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\dto\StepResult.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\ProcessReceiptConfiguration.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\repository\PrintDetailsMailRepository.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\util\ProcessReceiptConstants.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\step\ProcessReceiptWriter.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\step\ProcessReceiptProcessor.java
+C:\PROJECTS\ACA1095B\1095b\aca-1095B-process-receipt\src\main\java\us\deloitteinnovation\aca\batch\receipt\ProcessReceiptBatchJobConfiguration.java

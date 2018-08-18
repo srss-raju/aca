@@ -1,0 +1,14 @@
+<jxb:bindings
+		xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+		version="2.1">
+
+	<jxb:globalBindings typesafeEnumMaxMembers="2000"/>
+
+	<!--<jxb:bindings schemaLocation="../xsd/air_schemaspck_ty2015v2/COMMON/IRS-CBC.xsd"-->
+			<!--node="//xsd:element[@name='TaxYr']">-->
+		<!--<jxb:javaType name="java.util.Date" xmlType="xs:date"-->
+			<!--printMethod="us.deloitteinnovation.aca.jaxb.adapter.YYYYDateAdapter.printMethod"-->
+			<!--parseMethod="us.deloitteinnovation.aca.jaxb.adapter.YYYYDateAdapter.parseMethod"/>-->
+	<!--</jxb:bindings>-->
+
+</jxb:bindings>

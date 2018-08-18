@@ -1,0 +1,41 @@
+<EntityDescriptor ID="SM18b68344a080f7ad1f4a524cba1a78fcab8ec0862ce" entityID="RottweilerIDP-1095b" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+    <IDPSSODescriptor WantAuthnRequestsSigned="false" ID="SM1820175b3ee75743009676308317bab2eb90050eab8" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <KeyDescriptor use="encryption">
+            <ns1:KeyInfo Id="SM15eb0d680c75598bd96b39b52a26fe0eab8f2748396" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#">
+                <ns1:X509Data>
+                    <ns1:X509IssuerSerial>
+                        <ns1:X509IssuerName>CN=Certificate Manager,OU=eTrust IAM,O=CA,C=US</ns1:X509IssuerName>
+                        <ns1:X509SerialNumber>10199363229344782427</ns1:X509SerialNumber>
+                    </ns1:X509IssuerSerial>
+                    <ns1:X509Certificate>MIICBjCCAW8CCQCNi2rRjEbYWzANBgkqhkiG9w0BAQUFADBNMQswCQYDVQQGEwJVUzELMAkGA1UEChMCQ0ExEzARBgNVBAsTCmVUcnVzdCBJQU0xHDAaBgNVBAMTE0NlcnRpZmljYXRlIE1hbmFnZXIwHhcNMDcwMTE5MTYxODMyWhcNMzQwNjA2MTYxODMyWjBCMQswCQYDVQQGEwJVUzELMAkGA1UEChMCQ0ExEzARBgNVBAsTCmVUcnVzdCBJQU0xETAPBgNVBAMTCElkUCBEZW1vMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXieZrUdIO09TpzZeJ18aRGA1ZiDhRKffJxRm6rhhNnR8l+HXfijT4lSvQivjOv5hbruTvVU+ynT07hKHN5fPSJX++Gu0hP3SnZiDf4nB3jwG8qHJr3fDnlof/o23HAemnFUz6b+Ah/dk4HWZvn0SAmek6RwXXxg2Zi5WFAGECiQIDAQABMA0GCSqGSIb3DQEBBQUAA4GBADmktZ4dyWs3ege2T7xgzXCbIm88VoVhbUit/5xP+xVcNZZXXnoyWfHgUCxLCelBfIF/2tqThCQvMlthuu1SSOX4UuGMFnoYI4n2P91WWGDrYm1mlFXgjemc0vVZNBpSgQpK/hipzR+5HHannv68SiFW7suyYAX9AixVcYEzBYmO</ns1:X509Certificate>
+                    <ns1:X509SubjectName>CN=IdP Demo,OU=eTrust IAM,O=CA,C=US</ns1:X509SubjectName>
+                </ns1:X509Data>
+            </ns1:KeyInfo>
+        </KeyDescriptor>
+        <KeyDescriptor use="signing">
+            <ns2:KeyInfo Id="SM1aabc7b18d142946b7858f79cf52c64d12a57ff492" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#">
+                <ns2:X509Data>
+                    <ns2:X509IssuerSerial>
+                        <ns2:X509IssuerName>CN=DC01.DCI.local</ns2:X509IssuerName>
+                        <ns2:X509SerialNumber>1037651269</ns2:X509SerialNumber>
+                    </ns2:X509IssuerSerial>
+                    <ns2:X509Certificate>MIIC8zCCAdugAwIBAgIEPdlNRTANBgkqhkiG9w0BAQsFADAZMRcwFQYDVQQDEw5EQzAxLkRDSS5sb2NhbDAeFw0xNjAzMDUxNzIyMjZaFw0xODAzMDUxNzIyMjZaMBkxFzAVBgNVBAMTDkRDMDEuRENJLmxvY2FsMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk2RFBPlBsicHSdebHrd21ZUJD/SzRpVZfIA7b/Q+QnytN7008lRlPPWfQNaj7iGai+RAZmXAQ56G9JcWcw+Yv7yDugF2gcm7lkYAAEu8+C2YnxLvDE8YuOSLmXNm/4JNQFzS2h1gwvWKLYmkg5U+ReDj7DlBLAtf/n43CbODmsdx7UCIRX818/WIFEeldFsknfiLEzQF50JAoKJUrGYv3erJVkkkBG+Jd9dhJY+MPMYXVTbmYS2J27Arlg6Nd+/ExbHVPe/0KHz1ObHZ4TldsFQ5vW9ZMJyrUayhThMbYwyOTrUGBvXvt4HzYQST35qmF7Jvr3iSJ8sPMV13udd5EQIDAQABo0MwQTATBgNVHSUEDDAKBggrBgEFBQcDATALBgNVHQ8EBAMCBDAwHQYDVR0OBBYEFCI1GGngr6ZEBVESTm3dCvEw6jSUMA0GCSqGSIb3DQEBCwUAA4IBAQBwjbA5eSZbuMGRzyWLCRWd6besjvHqOnscJThoJ5HYlU+blInDEqcQ7FD5DGrMAjCUqTMY1fUTNhMhfJmNoDngeuKjknXFznmqhFHiBf/h/07hJ4zLxsy1ryd9ZR2AmVTox0uMZjTvd9EBZ8bF5yH9IAIIR0NO9vcf4py++vYMZ3oc2Jv4scw7zF+y/BCi/h9a11y3JeVXBNLNcy3mK3nlvnmlkm1J7AUTwGmksUnDXP7u/7qviMxrtHQrZLMb2MNdP47Ysrm9OHhSWggFk25mRiZ0Qp2GCa3laoU+vNQkIeT7yMaLKTRGL5e3UOz+dYrVt5WoxtjIHnO30gybXZgb</ns2:X509Certificate>
+                    <ns2:X509SubjectName>CN=DC01.DCI.local</ns2:X509SubjectName>
+                </ns2:X509Data>
+            </ns2:KeyInfo>
+        </KeyDescriptor>
+        <ArtifactResolutionService index="0" isDefault="true" Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://1095b.deloitteinnovation.space/affwebservices/public/saml2ars"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://1095b.deloitteinnovation.space/affwebservices/public/saml2slo"/>
+        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://1095b.deloitteinnovation.space/affwebservices/public/saml2sso"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://1095b.deloitteinnovation.space/affwebservices/public/saml2sso"/>
+        <ns3:Attribute Name="AssertionAttributeCompany" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns3="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns4:Attribute Name="AssertionAttributeFirstTimeLogin" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns4="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns5:Attribute Name="AssertionpostOfficeBox" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns5="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns6:Attribute Name="AssertionAttributeFirstName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns6="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns7:Attribute Name="AssertionAttributeDN" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns7="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns8:Attribute Name="AssertionAttributeEmail" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns8="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns9:Attribute Name="AssertionAttributeLastName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns9="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <ns10:Attribute Name="AssertionAttributeGroup" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" xmlns:ns10="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    </IDPSSODescriptor>
+</EntityDescriptor>

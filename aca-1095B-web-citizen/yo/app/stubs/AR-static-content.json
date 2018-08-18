@@ -1,0 +1,68 @@
+{
+  "title" : "You can access and print your forms beginning March 30.",
+  "actDetails": "Federal law requires the Department of Human Services to send a tax Form 1095-B to people who had at least one month of coverage during 2016 through Arkansas Medicaid, ARKids or the Health Care Independence Program. The Department of Human Services will begin mailing these forms in January. All forms should be mailed out by February 1, 2017. In addition to this Form, you may receive other 1095-B Forms and health care tax documents such as Form 1095-A and Form 1095-C from other providers. ",
+  "actDetails_1": "The Department of Human Services will begin mailing these Forms in January with no Form being postmarked later than February 1, 2017.",
+  "importance" : "It is important you keep this form!",
+  "formDetail" : {
+    "overview": "The 1095-B is proof that you, your spouse and/or your dependents have at least minimum qualifying health coverage. If you had a break in health care coverage for the tax year, you may have to pay an individual shared responsibility payment, also known as a tax penalty. For more information about Form 1095-B, and other health care tax documents, please visit ",
+    "contactUrl" : "IRS.gov/aca",
+    "contactInfo" : "1-800-TAX-Form",
+    "formLabel": "To see a copy of the IRS 1095-B form. Please visit",
+    "sampleUrl" : "www.irs.gov/pub/irs-prior/f1095b--2015.pdf",
+    "detailTitle" : "Information on the 1095-B",
+    "description" : "Form 1095-B provides information about your health coverage. The Form has four parts:",
+    "parts": [
+      {
+        "bullet": "Part I",
+        "detail": "identifies the person who had the qualifying coverage",
+        "color": ""
+      },
+      {
+        "bullet": "Part II",
+        "detail": "does not apply to Medicaid, ARKids and the Health Care ",
+        "color": "Independence Program participants"
+      },
+      {
+        "bullet": "Part III",
+        "detail": "identifies the Department of Human Services (DHS)",
+        "color": ""
+      },
+      {
+        "bullet": "Part IV",
+        "detail": "lists the person who had the qualifying coverage. DHS has chosen to not combine households. Each individual person with ",
+        "color": "qualifying coverage will be mailed a separate Form."
+      }
+    ],
+    "line1": "There is a box that will be checked if the person had coverage for ",
+    "line1_1": "all 12 months of the year.",
+    "line2" : "If that person wasn't covered for the full year, there is a box for each month; the months the person was covered will be checked.",
+    "purpose" : {
+      "title" : "Purpose of the Form",
+      "description": "Having a 1095-B in hand is proof that you had the type of coverage required by the Affordable Care Act. The tax penalty for not having coverage,  which is referred to as the \"individual shared responsibility payment\", is based in part on how long you or members of your household were uninsured. Gaps in coverage of three months or less are exempt from the penalty. If you were uninsured for part of the year, the check boxes in Part IV will help ",
+      "description_1": "you calculate the penalty that applies, if any.",
+      "description2" : "Uninsured individuals may still be able to avoid the penalty if they have an exemption. Exemptions are available for several reasons, including financial hardship and membership in certain groups.",
+      "urlLabel" : "You can find more information about qualifying exemptions at this website:",
+      "url" : "https://www.healthcare.gov/health-coverage-exemptions/Forms-how-to-apply/"
+    },
+    "incomeTaxQuestions" : {
+      "title" : "Income Tax Questions",
+      "detail" : "For any questions like the ones below, please refer to ",
+      "url" : "www.irs.gov",
+      "questions" : [
+        {"text": "Do I have to file an income tax return?"},
+        {"text": "Can you help me complete my income tax return?"},
+        {"text": "Can you help me complete Form 8965 or Form 8962?"},
+        {"text": "How do I get a copy of the Form 8965 or Form 8962?"},
+        {"text": "How do I use the Form 1095-B to fill out my Form 1040?"},
+        {"text": "I received a corrected Form 1095-B, do I need to amend my income tax return?"},
+        {"text": "I can’t file/ can’t pay my tax liabilities by April 15th, what should I do?"},
+        {"text": "What happens if I don’t file my income tax return?"},
+        {"text": "Do I qualify for a health coverage exemption (an exemption from the individual shared responsibility provision)?"},
+        {"text": "How much is my individual shared responsibility provision payment? "}
+      ],
+      "moreQuestions": "Still have questions?",
+      "contactDetails" : "Call us Monday - Friday from 7:00 am to 7:00 pm at (844) 461-3860"
+    }
+
+  }
+}

@@ -1,0 +1,490 @@
+/*** views/templates/acaActualForm.html ***/
+//1095B form specific CSS: Used both by browser and printer
+@media print{
+
+  @page {
+    size: 8.5in 11in;
+    margin: 0.5in 0.25in 0.5in 0.25in;
+  }
+
+  body {
+    font-family: Roboto, Helvetica, Arial;
+  }
+}
+
+.citizen-view-form-actual{
+
+  .form-page{
+    border: 1px solid @white;
+    background-color: @white;
+    width: @cform-width + 50px;
+    padding: 25px;
+    margin: 25px auto;
+
+    box-shadow: 0 0 2px rgba(0,0,0,0.6);
+    -moz-box-shadow: 0 0 2px rgba(0,0,0,0.6);
+    -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.6);
+    -o-box-shadow: 0 0 2px rgba(0,0,0,0.6);
+  }
+
+}
+
+.citizen-form-page1{
+  margin: 0px auto;
+  width: @cform-width;
+  height: @cform-height;
+
+  .cf-info{
+    width: 100%;
+    height: 40px;
+    font-family: Roboto-Black, Helvetica, Arial;
+    font-size: 20px;
+    color: @cform-gray !important;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .cf-title{
+    width: 100%;
+    height: 70px;
+    border-bottom: 2px solid @cform-borders;
+    font-family: Roboto-Medium, Helvetica, Arial;
+    font-size: 9px;
+    position: relative;
+
+    .cf-title-part1{
+      width: 17%;
+      float: left;
+      position: relative;
+      top: 5px;
+
+      .cf-title-part1-text{
+        position: relative;
+        top: -5px;
+      }
+    }
+
+    .cf-title-part2{
+      position: absolute;
+      left: 25%;
+      width: 50%;
+      top: 5px;
+      text-align: center;
+
+      .cf-title-part2-info {
+        font-family: Roboto-Bold, Helvetica, Arial;
+        position: relative;
+        top: -5px;
+      }
+
+      .cf-title-part2-tagline {
+        position: relative;
+        top: -5px;
+      }
+
+      .cf-title-status{
+        border: 2px solid @cform-borders;
+        text-transform: uppercase;
+        position: absolute;
+        left: -7%;
+        top: 7px;
+        padding: 3px;
+        font-size: 10px;
+        font-family: Roboto-Regular, Helvetica, Arial;
+        color: @cform-borders !important;
+      }
+
+    }
+
+    .cf-title-part3{
+      width: 10%;
+      float: right;
+      right: 15%;
+      position: absolute;
+      top: 13px;
+
+      .cf-title-status-options{
+        height: 25px;
+        position: relative;
+      }
+
+      .cf-checkbox{
+        border: 1px solid @cform-borders;
+        width: 18px;
+        height: 18px;
+        display: inline-block;
+
+        .cf-mark {
+          font-size: 15px;
+          height: 100%;
+          transform: translateY(-10%);
+          text-align: center;
+        }
+
+      }
+
+      .cf-title-status-box{
+        text-transform: uppercase;
+        font-family: Roboto-Medium, Helvetica, Arial;
+        font-size: 12px;
+        display: inline-block;
+        position: absolute;
+        left: 20px;
+        top: 2px;
+      }
+
+    }
+
+    .cf-title-part4{
+      width: 13%;
+      float: right;
+      text-align: right;
+      position: relative;
+      top: -10px;
+
+      .cf-title-no1{
+        font-size: 12px;
+        position: relative;
+        top: 7px;
+        right: 2px;
+      }
+
+      .cf-title-no2{
+        position: relative;
+        top: -5px;
+        right: 2px;
+      }
+
+    }
+
+    .cf-title-bold{
+      font-family: Roboto-Medium, Helvetica, Arial;
+      font-size: 28px;
+      color: @cform-title-black;
+    }
+
+  }
+
+  .cf-content{
+    font-size: 12px;
+    padding-top: 25px;
+    height: 860px;
+    color: @cform-title-black !important;
+
+    .cf-part{
+      width: 62px;
+      float: left;
+      padding-left: 3px;
+      text-transform: uppercase;
+    }
+    .cf-text-paddings{
+      padding: 6px;
+    }
+    .cf-checkbox{
+      border: 1px solid @cform-borders;
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    .cf-policy{
+      text-align: center;
+      padding-top: 3px;
+    }
+    .cf-text{
+      word-wrap: break-word;
+      padding: 10px 15px;
+    }
+    .cf-text-detail{
+      word-wrap: break-word;
+      padding: 15px 40px 15px 15px;
+    }
+    .cf-numbers{
+      line-height: 30px;
+      padding-left: 15px;
+    }
+    .cf-valign{
+      position: relative;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      transform: translateY(-50%);
+    }
+    .cf-halign{
+      text-align: center;
+    }
+
+    .cf-name {
+      margin-bottom: 9px;
+      height: 20px;
+    }
+    .cf-street-1 {
+      margin-bottom: 9px;
+      height: 20px;
+    }
+    .cf-street-2 {
+      margin-bottom: 9px;
+      height: 20px;
+    }
+    .cf-city {
+      height: 20px;
+    }
+
+    .cf-entries{
+      font-family: Roboto-Regular, Helvetica, Arial;
+      font-size: 9px;
+      text-align: center;
+      position: relative;
+    }
+    .cf-name-entry{
+      font-family: Roboto-Regular, Helvetica, Arial;
+      font-size: 9px;
+    }
+    .cf-month-name{
+      height: 100%;
+      width: 8.333333%;
+      float: left;
+      border-right: 2px solid @cform-borders;
+    }
+    .cf-privacy{
+      font-family: Roboto-Medium, Helvetica, Arial;
+      font-size: 9px;
+    }
+  }
+
+}
+
+.citizen-form-page2{
+
+  margin: 0px auto;
+  width: @cform-width;
+  height: 900px;
+
+  .cf-title{
+    font-family: Roboto-Medium, Helvetica, Arial;
+    font-size: 9px;
+    height: 20px;
+
+    .cf-form-name{
+      float: left;
+    }
+    .cf-page-no{
+      float: right;
+    }
+  }
+
+  .cf-content{
+    font-size: 12px;
+    padding-top: 15px;
+
+    .cf-instructions{
+      font-family: Roboto-Medium, Helvetica, Arial;
+      font-size: 12px;
+      color: @cform-title-black;
+    }
+
+    .cf-tip-icon{
+      background-image: url('../images/tip-icon.png');
+      background-repeat: no-repeat;
+      background-size: cover;
+      width: 50px;
+      height: 50px;
+      float: left;
+      margin-right: 10px;
+    }
+    .cf-caution-icon{
+      background-image: url('../images/caution-icon.png');
+      background-repeat: no-repeat;
+      background-size: cover;
+      width: 50px;
+      height: 50px;
+      float: left;
+      margin-right: 10px;
+    }
+
+  }
+
+}
+
+.cf-link {
+  color: @black;
+  text-decoration: underline;
+}
+
+.cf-link-title {
+  color: @black;
+}
+
+.cf-circle {
+  background-color: @black !important;
+  color: @white !important;
+  text-align: center;
+  line-height: 50px;
+  width: 50px;
+  height: 50px;
+  font-size: 25px;
+  float: left;
+  margin-right: 5px;
+  padding-top: 2px;
+  border-radius: 50px;
+  -moz-border-radius: 50px;
+  -webkit-border-radius: 50px;
+  position: relative;
+}
+
+.cf-triangle {
+  width: 0;
+  height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-bottom: 32px solid @white;
+  position: relative;
+  top: 5px;
+  left: 9px;
+}
+
+.cf-caution-1 {
+  width: 3px;
+  height: 14px;
+  background-color: @black !important;
+  position: absolute;
+  top: 16px;
+  left: 23px;
+}
+
+.cf-caution-2 {
+  width: 3px;
+  height: 3px;
+  background-color: @black !important;
+  position: absolute;
+  top: 34px;
+  left: 23px;
+}
+
+.cf-width-50p{
+  width: 50%;
+  float: left;
+}
+.cf-width-100p{
+  width: 100%;
+  float: left;
+}
+.cf-width-50{
+  width: 50px;
+  float: left;
+}
+.cf-width-90{
+  width: 90px;
+  float: left;
+}
+.cf-width-125{
+  width: 100px;
+  float: left;
+}
+.cf-width-140{
+  width: 140px;
+  float: left;
+}
+.cf-width-320{
+  width: 320px;
+  float: left;
+}
+
+.cf-height-50p{
+  height: 50%;
+}
+.cf-height-100p{
+  height: 100%;
+}
+.cf-height-20{
+  height: 20px;
+  line-height: 20px;
+}
+.cf-height-30{
+  height: 30px;
+}
+.cf-height-50{
+  height: 50px;
+}
+.cf-height-60{
+  height: 60px;
+}
+.cf-height-130{
+  height: 130px;
+}
+.cf-height-150{
+  height: 150px;
+}
+.cf-height-180{
+  height: 180px;
+}
+
+.cf-border{
+  border: 2px solid @cform-borders;
+}
+.cf-border-left{
+  border-left: 2px solid @cform-borders;
+}
+.cf-border-right{
+  border-right: 2px solid @cform-borders;
+}
+.cf-border-bottom{
+  border-bottom: 2px solid @cform-borders;
+}
+.cf-border-top{
+  border-top: 2px solid @cform-borders;
+}
+.cf-border-left-right{
+  border-left: 2px solid @cform-borders;
+  border-right: 2px solid @cform-borders;
+}
+.cf-border-top-right{
+  border-top: 2px solid @cform-borders;
+  border-right: 2px solid @cform-borders;
+}
+.cf-border-top-bottom{
+  border-top: 2px solid @cform-borders;
+  border-bottom: 2px solid @cform-borders;
+}
+.cf-border-right-rem{
+  border-top: 2px solid @cform-borders;
+  border-right: 2px solid @cform-borders;
+  border-bottom: 2px solid @cform-borders;
+}
+.cf-border-bottom-rem{
+  border-left: 2px solid @cform-borders;
+  border-right: 2px solid @cform-borders;
+  border-bottom: 2px solid @cform-borders;
+}
+
+.cf-float-left{
+  float: left;
+  margin-right: 10px;
+}
+
+.cf-italic{
+  font-style: italic;
+}
+
+.cf-padding-right-2p{
+  padding-right: 2%;
+}
+.cf-padding-left-2p{
+  padding-left: 2%;
+}
+.cf-padding-left-7{
+  padding-left: 7px;
+}
+.cf-bold{
+  font-family: Roboto-Medium, Helvetica, Arial;
+  font-size: 12px;
+  color: @cform-title-black;
+  font-weight: bold;
+}
+
+//While printing hyperlink content was printing, to avoid it the following css
+a[href]:after {
+  content: "";
+}

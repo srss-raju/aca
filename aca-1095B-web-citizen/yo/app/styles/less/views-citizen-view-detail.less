@@ -1,0 +1,28 @@
+.citizen-view-detail-container{
+  position: fixed;
+  width: 100%;
+  height: calc(~'100% - @{footer-height} - @{navbar-height}');
+
+  .citizen-view-form-header{
+    height: 60px;
+    padding: 10px 35px;
+    .title{
+      font-family: Roboto-Regular, Helvetica, Arial;
+      font-size: 28px;
+      color: @dark-blue;
+    }
+    .btn{
+      width: 106px;
+    }
+  }
+
+  .citizen-view-form-detail{
+    background-color: @light-gray;
+    //padding-top: 25px;
+    //padding-bottom: 25px;
+    width: 100%;
+    height: calc(~'100% - 60px');
+  }
+
+
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3FIExecutionListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.listeners</a> &gt; <span class="el_source">Step3FIExecutionListener.java</span></div><h1>Step3FIExecutionListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.listeners;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVProcessor;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVWriter;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3InitialFilerList;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import javax.sql.DataSource;
+import java.util.ArrayList;
+/**
+ * &lt;p&gt;
+ *    Step3FIExecutionListener class createdto gether all the unique list of uid's available in file.
+ *    target  is to create list of all sourcecd-sourceUID and pass it to reader to process further
+ *
+ *    @see Step3RecordValidationService
+ *    @see us.deloitteinnovation.aca.batch.FileIngestionJobConfiguration
+ *    @see us.deloitteinnovation.aca.batch.ingest.step3.Step3FileIngestionCRVReader
+ * &lt;/p&gt;
+ */
+@Component
+<span class="nc" id="L32">public class Step3FIExecutionListener extends StepExecutionListenerSupport {</span>
+
+
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    ProfileProperties profileProperties;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    Step3RecordValidationService step3RecordValidationService;
+
+    @Autowired
+    Step3InitialFilerList step3InitialFilerList;
+
+<span class="nc" id="L48">    private static Logger logger = LoggerFactory.getLogger(Step3RecordSkipListener.class);</span>
+
+    private StepExecution stepExecution;
+    private String state;
+    private String taxYear;
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L56">        logger.info(&quot;start of reading initial records from DB Step3ExecutionListener class and beforeStep method &quot;);</span>
+<span class="nc" id="L57">        this.stepExecution = stepExecution;</span>
+        try
+        {
+<span class="nc" id="L60">            step3InitialFilerList.getStep3InitialFilerList().addAll(step3RecordValidationService.getRecordsFromFileByStateandTaxYear(state, taxYear));</span>
+        }
+<span class="nc" id="L62">        catch (Exception e)</span>
+        {
+<span class="nc" id="L64">            logger.error(&quot;&lt;--------------------------------------------------------------------------------------&gt;&quot;);</span>
+<span class="nc" id="L65">            logger.error(&quot;Step3ExecutionListener :beforeStep :- Error in reading records for validation. &quot;, e);</span>
+<span class="nc" id="L66">            logger.error(&quot;&lt;--------------------------------------------------------------------------------------&gt;&quot;);</span>
+
+<span class="nc" id="L68">            throw  new IllegalArgumentException(e);</span>
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">        logger.info(&quot;Number of initial records found in file is &quot;+step3InitialFilerList.getStep3InitialFilerList().size());</span>
+<span class="nc" id="L71">        logger.info(&quot;start of reading initial records from DB Step3ExecutionListener class and beforeStep method &quot;);</span>
+<span class="nc" id="L72">    }</span>
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+<span class="nc" id="L76">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L77">        return ExitStatus.COMPLETED;</span>
+    }
+
+    @Value(&quot;#{jobParameters['STATE']}&quot;)
+    public void setState(final String name) {
+<span class="nc" id="L82">        state = name;</span>
+<span class="nc" id="L83">    }</span>
+
+    @Value(&quot;#{jobParameters['YEAR']}&quot;)
+    public void setTaxYear(final String year) {
+<span class="nc" id="L87">        taxYear = year;</span>
+<span class="nc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

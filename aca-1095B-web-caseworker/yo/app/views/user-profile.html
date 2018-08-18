@@ -1,0 +1,39 @@
+<div class="scroll-container container-white">
+  <div class="margin-indent-container user-profile-view outline-none" role="main" aria-label="{{aria.title}}">
+
+  <div class="successmessage" ng-show="showSuccessMessage" tabindex="20" aria-label="{{successMessage}}">
+    <div class="margin-bottom10px outline-none successmessage" success-banner show-flag="showSuccessMessage" success-message="successMessage"></div>
+  </div>
+
+    <div class="row margin-bottom25">
+      <div class="col-md-5 no-padding outline-none title" tabindex=1 aria-label="{{arialabel.title}}">
+        <span class="screen-title-action">My </span>
+        <span class="screen-title-description margin-left-5px">Profile</span>
+      </div>
+    </div>
+
+    <div class="container-grey padding25 container-round row-margin">
+      <div class="row margin-bottom10px">
+        <label class="text-black-bold col-md-2">Name</label>
+        <label class=" col-md-2">{{profile.firstName}}&nbsp;{{profile.lastName}}</label>
+      </div>
+
+    <div class="row margin-bottom10px">
+      <label class="text-black-bold col-md-2">Email Address</label>
+      <label class="col-md-2">{{profile.email}}</label>
+    </div>
+
+    <div class="row margin-bottom10px">
+      <a class="col-md-3" tabindex=2 ui-sref="state.change-password" aria-label="{{arialabel.changepassword}}">Change Password</a>
+      </div>
+    <div class="row margin-bottom10px">
+      <a class="col-md-3" tabindex=3 ui-sref="state.change-security-questions" aria-label="{{arialabel.changesecurity}}">Change Security Questions</a>
+    </div>
+    </div>
+
+
+    <button class="btn btn-dark-gray btn-search-user outline-none" ng-click="goBack()" tabindex=4 aria-label="{{arialabel.cancel}}">Cancel</button>
+
+  </div>
+</div>
+

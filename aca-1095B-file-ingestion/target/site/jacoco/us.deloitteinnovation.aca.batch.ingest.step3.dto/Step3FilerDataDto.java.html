@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3FilerDataDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.dto</a> &gt; <span class="el_source">Step3FilerDataDto.java</span></div><h1>Step3FilerDataDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.dto;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by tthakore on 8/31/2016.
+ */
+public class Step3FilerDataDto extends FilerDemographicDto {
+
+    private String rowNumber;// row number for the record if record from DB then 0 else actual row no of file.
+
+    private String recordSource;// FILE or DB
+
+    private String recordStatus;// PASSED or FAILED
+
+    private String businessDecisionMSG; // business decision message for record validation
+
+<span class="fc" id="L22">    private Boolean isRecordExistsInDB  = false; // In writer we are checking whether to update record or insert into filer demographics this will help us determine that update.</span>
+
+    private String status;
+
+    private String originalCorrectionCode; // This is to avoid overlap actual correction code of record from file in case of update it is written only once.
+
+<span class="fc" id="L28">    private Boolean isCoverageChangesAvailable = false;// To verify whether there are coverage changes available in update or not.</span>
+
+<span class="fc" id="L30">    private Integer versionNumber = 0;</span>
+
+    private String correctionIndicator;
+
+    private String irsTransmissionStatusCD;
+
+
+
+<span class="fc" id="L38">    private List&lt;Step3FilerDataDto&gt; filersWithSameIdsInFile = new ArrayList&lt;&gt;();//List of records  with same ids(UID or SID or TID) in file.</span>
+
+<span class="fc" id="L40">    private List&lt;Step3FilerDataDto&gt; filersWithSameIdsInDB = new ArrayList&lt;Step3FilerDataDto&gt;(); //List of records  with same ids(UID or SID or TID) in DB.</span>
+<span class="fc" id="L41">    private List&lt;Step3FilerDataDto&gt; acceptedRecordList = new ArrayList&lt;Step3FilerDataDto&gt;();//list od records which will be getting accepted for UID</span>
+<span class="fc" id="L42">    private List&lt;Step3FilerDataDto&gt; rejectedRecordList = new ArrayList&lt;Step3FilerDataDto&gt;();////list od records which will be getting rejected for UID</span>
+<span class="fc" id="L43">    private List&lt;Step3FilerDataDto&gt; recordsForFD = new ArrayList&lt;Step3FilerDataDto&gt;();// for n number of updates only one record will goto filer demographics this list will hold those records.</span>
+<span class="fc" id="L44">    private List&lt;Step3FilerDataDto&gt; resposiblePersonList = new ArrayList&lt;Step3FilerDataDto&gt;();//// list of responsible person for given covered person in file and DB.</span>
+<span class="fc" id="L45">    private List&lt;Step3FilerDataDto&gt; coveredPersonList = new ArrayList&lt;Step3FilerDataDto&gt;();//// list of covered person for given covered person in file and DB.</span>
+<span class="fc" id="L46">    private List&lt;Step3FilerDataDto&gt; coveredPersonListSharingSameResponsible = new ArrayList&lt;Step3FilerDataDto&gt;();//// list of covered person for given covered person in file and DB.</span>
+
+
+<span class="fc" id="L49">    public Step3FilerDataDto() {</span>
+<span class="fc" id="L50">    }</span>
+
+    /* This is a constructor to deep-clone another object */
+    public Step3FilerDataDto(Step3FilerDataDto another) {
+<span class="fc" id="L54">        super(another);</span>
+
+        /* Clone immutable objects */
+<span class="fc" id="L57">        this.rowNumber = another.getRowNumber();</span>
+<span class="fc" id="L58">        this.recordSource = another.getRecordSource();</span>
+<span class="fc" id="L59">        this.recordStatus = another.getRecordStatus();</span>
+<span class="fc" id="L60">        this.businessDecisionMSG = another.getBDMessage();</span>
+<span class="fc" id="L61">        this.isRecordExistsInDB = another.getIsRecordExistsInDB();</span>
+<span class="fc" id="L62">        this.status = another.getStatus();</span>
+<span class="fc" id="L63">        this.originalCorrectionCode = another.getOriginalCorrectionCode();</span>
+<span class="fc" id="L64">        this.isCoverageChangesAvailable = another.getIsCoverageChangesAvailable();</span>
+<span class="fc" id="L65">        this.versionNumber = another.getVersionNumber();</span>
+<span class="fc" id="L66">        this.correctionIndicator = another.getCorrectionIndicator();</span>
+<span class="fc" id="L67">        this.irsTransmissionStatusCD = another.getIrsTransmissionStatusCD();</span>
+
+        /* Clone mutable objects */
+<span class="fc" id="L70">        cloneInternalLists(another.getFilersWithSameIdsInFile(), this.filersWithSameIdsInFile);</span>
+<span class="fc" id="L71">        cloneInternalLists(another.getFilersWithSameIdsInDB(), this.filersWithSameIdsInDB);</span>
+<span class="fc" id="L72">        cloneInternalLists(another.getAcceptedRecordList(), this.acceptedRecordList);</span>
+<span class="fc" id="L73">        cloneInternalLists(another.getRejectedRecordList(), this.rejectedRecordList);</span>
+<span class="fc" id="L74">        cloneInternalLists(another.getRecordsForFD(), this.recordsForFD);</span>
+<span class="fc" id="L75">        cloneInternalLists(another.getResposiblePersonList(), this.resposiblePersonList);</span>
+<span class="fc" id="L76">        cloneInternalLists(another.getCoveredPersonList(), this.coveredPersonList);</span>
+<span class="fc" id="L77">        cloneInternalLists(another.getCoveredPersonListSharingSameResponsible(), this.coveredPersonListSharingSameResponsible);</span>
+<span class="fc" id="L78">    }</span>
+
+    private void cloneInternalLists(List&lt;Step3FilerDataDto&gt; targetList, List&lt;Step3FilerDataDto&gt; thisList) {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (thisList == null) {</span>
+<span class="nc" id="L82">            thisList = new ArrayList&lt;&gt;();</span>
+        }
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        for (Step3FilerDataDto dto : targetList) {</span>
+<span class="nc" id="L85">            thisList.add(new Step3FilerDataDto(dto));</span>
+<span class="nc" id="L86">        }</span>
+<span class="fc" id="L87">    }</span>
+
+
+    public String getRecordStatus() {
+<span class="fc" id="L91">        return recordStatus;</span>
+    }
+
+    public void setRecordStatus(String recordStatus) {
+<span class="fc" id="L95">        this.recordStatus = recordStatus;</span>
+<span class="fc" id="L96">    }</span>
+
+    public String getRowNumber() {
+<span class="fc" id="L99">        return rowNumber;</span>
+    }
+
+    public void setRowNumber(String rowNumber) {
+<span class="fc" id="L103">        this.rowNumber = rowNumber;</span>
+<span class="fc" id="L104">    }</span>
+
+    public String getRecordSource() {
+<span class="fc" id="L107">        return recordSource;</span>
+    }
+
+    public void setRecordSource(String recordSource) {
+<span class="fc" id="L111">        this.recordSource = recordSource;</span>
+<span class="fc" id="L112">    }</span>
+
+    public String getUIDValue() {
+<span class="fc" id="L115">        return getSourceCd() + &quot;_&quot; + getSourceUniqueId() + &quot;_&quot; + this.getId().getTaxYear();</span>
+    }
+
+    public List&lt;Step3FilerDataDto&gt; getFilersWithSameIdsInDB() {
+<span class="fc" id="L119">        return filersWithSameIdsInDB;</span>
+    }
+
+    public void setFilersWithSameIdsInDB(List&lt;Step3FilerDataDto&gt; filersWithSameIdsInDB) {
+<span class="fc" id="L123">        this.filersWithSameIdsInDB = filersWithSameIdsInDB;</span>
+<span class="fc" id="L124">    }</span>
+
+    public List&lt;Step3FilerDataDto&gt; getFilersWithSameIdsInFile() {
+<span class="fc" id="L127">        return filersWithSameIdsInFile;</span>
+    }
+
+    public void setFilersWithSameIdsInFile(List&lt;Step3FilerDataDto&gt; filersWithSameIdsInFile) {
+<span class="fc" id="L131">        this.filersWithSameIdsInFile = filersWithSameIdsInFile;</span>
+<span class="fc" id="L132">    }</span>
+
+    /**
+     * this is to create id in case of ssn available since we have to check ssn and tin
+     **/
+    public String getSIDValue() {
+<span class="pc bpc" id="L138" title="3 of 4 branches missed.">        if (getRecipientSsn() != null &amp;&amp; getRecipientSsn().length() &gt; 0) {</span>
+<span class="nc" id="L139">            return &quot;S_&quot; + getRecipientSsn() + &quot;_&quot; + this.getId().getTaxYear();</span>
+        } else {
+<span class="fc" id="L141">            return &quot;NA&quot;;</span>
+        }
+    }
+
+    /**
+     * this is to create id in case of tin available since we have to check ssn and tin
+     **/
+    public String getTIDValue() {
+<span class="pc bpc" id="L149" title="3 of 4 branches missed.">        if (getRecipientTin() != null &amp;&amp; getRecipientTin().length() &gt; 0) {</span>
+<span class="nc" id="L150">            return &quot;T_&quot; + getRecipientTin() + &quot;_&quot; + this.getId().getTaxYear();</span>
+        } else {
+<span class="fc" id="L152">            return &quot;NA&quot;;</span>
+        }
+    }
+
+    public String getBDMessage() {
+<span class="fc" id="L157">        return businessDecisionMSG;</span>
+    }
+
+    public void setBDMessage(String errorCode) {
+<span class="fc" id="L161">        this.businessDecisionMSG = errorCode;</span>
+<span class="fc" id="L162">    }</span>
+
+    public List&lt;Step3FilerDataDto&gt; getAcceptedRecordList() {
+<span class="fc" id="L165">        return acceptedRecordList;</span>
+    }
+
+    public List&lt;Step3FilerDataDto&gt; getRejectedRecordList() {
+<span class="fc" id="L169">        return rejectedRecordList;</span>
+    }
+
+    public List&lt;Step3FilerDataDto&gt; getRecordsForFD() {
+<span class="fc" id="L173">        return recordsForFD;</span>
+    }
+
+    public String getSourceUniqueId() {
+<span class="fc" id="L177">        return this.getId().getSourceUniqueId();</span>
+    }
+
+    public String getSourceCd() {
+<span class="fc" id="L181">        return this.getId().getSourceCd();</span>
+    }
+
+    public List&lt;Step3FilerDataDto&gt; getResposiblePersonList() {
+<span class="fc" id="L185">        return resposiblePersonList;</span>
+    }
+
+    public String getTaxYear() {
+<span class="fc" id="L189">        return this.getId().getTaxYear();</span>
+    }
+
+    public Boolean getIsRecordExistsInDB() {
+<span class="fc" id="L193">        return isRecordExistsInDB;</span>
+    }
+
+    public void setIsRecordExistsInDB(Boolean isRecordExistsInDB) {
+<span class="fc" id="L197">        this.isRecordExistsInDB = isRecordExistsInDB;</span>
+<span class="fc" id="L198">    }</span>
+
+    public String getCorrectionIndicator() {
+<span class="fc" id="L201">        return correctionIndicator;</span>
+    }
+
+    public void setCorrectionIndicator(String correctionIndicator) {
+<span class="fc" id="L205">        this.correctionIndicator = correctionIndicator;</span>
+<span class="fc" id="L206">    }</span>
+
+    public Integer getVersionNumber() {
+<span class="fc" id="L209">        return versionNumber;</span>
+    }
+
+    public void setVersionNumber(Integer versionNumber) {
+<span class="fc" id="L213">        this.versionNumber = versionNumber;</span>
+<span class="fc" id="L214">    }</span>
+
+
+    public String getOriginalCorrectionCode() {
+<span class="fc" id="L218">        return originalCorrectionCode;</span>
+    }
+    public void setOriginalCorrectionCode(String originalCorrectionCode) {
+<span class="nc" id="L221">        this.originalCorrectionCode = originalCorrectionCode;</span>
+<span class="nc" id="L222">    }</span>
+
+    public String getStatus() {
+<span class="fc" id="L225">        return status;</span>
+    }
+
+    public void setStatus(String status) {
+<span class="nc" id="L229">        this.status = status;</span>
+<span class="nc" id="L230">    }</span>
+
+    public List&lt;Step3FilerDataDto&gt; getCoveredPersonList() {
+<span class="fc" id="L233">        return coveredPersonList;</span>
+    }
+
+    public void setCoveredPersonList(List&lt;Step3FilerDataDto&gt; coveredPersonList) {
+<span class="nc" id="L237">        this.coveredPersonList = coveredPersonList;</span>
+<span class="nc" id="L238">    }</span>
+
+    public Boolean getIsCoverageChangesAvailable() {
+<span class="fc" id="L241">        return isCoverageChangesAvailable;</span>
+    }
+
+    public void setIsCoverageChangesAvailable(Boolean isCoverageChangesAvailable) {
+<span class="fc" id="L245">        this.isCoverageChangesAvailable = isCoverageChangesAvailable;</span>
+<span class="fc" id="L246">    }</span>
+
+    public String getIrsTransmissionStatusCD() {
+<span class="fc" id="L249">        return irsTransmissionStatusCD;</span>
+    }
+
+    public void setIrsTransmissionStatusCD(String irsTransmissionStatusCD) {
+<span class="fc" id="L253">        this.irsTransmissionStatusCD = irsTransmissionStatusCD;</span>
+<span class="fc" id="L254">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L258">       return String.format(&quot;%s: %s&quot;, recordSource, rowNumber);</span>
+    }
+
+    public List&lt;Step3FilerDataDto&gt; getCoveredPersonListSharingSameResponsible() {
+<span class="fc" id="L262">        return coveredPersonListSharingSameResponsible;</span>
+    }
+
+    public void setCoveredPersonListSharingSameResponsible(List&lt;Step3FilerDataDto&gt; coveredPersonListSharingSameResponsible) {
+<span class="nc" id="L266">        this.coveredPersonListSharingSameResponsible = coveredPersonListSharingSameResponsible;</span>
+<span class="nc" id="L267">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

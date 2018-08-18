@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchInfoDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dto</a> &gt; <span class="el_source">BatchInfoDto.java</span></div><h1>BatchInfoDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dto;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * Created by rgopalani on 10/20/2015.
+ */
+public class BatchInfoDto implements Serializable {
+
+    private int batchId;
+
+    private String agencyCd;
+
+    private int exceptionReportId;
+
+    private Date receiveDt;
+
+    private String stateCd;
+
+    private String systemCd;
+
+    private int totalCount;
+
+    private int totalFail;
+
+    private int totalPass;
+
+    private String fileVersion;
+
+    private String fileName;
+
+    private String sourceCode;
+
+    private String batchType;
+    
+    private String requisitionId;
+
+<span class="nc" id="L39">    public BatchInfoDto() {</span>
+<span class="nc" id="L40">    }</span>
+
+    public int getBatchId() {
+<span class="nc" id="L43">        return this.batchId;</span>
+    }
+
+    public void setBatchId(int batchId) {
+<span class="nc" id="L47">        this.batchId = batchId;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getAgencyCd() {
+<span class="nc" id="L51">        return this.agencyCd;</span>
+    }
+
+    public void setAgencyCd(String agencyCd) {
+<span class="nc" id="L55">        this.agencyCd = agencyCd;</span>
+<span class="nc" id="L56">    }</span>
+
+    public int getExceptionReportId() {
+<span class="nc" id="L59">        return this.exceptionReportId;</span>
+    }
+
+    public void setExceptionReportId(int exceptionReportId) {
+<span class="nc" id="L63">        this.exceptionReportId = exceptionReportId;</span>
+<span class="nc" id="L64">    }</span>
+
+    public Date getReceiveDt() {
+<span class="nc" id="L67">        return this.receiveDt;</span>
+    }
+
+    public void setReceiveDt(Date receiveDt) {
+<span class="nc" id="L71">        this.receiveDt = receiveDt;</span>
+<span class="nc" id="L72">    }</span>
+
+    public String getStateCd() {
+<span class="nc" id="L75">        return this.stateCd;</span>
+    }
+
+    public void setStateCd(String stateCd) {
+<span class="nc" id="L79">        this.stateCd = stateCd;</span>
+<span class="nc" id="L80">    }</span>
+
+    public String getSystemCd() {
+<span class="nc" id="L83">        return this.systemCd;</span>
+    }
+
+    public void setSystemCd(String systemCd) {
+<span class="nc" id="L87">        this.systemCd = systemCd;</span>
+<span class="nc" id="L88">    }</span>
+
+    public int getTotalCount() {
+<span class="nc" id="L91">        return this.totalCount;</span>
+    }
+
+    public void setTotalCount(int totalCount) {
+<span class="nc" id="L95">        this.totalCount = totalCount;</span>
+<span class="nc" id="L96">    }</span>
+
+    public int getTotalFail() {
+<span class="nc" id="L99">        return this.totalFail;</span>
+    }
+
+    public void setTotalFail(int totalFail) {
+<span class="nc" id="L103">        this.totalFail = totalFail;</span>
+<span class="nc" id="L104">    }</span>
+
+    public int getTotalPass() {
+<span class="nc" id="L107">        return this.totalPass;</span>
+    }
+
+    public void setTotalPass(int totalPass) {
+<span class="nc" id="L111">        this.totalPass = totalPass;</span>
+<span class="nc" id="L112">    }</span>
+
+    public String getSourceCode() {
+<span class="nc" id="L115">        return sourceCode;</span>
+    }
+
+    public void setSourceCode(String sourceCode) {
+<span class="nc" id="L119">        this.sourceCode = sourceCode;</span>
+<span class="nc" id="L120">    }</span>
+
+    public String getFileVersion() {
+<span class="nc" id="L123">        return fileVersion;</span>
+    }
+
+    public void setFileVersion(String fileVersion) {
+<span class="nc" id="L127">        this.fileVersion = fileVersion;</span>
+<span class="nc" id="L128">    }</span>
+
+    public String getFileName() {
+<span class="nc" id="L131">        return fileName;</span>
+    }
+
+    public void setFileName(String fileName) {
+<span class="nc" id="L135">        this.fileName = fileName;</span>
+<span class="nc" id="L136">    }</span>
+
+    public String getBatchType() {
+<span class="nc" id="L139">        return batchType;</span>
+    }
+
+    public void setBatchType(String batchType) {
+<span class="nc" id="L143">        this.batchType = batchType;</span>
+<span class="nc" id="L144">    }</span>
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L148">        final int prime = 31;</span>
+<span class="nc" id="L149">        int result = 1;</span>
+<span class="nc" id="L150">        result = prime * result + batchId;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        result = prime * result + (fileName == null ? 0 : fileName.hashCode());</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        result = prime * result + (fileVersion == null ? 0 : fileVersion.hashCode());</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        result = prime * result + (stateCd == null ? 0 : stateCd.hashCode());</span>
+<span class="nc" id="L154">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L160">            return true;</span>
+        }
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L163">            return false;</span>
+        }
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L166">            return false;</span>
+        }
+<span class="nc" id="L168">        final BatchInfoDto other = (BatchInfoDto) obj;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (batchId != other.batchId) {</span>
+<span class="nc" id="L170">            return false;</span>
+        }
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (fileName == null) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            if (other.fileName != null) {</span>
+<span class="nc" id="L174">                return false;</span>
+            }
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        } else if (!fileName.equals(other.fileName)) {</span>
+<span class="nc" id="L177">            return false;</span>
+        }
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (fileVersion == null) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            if (other.fileVersion != null) {</span>
+<span class="nc" id="L181">                return false;</span>
+            }
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        } else if (!fileVersion.equals(other.fileVersion)) {</span>
+<span class="nc" id="L184">            return false;</span>
+        }
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (stateCd == null) {</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (other.stateCd != null) {</span>
+<span class="nc" id="L188">                return false;</span>
+            }
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        } else if (!stateCd.equals(other.stateCd)) {</span>
+<span class="nc" id="L191">            return false;</span>
+        }
+<span class="nc" id="L193">        return true;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L198">        return &quot;BatchInfoDto [batchId=&quot; + batchId + &quot;, stateCd=&quot; + stateCd + &quot;, systemCd=&quot; + systemCd + &quot;, totalCount=&quot; + totalCount + &quot;, totalFail=&quot;</span>
+                + totalFail + &quot;, totalPass=&quot; + totalPass + &quot;, fileName=&quot; + fileName + &quot;]&quot;;
+    }
+
+	public String getRequisitionId() {
+<span class="nc" id="L203">		return requisitionId;</span>
+	}
+
+	public void setRequisitionId(String requisitionId) {
+<span class="nc" id="L207">		this.requisitionId = requisitionId;</span>
+<span class="nc" id="L208">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

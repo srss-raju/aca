@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicCP.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerDemographicCP.java</span></div><h1>FilerDemographicCP.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * The persistent class for the filer_demographics database table.
+ *..
+ */
+@Entity
+@Table(name=&quot;filer_demographics&quot;)
+public class FilerDemographicCP implements Serializable {
+	private static final long serialVersionUID = 1L;
+	@EmbeddedId
+	private FilerDemographicPK id;
+	@Transient
+	private SourceSystemConfig sourcesystemconfig;
+	@Transient
+    private int lineNumber;
+<span class="nc" id="L25">	@Transient</span>
+	private boolean isUserFound = false;
+
+	public FilerDemographicPK getId() {
+<span class="nc" id="L29">		return this.id;</span>
+	}
+
+
+	@Column(name=CommonEntityConstants.RECIPIENT_MIDDLE_NAME)
+	private String recepientMiddleName;
+
+	@Column(name=CommonEntityConstants.RECIPIENT_ADDRESS_LINE_1)
+	private String recepientAddressLine1;
+
+	@Column(name=CommonEntityConstants.RECIPIENT_ADDRESS_LINE_2)
+	private String recepientAddressLine2;
+
+
+
+	@Column(name=CommonEntityConstants.RECIPIENT_CITY)
+	private String recepientCity;
+
+	@Column(name= CommonDataConstants.RECIPIENT_DOB)
+	private Date recepientDob;
+
+
+	@Column(name=CommonEntityConstants.RECIPIENT_FIRST_NAME)
+	private String recepientFirstName;
+
+	@Column(name=CommonEntityConstants.RECIPIENT_LAST_NAME)
+	private String recepientLastName;
+
+	@Column(name=CommonDataConstants.RECIPIENT_SSN)
+	private String recepientSsn;
+
+	@Column(name=CommonEntityConstants.RECIPIENT_STATE_CODE)
+	private String recepientState;
+
+	@Column(name=&quot;RECIPIENT_TIN&quot;)
+	private String recepientTin;
+
+	@Column(name=CommonEntityConstants.RECIPIENT_ZIP_5)
+	private String recepientZip5;
+
+
+
+	@Column(name=&quot;FILER_STATUS&quot;)
+	private String filerStatus;
+
+	@Column(name=&quot;UPDATED_BY&quot;)
+	private String updatedBy;
+
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;UPDATED_DATE&quot;)
+	private Date updatedDt;
+
+	@Column(name=&quot;STATUS&quot;)
+	private String status;
+
+	@Column(name=&quot;FORM_STATUS&quot;)
+	private String formStatus;
+
+	@Column(name=&quot;IRS_TRANSMISSION_STATUS_CD&quot;)
+	private String irsTransmissionCode;
+
+	@Column(name=CommonEntityConstants.PROVIDER_ADDRESS_LINE_1)
+	private String providerAddressLine1;
+
+	@Column(name=CommonEntityConstants.PROVIDER_ADDRESS_LINE_2)
+	private String providerAddressLine2;
+
+	@Column(name=CommonEntityConstants.PROVIDER_CITY_OR_TOWN)
+	private String providerCityOrTown;
+
+	@Column(name=&quot;PROVIDER_CONTACT_NO&quot;)
+	private Long providerContactNo;
+
+	@Column(name=CommonEntityConstants.PROVIDER_COUNTRY)
+	private String providerCountry;
+
+	@Column(name=CommonEntityConstants.PROVIDER_IDENTIFICATION_NUMBER)
+	private String providerIdentificationNumber;
+
+	@Column(name=CommonEntityConstants.PROVIDER_NAME)
+	private String providerName;
+
+	@Column(name=CommonEntityConstants.PROVIDER_STATE_OR_PROVINCE)
+	private String providerStateOrProvince;
+
+	@Column(name=CommonEntityConstants.PROVIDER_ZIP_OR_FOREIGN_POSTAL_CODE)
+	private String providerZipOrPostalCode;
+
+
+	@Column(name = &quot;JAN&quot;)
+	private Character jan;
+	@Column(name = &quot;FEB&quot;)
+	private Character feb;
+	@Column(name = &quot;MAR&quot;)
+	private Character mar;
+	@Column(name = &quot;APR&quot;)
+	private Character apr;
+	@Column(name = &quot;MAY&quot;)
+	private Character may;
+	@Column(name = &quot;JUN&quot;)
+	private Character jun;
+	@Column(name = &quot;JUL&quot;)
+	private Character jul;
+	@Column(name = &quot;AUG&quot;)
+	private Character aug;
+	@Column(name = &quot;SEP&quot;)
+	private Character sep;
+	@Column(name = &quot;OCT&quot;)
+	private Character oct;
+	@Column(name = &quot;NOV&quot;)
+	private Character nov;
+
+	@Column(name = &quot;DEC&quot;)
+	private Character dec;
+
+	@Column(name = &quot;POLICY_ORIGIN&quot;)
+	private String policyOrigin;
+
+
+
+	public Character getDec() {
+<span class="nc" id="L151">		return dec;</span>
+	}
+
+	public void setDec(Character dec) {
+<span class="nc" id="L155">		this.dec = dec;</span>
+<span class="nc" id="L156">	}</span>
+
+	public Character getJan() {
+<span class="nc" id="L159">		return jan;</span>
+	}
+
+	public void setJan(Character jan) {
+<span class="nc" id="L163">		this.jan = jan;</span>
+<span class="nc" id="L164">	}</span>
+
+	public Character getFeb() {
+<span class="nc" id="L167">		return feb;</span>
+	}
+
+	public void setFeb(Character feb) {
+<span class="nc" id="L171">		this.feb = feb;</span>
+<span class="nc" id="L172">	}</span>
+
+	public Character getMar() {
+<span class="nc" id="L175">		return mar;</span>
+	}
+
+	public void setMar(Character mar) {
+<span class="nc" id="L179">		this.mar = mar;</span>
+<span class="nc" id="L180">	}</span>
+
+	public Character getApr() {
+<span class="nc" id="L183">		return apr;</span>
+	}
+
+	public void setApr(Character apr) {
+<span class="nc" id="L187">		this.apr = apr;</span>
+<span class="nc" id="L188">	}</span>
+
+	public Character getMay() {
+<span class="nc" id="L191">		return may;</span>
+	}
+
+	public void setMay(Character may) {
+<span class="nc" id="L195">		this.may = may;</span>
+<span class="nc" id="L196">	}</span>
+
+	public Character getJun() {
+<span class="nc" id="L199">		return jun;</span>
+	}
+
+	public void setJun(Character jun) {
+<span class="nc" id="L203">		this.jun = jun;</span>
+<span class="nc" id="L204">	}</span>
+
+	public Character getJul() {
+<span class="nc" id="L207">		return jul;</span>
+	}
+
+	public void setJul(Character jul) {
+<span class="nc" id="L211">		this.jul = jul;</span>
+<span class="nc" id="L212">	}</span>
+
+	public Character getAug() {
+<span class="nc" id="L215">		return aug;</span>
+	}
+
+	public void setAug(Character aug) {
+<span class="nc" id="L219">		this.aug = aug;</span>
+<span class="nc" id="L220">	}</span>
+
+	public Character getSep() {
+<span class="nc" id="L223">		return sep;</span>
+	}
+
+	public void setSep(Character sep) {
+<span class="nc" id="L227">		this.sep = sep;</span>
+<span class="nc" id="L228">	}</span>
+
+	public Character getOct() {
+<span class="nc" id="L231">		return oct;</span>
+	}
+
+	public void setOct(Character oct) {
+<span class="nc" id="L235">		this.oct = oct;</span>
+<span class="nc" id="L236">	}</span>
+
+	public Character getNov() {
+<span class="nc" id="L239">		return nov;</span>
+	}
+
+	public void setNov(Character nov) {
+<span class="nc" id="L243">		this.nov = nov;</span>
+<span class="nc" id="L244">	}</span>
+
+
+
+
+	public void setUpdatedDt(Date updatedDt) {
+<span class="nc" id="L250">		this.updatedDt = updatedDt;</span>
+<span class="nc" id="L251">	}</span>
+	public void setId(FilerDemographicPK id) {
+<span class="nc" id="L253">		this.id = id;</span>
+<span class="nc" id="L254">	}</span>
+	public boolean isUserFound() {
+<span class="nc" id="L256">		return isUserFound;</span>
+	}
+
+	public String getRecepientAddressLine1() {
+<span class="nc" id="L260">		return recepientAddressLine1;</span>
+	}
+
+	public void setRecepientAddressLine1(String recepientAddressLine1) {
+<span class="nc" id="L264">		this.recepientAddressLine1 = recepientAddressLine1;</span>
+<span class="nc" id="L265">	}</span>
+
+	public String getRecepientAddressLine2() {
+<span class="nc" id="L268">		return recepientAddressLine2;</span>
+	}
+
+	public void setRecepientAddressLine2(String recepientAddressLine2) {
+<span class="nc" id="L272">		this.recepientAddressLine2 = recepientAddressLine2;</span>
+<span class="nc" id="L273">	}</span>
+
+	public String getRecepientMiddleName() {
+<span class="nc" id="L276">		return recepientMiddleName;</span>
+	}
+
+	public void setRecepientMiddleName(String recepientMiddleName) {
+<span class="nc" id="L280">		this.recepientMiddleName = recepientMiddleName;</span>
+<span class="nc" id="L281">	}</span>
+
+
+	public String getRecepientCity() {
+<span class="nc" id="L285">		return recepientCity;</span>
+	}
+
+	public void setRecepientCity(String recepientCity) {
+<span class="nc" id="L289">		this.recepientCity = recepientCity;</span>
+<span class="nc" id="L290">	}</span>
+
+	public Date getRecepientDob() {
+<span class="nc" id="L293">		return recepientDob;</span>
+	}
+
+	public void setRecepientDob(Date recepientDob) {
+<span class="nc" id="L297">		this.recepientDob = recepientDob;</span>
+<span class="nc" id="L298">	}</span>
+
+	public String getRecepientFirstName() {
+<span class="nc" id="L301">		return recepientFirstName;</span>
+	}
+
+	public void setRecepientFirstName(String recepientFirstName) {
+<span class="nc" id="L305">		this.recepientFirstName = recepientFirstName;</span>
+<span class="nc" id="L306">	}</span>
+
+	public String getRecepientLastName() {
+<span class="nc" id="L309">		return recepientLastName;</span>
+	}
+
+	public void setRecepientLastName(String recepientLastName) {
+<span class="nc" id="L313">		this.recepientLastName = recepientLastName;</span>
+<span class="nc" id="L314">	}</span>
+
+
+	public String getRecepientSsn() {
+<span class="nc" id="L318">		return recepientSsn;</span>
+	}
+
+	public void setRecepientSsn(String recepientSsn) {
+<span class="nc" id="L322">		this.recepientSsn = recepientSsn;</span>
+<span class="nc" id="L323">	}</span>
+
+	public String getRecepientState() {
+<span class="nc" id="L326">		return recepientState;</span>
+	}
+
+	public void setRecepientState(String recepientState) {
+<span class="nc" id="L330">		this.recepientState = recepientState;</span>
+<span class="nc" id="L331">	}</span>
+
+	public String getRecepientTin() {
+<span class="nc" id="L334">		return recepientTin;</span>
+	}
+
+	public void setRecepientTin(String recepientTin) {
+<span class="nc" id="L338">		this.recepientTin = recepientTin;</span>
+<span class="nc" id="L339">	}</span>
+
+	public String getRecepientZip5() {
+<span class="nc" id="L342">		return recepientZip5;</span>
+	}
+
+	public void setRecepientZip5(String recepientZip5) {
+<span class="nc" id="L346">		this.recepientZip5 = recepientZip5;</span>
+<span class="nc" id="L347">	}</span>
+
+
+	public String getUpdatedBy() {
+<span class="nc" id="L351">		return updatedBy;</span>
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L355">		this.updatedBy = updatedBy;</span>
+<span class="nc" id="L356">	}</span>
+
+	public Date getUpdatedDt() {
+<span class="nc" id="L359">		return updatedDt;</span>
+	}
+
+	public void setIsUserFound(boolean isUserFound) {
+<span class="nc" id="L363">		this.isUserFound = isUserFound;</span>
+<span class="nc" id="L364">	}</span>
+	public SourceSystemConfig getSourcesystemconfig() {
+<span class="nc" id="L366">		return sourcesystemconfig;</span>
+	}
+
+	public void setSourcesystemconfig(SourceSystemConfig sourcesystemconfig) {
+<span class="nc" id="L370">		this.sourcesystemconfig = sourcesystemconfig;</span>
+<span class="nc" id="L371">	}</span>
+
+	public String getFilerStatus() {
+<span class="nc" id="L374">		return filerStatus;</span>
+	}
+
+	public void setFilerStatus(String filerStatus) {
+<span class="nc" id="L378">		this.filerStatus = filerStatus;</span>
+<span class="nc" id="L379">	}</span>
+<span class="nc" id="L380">	public FilerDemographicCP() {</span>
+<span class="nc" id="L381">	}</span>
+
+	public String getStatus() {
+<span class="nc" id="L384">		return status;</span>
+	}
+
+	public void setStatus(String status) {
+<span class="nc" id="L388">		this.status = status;</span>
+<span class="nc" id="L389">	}</span>
+	public String getFormStatus() {
+<span class="nc bnc" id="L391" title="All 2 branches missed.">		return (formStatus != null )?formStatus:&quot;&quot;;</span>
+	}
+
+	public void setFormStatus(String formStatus) {
+<span class="nc" id="L395">		this.formStatus = formStatus;</span>
+<span class="nc" id="L396">	}</span>
+
+	public String getIrsTransmissionCode() {
+<span class="nc" id="L399">		return irsTransmissionCode;</span>
+	}
+
+	public void setIrsTransmissionCode(String irsTransmissionCode) {
+<span class="nc" id="L403">		this.irsTransmissionCode = irsTransmissionCode;</span>
+<span class="nc" id="L404">	}</span>
+
+	public String getProviderZipOrPostalCode() {
+<span class="nc" id="L407">		return providerZipOrPostalCode;</span>
+	}
+
+	public void setProviderZipOrPostalCode(String providerZipOrPostalCode) {
+<span class="nc" id="L411">		this.providerZipOrPostalCode = providerZipOrPostalCode;</span>
+<span class="nc" id="L412">	}</span>
+
+	public String getProviderAddressLine1() {
+<span class="nc" id="L415">		return providerAddressLine1;</span>
+	}
+
+	public void setProviderAddressLine1(String providerAddressLine1) {
+<span class="nc" id="L419">		this.providerAddressLine1 = providerAddressLine1;</span>
+<span class="nc" id="L420">	}</span>
+
+	public String getProviderAddressLine2() {
+<span class="nc" id="L423">		return providerAddressLine2;</span>
+	}
+
+	public void setProviderAddressLine2(String providerAddressLine2) {
+<span class="nc" id="L427">		this.providerAddressLine2 = providerAddressLine2;</span>
+<span class="nc" id="L428">	}</span>
+
+	public String getProviderCityOrTown() {
+<span class="nc" id="L431">		return providerCityOrTown;</span>
+	}
+
+	public void setProviderCityOrTown(String providerCityOrTown) {
+<span class="nc" id="L435">		this.providerCityOrTown = providerCityOrTown;</span>
+<span class="nc" id="L436">	}</span>
+
+	public Long getProviderContactNo() {
+<span class="nc" id="L439">		return providerContactNo;</span>
+	}
+
+	public void setProviderContactNo(Long providerContactNo) {
+<span class="nc" id="L443">		this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L444">	}</span>
+
+	public String getProviderCountry() {
+<span class="nc" id="L447">		return providerCountry;</span>
+	}
+
+	public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L451">		this.providerCountry = providerCountry;</span>
+<span class="nc" id="L452">	}</span>
+
+	public String getProviderIdentificationNumber() {
+<span class="nc" id="L455">		return providerIdentificationNumber;</span>
+	}
+
+	public void setProviderIdentificationNumber(String providerIdentificationNumber) {
+<span class="nc" id="L459">		this.providerIdentificationNumber = providerIdentificationNumber;</span>
+<span class="nc" id="L460">	}</span>
+
+	public String getProviderName() {
+<span class="nc" id="L463">		return providerName;</span>
+	}
+
+	public void setProviderName(String providerName) {
+<span class="nc" id="L467">		this.providerName = providerName;</span>
+<span class="nc" id="L468">	}</span>
+
+	public String getProviderStateOrProvince() {
+<span class="nc" id="L471">		return providerStateOrProvince;</span>
+	}
+
+	public void setProviderStateOrProvince(String providerStateOrProvince) {
+<span class="nc" id="L475">		this.providerStateOrProvince = providerStateOrProvince;</span>
+<span class="nc" id="L476">	}</span>
+
+	public String getPolicyOrigin() {
+<span class="nc" id="L479">		return policyOrigin;</span>
+	}
+
+	public void setPolicyOrigin(String policyOrigin) {
+<span class="nc" id="L483">		this.policyOrigin = policyOrigin;</span>
+<span class="nc" id="L484">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

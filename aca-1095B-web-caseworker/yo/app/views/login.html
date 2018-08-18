@@ -1,0 +1,32 @@
+<div ng-include src="'views/state-header-common.html'"></div>
+<div class="cw-bg-wrapper">
+  <div class="col-md-12 cw-login-container">
+    <form action="/siteminderagent/forms/login.fcc" method="post" id="loginDiv" name="loginForm" class="cw-login-form" role="form">
+          <!-- hidden fields for site minder -->
+          <input type="hidden" name="target" value="{{login.target}}" id="target"/>
+          <input type="hidden" name="smauthreason" value="{{login.smauthreason}}" id="smauthreason"/>
+          <input type="hidden" name="postpreservationdata" value="" id="postpreservationdata"/>
+          <input type="hidden" name="SMENC" value="ISO-8859-1"/>
+          <input type="hidden" name="SMLOCALE" value="US-EN"/>
+          <input type="hidden" name="smquerydata" value="{{login.smquerydata}}" id="smquerydata"/>
+          <input type="hidden" name="smagentname" value="{{login.smagentname}}" id="smagentname"/>
+          <div class="padding10 outline-none" aria-label="{{login.errorMessage}}" tabindex="1" ng-show="login.userNotFound"
+               failure-banner show-flag="login.userNotFound" error-message="login.errorMessage"></div>
+          <div class="title">Sign in</div>
+          <div class="form-group">
+            <input name="USER" type="email" id="email" class="form-control" autocomplete="off" aria-label="{{ariaLabel.userName}}"
+                   placeholder='Username' ng-model="uname" ng-maxlength="50" required floating-label autofocus>
+          </div>
+          <div class="form-group">
+            <input type="password" name="PASSWORD" id="PASSWORD" class="form-control" autocomplete="off" aria-label="{{ariaLabel.password}}"
+                   placeholder='Password' ng-model="pwd" ng-maxlength="30" required floating-label>
+          </div>
+          <div class="form-group">
+            <input type="submit" class="btn btn-orange cw-login-submit" aria-label="{{ariaLabel.signIn}}" ng-disabled="loginForm.$invalid" value="Sign in"/>
+          </div>
+          <div class="form-group">
+             <a ui-sref="forgot-password">Forgot password?</a>
+          </div>
+      </form>
+  </div>
+</div>

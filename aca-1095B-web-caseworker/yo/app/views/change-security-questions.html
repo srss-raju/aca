@@ -1,0 +1,29 @@
+<div class="scroll-container container-white unicorn-change-security-view">
+  <div class="margin-indent-container outline-none" role="main">
+
+  <div class="errormessage" ng-show="showErrorMessage" tabindex="20" aria-label="{{errorMessage}}">
+    <div class="margin-bottom10px outline-none errormessage" failure-banner
+         show-flag="showErrorMessage" error-message="errorMessage"></div>
+  </div>
+    <!-- Screen title-->
+    <div class="row margin-bottom25">
+      <div class="col-md-5 no-padding outline-none securitytitle" tabindex="1" aria-label="{{arialabel.title}}">
+        <span class="screen-title-action">{{label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+      </div>
+    </div>
+
+    <!--spinner till the initialization is done-->
+    <div class="text-center center-container" ng-show="spinnerShow">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+
+
+    <div security-questions application="profile.securityQuestions.application"
+         security-questions-url="profile.securityQuestions.getSecureQuestionsUrl"
+         submit-security-questions-url="profile.securityQuestions.submitSecurityQuestionsUrl"
+         load-new-data="profile.securityQuestions.loadNewData">
+    </div>
+
+  </div>
+</div>

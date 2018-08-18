@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsErrorReportingAppProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.processor</a> &gt; <span class="el_source">IrsErrorReportingAppProcessor.java</span></div><h1>IrsErrorReportingAppProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.processor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemProcessor;
+import us.deloitteinnovation.aca.batch.constants.IrsErrorReportingContants;
+import us.deloitteinnovation.aca.batch.dto.ErrorDetailsDTO;
+import us.deloitteinnovation.aca.batch.dto.TransmitterErrorDetailGrpDTO;
+import us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore;
+import us.deloitteinnovation.aca.entity.IrsRecordDetails1095B;
+import us.gov.treasury.irs.ext.aca.air._7.TransmitterErrorDetailGrp;
+import us.gov.treasury.irs.msg.form1094_1095bctransmittermessage.FormBCTransmitterSubmissionDtl;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/**
+ * Created by tthakore on 3/30/2016.
+ */
+<span class="fc" id="L20">public class IrsErrorReportingAppProcessor implements ItemProcessor&lt;FormBCTransmitterSubmissionDtl, ErrorDetailsDTO&gt; {</span>
+
+
+<span class="fc" id="L23">    private static Logger logger = LoggerFactory.getLogger(IrsErrorReportingAppProcessor.class);</span>
+<span class="fc" id="L24">    ErrorReportingObjectStore errorReportingObjectStore = ErrorReportingObjectStore.getInstance();</span>
+
+    /**
+     * @param item FormBCTransmitterSubmissionDtl
+     *             maps FormBCTransmitterSubmissionDtl to  ErrorDetailsDTO to be used by writer to write in db tables and report file.
+     * @return ErrorDetailsDTO
+     **/
+    public ErrorDetailsDTO process(FormBCTransmitterSubmissionDtl item) throws Exception {
+<span class="fc" id="L32">        logger.info(&quot;Inside processor function...............................&quot;);</span>
+<span class="fc" id="L33">        ErrorDetailsDTO errorDetailsDTO = new ErrorDetailsDTO();</span>
+<span class="fc" id="L34">        String receiptID = errorReportingObjectStore.getReceiptIdFromFileName(errorReportingObjectStore.getCurrentFileName());</span>
+<span class="fc" id="L35">        String transmissionID = errorReportingObjectStore.receiptTransmissionIDMap.get(receiptID).getTransmissionId().toString();</span>
+<span class="fc" id="L36">        Integer submissionErrorCount = 0;</span>
+<span class="fc" id="L37">        Integer recordErrorCount = 0;</span>
+<span class="fc" id="L38">        Integer acceptedRecordCount = 0;</span>
+<span class="fc" id="L39">        errorDetailsDTO.setTransmissionID(transmissionID);</span>
+<span class="fc" id="L40">        errorDetailsDTO.setReceiptID(receiptID);</span>
+<span class="fc" id="L41">        errorDetailsDTO.setTransmitterErrorDetailGrps(new ArrayList&lt;TransmitterErrorDetailGrpDTO&gt;());</span>
+<span class="fc" id="L42">        ArrayList&lt;String&gt; errorRecordsKeyList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        for (TransmitterErrorDetailGrp transmitterErrorDetail : item.getACATransmitterSubmissionDetail().getTransmitterErrorDetailGrps()) {</span>
+<span class="fc" id="L44">            String recordInfoKey = getRecordInfoKey(transmitterErrorDetail);</span>
+<span class="fc" id="L45">            TransmitterErrorDetailGrpDTO transmitterErrorDetailGrpDTO = new TransmitterErrorDetailGrpDTO();</span>
+
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">            if (transmitterErrorDetail.getUniqueRecordId() != null ) {</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                if(errorReportingObjectStore.currentTransmissionRecordMap.size() &gt; 0)</span>
+                {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                    if (!validateKeyForRecordID(recordInfoKey)) {</span>
+<span class="nc" id="L51">                        logger.error(&quot;&lt;-----Record not available in IRS_RECORD_DETAILS_1095B table for key {} Record will not marked as error/accepted in table.-----&gt;&quot;,recordInfoKey);</span>
+<span class="nc" id="L52">                        logger.error(&quot;&lt;-------File Will not get processed in case of record not found hence skipping current file processing--------&gt;&quot;);</span>
+<span class="nc" id="L53">                        errorReportingObjectStore.getSkippedFileNameList().add(errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc" id="L54">                        return  new ErrorDetailsDTO();</span>
+                    } else {
+<span class="nc" id="L56">                        transmitterErrorDetailGrpDTO.setRecepientUID(errorReportingObjectStore.currentTransmissionRecordMap.get(recordInfoKey).getSourceUniqueId());</span>
+<span class="nc" id="L57">                        transmitterErrorDetailGrpDTO.setSourceCD(errorReportingObjectStore.currentTransmissionRecordMap.get(recordInfoKey).getSourceCode());</span>
+<span class="nc" id="L58">                        transmitterErrorDetailGrpDTO.setRecordStatus(errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ERROR).getId().getStatusCD());</span>
+<span class="nc" id="L59">                        transmitterErrorDetailGrpDTO.setTransmitterErrorDetailGrp(transmitterErrorDetail);</span>
+<span class="nc" id="L60">                        errorDetailsDTO.getTransmitterErrorDetailGrps().add(transmitterErrorDetailGrpDTO);</span>
+<span class="nc" id="L61">                        errorRecordsKeyList.add(recordInfoKey);</span>
+<span class="nc" id="L62">                        recordErrorCount += 1;</span>
+                    }
+                }
+                else
+                {
+
+<span class="nc" id="L68">                    errorReportingObjectStore.getSkippedFileNameList().add(errorReportingObjectStore.getCurrentFileName());</span>
+<span class="nc" id="L69">                    logger.error(&quot;&lt;-------File Will not get processed in case of record not found so skipping current file processing. There are no records on IRS_RECORDS_DETAILS_1095B table with given transmission id. {} --------&gt;&quot;,recordInfoKey);</span>
+<span class="nc" id="L70">                    return  new ErrorDetailsDTO();</span>
+                }
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            } else if (transmitterErrorDetail.getUniqueSubmissionId() != null) {</span>
+<span class="fc" id="L73">                transmitterErrorDetailGrpDTO.setTransmitterErrorDetailGrp(transmitterErrorDetail);</span>
+<span class="fc" id="L74">                errorDetailsDTO.getTransmitterErrorDetailGrps().add(transmitterErrorDetailGrpDTO);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">                if(transmitterErrorDetail.getSubmissionLevelStatusCd() != null)errorDetailsDTO.setSubmissionLvlStatusCd(transmitterErrorDetail.getSubmissionLevelStatusCd().value());</span>
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">                if(transmitterErrorDetailGrpDTO.getTransmitterErrorDetailGrp() != null &amp;&amp; transmitterErrorDetailGrpDTO.getTransmitterErrorDetailGrp().getErrorMessageDetails().size() &gt; 0)submissionErrorCount += 1;</span>
+            }
+<span class="fc" id="L78">        }</span>
+        /*remove all the error record from map to get other accepted records.*/
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        for(String key :errorRecordsKeyList)</span>
+        {
+<span class="nc" id="L82">            errorReportingObjectStore.currentTransmissionRecordMap.remove(key);</span>
+<span class="nc" id="L83">        }</span>
+
+
+<span class="fc" id="L86">        Iterator itr = errorReportingObjectStore.currentTransmissionRecordMap.values().iterator();</span>
+<span class="fc" id="L87">        acceptedRecordCount = errorReportingObjectStore.currentTransmissionRecordMap.values().size();</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        while (itr.hasNext()) {</span>
+<span class="nc" id="L89">            IrsRecordDetails1095B irsRecordDetails1095B = (IrsRecordDetails1095B) itr.next();</span>
+<span class="nc" id="L90">            TransmitterErrorDetailGrpDTO transmitterErrorDetailGrpDTO = new TransmitterErrorDetailGrpDTO();</span>
+<span class="nc" id="L91">            transmitterErrorDetailGrpDTO.setRecepientUID(irsRecordDetails1095B.getSourceUniqueId());</span>
+<span class="nc" id="L92">            transmitterErrorDetailGrpDTO.setSourceCD(irsRecordDetails1095B.getSourceCode());</span>
+<span class="nc" id="L93">            transmitterErrorDetailGrpDTO.setSubmissionID(irsRecordDetails1095B.getId().getSubmissionId());</span>
+<span class="nc" id="L94">            transmitterErrorDetailGrpDTO.setRecordID(irsRecordDetails1095B.getId().getRecordId());</span>
+            //this has to come from DB it is temporarily hard coded
+<span class="nc" id="L96">            transmitterErrorDetailGrpDTO.setRecordStatus(errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ACCEPTED).getId().getStatusCD());</span>
+<span class="nc" id="L97">            errorDetailsDTO.getAcceptedRecord().add(transmitterErrorDetailGrpDTO);</span>
+<span class="nc" id="L98">        }</span>
+<span class="fc" id="L99">        errorReportingObjectStore.currentTransmissionRecordMap.clear();</span>
+<span class="fc" id="L100">        errorReportingObjectStore.setAcceptedRecordCount(acceptedRecordCount);</span>
+<span class="fc" id="L101">        errorReportingObjectStore.setSubmissionErrorCount(submissionErrorCount);</span>
+<span class="fc" id="L102">        errorReportingObjectStore.setRecordErrorCount(recordErrorCount);</span>
+<span class="fc" id="L103">        logger.info(&quot;End of processor method...............................&quot;);</span>
+<span class="fc" id="L104">        return errorDetailsDTO;</span>
+    }
+
+    public String getRecordInfoKey(TransmitterErrorDetailGrp transmitterErrorDetail) {
+<span class="fc" id="L108">        String recordInfoKey = &quot;&quot;;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (transmitterErrorDetail.getUniqueSubmissionId() != null) {</span>
+<span class="fc" id="L110">            recordInfoKey = errorReportingObjectStore.getCurrentTransmissionID() + &quot;|&quot; + transmitterErrorDetail.getUniqueSubmissionId().split(&quot;\\|&quot;)[1];</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        } else if (transmitterErrorDetail.getUniqueRecordId() != null) {</span>
+<span class="nc" id="L112">            recordInfoKey = errorReportingObjectStore.getCurrentTransmissionID() + &quot;|&quot; + transmitterErrorDetail.getUniqueRecordId().split(&quot;\\|&quot;)[1] + &quot;|&quot; + transmitterErrorDetail.getUniqueRecordId().split(&quot;\\|&quot;)[2];</span>
+        }
+<span class="fc" id="L114">        return recordInfoKey;</span>
+    }
+
+    Boolean validateKeyForRecordID(String key) {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return (errorReportingObjectStore.currentTransmissionRecordMap.get(key) != null);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

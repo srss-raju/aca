@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="683.0" y="680.0">us.deloitteinnovation.aca.web.opsportal.dto.IrsTransmittalDetailsDto</node>
+    <node x="259.0" y="680.0">us.deloitteinnovation.aca.web.opsportal.dto.StateDto</node>
+    <node x="0.0" y="680.0">us.deloitteinnovation.aca.web.opsportal.data.impl.OpsPortalDataServiceImplTest</node>
+    <node x="618.0" y="437.0">us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest</node>
+    <node x="0.0" y="0.0">us.deloitteinnovation.aca.web.opsportal.data.IOpsPortalDataService</node>
+    <node x="0.0" y="437.0">us.deloitteinnovation.aca.web.opsportal.controller.OpsController</node>
+    <node x="472.0" y="680.0">us.deloitteinnovation.aca.web.opsportal.dto.StatusDto</node>
+    <node x="0.0" y="221.0">us.deloitteinnovation.aca.web.opsportal.data.impl.OpsPortalDataServiceImpl</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest" target="us.deloitteinnovation.aca.web.opsportal.dto.IrsTransmittalDetailsDto">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest" target="us.deloitteinnovation.aca.web.opsportal.controller.OpsController">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest" target="us.deloitteinnovation.aca.web.opsportal.data.IOpsPortalDataService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest" target="us.deloitteinnovation.aca.web.opsportal.dto.StatusDto">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsController" target="us.deloitteinnovation.aca.web.opsportal.data.IOpsPortalDataService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.controller.OpsControllerTest" target="us.deloitteinnovation.aca.web.opsportal.dto.StateDto">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.data.impl.OpsPortalDataServiceImpl" target="us.deloitteinnovation.aca.web.opsportal.data.IOpsPortalDataService">
+      <point x="0.0" y="-85.5" />
+      <point x="0.0" y="85.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="250.0" y="459.5" />
+  <SelectedNodes>
+    <node>us.deloitteinnovation.aca.web.opsportal.dto.IrsTransmittalDetailsDto</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Constructors</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

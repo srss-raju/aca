@@ -1,0 +1,298 @@
+<div class="row" tabindex="tabindex" aria-label="{{ariaLabel.customerData}}">
+
+  <!--pdf status and the icons-->
+  <div class="col-md-12 margin-bottom25n no-padding">
+
+    <!--<div class="col-md-8 no-padding-left no-padding-right">-->
+    <!--<div class="col-md-2 text-gray-bold no-padding">-->
+    <!--{{label.pdfstatus}}-->
+    <!--</div>-->
+    <!--<div class="col-md-10 no-padding-left margin-left-3px" ng-class=classname>-->
+    <!--{{pdfDisplayVal}}-->
+    <!--</div>-->
+    <!--</div>-->
+
+    <div class="text-right">
+
+      <!-- edit icon -->
+      <span class="icon-margin edit-icon"
+            ng-class="{'blue-icon pointer' : iconstatus.editiconenable, 'grey-icon' : !iconstatus.editiconenable || xmlCorrection ,  'grey-icon pointer' : xmlCorrection}">
+        <i class="fa fa-pencil-square-o fa-2x tooltip-icon edit-icon-content" ng-if="iconstatus.editiconenable"
+           aca-aria-click="iconstatus.editiconenable && !xmlCorrection ? edit_customer_data(): edit_reason()"
+           tabindex="{{ (1*tabindex > 0) ? (1*tabindex+1): -1 }}"
+           aria-label="{{ariaLabel.edit}}"
+           rel="popover"
+           data-trigger="hover"
+           data-content={{popoverData.edit}}
+           data-placement="bottom"
+           data-template={{popoverData.templateSmall}}
+           onmouseover="$(this).popover('show')"></i>
+
+        <i class="fa fa-pencil-square-o fa-2x edit-icon-content" ng-if="!iconstatus.editiconenable"
+           tabindex="{{ (1*tabindex > 0) ? (1*tabindex+1): -1 }}"
+           aria-label="{{ariaLabel.edit}}"></i>
+
+      </span>
+
+      <!--<span class="icon-margin" ng-show="iconstatus.pdficonstatus"
+            ng-class="iconstatus.pdficonenable?'blue-icon':'grey-icon'">
+        <i class="fa fa-file-pdf-o fa-lg tooltip-icon icon-font" aca-aria-click="iconstatus.pdficonenable?view_pdf():''"
+           tabindex="{{tabindex+2}}" aria-label="{{ariaLabel.pdf}}"
+           rel="popover" data-trigger="hover" data-content={{popoverData.pdf}} data-placement="bottom"
+           data-template={{popoverData.templateSmall}}
+           onmouseover="$(this).popover('show')"></i>
+      </span>-->
+
+      <span>
+        <button class="btn btn-dark-gray padding-side25" ng-click="mailForm()"
+                tabindex="{{ (1*tabindex > 0) ? (1*tabindex+2): -1 }}"
+                ng-disabled="currentform.formStatus.toUpperCase() != statusConstants.generatedPdf && currentform.formStatus.toUpperCase() != statusConstants.regeneratePdf">
+          Mail Form
+        </button>
+        <button class="btn btn-orange padding-side25" ng-click="viewForm()"
+                tabindex="{{ (1*tabindex > 0) ? (1*tabindex+3): -1 }}">View Form
+        </button>
+      </span>
+
+
+      <!-- Validate the below 4 spans if they are really needed -->
+      <span class="icon-margin blue-icon" ng-hide="spin">
+        <i class="fa fa-spinner fa-lg fa-pulse color-spinner tooltip-icon" data-content="Regenerating Pdf"
+           data-placement="bottom" tabindex="{{ (1*tabindex > 0) ? (1*tabindex+3): -1 }}" aria-label="{{ariaLabel.regenerate}}"
+           rel="popover" data-trigger="hover"></i>
+      </span>
+
+      <span class="icon-margin blue-icon" ng-show="iconstatus.pdfprocessstatus && spin">
+        <i class="fa fa-refresh fa-lg tooltip-icon" aca-aria-click="regenerate_pdf()" tabindex="{{ (1*tabindex > 0) ? (1*tabindex+3): -1 }}"
+           aria-label="{{ariaLabel.pdf}}"
+           rel="popover" data-trigger="hover" data-content={{popoverData.regenerate}} data-placement="bottom"
+           data-template={{popoverData.templateSmall}}
+           onmouseover="$(this).popover('show')"></i>
+      </span>
+
+      <span class="icon-margin"
+            ng-show="iconstatus.mailiconstatus && iconstatus.pdfprocessstatus && (currentform.pdfStatus === statusConstants.regeneratePdf || currentform.pdfStatus === statusConstants.generationFailed) "
+            ng-class="'grey-icon'">
+        <i class="fa fa-envelope-o fa-lg tooltip-icon" data-content={{popoverData.mailRegenerate}}
+           tabindex="{{ (1*tabindex > 0) ? (1*tabindex+4): -1 }}" aria-label="{{ariaLabel.mailRegenerate}}"
+           data-placement="bottom" rel="popover"
+           data-template="<div class='popover popoverShape' role='tooltip'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content popoverDisabledText'></div></div>"
+           data-trigger="hover" onmouseover="$(this).popover('show')"></i>
+      </span>
+
+      <span class="icon-margin"
+             ng-show="iconstatus.mailiconstatus && currentform.pdfStatus === statusConstants.addressInvalid "
+             ng-class="'grey-icon'">
+        <i class="fa fa-envelope-o fa-lg tooltip-icon" data-content={{popoverData.addressInvalid}}
+           tabindex="{{ (1*tabindex > 0) ? (1*tabindex+4): -1 }}" aria-label="{{ariaLabel.addressInvalid}}"
+           data-placement="bottom" rel="popover"
+           data-template="<div class='popover popoverShape'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content popoverDisabledText'></div></div>"
+           data-trigger="hover" onmouseover="$(this).popover('show')"></i>
+      </span>
+      <!--
+      <span class="icon-margin" ng-show="iconstatus.mailiconstatus && !iconstatus.pdfprocessstatus && currentform.pdfStatus != statusConstants.addressInvalid "
+            ng-class="iconstatus.mailiconenable?'blue-icon':'grey-icon'">
+        <i class="fa fa-envelope-o fa-lg tooltip-icon" aca-aria-click="iconstatus.mailiconenable?mail_form():''"
+           tabindex="{{tabindex+4}}" aria-label="{{ariaLabel.mail}}"
+           rel="popover" data-trigger="hover" data-content={{popoverData.mail}} data-placement="bottom"
+           data-template={{popoverData.templateSmall}}
+           onmouseover="$(this).popover('show')"></i>
+      </span>
+      -->
+    </div>
+
+  </div>
+
+
+  <div class="button-heading table-head text-white-heading16-med">
+    <span>{{label.recipientHeading}}</span>
+  </div>
+  <div class="clearfix"></div>
+  <hr>
+
+
+  <!--first row-->
+  <div class="row row-margin padding-side5">
+    <div class="col-md-8 no-padding-left no-padding-right">
+      <!--first name-->
+      <div class="col-md-6 no-padding-left no-padding-right">
+
+        <!--<span class="text-gray-bold no-padding-right no-padding-left">-->
+        <!--{{label.fName}}-->
+        <!--</span>-->
+        <!--<span class="no-padding transform-4" ellipsis-popover display=filerinfo.firstName hoverlength=15>-->
+        <!--</span>-->
+
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.fName}}
+          </div>
+          <div class="col-md-9 no-padding" ellipsis-popover display=filerinfo.firstName hoverlength=15>
+          </div>
+        </div>
+
+      </div>
+      <!--last name-->
+      <div class="col-md-6 no-padding-left no-padding-right">
+
+        <!--<span class="text-gray-bold no-padding-right no-padding-left">-->
+        <!--{{label.lName}}-->
+        <!--</span>-->
+        <!--<span class="no-padding" ellipsis-popover display=filerinfo.lastName hoverlength=15>-->
+        <!--</span>-->
+
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.lName}}
+          </div>
+          <div class="col-md-9 no-padding" ellipsis-popover display=filerinfo.lastName hoverlength=15>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-4 no-padding-left no-padding-right">
+      <!--date of birth-->
+      <div class="col-md-7 no-padding-left no-padding-right">
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.dob}}
+          </div>
+          <div class="col-md-9 no-padding">
+            {{filerinfo.dob}}
+          </div>
+        </div>
+      </div>
+      <!--SSN/TIN-->
+      <div class="col-md-5 no-padding-left no-padding-right text-right">
+        <!--<div class="col-md-3 text-gray-bold no-padding-right no-padding-left" ng-switch on="individual.uidType">
+          {{filerinfo.uidType+'&#58;'}}
+        </div>
+        <div class="col-md-9 no-padding">
+          {{filerinfo.uidNumber}}
+        </div>-->
+        <!--<span ng-switch-when="SSN">-->
+        <!--<span class="text-gray-bold">{{label.ssn}}<span class="detail">:</span></span>-->
+        <!--<span>{{filerinfo.uidNumber}}</span>-->
+        <!--</span>-->
+        <!--<span ng-switch-when="TIN">-->
+        <!--<span class="text-gray-bold">{{label.tin}}<span class="detail">:</span></span>-->
+        <!--<span>{{filerinfo.uidNumber}}</span>-->
+        <!--</span>-->
+        <!--<span ng-switch-default>-->
+        <!--<span class="text-gray-bold">*</span>-->
+        <!--<span>{{label.noSsnTin}}</span>-->
+        <!--</span>-->
+
+        <div class="row no-padding-left" ng-switch on="filerinfo.uidType">
+          <div ng-switch-when="SSN">
+            <div class="col-md-4 text-gray-bold no-padding-right no-padding-left">
+              {{label.ssn}}
+            </div>
+            <div class="col-md-8 no-padding">
+              {{filerinfo.uidNumber}}
+            </div>
+          </div>
+          <div ng-switch-when="TIN">
+            <div class="col-md-4 text-gray-bold no-padding-right no-padding-left">
+              {{label.tin}}
+            </div>
+            <div class="col-md-8 no-padding">
+              {{filerinfo.uidNumber}}
+            </div>
+          </div>
+          <div ng-switch-default>
+            <div class="col-md-4 text-gray-bold no-padding-right no-padding-left">
+              *:
+            </div>
+            <div class="col-md-8 no-padding">
+              {{label.noSsnTin}}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!--second row-->
+  <div class="row margin-bottom15 padding-side5">
+    <div class="col-md-8 no-padding-left no-padding-right">
+      <!--address concatenates addressLine1 and addressLine2-->
+      <div class="col-md-6 no-padding-left no-padding-right">
+
+        <!--<span class="text-gray-bold no-padding-right no-padding-left ">-->
+        <!--{{label.address}}-->
+        <!--</span>-->
+        <!--<span class="transform-9" ellipsis-popover-->
+        <!--display="currentform.addressLine1 + ' ' + currentform.addressLine2" hoverlength=50>-->
+        <!--</span>-->
+
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.address}}
+          </div>
+          <div class="col-md-9 no-padding"
+               ng-class="{red: filerinfo.formStatus.toUpperCase() === statusConstants.addressInvalid}"
+               ellipsis-popover
+               display="currentform.addressLine1 + ' ' + currentform.addressLine2" hoverlength=50>
+          </div>
+        </div>
+
+
+      </div>
+      <!--city-->
+      <div class="col-md-6 no-padding-left no-padding-right">
+
+        <!--<span class="text-gray-bold no-padding-right no-padding-left">-->
+        <!--{{label.city}}-->
+        <!--</span>-->
+        <!--<span class="no-padding" ellipsis-popover display=currentform.city hoverlength=15>-->
+        <!--</span>-->
+
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.city}}
+          </div>
+          <div class="col-md-9 no-padding"
+               ng-class="{red: filerinfo.formStatus.toUpperCase() === statusConstants.addressInvalid}"
+               ellipsis-popover display=currentform.city hoverlength=15>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="col-md-4 no-padding-left no-padding-right">
+      <!--state-->
+      <div class="col-md-7 no-padding-left no-padding-right">
+        <div class="row no-padding-left">
+          <div class="col-md-3 text-gray-bold no-padding-right no-padding-left">
+            {{label.state}}
+          </div>
+          <div class="col-md-9 no-padding"
+               ng-class="{red: filerinfo.formStatus.toUpperCase() === statusConstants.addressInvalid}"
+               ellipsis-popover display=currentform.state hoverlength=15>
+          </div>
+        </div>
+      </div>
+      <!--zip code-->
+      <div class="col-md-5 no-padding-left no-padding-right text-right">
+
+        <div class="row no-padding-left">
+          <div class="col-md-4 text-gray-bold no-padding-right no-padding-left">
+            {{label.zipcode}}
+          </div>
+          <div class="col-md-8 no-padding"
+               ng-class="{red: filerinfo.formStatus.toUpperCase() === statusConstants.addressInvalid}">
+            {{currentform.zipcode}}
+          </div>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+
+</div>

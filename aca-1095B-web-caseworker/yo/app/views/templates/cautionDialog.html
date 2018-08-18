@@ -1,0 +1,22 @@
+<div class="container-fluid" style="margin: 2% 3% 5% 2%;" data-ng-switch on="label.loading">
+  <div class="row"><i class="fa fa-close fa-2x light-gray pull-right pointer" ng-click="closeFunction()"  data-ng-switch-when="false"></i></div>
+  <div class="row row-margin-double">
+    <div class="text-orange-heading28-reg text-center caution-icon title-dialog" ng-class="{'loading-caution' : label.loading}" tabindex="0">{{label.title}}</div>
+  </div>
+  <div class="row text-center dark-gray-16" tabindex="0">{{label.description}}</div>
+  <div class="row text-center" data-ng-class="{'row-margin-top-double' : !label.loading, 'row-margin-double' : !label.noAction.length && !label.yesAction.length}">
+    <div class="col-md-2"></div>
+    <div class="col-md-4 text-right" data-ng-switch-when="false">
+      <button ng-show="label.noAction.length" class="btn btn-margin btn-dark-gray btn-width" ng-click="noFunction()" aria-label="Press Spacebar to {{label.noAction}}">{{label.noAction}}</button>
+    </div>
+    <div class="col-md-4 pull-left" data-ng-switch-when="false">
+      <button ng-show="label.yesAction.length" class="btn btn-orange btn-width" ng-click="yesFunction()" aria-label="Press Spacebar to {{label.yesAction}}">{{label.yesAction}}</button>
+    </div>
+    <div class="col-md-8 text-align" data-ng-switch-when="true">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+
+      <div>Loading...</div>
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+</div>

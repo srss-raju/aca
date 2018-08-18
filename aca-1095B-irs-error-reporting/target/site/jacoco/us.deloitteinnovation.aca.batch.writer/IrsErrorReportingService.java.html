@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsErrorReportingService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.writer</a> &gt; <span class="el_source">IrsErrorReportingService.java</span></div><h1>IrsErrorReportingService.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.writer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import us.deloitteinnovation.aca.batch.constants.IrsErrorReportingContants;
+import us.deloitteinnovation.aca.batch.dto.ErrorDetailsDTO;
+import us.deloitteinnovation.aca.batch.dto.TransmitterErrorDetailGrpDTO;
+import us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore;
+import us.deloitteinnovation.aca.entity.IrsTransmissionErrors;
+import us.deloitteinnovation.aca.repository.*;
+import us.gov.treasury.irs.common.ErrorMessageDetail;
+
+import java.util.Date;
+
+
+/**
+ * Created by tthakore on 4/8/2016.
+ */
+@Transactional(propagation = Propagation.REQUIRED)
+<span class="nc" id="L23">public class IrsErrorReportingService {</span>
+<span class="nc" id="L24">    private ErrorReportingObjectStore errorReportingObjectStore = ErrorReportingObjectStore.getInstance();</span>
+<span class="fc" id="L25">    private static Logger logger = LoggerFactory.getLogger(IrsErrorReportingService.class);</span>
+
+    @Autowired
+    IrsRecordDetails1095BRepository irsRecordDetails1095BRepository;
+
+    @Autowired
+    IrsTransmissionErrorsRepository irsTransmissionErrorsRepository;
+
+    @Autowired
+    IrsSubmissionDetailsRepository irsSubmissionDetailsRepository;
+
+    @Autowired
+    FilerDemographicIrsErrorRepository filerDemographicRepository;
+
+    @Autowired
+    Irs1095XMLRepository irs1095XML;
+
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateDBStatus(ErrorDetailsDTO item) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L46">            logger.debug(&quot;Start of generateReportFile..... &quot;);</span>
+        }
+<span class="nc" id="L48">        Integer transmissionID = errorReportingObjectStore.getCurrentTransmissionID();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (TransmitterErrorDetailGrpDTO errorObject : item.getTransmitterErrorDetailGrps()) {</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            Integer submissionID = (errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() != null) ? Integer.valueOf(errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId().split(&quot;\\|&quot;)[1]) : Integer.valueOf(errorObject.getTransmitterErrorDetailGrp().getUniqueRecordId().split(&quot;\\|&quot;)[1]);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            Integer recordID = (errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() != null) ? 0 : Integer.valueOf(errorObject.getTransmitterErrorDetailGrp().getUniqueRecordId().split(&quot;\\|&quot;)[2]);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            String errorID = (errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() != null) ? errorObject.getTransmitterErrorDetailGrp().getUniqueSubmissionId() : errorObject.getTransmitterErrorDetailGrp().getUniqueRecordId();</span>
+<span class="nc" id="L53">            Long sourceUID = errorObject.getRecepientUID();</span>
+<span class="nc" id="L54">            String sourceCD = errorObject.getSourceCD();</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">            if (errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails() != null &amp;&amp; errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails().size() &gt; 0) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                for (ErrorMessageDetail obj : errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails()) {</span>
+<span class="nc" id="L57">                    String eMsgCode = obj.getErrorMessageCd();</span>
+<span class="nc" id="L58">                    String eMsgText = obj.getErrorMessageTxt();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                    String xPath = (obj.getXpathContent() != null) ? obj.getXpathContent() : &quot;&quot;;</span>
+                    // inserting irs  error record into error details table.item
+<span class="nc" id="L61">                    IrsTransmissionErrors irsTransmissionErrors = new IrsTransmissionErrors();</span>
+<span class="nc" id="L62">                    irsTransmissionErrors.setErrorElementName(xPath);</span>
+<span class="nc" id="L63">                    irsTransmissionErrors.setErrorId(errorID);</span>
+<span class="nc" id="L64">                    irsTransmissionErrors.setErrorMsgCode(eMsgCode);</span>
+<span class="nc" id="L65">                    irsTransmissionErrors.setErrorMsgText(eMsgText);</span>
+<span class="nc" id="L66">                    irsTransmissionErrors.setReceiptId(errorReportingObjectStore.getReceiptIdFromFileName(errorReportingObjectStore.getCurrentFileName()));</span>
+<span class="nc" id="L67">                    irsTransmissionErrors.setRecordId(recordID);</span>
+<span class="nc" id="L68">                    irsTransmissionErrors.setSubmissionId(submissionID);</span>
+<span class="nc" id="L69">                    irsTransmissionErrors.setTransmissionId(transmissionID);</span>
+<span class="nc" id="L70">                    irsTransmissionErrors.setUpdatedDate(new Date(System.currentTimeMillis()));</span>
+<span class="nc" id="L71">                    irsTransmissionErrors.setUpdatedBy(IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+<span class="nc" id="L72">                    logger.info(&quot;inserting records into  irsTransmissionErrors ..... &quot;);</span>
+<span class="nc" id="L73">                    irsTransmissionErrorsRepository.save(irsTransmissionErrors);</span>
+<span class="nc" id="L74">                    logger.info(&quot;updating error record status ..... &quot; + errorObject.getRecepientUID());</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                    if (errorObject.getTransmitterErrorDetailGrp().getSubmissionLevelStatusCd() != null) {</span>
+
+<span class="nc" id="L77">                        String submissionLvlStatusCode = getSubmissionLvlStatusCode(errorObject.getTransmitterErrorDetailGrp().getSubmissionLevelStatusCd().value());</span>
+<span class="nc" id="L78">                        logger.info(&quot;updating  records into  irsSubmissionDetails ..... &quot;);</span>
+                        // if submissionLvlStatusCode  then we have submission status to update into irs submission details table
+
+<span class="nc" id="L81">                        irsSubmissionDetailsRepository.updateSubmissionStatus(transmissionID, submissionID, submissionLvlStatusCode, new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+                    }
+                    //update filer demographics with IRS_TRANSMISSION_STATUS_CD as error.
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                    if (recordID != 0) {</span>
+                        // update error record status in database for irs_transmission_record table this status should come from cache so that we can use db mappings in future .
+<span class="nc" id="L86">                        logger.info(&quot;updating error records into  irsRecordDetails1095B ..... &quot;);</span>
+<span class="nc" id="L87">                        irsRecordDetails1095BRepository.updateStatus(transmissionID, submissionID, recordID, IrsErrorReportingContants.ERROR, new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+<span class="nc" id="L88">                        logger.info(&quot;updating error records into   filerDemographic ..... &quot;);</span>
+<span class="nc" id="L89">                        filerDemographicRepository.updateIrsStatusCD(sourceCD, sourceUID, errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ERROR).getId().getStatusCD(), new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM, IrsErrorReportingContants.CORRECTED);</span>
+<span class="nc" id="L90">                        logger.info(&quot;updating error status to irs xml table&quot;);</span>
+<span class="nc" id="L91">                        irs1095XML.updateCorrectionStatus(sourceUID, sourceCD, IrsErrorReportingContants.CORRECTION, new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+                    }
+<span class="nc" id="L93">                }</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            } else if (errorObject.getTransmitterErrorDetailGrp().getErrorMessageDetails() != null) {</span>
+                // if this condition is true it means we have a record with no error message details but it might have submission status so we have to update this into database as discussed with tejal and pushpanjali(QA)
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (errorObject.getTransmitterErrorDetailGrp().getSubmissionLevelStatusCd() != null) {</span>
+<span class="nc" id="L97">                    String submissionLvlStatusCode = getSubmissionLvlStatusCode(errorObject.getTransmitterErrorDetailGrp().getSubmissionLevelStatusCd().value());</span>
+<span class="nc" id="L98">                    logger.info(&quot;updating  records into  irsSubmissionDetails ..... &quot;);</span>
+                    // if submissionLvlStatusCode  then we have submission status to update into irs submission details table
+<span class="nc" id="L100">                    irsSubmissionDetailsRepository.updateSubmissionStatus(transmissionID, submissionID, submissionLvlStatusCode, new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+                }
+            }
+<span class="nc" id="L103">        }</span>
+
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (TransmitterErrorDetailGrpDTO acceptedObject : item.getAcceptedRecord()) {</span>
+
+<span class="nc" id="L108">            logger.info(&quot;updating accepted record into filerDemographicRepository status .....{} &quot;, acceptedObject.getRecepientUID());</span>
+<span class="nc" id="L109">            filerDemographicRepository.updateIrsStatusCD(acceptedObject.getSourceCD(), acceptedObject.getRecepientUID(), errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ACCEPTED).getId().getStatusCD(), new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM,IrsErrorReportingContants.CORRECTED);</span>
+<span class="nc" id="L110">            logger.info(&quot;updating success records into    irsRecordDetails1095B ..... {}&quot;, acceptedObject.getRecepientUID());</span>
+<span class="nc" id="L111">            irsRecordDetails1095BRepository.updateStatus(transmissionID, acceptedObject.getSubmissionID(), acceptedObject.getRecordID(), acceptedObject.getRecordStatus(), new Date(System.currentTimeMillis()), IrsErrorReportingContants.IRS_ERROR_MANAGEMENT_SYSTEM);</span>
+
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">    }</span>
+
+    /**
+     *
+     *
+     *
+     *  **/
+    public String getSubmissionLvlStatusCode(String statusDesc) {
+<span class="nc" id="L122">        String status = &quot;&quot;;</span>
+<span class="nc bnc" id="L123" title="All 14 branches missed.">        switch (statusDesc) {</span>
+            case IrsErrorReportingContants.ACCEPTED_STATUS:
+<span class="nc" id="L125">                status = errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ACCEPTED).getId().getStatusCD();</span>
+<span class="nc" id="L126">                break;</span>
+            case IrsErrorReportingContants.ACCEPTED_WITH_ERRORS_STATUS:
+<span class="nc" id="L128">                status = errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.ACCEPTED_WITH_ERRORS).getId().getStatusCD();</span>
+<span class="nc" id="L129">                break;</span>
+            case IrsErrorReportingContants.REJECTED_STATUS:
+<span class="nc" id="L131">                status = errorReportingObjectStore.transmissionStatusesMap.get(IrsErrorReportingContants.REJECTED).getId().getStatusCD();</span>
+                break;
+        }
+
+<span class="nc" id="L135">        return status;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

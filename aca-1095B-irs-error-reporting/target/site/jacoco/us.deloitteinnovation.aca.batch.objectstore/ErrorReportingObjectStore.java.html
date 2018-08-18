@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorReportingObjectStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.objectstore</a> &gt; <span class="el_source">ErrorReportingObjectStore.java</span></div><h1>ErrorReportingObjectStore.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.objectstore;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import us.deloitteinnovation.aca.entity.IrsErrorCodeOwnerMapEntity;
+import us.deloitteinnovation.aca.entity.IrsRecordDetails1095B;
+import us.deloitteinnovation.aca.entity.IrsTransmissionDetails;
+import us.deloitteinnovation.aca.entity.IrsTransmissionStatus;
+import us.deloitteinnovation.aca.repository.IrsErrorCodeOwnerMapRepository;
+import us.deloitteinnovation.aca.repository.IrsTransmissionDetailsRepository;
+import us.deloitteinnovation.aca.repository.IrsTransmissionStatusRepository;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+/**
+ * Created by tthakore on 3/28/2016.
+ */
+
+public class ErrorReportingObjectStore {
+
+<span class="fc" id="L27">    final Properties configProps = new Properties();</span>
+<span class="fc" id="L28">    private static ErrorReportingObjectStore errorReportingObjectStore = null;</span>
+    private String currentFileName;
+<span class="fc" id="L30">    private static Logger logger = LoggerFactory.getLogger(ErrorReportingObjectStore.class);</span>
+    private IrsTransmissionDetailsRepository irsTransmissionService;
+    private IrsTransmissionStatusRepository irsTransmissionStatusService;
+    private IrsErrorCodeOwnerMapRepository irsErrorCodeOwnerMapService;
+<span class="fc" id="L34">    public Map&lt;String, IrsTransmissionDetails&gt; receiptTransmissionIDMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L35">    public Map&lt;String, IrsRecordDetails1095B&gt; currentTransmissionRecordMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L36">    private Integer submissionErrorCount = 0;</span>
+<span class="fc" id="L37">    private Integer recordErrorCount = 0;</span>
+<span class="fc" id="L38">    private Integer acceptedRecordCount = 0;</span>
+<span class="fc" id="L39">    private String outPutFolderPath = &quot;&quot;;</span>
+<span class="fc" id="L40">    private String inPutFolderPath = &quot;&quot;;</span>
+<span class="fc" id="L41">    private List&lt;String&gt; processedFileNameList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L42">    private List&lt;String&gt; skippedFileNameList = new ArrayList&lt;&gt;();</span>
+    public static final String OUTPUT_FOLDER = &quot;_OUTPUT_FOLDER&quot;;
+    public static final String INPUT_FOLDER = &quot;_INPUT_FOLDER&quot;;
+<span class="fc" id="L45">    public Map&lt;String, IrsTransmissionStatus&gt; transmissionStatusesMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L46">    public Map&lt;String, IrsErrorCodeOwnerMapEntity&gt; irsErrorCodeOwnerMapEntity = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L47">    private String originalFileName = &quot;&quot;;</span>
+
+<span class="fc" id="L49">    private ErrorReportingObjectStore() {</span>
+        try {
+<span class="fc" id="L51">            final InputStream in = getClass().getClassLoader().getResourceAsStream(String.format(&quot;common.properties&quot;));</span>
+<span class="fc" id="L52">            configProps.load(in);</span>
+<span class="nc" id="L53">        } catch (IOException ex) {</span>
+<span class="nc" id="L54">            throw new IllegalArgumentException(&quot;ErrorReportingObjectStore :Unable to read file common.properties&quot;);</span>
+<span class="fc" id="L55">        }</span>
+
+<span class="fc" id="L57">    }</span>
+
+    public static ErrorReportingObjectStore getInstance() {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (errorReportingObjectStore == null) {</span>
+<span class="fc" id="L61">            errorReportingObjectStore = new ErrorReportingObjectStore();</span>
+        }
+<span class="fc" id="L63">        return errorReportingObjectStore;</span>
+    }
+
+    public String getErrorFileFolder(String stateCode) throws IOException {
+        String statepath;
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">        if (configProps.containsKey(stateCode.toUpperCase() + INPUT_FOLDER) &amp;&amp; configProps.containsKey(stateCode.toUpperCase() + OUTPUT_FOLDER)) {</span>
+<span class="fc" id="L69">            statepath = configProps.getProperty(stateCode.toUpperCase() + INPUT_FOLDER);</span>
+<span class="fc" id="L70">            outPutFolderPath = configProps.getProperty(stateCode.toUpperCase() + OUTPUT_FOLDER);</span>
+        } else {
+<span class="nc" id="L72">            throw new IllegalArgumentException(&quot;wrong state name entered&quot;);</span>
+        }
+
+<span class="fc" id="L75">        inPutFolderPath = statepath;</span>
+<span class="fc" id="L76">        return statepath+&quot;XML/&quot;;</span>
+    }
+
+
+    public Resource[] getAvailableErrorXml(String stateCode) throws IOException {
+<span class="nc" id="L81">        String stateFolder = getErrorFileFolder(stateCode);</span>
+<span class="nc" id="L82">        File folder = new File(stateFolder);</span>
+<span class="nc" id="L83">        ArrayList&lt;Resource&gt; fList = new ArrayList();</span>
+<span class="nc" id="L84">        File[] listOfFiles = folder.listFiles(new FilenameFilter() {</span>
+            @Override
+            public boolean accept(File dir, String name) {
+<span class="nc" id="L87">                return name.endsWith(&quot;.xml&quot;);</span>
+            }
+        });
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (int i = 0; i &lt; listOfFiles.length; i++) {</span>
+
+<span class="nc" id="L92">            String receiptID = &quot;&quot;;</span>
+            IrsTransmissionDetails irsTransmissionDetails;
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (listOfFiles[i].isFile()) {</span>
+<span class="nc" id="L95">                String fileName = listOfFiles[i].getName();</span>
+<span class="nc" id="L96">                receiptID = getReceiptIdFromFileName(fileName);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                irsTransmissionDetails = (receiptID.length() &gt; 0) ? getTransmissionInfoFromReceiptID(receiptID) : null;</span>
+<span class="nc bnc" id="L98" title="All 6 branches missed.">                if (receiptID.length() &gt; 0 &amp;&amp; irsTransmissionDetails != null &amp;&amp; irsTransmissionDetails.getTransmissionId() != null) {</span>
+<span class="nc" id="L99">                    Resource fsResource = new FileSystemResource(listOfFiles[i].getPath());</span>
+<span class="nc" id="L100">                    fList.add(fsResource);</span>
+<span class="nc" id="L101">                    receiptTransmissionIDMap.put(receiptID, irsTransmissionDetails);</span>
+<span class="nc" id="L102">                }</span>
+                else
+                {
+<span class="nc" id="L105">                    getSkippedFileNameList().add(fileName);</span>
+                }
+            }
+        }
+<span class="nc" id="L109">        Resource[] fileList = new Resource[fList.size()];</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        for (int i = 0; i &lt; fList.size(); i++) {</span>
+<span class="nc" id="L111">            fileList[i] = (Resource) fList.get(i);</span>
+        }
+
+<span class="nc" id="L114">        return fileList;</span>
+    }
+
+    public String getReceiptIdFromFileName(String fileName) {
+<span class="fc" id="L118">        String receiptID = &quot;&quot;;</span>
+        try {
+<span class="fc" id="L120">            receiptID = (fileName.split(&quot;_&quot;)[1]);//.toString().split(&quot;-&quot;)[2];</span>
+<span class="nc" id="L121">        } catch (Exception ex) {</span>
+<span class="nc" id="L122">            logger.error(&quot;Invalid FileName :&quot; + fileName + &quot; &quot;, ex);</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">        return receiptID;</span>
+    }
+
+
+    public IrsTransmissionDetails getTransmissionInfoFromReceiptID(String receiptID) {
+<span class="fc" id="L129">        IrsTransmissionDetails transmissionInfo = new IrsTransmissionDetails();</span>
+        try {
+<span class="fc" id="L131">            List&lt;IrsTransmissionDetails&gt; irsTransmissionDetailses = irsTransmissionService.findByTransmissionReceiptId(receiptID);</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">            if (irsTransmissionDetailses.size() &gt; 0) {</span>
+<span class="fc" id="L133">                IrsTransmissionDetails item = irsTransmissionService.findByTransmissionReceiptId(receiptID).get(0);</span>
+<span class="fc" id="L134">                transmissionInfo.setTransmissionId(item.getTransmissionId());</span>
+<span class="fc" id="L135">                transmissionInfo.setTransmissionFileName(item.getTransmissionFileName());</span>
+            }
+<span class="nc" id="L137">        } catch (Exception ex) {</span>
+<span class="nc" id="L138">            logger.error(&quot;unable to find transmission id for receiptID:&quot; + receiptID + &quot; File will be ignored.&quot;, ex);</span>
+<span class="fc" id="L139">        }</span>
+
+<span class="fc" id="L141">        return transmissionInfo;</span>
+    }
+
+    public List&lt;String&gt; getProcessedFileNameList() {
+<span class="nc" id="L145">        return processedFileNameList;</span>
+    }
+
+    public void setProcessedFileNameList(List&lt;String&gt; processedFileNameList) {
+<span class="nc" id="L149">        this.processedFileNameList = processedFileNameList;</span>
+<span class="nc" id="L150">    }</span>
+
+
+    /**
+     * all the getters and setters will start from here
+     **/
+    public IrsTransmissionDetailsRepository getIrsTransmissionService() {
+<span class="nc" id="L157">        return irsTransmissionService;</span>
+    }
+
+    public void setIrsTransmissionService(IrsTransmissionDetailsRepository irsTransmissionService) {
+<span class="fc" id="L161">        this.irsTransmissionService = irsTransmissionService;</span>
+
+<span class="fc" id="L163">    }</span>
+
+    public Integer getCurrentTransmissionID() {
+<span class="nc" id="L166">        String receiptID = getReceiptIdFromFileName(getCurrentFileName());</span>
+<span class="nc" id="L167">        return Integer.valueOf(receiptTransmissionIDMap.get(receiptID).getTransmissionId());</span>
+    }
+
+    public String getCurrentFileName() {
+<span class="nc" id="L171">        return currentFileName;</span>
+    }
+
+    public void setCurrentFileName(String currentFileName) {
+<span class="nc" id="L175">        this.currentFileName = currentFileName;</span>
+<span class="nc" id="L176">    }</span>
+
+    public Properties getConfigProps() {
+<span class="nc" id="L179">        return configProps;</span>
+    }
+
+    public Integer getAcceptedRecordCount() {
+<span class="nc" id="L183">        return acceptedRecordCount;</span>
+    }
+
+    public void setAcceptedRecordCount(Integer acceptedRecordCount) {
+<span class="nc" id="L187">        this.acceptedRecordCount = acceptedRecordCount;</span>
+<span class="nc" id="L188">    }</span>
+
+    public Integer getRecordErrorCount() {
+<span class="nc" id="L191">        return recordErrorCount;</span>
+    }
+
+    public void setRecordErrorCount(Integer recordErrorCount) {
+<span class="nc" id="L195">        this.recordErrorCount = recordErrorCount;</span>
+<span class="nc" id="L196">    }</span>
+
+    public Integer getSubmissionErrorCount() {
+<span class="nc" id="L199">        return submissionErrorCount;</span>
+    }
+
+    public void setSubmissionErrorCount(Integer submissionErrorCount) {
+<span class="nc" id="L203">        this.submissionErrorCount = submissionErrorCount;</span>
+<span class="nc" id="L204">    }</span>
+
+    public String getOutPutFolderPath() {
+<span class="fc" id="L207">        return outPutFolderPath;</span>
+    }
+
+    public String getInputFolderPath() {
+<span class="nc" id="L211">        return inPutFolderPath;</span>
+    }
+
+    public void setOutPutFolderPath(String outPutFolderKey) {
+<span class="nc" id="L215">        this.outPutFolderPath = outPutFolderKey;</span>
+<span class="nc" id="L216">    }</span>
+
+    public IrsTransmissionStatusRepository getIrsTransmissionStatusService() {
+<span class="nc" id="L219">        return irsTransmissionStatusService;</span>
+    }
+
+    public void setIrsTransmissionStatusService(IrsTransmissionStatusRepository irsTransmissionStatusService) {
+<span class="nc" id="L223">        this.irsTransmissionStatusService = irsTransmissionStatusService;</span>
+<span class="nc" id="L224">        List&lt;IrsTransmissionStatus&gt; transmissionStatuses = irsTransmissionStatusService.getTransmissionStatus(&quot;%ERS%&quot;);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        for (IrsTransmissionStatus statusObj : transmissionStatuses) {</span>
+<span class="nc" id="L226">            transmissionStatusesMap.put(statusObj.getId().getStatusCD(), statusObj);</span>
+<span class="nc" id="L227">        }</span>
+<span class="nc" id="L228">    }</span>
+
+    public IrsErrorCodeOwnerMapRepository getIrsErrorCodeOwnerMapService() {
+<span class="nc" id="L231">        return irsErrorCodeOwnerMapService;</span>
+    }
+
+    public void setIrsErrorCodeOwnerMapService(IrsErrorCodeOwnerMapRepository irsErrorCodeOwnerMapService) {
+<span class="nc" id="L235">        this.irsErrorCodeOwnerMapService = irsErrorCodeOwnerMapService;</span>
+<span class="nc" id="L236">        List&lt;IrsErrorCodeOwnerMapEntity&gt; irsErrorCodeOwnerMapEntities = irsErrorCodeOwnerMapService.getTransmissionStatus();</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        for (IrsErrorCodeOwnerMapEntity statusObj : irsErrorCodeOwnerMapEntities) {</span>
+<span class="nc" id="L238">            irsErrorCodeOwnerMapEntity.put(statusObj.getErrorCode(), statusObj);</span>
+<span class="nc" id="L239">        }</span>
+<span class="nc" id="L240">    }</span>
+
+    public List&lt;String&gt; getSkippedFileNameList() {
+<span class="nc" id="L243">        return skippedFileNameList;</span>
+    }
+
+    public void setSkippedFileNameList(List&lt;String&gt; skippedFileNameList) {
+<span class="nc" id="L247">        this.skippedFileNameList = skippedFileNameList;</span>
+<span class="nc" id="L248">    }</span>
+    public String getOriginalFileName() {
+<span class="nc" id="L250">        return originalFileName;</span>
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+<span class="nc" id="L254">        this.originalFileName = originalFileName;</span>
+<span class="nc" id="L255">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step1Form1095PrintVendorWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step1</a> &gt; <span class="el_source">Step1Form1095PrintVendorWriter.java</span></div><h1>Step1Form1095PrintVendorWriter.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step1;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.batch.export.TransmissionIdStack;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+import us.deloitteinnovation.aca.batch.export.step3.Step3Form109495Pairing;
+import us.deloitteinnovation.aca.batch.export.step3.Step3ProcessorResult;
+import us.deloitteinnovation.aca.batch.export.step4.Step4109495Data;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495HeaderAndXmlDto;
+import us.deloitteinnovation.aca.batch.export.step4.Step4ManifestData;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.constants.PrintVendorConstants;
+import us.deloitteinnovation.aca.entity.FilerDemographic;
+import us.deloitteinnovation.aca.entity.FilerDemographicPK;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+import us.deloitteinnovation.aca.entity.PrintDetailPK;
+import us.deloitteinnovation.aca.exception.PrintVendorFileNameVerificationDecider;
+import us.deloitteinnovation.aca.jaxb.JaxbUtils;
+import us.deloitteinnovation.aca.repository.*;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.common.BinaryFormatCodeType;
+import us.gov.treasury.irs.ext.aca.air._7.*;
+import us.gov.treasury.irs.msg.acauibusinessheader.TransmitterACAUIBusinessHeaderType;
+import us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.Form109495BTrnsmtUpstreamType;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.*;
+
+/**
+ * Renders each Form1095BUpstreamDetailType as encapsulated within the list of Form1095bProcessDto objects.
+ * Stores the entire Form1095bProcessDto, along with rendered XML to the ExportJob1095Repository.
+ *
+ * @see Form1095BUpstreamDetailType
+ * @see ExportJob1095Repository
+ * @see Step1Form1095Dto
+ */
+@Component
+<span class="nc" id="L72">public class Step1Form1095PrintVendorWriter implements ItemWriter&lt;Step1Form1095Dto&gt; {</span>
+<span class="nc" id="L73">    private static final Logger LOG = LoggerFactory.getLogger(Step1Form1095PrintVendorWriter.class);</span>
+<span class="nc" id="L74">    private static Pattern FORM_1094_END_ELEMENT_MATCHER = Pattern.compile(&quot;&lt;/.*?Form1094BUpstreamDetail&gt;&quot;);</span>
+    @Autowired
+    @Qualifier(&quot;jaxb2FragmentMarshaller&quot;)
+    protected Jaxb2Marshaller jaxb2FragmentMarshaller;
+    StepExecution stepExecution;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService ;
+    @Autowired
+    TransmissionIdStack transmissionIdStack;
+    @Autowired
+    BatchInfoService batchInfoService;
+    @Autowired
+    PrintVendorJdbcRepository printVendorJdbcRepository;
+    @Autowired
+    @Qualifier(&quot;jaxb2Marshaller&quot;)
+    Jaxb2Marshaller                     jaxb2Marshaller;
+    @Autowired
+    ExportJob1095Repository             exportJobRepository;
+    @Autowired
+    IrsTransmissionDetailsRepository    irsTransmissionDetailsRepository;
+    @Autowired
+    IrsSubmissionDetailsRepository      irsSubmissionDetailsRepository;
+    @Autowired
+    IrsRecordDetails1095BRepository     irsRecordDetails1095BRepository;
+    @Autowired
+    IrsRecordDetails1095BJdbcRepository irsRecordDetails1095BJdbcRepository;
+    @Autowired
+    Irs1095XMLRepository irs1095XMLRepository;
+    @Autowired
+    ProfileProperties                   profileProperties;
+<span class="nc" id="L104">    us.gov.treasury.irs.msg.acauibusinessheader.ObjectFactory  headerObjectFactory = new us.gov.treasury.irs.msg.acauibusinessheader.ObjectFactory() ;</span>
+    @Autowired
+    PrintVendorFileNameVerificationDecider printVendorFileNameVerificationDecider;
+    String currentFileName;
+<span class="nc" id="L108">    BatchInfoDto batchInfo = null;</span>
+<span class="nc" id="L109">    private ObjectFactory air7ObjectFactory = new ObjectFactory();</span>
+<span class="nc" id="L110">    private ObjectFactory step3Air7ObjectFactory = new ObjectFactory();</span>
+<span class="nc" id="L111">    private us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.ObjectFactory messageObjectFactory = new us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.ObjectFactory();</span>
+
+    /**
+     * Renders the Form1095bProcessDto data as XML and stores it within a Step1Form1095Dto object
+     * in the ExportJob1095Repository.
+     *
+     * @param aca1095Forms
+     * @throws Exception
+     */
+    @Override
+    public void write(List&lt;? extends Step1Form1095Dto&gt; aca1095Forms) throws Exception {
+        String xmlString;
+<span class="nc" id="L123">        List&lt;PrintDetail&gt; printDetailList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L124">        List&lt;FilerDemographic&gt; filerDemographicList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L125">        PrintVendorConstants.FILECOUNT = PrintVendorConstants.FILECOUNT + 1;</span>
+<span class="nc" id="L126">        batchInfo = new BatchInfoDto();</span>
+<span class="nc" id="L127">    	batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L128">        int batchId = batchInfoService.save(batchInfo);</span>
+<span class="nc" id="L129">        LOG.info(&quot;Batch Id  -----&gt;&gt;&gt; &quot;+batchId);</span>
+<span class="nc" id="L130">        batchInfo.setBatchId(batchId);</span>
+<span class="nc" id="L131">        String filename = ExportUtil.createFileNameForPrintVendor(stepExecution);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (Step1Form1095Dto step1Form1095Dto : aca1095Forms) {</span>
+<span class="nc" id="L133">            xmlString = writeAsXml(step1Form1095Dto.form1095BUpstreamDetailType, this.jaxb2FragmentMarshaller, this.air7ObjectFactory);</span>
+
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L136">                LOG.debug(&quot;Form 1095B for source code {} and source unique id {}:\n{}&quot;, step1Form1095Dto.getFiler().getSourceCd(), step1Form1095Dto.getFiler().getSourceUniqueId(), xmlString);</span>
+            }
+<span class="nc" id="L138">            step1Form1095Dto.setRawXml(xmlString.getBytes(Charset.forName(&quot;UTF-8&quot;)));</span>
+<span class="nc" id="L139">            PrintDetail printDetail = new PrintDetail();</span>
+<span class="nc" id="L140">            createPrintDetailsData(printDetail, printDetailList,step1Form1095Dto,filename);</span>
+<span class="nc" id="L141">            FilerDemographic filerDemographic = new FilerDemographic();</span>
+<span class="nc" id="L142">            updateFilerDemographicStatus(filerDemographic,filerDemographicList,step1Form1095Dto);</span>
+<span class="nc" id="L143">        }</span>
+        
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (LOG.isInfoEnabled()) {</span>
+<span class="nc" id="L146">            LOG.info(&quot;Step1 write finished size {}&quot;, aca1095Forms.size());</span>
+        }
+<span class="nc" id="L148">        stepExecution.getJobExecution().getExecutionContext().put(&quot;FORM1095BList&quot;, aca1095Forms) ;</span>
+<span class="nc" id="L149">        stepExecution.getJobExecution().getExecutionContext().put(&quot;PRINTDETAILSLIST&quot;, printDetailList) ;</span>
+<span class="nc" id="L150">        stepExecution.getJobExecution().getExecutionContext().put(&quot;FILERDEMOSTATUS&quot;, filerDemographicList) ;</span>
+<span class="nc" id="L151">        stepExecution.getJobExecution().getExecutionContext().put(&quot;FILECOUNT&quot;, PrintVendorConstants.FILECOUNT) ;</span>
+        
+<span class="nc" id="L153">        form109495Pairing();</span>
+        
+<span class="nc" id="L155">    }</span>
+
+    /**
+     * Helper method to render a Form1095B as XML.
+     *
+     * @param form1095b
+     * @param marshaller
+     * @param air7ObjectFactory
+     * @return Form 1095B data as an XML String.
+     */
+    protected static String writeAsXml(Form1095BUpstreamDetailType form1095b, Jaxb2Marshaller marshaller, ObjectFactory air7ObjectFactory) {
+        // Wrap the IRS data object in the SOAP wrapper
+<span class="nc" id="L167">        JAXBElement&lt;Form1095BUpstreamDetailType&gt; elementWrapper = air7ObjectFactory.createForm1095BUpstreamDetail(form1095b);</span>
+<span class="nc" id="L168">        StringWriter writer = new StringWriter();</span>
+<span class="nc" id="L169">        marshaller.marshal(elementWrapper, new StreamResult(writer));</span>
+<span class="nc" id="L170">        return writer.toString();</span>
+    }
+
+	private void createPrintDetailsData(PrintDetail printDetail, List&lt;PrintDetail&gt; printDetailList,Step1Form1095Dto step1Form1095Dto,String filename){
+<span class="nc" id="L174">        PrintDetailPK filerDemographicPK= new PrintDetailPK();</span>
+<span class="nc" id="L175">        filerDemographicPK.setSourceUniqueId(step1Form1095Dto.getFiler().getSourceUniqueId());</span>
+<span class="nc" id="L176">        filerDemographicPK.setSourceCd(step1Form1095Dto.getFiler().getSourceCd());</span>
+<span class="nc" id="L177">        filerDemographicPK.setTaxYear(step1Form1095Dto.getFiler().getTaxYear());</span>
+<span class="nc" id="L178">        printDetail.setId(filerDemographicPK);</span>
+<span class="nc" id="L179">        printDetail.setBatchId(batchInfo.getBatchId());</span>
+<span class="nc" id="L180">        printDetail.getId().setPrintFileName(filename);</span>
+<span class="nc" id="L181">        printDetail.setPrintStatus(CommonDataConstants.PrintStatus.READY_TO_MAIL);</span>
+<span class="nc" id="L182">        printDetail.setUpdatedBy(CommonEntityConstants.SYSTEM);</span>
+<span class="nc" id="L183">        printDetail.setUpdatedDt(new Date());</span>
+<span class="nc" id="L184">        printDetail.setPrintReason(step1Form1095Dto.getFiler().getUpdatedBy());</span>
+<span class="nc" id="L185">        printDetail.setOriginalFormStatus(step1Form1095Dto.getFiler().getFormStatus());</span>
+<span class="nc" id="L186">        printDetail.setCorrectionIndicator(step1Form1095Dto.getFiler().getCorrectionIndicator());</span>
+<span class="nc" id="L187">        printDetailList.add(printDetail);</span>
+<span class="nc" id="L188">    }</span>
+
+    private void updateFilerDemographicStatus(FilerDemographic filerDemographic, List&lt;FilerDemographic&gt; filerDemographicList, Step1Form1095Dto step1Form1095Dto) {
+<span class="nc" id="L191">        FilerDemographicPK filerDemographicPK = new FilerDemographicPK();</span>
+<span class="nc" id="L192">        filerDemographicPK.setSourceUniqueId(step1Form1095Dto.getFiler().getSourceUniqueId());</span>
+<span class="nc" id="L193">        filerDemographicPK.setSourceCd(step1Form1095Dto.getFiler().getSourceCd());</span>
+<span class="nc" id="L194">        filerDemographicPK.setTaxYear(Integer.parseInt(step1Form1095Dto.getFiler().getTaxYear()));</span>
+<span class="nc" id="L195">        filerDemographic.setId(filerDemographicPK);</span>
+<span class="nc" id="L196">        filerDemographic.setFormStatus(CommonDataConstants.FormStatus.FORM_STATUS_GENERATED);</span>
+<span class="nc" id="L197">        filerDemographicList.add(filerDemographic);</span>
+<span class="nc" id="L198">    }</span>
+
+    private void form109495Pairing() throws Exception{
+<span class="nc" id="L201">    	List&lt;Step2Form1094Dto&gt; form1094Data=(List&lt;Step2Form1094Dto&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;FORM1094BList&quot;);</span>
+<span class="nc" id="L202">        Step3Form109495Pairing dto = new Step3Form109495Pairing();</span>
+<span class="nc" id="L203">        dto.setStep2Form1094bDto(form1094Data.get(0));</span>
+<span class="nc" id="L204">        dto.setStep1Form1095bDtoList((List&lt;Step1Form1095Dto&gt;) stepExecution.getJobExecution().getExecutionContext().get(&quot;FORM1095BList&quot;));</span>
+<span class="nc" id="L205">        step3Process(dto);</span>
+<span class="nc" id="L206">    }</span>
+    
+    public void step3Process(Step3Form109495Pairing step3ProcessorPairing) throws Exception {
+<span class="nc" id="L209">        Step3ProcessorResult result = new Step3ProcessorResult() ;</span>
+<span class="nc" id="L210">        List&lt;Step3ProcessorResult&gt; list = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L212">        Step2Form1094Dto form1094bDto = step3ProcessorPairing.getStep2Form1094bDto() ;</span>
+<span class="nc" id="L213">        List&lt;Step1Form1095Dto&gt; form1095List = step3ProcessorPairing.getStep1Form1095bDtoList() ;</span>
+
+<span class="nc" id="L215">        Step3Form109495Pairing innerPair = new Step3Form109495Pairing(form1094bDto) ;</span>
+<span class="nc" id="L216">        result.getPairings().add(innerPair) ;</span>
+<span class="nc" id="L217">        int count = 0 ;</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (Step1Form1095Dto form1095bDto : form1095List) {</span>
+            // Once we have our maximum per document, store the current innerPair and continue with a new one.
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (count == 25000) {</span>
+<span class="nc" id="L221">                count = 0 ;</span>
+<span class="nc" id="L222">                innerPair = new Step3Form109495Pairing(form1094bDto) ;</span>
+<span class="nc" id="L223">                result.getPairings().add(innerPair) ;</span>
+            }
+<span class="nc" id="L225">            innerPair.step1Form1095bDtoList.add(form1095bDto) ;</span>
+<span class="nc" id="L226">            count++ ;</span>
+<span class="nc" id="L227">        }</span>
+<span class="nc" id="L228">        list.add(result);</span>
+<span class="nc" id="L229">        step3Write(list);</span>
+<span class="nc" id="L230">    }</span>
+    
+    public void step3Write(List&lt;? extends Step3ProcessorResult&gt; list) throws Exception {
+        JAXBElement&lt;Form109495BTrnsmtUpstreamType&gt; rootElementDoc;
+        Form109495BTrnsmtUpstreamType rootElement;
+        Form1094BUpstreamDetailType form1094bXmlType;
+        Step2Form1094Dto form1094bDto;
+        List&lt;String&gt; form1095BXmlList;
+
+<span class="nc" id="L239">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext());</span>
+
+        String tcc;
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        for (Step3ProcessorResult dto : list) {</span>
+
+<span class="nc" id="L244">            int submissionId = 1;</span>
+            /*  Hard coded this to 1 since we send only 1 submission per transmission.
+                This can be properly initialized when we start supporting multiple submissions
+                per transmission
+             */
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            for (Step3Form109495Pairing pairing : dto.getPairings()) {</span>
+                // Wrap the Form 1094B XML Type
+<span class="nc" id="L251">                form1094bDto = pairing.getStep2Form1094bDto();</span>
+<span class="nc" id="L252">                form1094bXmlType = form1094bDto.getForm1094BUpstreamDetailType();</span>
+<span class="nc" id="L253">                form1094bXmlType.setSubmissionId(BigInteger.valueOf(submissionId));</span>
+<span class="nc" id="L254">                form1094bXmlType.setForm1095BAttachedCnt(BigInteger.valueOf(pairing.getStep1Form1095bDtoList().size()));</span>
+                // In the future, if we support multiple 1094s per transmission, the TCC should not be stored on SourceSystemConfig
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L257">                    tcc = form1094bDto.getSourceSystemConfig().getTestTcc();</span>
+                else
+<span class="nc" id="L259">                    tcc = form1094bDto.getSourceSystemConfig().getTransmitterControlCode();</span>
+<span class="nc" id="L260">                String filename = ExportUtil.createFileNameForPrintVendor(stepExecution);</span>
+<span class="nc" id="L261">                currentFileName = filename;</span>
+<span class="nc" id="L262">                LOG.info(&quot;File Name --------&gt;&gt;&quot;+filename);</span>
+                // Add all Form 1095B XML Types
+<span class="nc" id="L264">                form1095BXmlList = new ArrayList&lt;&gt;(pairing.getStep1Form1095bDtoList().size());</span>
+<span class="nc" id="L265">                int recordCount = 1;</span>
+                String form1095xml ;
+                String prettyPrintedXML;
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                for (Step1Form1095Dto form1095bDto : pairing.getStep1Form1095bDtoList()) {</span>
+
+<span class="nc" id="L270">                   form1095xml = JaxbUtils.renderToString(jaxb2FragmentMarshaller,</span>
+<span class="nc" id="L271">                   air7ObjectFactory.createForm1095BUpstreamDetail(form1095bDto.getForm1095BUpstreamDetailType())) ;</span>
+
+<span class="nc" id="L273">                   prettyPrintedXML = ExportUtil.getPrettyPrintedXML(form1095xml);</span>
+<span class="nc" id="L274">                   form1095BXmlList.add(prettyPrintedXML) ;</span>
+<span class="nc" id="L275">                   recordCount++ ;</span>
+<span class="nc" id="L276">                }</span>
+                // Render the Form 1094 without the 1095s
+<span class="nc" id="L278">                rootElement = messageObjectFactory.createForm109495BTrnsmtUpstreamType();</span>
+<span class="nc" id="L279">                rootElement.getForm1094BUpstreamDetail().add(form1094bXmlType);</span>
+<span class="nc" id="L280">                rootElementDoc = messageObjectFactory.createForm109495BTransmittalUpstream(rootElement);</span>
+
+<span class="nc" id="L282">                File outputDir = ExportUtil.getPrintVendorOutputDirectory(profileProperties);</span>
+
+<span class="nc" id="L284">                File outputFile = new File(outputDir, filename);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L286">                    LOG.debug(&quot;Step 3 writing XML to {}&quot;, outputFile.getAbsoluteFile());</span>
+                }
+
+<span class="nc" id="L289">                writeForm1094(outputFile, rootElementDoc, form1095BXmlList);</span>
+
+                // Subtract 1 from record count, as the count will be incremented on each loop
+<span class="nc" id="L292">                ExportUtil.addForm109495FilenameForStep4(stepExecution.getJobExecution(), new Step4109495Data(outputFile, submissionId, recordCount - 1));</span>
+<span class="nc" id="L293">            }</span>
+<span class="nc" id="L294">            submissionId++;</span>
+<span class="nc" id="L295">        }</span>
+
+<span class="nc" id="L297">        step4Read();</span>
+<span class="nc" id="L298">    }</span>
+    
+    /**
+     * Outputs the combination of a single 1094 and one or more 1095s.  Since the 1095s have been pre-rendered as XML Strings,
+     * the 1094 is rendered as an XML String first, split on the end Form1094BUpstreamDetail element, and the beginning written to the file.
+     * Then all 1095s are written, followed by the closing 1094 XML.
+     * @param file
+     * @param form1094
+     * @param form1095s
+     * @throws IOException
+     */
+    protected void writeForm1094(File file, JAXBElement&lt;Form109495BTrnsmtUpstreamType&gt; form1094, List&lt;String&gt; form1095s) throws IOException {
+<span class="nc" id="L310">        String form1094xml = JaxbUtils.renderToString(jaxb2Marshaller, form1094) ;</span>
+        // Determine the position of the 1094 closing element &lt;/Form1094BUpstreamDetail&gt;
+<span class="nc" id="L312">        Matcher matcher = FORM_1094_END_ELEMENT_MATCHER.matcher(form1094xml) ;</span>
+<span class="nc" id="L313">        matcher.find() ;</span>
+<span class="nc" id="L314">        int form1094elementEndPosition = matcher.start() ;</span>
+<span class="nc" id="L315">        FileWriter writer = null ;</span>
+        try {
+<span class="nc" id="L317">            writer = new FileWriter(file) ;</span>
+            // Write the start of the 1094
+<span class="nc" id="L319">            writer.write(form1094xml.substring(0,form1094elementEndPosition));</span>
+            // Write all 1095s
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            for (String form1095 :form1095s) {</span>
+<span class="nc" id="L322">                writer.write(form1095) ;</span>
+<span class="nc" id="L323">            }</span>
+            // Write the end of the 1094
+<span class="nc" id="L325">            writer.write(form1094xml.substring(form1094elementEndPosition)) ;</span>
+        } finally {
+<span class="nc" id="L327">            IOUtils.closeQuietly(writer);</span>
+<span class="nc" id="L328">        }</span>
+<span class="nc" id="L329">    }</span>
+    
+    public void step4Read() throws Exception {
+<span class="nc" id="L332">        List&lt;Step4109495Data&gt; form109495bFiles = getForm109495FilenamesForStep4(stepExecution.getJobExecution()) ;</span>
+
+
+<span class="nc" id="L335">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L336">        Integer year = ExportUtil.getYear(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L337">        int filenamesCounter = getForm109495FilenamesCounterForStep4(stepExecution) ;</span>
+
+<span class="nc" id="L339">        Step4Form109495HeaderAndXmlDto dto = new Step4Form109495HeaderAndXmlDto() ;</span>
+<span class="nc" id="L340">        dto.sourceSystem = sourceSystemConfigDataService.getByState(state,year) ;</span>
+
+<span class="nc" id="L342">        Step4109495Data fileData = form109495bFiles.get(filenamesCounter) ;</span>
+<span class="nc" id="L343">        dto.formDataFile = fileData.filename ;</span>
+<span class="nc" id="L344">        dto.total1094Forms = fileData.form1094bCount ;</span>
+<span class="nc" id="L345">        dto.total1095Forms = fileData.form1095bCount ;</span>
+<span class="nc" id="L346">        dto.transmitterName = new BusinessNameType() ;</span>
+<span class="nc" id="L347">        dto.transmitterName.setBusinessNameLine1Txt(sanitize(dto.sourceSystem.getProviderName()));</span>
+<span class="nc" id="L348">        dto.contactCompany = new CompanyInformationGrpType() ;</span>
+<span class="nc" id="L349">        dto.contactCompany.setCompanyNm(dto.sourceSystem.getProviderName());</span>
+<span class="nc" id="L350">        dto.contactCompany.setContactNameGrp(getContactName(dto.getSourceSystem()));</span>
+<span class="nc" id="L351">        dto.contactCompany.setContactPhoneNum(Long.toString(dto.sourceSystem.getProviderContactNo()));</span>
+<span class="nc" id="L352">        dto.contactCompany.setMailingAddressGrp(getBusinessAddressFromSourceSystemConfig(dto.sourceSystem));</span>
+        //Set Transmission type as per the Job which is being run
+<span class="nc" id="L354">        dto.isPriorYearFiling = false ;</span>
+<span class="nc" id="L355">        dto.paymentYear = year ;</span>
+<span class="nc" id="L356">        dto.softwareDeveloper = getVendorInfo() ;</span>
+<span class="nc" id="L357">        dto.softwareId = &quot;15A0001491&quot; ;</span>
+
+<span class="nc" id="L359">        incrementForm109495FilenamesCounterForStep4(stepExecution) ;</span>
+<span class="nc" id="L360">        step4Process( dto) ;</span>
+<span class="nc" id="L361">    }</span>
+    
+    public void step4Process(Step4Form109495HeaderAndXmlDto dto) throws Exception {
+<span class="nc" id="L364">        validateFile(dto.formDataFile);</span>
+<span class="nc" id="L365">        dto.formDataSize = dto.formDataFile.length();</span>
+<span class="nc" id="L366">        MessageDigest md = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="nc" id="L367">        dto.formDataMd5 = (new HexBinaryAdapter()).marshal(md.digest(FileUtils.readFileToByteArray(dto.formDataFile)));</span>
+
+<span class="nc" id="L369">        String originalReceiptId = ExportUtil.getReceiptId(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L370">        Step4ManifestData manifestData = new Step4ManifestData();</span>
+<span class="nc" id="L371">        List&lt;Step4ManifestData&gt; list = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L373">        manifestData.acaTrnsmtManifestReqDtlType = createManifestHeader(dto, originalReceiptId, dto.total1094Forms, dto.total1095Forms);</span>
+
+<span class="nc bnc" id="L375" title="All 2 branches missed.">        if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L376">            manifestData.tcc = dto.getSourceSystem().getTestTcc();</span>
+        else
+<span class="nc" id="L378">            manifestData.tcc = dto.getSourceSystem().getTransmitterControlCode();</span>
+<span class="nc" id="L379">        list.add(manifestData);</span>
+<span class="nc" id="L380">        step4write(list);</span>
+<span class="nc" id="L381">    }</span>
+
+    /**
+     * Ensures that a Form 109495 file was provided to the processor and it exists.
+     *
+     * @param form10945File
+     * @throws IllegalArgumentException If the file object is null, or the file does not exist.
+     */
+    protected void validateFile(File form10945File) {
+<span class="nc bnc" id="L390" title="All 2 branches missed.">        if (form10945File == null) {</span>
+<span class="nc" id="L391">            throw new IllegalArgumentException(&quot;Form 109495B file was not provided to Step 4 Processor. A file is required &quot; +</span>
+                    &quot;to calculate checksum and retrieve file size.&quot;);
+        }
+
+<span class="nc bnc" id="L395" title="All 2 branches missed.">        if (!form10945File.exists()) {</span>
+<span class="nc" id="L396">            throw new IllegalArgumentException(&quot;Form 109495B file not found using path and filename '&quot; + form10945File.getAbsolutePath() + &quot;'.  A file is required &quot; +</span>
+                    &quot;to calculate checksum and retrieve file size.&quot;);
+        }
+<span class="nc" id="L399">    }</span>
+
+    /**
+     * @param dto
+     * @return The DTO information converted into a manifest.
+     */
+    protected ACATrnsmtManifestReqDtlType createManifestHeader(Step4Form109495HeaderAndXmlDto dto, String originalReceiptId, int total1094Forms, int total1095Forms) {
+<span class="nc" id="L406">        ACATrnsmtManifestReqDtlType manifest = air7ObjectFactory.createACATrnsmtManifestReqDtlType();</span>
+<span class="nc" id="L407">        manifest.setPaymentYr(JaxbUtils.createXmlGregorianCalendarNoTimezone(dto.paymentYear));</span>
+
+        // Only set the original receipt if the transmission is a REPLACEMENT
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        if (BatchExportConstants.isJobReplacement(this.stepExecution)) {</span>
+
+<span class="nc bnc" id="L412" title="All 2 branches missed.">            if(StringUtils.isBlank(originalReceiptId)) {</span>
+
+<span class="nc" id="L414">                Integer currentTransmissionId = transmissionIdStack.peekTransmissionId();</span>
+<span class="nc" id="L415">                String receiptId = irsTransmissionDetailsRepository.getOriginalReceiptIdForTransmissionId(currentTransmissionId);</span>
+<span class="nc" id="L416">                manifest.setOriginalReceiptId(receiptId);</span>
+<span class="nc" id="L417">            }else {</span>
+<span class="nc" id="L418">                manifest.setOriginalReceiptId(originalReceiptId);</span>
+            }
+        }
+
+        // “0” for current filing year, “1” for prior filing year
+<span class="nc bnc" id="L423" title="All 2 branches missed.">        manifest.setPriorYearDataInd(dto.isPriorYearFiling ? &quot;1&quot; : &quot;0&quot;);</span>
+<span class="nc" id="L424">        manifest.setTransmissionTypeCd(dto.transmissionType);</span>
+<span class="nc" id="L425">        manifest.setEIN(dto.sourceSystem.getProviderIdentificationNumber());</span>
+<span class="nc" id="L426">        manifest.setTransmitterNameGrp(dto.transmitterName);</span>
+<span class="nc" id="L427">        manifest.setCompanyInformationGrp(dto.contactCompany);</span>
+<span class="nc" id="L428">        manifest.setVendorInformationGrp(dto.softwareDeveloper);</span>
+        // Determines if this is a test or production manifest.  “T” – AATS “P” – Production
+<span class="nc bnc" id="L430" title="All 2 branches missed.">        if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L431">            manifest.setTestFileCd(&quot;T&quot;);</span>
+        else
+<span class="nc" id="L433">            manifest.setTestFileCd(&quot;P&quot;);</span>
+<span class="nc" id="L434">        manifest.setTotalPayerRecordCnt(BigInteger.valueOf(total1094Forms));</span>
+<span class="nc" id="L435">        manifest.setTotalPayeeRecordCnt(BigInteger.valueOf(total1095Forms));</span>
+<span class="nc" id="L436">        manifest.setSoftwareId(dto.softwareId);</span>
+<span class="nc" id="L437">        manifest.setFormTypeCd(dto.form10945Type.toString());</span>
+<span class="nc" id="L438">        manifest.setBinaryFormatCd(BinaryFormatCodeType.APPLICATION_XML);</span>
+<span class="nc" id="L439">        manifest.setChecksumAugmentationNum(dto.formDataMd5);</span>
+<span class="nc" id="L440">        manifest.setAttachmentByteSizeNum(BigInteger.valueOf(dto.formDataSize));</span>
+<span class="nc" id="L441">        manifest.setDocumentSystemFileNm(dto.formDataFile.getName());</span>
+<span class="nc" id="L442">        return manifest;</span>
+    }
+
+    public void step4write(List&lt;? extends Step4ManifestData&gt; list) throws Exception {
+<span class="nc" id="L446">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L447">        File outputDir = ExportUtil.getPrintVendorOutputDirectory(profileProperties) ;</span>
+
+        TransmitterACAUIBusinessHeaderType header ;
+        JAXBElement&lt;TransmitterACAUIBusinessHeaderType&gt; rootElementDoc ;
+        ACABulkBusinessHeaderRequestType headerRequestType ;
+
+<span class="nc bnc" id="L453" title="All 2 branches missed.">        for (Step4ManifestData manifestData : list) {</span>
+<span class="nc" id="L454">            ACATrnsmtManifestReqDtlType manifest = manifestData.acaTrnsmtManifestReqDtlType ;</span>
+<span class="nc" id="L455">            headerRequestType = air7ObjectFactory.createACABulkBusinessHeaderRequestType() ;</span>
+<span class="nc" id="L456">            headerRequestType.setTimestamp(JaxbUtils.createXmlGregorianCalendarNoTimezone(new Date()));</span>
+<span class="nc" id="L457">            headerRequestType.setUniqueTransmissionId(generateUniqueTransmissionId(manifestData.getTcc()));</span>
+
+<span class="nc" id="L459">            header = headerObjectFactory.createTransmitterACAUIBusinessHeaderType();</span>
+<span class="nc" id="L460">            header.setACATransmitterManifestReqDtl(manifest);</span>
+<span class="nc" id="L461">            header.setACABusinessHeader(headerRequestType);</span>
+<span class="nc" id="L462">            rootElementDoc = headerObjectFactory.createACAUIBusinessHeader(header) ;</span>
+
+<span class="nc" id="L464">            String filename = createManifestFilename(manifestData.acaTrnsmtManifestReqDtlType.getDocumentSystemFileNm()) ;</span>
+<span class="nc" id="L465">            File outputFile = new File(outputDir, filename) ;</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L467">                LOG.debug(&quot;Step 4 writing XML to {}&quot;, outputFile.getAbsoluteFile()) ;</span>
+            }
+
+<span class="nc" id="L470">            List&lt;PrintDetail&gt; printDetailList = (List&lt;PrintDetail&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;PRINTDETAILSLIST&quot;);</span>
+<span class="nc" id="L471">            List&lt;FilerDemographic&gt; filerDemographicList = (List&lt;FilerDemographic&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;FILERDEMOSTATUS&quot;);</span>
+<span class="nc" id="L472">            LOG.debug(&quot;List of Print Details ---&gt;  &quot;+printDetailList);</span>
+
+            try{
+<span class="nc" id="L475">            	ExportUtil.writeXml(jaxb2Marshaller, outputFile, rootElementDoc);</span>
+<span class="nc" id="L476">            	ExportUtil.addManifestFilename(stepExecution, filename) ;</span>
+<span class="nc" id="L477">            	printVendorJdbcRepository.insertPrintDetails(printDetailList);</span>
+<span class="nc" id="L478">            	printVendorJdbcRepository.updateFilerDemographicStatus(filerDemographicList);</span>
+
+<span class="nc" id="L480">                batchInfo.setFileName(currentFileName);</span>
+<span class="nc" id="L481">                batchInfo.setTotalCount(printDetailList.size());</span>
+<span class="nc" id="L482">                batchInfo.setTotalPass(printDetailList.size());</span>
+<span class="nc" id="L483">                batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L484">                batchInfo.setBatchType(PrintVendorConstants.PRINT_XML_BATCH_TYPE);</span>
+<span class="nc" id="L485">                batchInfo.setStateCd(state);</span>
+<span class="nc" id="L486">                batchInfo.setAgencyCd(ExportUtil.getAgencyCode(state));</span>
+<span class="nc" id="L487">                batchInfo.setSystemCd(ExportUtil.getSystemCode(state));</span>
+<span class="nc" id="L488">            	batchInfoService.updatePrintAndProcess(batchInfo);</span>
+<span class="nc" id="L489">            }catch(Exception excpetion){</span>
+<span class="nc" id="L490">            	LOG.error(excpetion.getMessage(),excpetion);</span>
+<span class="nc" id="L491">            	printVendorFileNameVerificationDecider.decide(stepExecution.getJobExecution(), stepExecution);</span>
+
+<span class="nc" id="L493">                batchInfo.setFileName(currentFileName);</span>
+<span class="nc" id="L494">                batchInfo.setTotalFail(printDetailList.size());</span>
+<span class="nc" id="L495">                batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L496">                batchInfo.setBatchType(PrintVendorConstants.PRINT_XML_BATCH_TYPE);</span>
+<span class="nc" id="L497">            	batchInfoService.updatePrintAndProcess(batchInfo);</span>
+<span class="nc" id="L498">            }</span>
+<span class="nc" id="L499">        }</span>
+<span class="nc" id="L500">    }</span>
+
+    /**
+     * See section 5.3.3 Uniquely Identifying a Transmission.
+     * @param transmitterControlCode 5 characters alphanumeric field that will contain the transmitters TCC and is mandatory â€“
+     *                                enter the TCC that the IRS assigned when the transmitter applied to eFile. Note, TCCs do not include lower case characters.
+     * @return   Example 550e8400-e29b-41d4-a716-446655440000:SYS12:12ABC::T
+     */
+    protected String generateUniqueTransmissionId(String transmitterControlCode) {
+<span class="nc" id="L509">        StringBuilder b = new StringBuilder() ;</span>
+<span class="nc" id="L510">        b.append(UUID.randomUUID().toString()) ;</span>
+<span class="nc" id="L511">        b.append(&quot;:SYS12:&quot;) ;</span>
+<span class="nc" id="L512">        b.append(transmitterControlCode) ;</span>
+<span class="nc" id="L513">        b.append(&quot;::T&quot;) ;</span>
+<span class="nc" id="L514">        return b.toString() ;</span>
+    }
+
+    /**
+     * The manifest filename isn't a required standard, but it is recommended to be:
+     * Manifest_Form Data File Name (without extension)&gt;.xml
+     * @param form109495bFilename
+     * @return
+     */
+    protected String createManifestFilename(String form109495bFilename) {
+<span class="nc" id="L524">        return &quot;Manifest_&quot; + form109495bFilename ;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L529">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L530">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,100 @@
+<div class="citizen-form-container scroll-container">
+  <form name="vm.citizenForm" class="citizen-form" novalidate role="form" autocomplete="off" ng-switch on="vm.screenLoad && !vm.goToStateSelect" ng-model-options="{updateOn:'default blur',debounce:{'default':500,'blur':0}}">
+    <div ng-switch-when="true">
+
+      <div class="title identifyLabel" tabindex="-1" aria-label="{{vm.ariaLabel.titleAction}}" ng-switch="vm.selectedState">
+        <div class="title-main">{{vm.label.formTitle}}</div>
+        <div class="title-subtext" ng-switch-when="AR">{{vm.label.formSubtext}}</div>
+      </div>
+
+      <div class="margin-top-5px errorMessageLabel" failure-banner show-flag="vm.userNotFound"
+           error-message="vm.errorMessage" tabindex="{{vm.userNotFound ? 1:-1}}"></div>
+      <!-- Container with all the fields and captcha : slightly indented -->
+      <div class="citizen-identification-info">
+        <div class="row form-margin">
+          <div class="form-group col-sm-12 col-md-5 pull-left">
+            <input type="text" tabindex="2" aria-label="{{vm.ariaLabel.titleAction}}" class="form-control"
+                   placeholder='First Name (Optional)' ng-model="vm.user.userFname" ng-maxlength="30" floating-label>
+          </div>
+          <div class="col-sm-12 col-md-2" ></div>
+          <div class="form-group col-sm-12 col-md-5 pull-right" >
+            <input type="text" tabindex="3" aria-label="{{vm.ariaLabel.lastName}}" class="form-control"
+                   placeholder="Last Name" ng-model="vm.user.userLname" ng-change="vm.requiredChecked()"
+                   ng-maxlength="30" required floating-validation>
+          </div>
+        </div>
+
+      <div class="row form-margin">
+        <div class="col-sm-12 col-md-12 no-padding row-margin margin-left-5px" tabindex="-1">
+          <aca-toggle-switch checked-flg="vm.toggleOn" read-label="vm.dataLabel" default=true action="vm.switchSSN_TIN()" left="{'flag' : true, 'label' : 'SSN'}" right="{'flag' : true, 'label' : 'TIN'}"></aca-toggle-switch>
+        </div>
+        <div class="form-group col-sm-12 col-md-5 pull-left" >
+          <input type="password" tabindex="5" class="form-control" placeholder={{uidTypePlaceHolder}}
+                 ng-model="vm.user.uidNumber" ng-change="vm.requiredChecked()" aria-label="{{vm.ariaLabel.ssnTin}}"
+                 ng-maxlength="9" required floating-validation ng-pattern="/^\d+$/" ng-minlength="9">
+        </div>
+        <div class="col-sm-12 col-md-2"></div>
+        <div class="col-sm-12 col-md-5 pull-right no-padding"  >
+          <aca-date-picker-floating-label ng-model="vm.user.dob" placeholder="'Date of Birth'" fn-change="vm.requiredChecked()" clear="'dontclear'"></aca-date-picker-floating-label>
+        </div>
+      </div>
+
+      <div class="row form-margin">
+        <div class="form-group col-sm-12 col-md-12" >
+          <input type="text" tabindex="7" aria-label="{{vm.ariaLabel.address}}" class="form-control"
+                 placeholder='Address 1 (Optional)' ng-model="vm.user.streetAddress1" ng-maxlength="30" floating-label>
+        </div>
+      </div>
+
+        <div class="row form-margin">
+          <div class="form-group col-sm-12 col-md-5">
+            <input type="text" tabindex="8" aria-label="{{vm.ariaLabel.city}}" class="form-control" placeholder='City'
+                   ng-model="vm.user.city" ng-change="vm.requiredChecked()" ng-maxlength="25" floating-validation
+                   required>
+          </div>
+          <div class="col-sm-12 col-md-1"></div>
+          <div class="col-sm-12 col-md-6 no-padding pull-right">
+            <div class="form-group col-sm-12 col-md-5 pull-left">
+              <select tabindex="9" class="form-control" ng-model="vm.user.state" aria-label="{{vm.ariaLabel.state}}"
+                      ng-change="vm.requiredChecked()" placeholder="State" required floating-validation>
+                <option class="placeholder default-option" value="">State</option>
+                <option ng-repeat="state in vm.states" value="{{state}}">{{state}}</option>
+              </select>
+            </div>
+            <div class="col-sm-12 col-md-2"></div>
+            <div class="form-group col-sm-12 col-md-5 pull-right">
+              <input type="text" tabindex="10" class="form-control" aria-label="{{vm.ariaLabel.zipcode}}"
+                     placeholder='Zip Code' ng-model="vm.user.zipcode" ng-change="vm.requiredChecked()" ng-maxlength="5"
+                     ng-pattern="/^\d+$/" floating-validation required ng-minlength="5">
+            </div>
+          </div>
+        </div>
+        <div class="row form-margin">
+          <div class="col-md-1 no-padding eConsent-container">
+            <aca-check-box checked-flg="vm.eConsent" action="vm.eConsentCheck()" label="vm.ariaCheckBox"></aca-check-box>
+          </div>
+          <div class="col-md-11 no-padding-right eConsent-text">{{vm.label.eConsent}}</div>
+        </div>
+        <div class="row captcha-heading">
+          {{vm.label.securityCheck}}
+        </div>
+        <div class="row form-margin">
+          <div class="col-sm-12 col-md-6 no-padding-left header" aria-hidden="true">
+            <aca-recaptcha fn-callback="vm.requiredChecked()" response="vm.captchaResponse()"></aca-recaptcha>
+          </div>
+          <div class="col-md-2"></div>
+          <div class="col-sm-12 col-md-4 no-padding-right citizen-form-submit-container">
+            <button class="btn btn-orange citizen-form-submit" tabindex="50" aria-label="{{vm.ariaLabel.signin}}"
+                    ng-click="vm.goToView()" ng-disabled="vm.disabledSignIn">Sign In
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-switch-when="false" class="col-md-12 text-center">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+
+  </form>
+</div>

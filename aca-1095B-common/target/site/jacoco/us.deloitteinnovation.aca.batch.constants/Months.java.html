@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Months.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.constants</a> &gt; <span class="el_source">Months.java</span></div><h1>Months.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.constants;
+
+/**
+ * Created by rgopalani on 10/20/2015.
+ */
+<span class="nc" id="L6">public enum Months {</span>
+<span class="nc" id="L7">    JAN(1), FEB(2), MAR(3), APR(4), MAY(5), JUN(6), JUL(7), AUG(8), SEP(9), OCT(10), NOV(11), DEC(12);</span>
+<span class="nc" id="L8">    int monthOrdinal = 0;</span>
+
+    /**
+     * @param ord
+     */
+<span class="nc" id="L13">    Months(int ord) {</span>
+<span class="nc" id="L14">        this.monthOrdinal = ord;</span>
+<span class="nc" id="L15">    }</span>
+
+    /**
+     * @param ord
+     * @return
+     */
+    public static Months byOrdinal(int ord) {
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        for (Months m : Months.values()) {</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">            if (m.monthOrdinal == ord) {</span>
+<span class="nc" id="L24">                return m;</span>
+            }
+        }
+<span class="nc" id="L27">        return null;</span>
+    }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

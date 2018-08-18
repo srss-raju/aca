@@ -1,0 +1,153 @@
+<div class="scroll-container">
+  <div class="margin-container-box" role="main">
+    <div class="col-md-12">
+      <!-- Success and Failure banner for Send Mail-->
+      <div class="row">
+        <div class="col-md-12 no-padding row-padding-bottom10">
+          <div class="margin-top-5px" success-banner show-flag="vm.showSuccessMessage"
+               success-message="vm.successMessage"></div>
+          <div class="margin-top-5px" failure-banner show-flag="vm.showErrorMessage"
+               error-message="vm.errorMessage"></div>
+          <div class="margin-top-5px" failure-banner show-flag="vm.filteredTransmissionData.length === 0 && vm.dataLoad"
+               error-message="vm.errorMessageList.noRecordFound"></div>
+        </div>
+      </div>
+      {{vm.savedData}}
+      <!-- Screen title-->
+      <div class="row row-margin viewUserTitle" tabindex="1" aria-label="{{ariaLabel.title}}">
+        <div class="col-md-4 no-padding">
+          <span class="screen-title-action">{{vm.label.titleAction}}</span>
+          <span class="screen-title-description margin-left-5px">{{vm.label.titleDescription}}</span>
+        </div>
+        <div class="col-md-8 text-right">
+          <aca-breadcrumb is-parent="true"></aca-breadcrumb>
+        </div>
+      </div>
+
+      <!-- State select and search box-->
+      <div class="row row-margin">
+        <div class="col-md-12 no-padding">
+
+          <!-- state select -->
+          <div class="col-md-5 no-padding">
+
+            <div class="col-md-9 no-padding ">
+              <div class="dropdown dropdown-state">
+                <div class="dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                     aria-haspopup="true" aria-expanded="true">
+                  <div class="col-md-10 no-padding"
+                       ng-class="{'light-gray' : vm.selectedState.stateName === null, 'black' : vm.selectedState.stateName !== null}">
+                    {{vm.selectedState.stateName || 'Choose your state'}}
+                  </div>
+                  <div class="col-md-2 no-padding"><span class="caret"></span></div>
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                  <li ng-repeat="state in vm.stateList"><a data-ng-click="vm.selectedState = state">{{state.stateName}}</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="dropdown dropdown-year">
+                <div class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+                     aria-haspopup="true" aria-expanded="true">
+                  <div class="col-md-9 no-padding"
+                       ng-class="{'light-gray' : vm.selectedYear.taxYear === null, 'black' : vm.selectedYear.taxYear !== null}">
+                    {{vm.selectedYear.taxYear || 'Choose year'}}
+                  </div>
+                  <div class="col-md-3 no-padding"><span class="caret"></span></div>
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                  <li ng-repeat="year in vm.yearList"><a data-ng-click="vm.selectedYear = year">{{year.taxYear}}</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-3 no-padding" ng-switch on="vm.confirmedState.stateCode === null">
+              <button class="btn btn-orange btn-form" ng-switch-when="false" data-ng-click="vm.fnStateSelect()">Update
+              </button>
+              <button class="btn btn-orange btn-form" ng-switch-when="true" data-ng-click="vm.fnStateSelect()"
+                      ng-disabled="vm.selectedState.stateCode === null">Enter
+              </button>
+            </div>
+
+          </div>
+
+          <!-- search box -->
+          <div class="col-md-7 no-padding text-right pull-right search-box" ng-switch
+               on="vm.confirmedState.stateCode === null">
+            <input ng-switch-when="false" class="input-width input-height input-text"
+                  placeholder="Search by dates, filename or receipt ID" ng-model="vm.dataSearch"/>
+            <input ng-switch-when="true" disabled class="input-width input-height input-text"
+                 placeholder="Search by dates, filename or receipt ID"/>
+            <button class="btn btn-orange btn-form" ng-switch-when="false">Search</button>
+            <button class="btn btn-dark-gray btn-form" ng-switch-when="true" disabled>Search</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Filter radio button-->
+      <div class="row row-margin radioButtons"
+           ng-class="{'active' : vm.confirmedState.stateCode !== null, 'inactive' : vm.confirmedState.stateCode === null}">
+        <i class="fa fa-lg"
+           ng-class="{'fa-dot-circle-o': vm.radioButton.visible, 'fa-circle-o' : !vm.radioButton.visible, 'pointer' : vm.confirmedState.stateCode !== null}"
+           data-ng-click="vm.confirmedState.stateCode !== null ? vm.radioToggle('visible') : null"></i>{{vm.label.visibleRadio}}
+        <i class="fa fa-lg"
+           ng-class="{'fa-dot-circle-o': vm.radioButton.hidden, 'fa-circle-o' : !vm.radioButton.hidden, 'pointer' : vm.confirmedState.stateCode !== null}"
+           data-ng-click="vm.confirmedState.stateCode !== null ? vm.radioToggle('hidden') : null"></i>{{vm.label.hiddenRadio}}
+        <i class="fa fa-lg"
+           ng-class="{'fa-dot-circle-o': vm.radioButton.all, 'fa-circle-o' : !vm.radioButton.all, 'pointer' : vm.confirmedState.stateCode !== null}"
+           data-ng-click="vm.confirmedState.stateCode !== null ? vm.radioToggle('all') : null"></i></i>{{vm.label.allRadio}}
+      </div>
+      <!-- <div>Edit Mode {{vm.editModeReference}}</div>-->
+      <div class="row row-margin">
+        <div class="col-md-12 padding-side25 table-head text-white-heading16-med" data-ng-switch on="vm.dataLoad">
+          <div class="col-md-3 no-padding">
+            <div class="col-md-5 no-padding" data-ng-switch-when="true" aca-sort-column column-name="'transferDate'"
+                 label="'Transfer Date'" table-data="vm.transmissionData"></div>
+            <div class="col-md-5 no-padding" data-ng-switch-when="false">{{vm.label.transferDate}}</div>
+            <div class="col-md-7 text-center no-padding">{{vm.label.transmissionFileName}}</div>
+          </div>
+          <div class="col-md-9">
+            <div class="col-md-10 no-padding">
+              <div class="col-md-4 text-center no-padding-left">
+                <div data-ng-switch-when="true" aca-sort-column column-name="'transmissionAckDate'"
+                                                              label="'Transmission ACK Date'" table-data="vm.transmissionData"></div>
+                <div data-ng-switch-when="false">{{vm.label.transmissionAckDate}}</div>
+              </div>
+              <div class="col-md-4 text-center no-padding">{{vm.label.transmissionReceiptId}}</div>
+              <div class="col-md-1"></div>
+              <div class="col-md-3 no-padding statusColumnHeader">
+                <div data-ng-switch-when="true" aca-sort-column column-name="'transmissionAckStatus'"
+                                                               label="'Status'" table-data=vm.transmissionData></div>
+                <div data-ng-switch-when="false">{{vm.label.transmissionAckStatus}}</div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="text-right">{{vm.label.actions}}</div>
+            </div>
+          </div>
+        </div>
+        <div ng-switch on="vm.dataLoad">
+          <div class="tabular-data" ng-switch-when="true">
+            <div class="col-md-12 no-padding text-black-reg"
+                     ng-repeat="record in vm.filteredTransmissionData = (vm.transmissionData | searchFilter: vm.dataSearch:['transferDate', 'transmissionAckDate', 'transmissionReceiptId', 'transmissionFileName'] : ((vm.radioButton.selected === 'all') ? null : {recordVisible : vm.radioButton.selected === 'visible'}))">
+              <div aca-edit-transmission-record record-data="record" record-index="$index" status-list="vm.transmissionStatusList"
+                   edit-mode-reference={{vm.editModeReference}} edit-set="vm.setEditMode()" edit-reset="vm.resetEditMode()"
+                   receipt-duplicate-error="vm.receiptDuplicateError()" unsaved-mode-reference="vm.unsavedModeReference" save-record="vm.saveRecord()" save-record-fail="vm.saveRecordFailure()"
+                   reject-resend-success="vm.rejectResendSuccess()" reject-resend-failure="vm.rejectResendFailure()"
+                   corrected-resend-success="vm.correctedResendSuccess()" corrected-resend-failure="vm.correctedResendFailure()"
+                ></div>
+            </div>
+          </div>
+          <div ng-switch-when="false" ng-switch on="vm.confirmedState.stateCode !== null && !vm.dataLoad">
+            <div class="loading" ng-switch-when="true">
+              <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+
+              <div>Loading...</div>
+            </div>
+            <div ng-switch-when="false"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

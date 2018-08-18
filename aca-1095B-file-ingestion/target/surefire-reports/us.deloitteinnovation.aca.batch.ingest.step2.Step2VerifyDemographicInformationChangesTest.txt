@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyDemographicInformationChangesTest
+-------------------------------------------------------------------------------
+Tests run: 51, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.983 sec - in us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyDemographicInformationChangesTest

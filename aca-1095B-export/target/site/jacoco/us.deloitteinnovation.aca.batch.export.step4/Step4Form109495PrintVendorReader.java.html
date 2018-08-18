@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4Form109495PrintVendorReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step4</a> &gt; <span class="el_source">Step4Form109495PrintVendorReader.java</span></div><h1>Step4Form109495PrintVendorReader.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step4;
+
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.getBusinessAddressFromSourceSystemConfig;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.getContactName;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.getForm109495FilenamesCounterForStep4;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.getForm109495FilenamesForStep4;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.getVendorInfo;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.incrementForm109495FilenamesCounterForStep4;
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.sanitize;
+
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.gov.treasury.irs.ext.aca.air._7.BusinessNameType;
+import us.gov.treasury.irs.ext.aca.air._7.CompanyInformationGrpType;
+
+/**
+ * I'm undecided as to whether I want a step 4 at all.  The XML output COULD take place in Step 3.  However,
+ * using a Step 4 allows for a clear restart point for XML export in a &quot;replay&quot; scenario.  The problem I have right now is
+ * how do I &quot;persist/write&quot; the split list of 1095s that should be divided into multiple files between step 3 and 4.  Should
+ * they be stored by source unique id?  For now, I might use the ExecutionContext as a memory bridge, and come up with a long term
+ * solution later.
+ *&lt;p&gt;Load manifest/header data.&lt;/p&gt;
+ */
+<span class="nc" id="L35">public class Step4Form109495PrintVendorReader implements ItemReader&lt;Step4Form109495HeaderAndXmlDto&gt;{</span>
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(Step4Form109495PrintVendorReader.class) ;</span>
+
+    @Autowired
+    ExportJob1095Repository exportJobRepository ;
+
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService ;
+
+    /** Stores the current count of 109495B file names processing. */
+    StepExecution stepExecution ;
+
+    @Override
+    public Step4Form109495HeaderAndXmlDto read() throws Exception {
+<span class="nc" id="L49">        List&lt;Step4109495Data&gt; form109495bFiles = getForm109495FilenamesForStep4(stepExecution.getJobExecution()) ;</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (CollectionUtils.isEmpty(form109495bFiles)) {</span>
+<span class="nc" id="L51">            LOG.info(&quot;Step 4 Reader found no files stored within the JobExecutionContext.&quot;) ;</span>
+<span class="nc" id="L52">            return null ;</span>
+        }
+
+<span class="nc" id="L55">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L56">        Integer year = ExportUtil.getYear(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L57">        int filenamesCounter = getForm109495FilenamesCounterForStep4(stepExecution) ;</span>
+
+        // If we have read all files in the list, we are done
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (filenamesCounter + 1 &gt; form109495bFiles.size()) {</span>
+<span class="nc" id="L61">            return null ;</span>
+        }
+
+<span class="nc" id="L64">        Step4Form109495HeaderAndXmlDto dto = new Step4Form109495HeaderAndXmlDto() ;</span>
+<span class="nc" id="L65">        dto.sourceSystem = sourceSystemConfigDataService.getByState(state, year);</span>
+
+<span class="nc" id="L67">        Step4109495Data fileData = form109495bFiles.get(filenamesCounter) ;</span>
+<span class="nc" id="L68">        dto.formDataFile = fileData.filename ;</span>
+<span class="nc" id="L69">        dto.total1094Forms = fileData.form1094bCount ;</span>
+<span class="nc" id="L70">        dto.total1095Forms = fileData.form1095bCount ;</span>
+<span class="nc" id="L71">        dto.transmitterName = new BusinessNameType() ;</span>
+<span class="nc" id="L72">        dto.transmitterName.setBusinessNameLine1Txt(sanitize(dto.sourceSystem.getProviderName()));</span>
+<span class="nc" id="L73">        dto.contactCompany = new CompanyInformationGrpType() ;</span>
+<span class="nc" id="L74">        dto.contactCompany.setCompanyNm(dto.sourceSystem.getProviderName());</span>
+<span class="nc" id="L75">        dto.contactCompany.setContactNameGrp(getContactName(dto.getSourceSystem()));</span>
+<span class="nc" id="L76">        dto.contactCompany.setContactPhoneNum(Long.toString(dto.sourceSystem.getProviderContactNo()));</span>
+<span class="nc" id="L77">        dto.contactCompany.setMailingAddressGrp(getBusinessAddressFromSourceSystemConfig(dto.sourceSystem));</span>
+        //Set Transmission type as per the Job which is being run
+<span class="nc" id="L79">        dto.isPriorYearFiling = false ;</span>
+<span class="nc" id="L80">        dto.paymentYear = year ;</span>
+        // Get from DB or constant
+<span class="nc" id="L82">        dto.softwareDeveloper = getVendorInfo() ;</span>
+<span class="nc" id="L83">        dto.softwareId = &quot;15A0001491&quot; ;</span>
+
+<span class="nc" id="L85">        incrementForm109495FilenamesCounterForStep4(stepExecution) ;</span>
+<span class="nc" id="L86">        return dto ;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L91">        this.stepExecution = stepExecution ;</span>
+<span class="nc" id="L92">    }</span>
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

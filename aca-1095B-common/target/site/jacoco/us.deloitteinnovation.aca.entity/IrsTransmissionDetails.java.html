@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsTransmissionDetails.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">IrsTransmissionDetails.java</span></div><h1>IrsTransmissionDetails.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.*;
+import java.util.Date;
+
+
+/**
+ */
+@Entity
+@Table(name = &quot;IRS_TRANSMISSION_DETAILS&quot;)
+<span class="fc" id="L11">public class IrsTransmissionDetails {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;TRANSMISSION_ID&quot;)
+    private Integer transmissionId;
+    @Column(name = &quot;TRANSFER_DATE&quot;, nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date    transferDate;
+    @Column(name = &quot;TRANSMISSION_FORM_TYPE&quot;, nullable = false, length = 1)
+    private String  transmissionFormType;
+    @Column(name = &quot;TAX_YEAR&quot;, nullable = false)
+    private Integer taxYear;
+    @Column(name = &quot;SOURCE_CD&quot;, nullable = false, length = 45)
+    private String  sourceCd;
+    @Column(name = &quot;TRANSMISSION_FILE_NAME&quot;, nullable = false, length = 45)
+    private String  transmissionFileName;
+    @Column(name = &quot;TRANSMISSION_TYPE_CD&quot;, nullable = false, length = 1)
+    private String  transmissionTypeCd;
+    @Column(name = &quot;TRANSMISSION_RECEIPT_ID&quot;, length = 45)
+    private String  transmissionReceiptId;
+    @Column(name = &quot;TRANSMISSION_DATE&quot;)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date    transmissionDate;
+    /**
+     * @see BatchExportEntityConstants.FilerXmlStatus
+     */
+    @Column(name = &quot;TRANSMISSION_ACK_STATUS&quot;, length = 45)
+    private String  transmissionAckStatus;
+    @Column(name = &quot;TRANSMISSION_ACK_DATE&quot;)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date    transmissionAckDate;
+    @Column(name = &quot;UPDATED_DATE&quot;, nullable=false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date    updatedDate;
+    @Column(name = &quot;UPDATED_BY&quot;, nullable = false, length = 45)
+    private String  updatedBy;
+
+    public Integer getTransmissionId() {
+<span class="nc" id="L50">        return transmissionId;</span>
+    }
+
+    public void setTransmissionId(Integer transmissionId) {
+<span class="nc" id="L54">        this.transmissionId = transmissionId;</span>
+<span class="nc" id="L55">    }</span>
+
+    public Date getTransferDate() {
+<span class="nc" id="L58">        return transferDate;</span>
+    }
+
+    public void setTransferDate(Date transferDate) {
+<span class="nc" id="L62">        this.transferDate = transferDate;</span>
+<span class="nc" id="L63">    }</span>
+
+    public String getTransmissionFormType() {
+<span class="nc" id="L66">        return transmissionFormType;</span>
+    }
+
+    public void setTransmissionFormType(String transmissionFormType) {
+<span class="nc" id="L70">        this.transmissionFormType = transmissionFormType;</span>
+<span class="nc" id="L71">    }</span>
+
+    public Integer getTaxYear() {
+<span class="nc" id="L74">        return taxYear;</span>
+    }
+
+    public void setTaxYear(Integer taxYear) {
+<span class="nc" id="L78">        this.taxYear = taxYear;</span>
+<span class="nc" id="L79">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L82">        return sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L86">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L87">    }</span>
+
+    public String getTransmissionFileName() {
+<span class="nc" id="L90">        return transmissionFileName;</span>
+    }
+
+    public void setTransmissionFileName(String transmissionFileName) {
+<span class="nc" id="L94">        this.transmissionFileName = transmissionFileName;</span>
+<span class="nc" id="L95">    }</span>
+
+    public String getTransmissionTypeCd() {
+<span class="nc" id="L98">        return transmissionTypeCd;</span>
+    }
+
+    public void setTransmissionTypeCd(String transmissionTypeCd) {
+<span class="nc" id="L102">        this.transmissionTypeCd = transmissionTypeCd;</span>
+<span class="nc" id="L103">    }</span>
+
+    public String getTransmissionReceiptId() {
+<span class="nc" id="L106">        return transmissionReceiptId;</span>
+    }
+
+    public void setTransmissionReceiptId(String transmissionReceiptId) {
+<span class="nc" id="L110">        this.transmissionReceiptId = transmissionReceiptId;</span>
+<span class="nc" id="L111">    }</span>
+
+    public Date getTransmissionDate() {
+<span class="nc" id="L114">        return transmissionDate;</span>
+    }
+
+    public void setTransmissionDate(Date transmissionDate) {
+<span class="nc" id="L118">        this.transmissionDate = transmissionDate;</span>
+<span class="nc" id="L119">    }</span>
+
+    public String getTransmissionAckStatus() {
+<span class="nc" id="L122">        return transmissionAckStatus;</span>
+    }
+
+    public void setTransmissionAckStatus(String transmissionAckStatus) {
+<span class="nc" id="L126">        this.transmissionAckStatus = transmissionAckStatus;</span>
+<span class="nc" id="L127">    }</span>
+
+    public Date getTransmissionAckDate() {
+<span class="nc" id="L130">        return transmissionAckDate;</span>
+    }
+
+    public void setTransmissionAckDate(Date transmissionAckDate) {
+<span class="nc" id="L134">        this.transmissionAckDate = transmissionAckDate;</span>
+<span class="nc" id="L135">    }</span>
+
+    public Date getUpdatedDate() {
+<span class="nc" id="L138">        return updatedDate;</span>
+    }
+
+    public void setUpdatedDate(Date updatedDate) {
+<span class="nc" id="L142">        this.updatedDate = updatedDate;</span>
+<span class="nc" id="L143">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L146">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L150">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L151">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L158">        IrsTransmissionDetails that = (IrsTransmissionDetails) o;</span>
+
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        return transmissionId != null ? transmissionId.equals(that.transmissionId) : that.transmissionId == null;</span>
+
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        return transmissionId != null ? transmissionId.hashCode() : 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

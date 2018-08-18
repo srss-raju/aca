@@ -1,0 +1,125 @@
+<div class="scroll-container view-source-container">
+  <div class="margin-indent-container outline-none" role="main" ng-switch on="spinnerOn">
+    <div class="row" ng-switch-when="false">
+      <!-- Success / Failure Message -->
+      <div class="row row-margin" ng-show="errorflag || successflag || sendMailFail || sendMailSuccess">
+        <div class="margin-top-5px list-margin" failure-banner show-flag="errorflag" error-message="errorMessage"></div>
+        <div class="margin-top-5px list-margin" success-banner show-flag="successflag" success-message="successMessage"></div>
+        <!-- Request Mail success and error -->
+        <div class="margin-top-5px list-margin" failure-banner show-flag="sendMailFail" error-message="sendMailMsg.errorLabel"></div>
+        <div class="margin-top-5px list-margin" success-banner show-flag="sendMailSuccess" success-message="sendMailMsg.successLabel"></div>
+      </div>
+
+      <!-- Screen title-->
+      <div class="row row-margin">
+        <div class="col-md-4 no-padding screen-title" tabindex="{{modalBox ? -1:1}}" aria-label="{{ariaLabel.title}}">
+          <span class="screen-title-action">{{label.titleAction}}</span>
+          <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+        </div>
+        <div class="col-md-8 text-right">
+          <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+        </div>
+      </div>
+
+      <!-- Customer Details -->
+      <div class="row row-margin customer-details">
+        <customer-data tabindex="{{modalBox ? -1:2}}" iconstatus="iconstatus" label="label" editform="edit_customer_data()" xml-correction="editXmlCorrection" viewpdf="view_pdf()"
+                       regenerate="regenerate_pdf()" mail="mail_form_confirm()" filerinfo="searchUserDetails.filerInfo" currentform="searchUserDetails.currentForm"></customer-data>
+
+        <!--coverage details-->
+        <div class="row row-margin" ng-show="searchUserDetails.filerInfo.filerStatus==='N'?false:true">
+            <div class="button-heading table-head text-white-heading16-med">
+              <span>{{label.currentCoverage}}</span>
+            </div>
+            <div class="clearfix"></div>
+            <hr>
+
+            <div class="col-md-12 no-padding-right no-padding-left margin-left-25p">
+              <div class="row">
+                <coverage-details cinfo="searchUserDetails.filerCoverageInfo" isClickable="false" tab-index="{{modalBox ? -1:7}}"></coverage-details>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Comments section-->
+        <div class="row margin-top-5px padding-left5">
+            <div class="col-md-1 text-gray-bold no-padding">
+              {{label.comment}}
+            </div>
+            <div class="col-md-11 padding-left3">
+              <div class="row no-padding-left no-padding-right" tabindex="{{modalBox ? -1:20}}" aria-label="{{searchUserDetails.currentForm.comments}}">
+                <div class="col-md-12" ellipsis-popover hoverlength="30" display="searchUserDetails.currentForm.comments || 'No Data'"></div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+
+      <!--test-->
+      <div class="circle-check-create"></div>
+      <!-- Sources of Insurance -->
+      <div ng-if="searchUserDetails.coverageSources.length">
+        <div class="button-heading table-head text-white-heading16-med">
+          <span>{{label.coverageSource}}</span>
+        </div>
+        <div class="clearfix"></div>
+        <hr>
+      </div>
+
+      <div class="row-margin sdata-view" ng-repeat="fileCoverageInfo in searchUserDetails.coverageSources" ng-show="searchUserDetails.filerInfo.filerStatus==='N'?false:true">
+
+        <div class="row margin-left25p margin-bottom10px">
+          <div class="col-md-3 no-padding-left" tabindex="{{modalBox ? -1:($index*3) + 21}}" aria-label="Coverage Source with Case Id  {{fileCoverageInfo.caseID}} and source {{fileCoverageInfo.source}}">
+            <div class="col-md-5 text-gray-bold no-padding-left no-padding-right">
+              {{label.caseid}}
+            </div>
+            <div class="col-md-7 no-padding-left">
+              {{fileCoverageInfo.caseID}}
+            </div>
+          </div>
+        </div>
+
+        <div class="row margin-left25p row-margin">
+          <div class="col-md-12 no-padding-left">
+            <span class="text-moderate-blue20-bold">
+            {{label.source + " "}} {{fileCoverageInfo.source}}
+            </span>
+            <span class="">
+              {{"&#40;" + label.lastmodified+ " "}}{{fileCoverageInfo.lastModifiedDate || 'No Data'}}{{ "&#41;" }}
+            </span>
+          </div>
+        </div>
+
+        <div>
+
+          <!--coverage details-->
+          <div class="row margin-left-20 row-margin">
+            <div class="col-md-12 no-padding-left no-padding-right">
+              <div class="row">
+                <coverage-details cinfo="fileCoverageInfo.filerSourceInfo" isClickable="false" tab-index="{{modalBox ? -1: (22 + ($index*3)) }}" source="fileCoverageInfo.source"></coverage-details>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Comments section-->
+          <div class="row margin-left25p">
+            <div class="col-md-1 text-gray-bold no-padding-left">
+              {{label.comment}}
+            </div>
+            <div class="col-md-11 padding-left3">
+              <div class="row no-padding-left" tabindex="{{modalBox ? -1:($index*3) + 23}" aria-label="fileCoverageInfo.comments">
+                <div class="col-md-12" ellipsis-popover hoverlength="30" display="fileCoverageInfo.comments || 'No Data'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-md-12 text-center" ng-switch-when="true">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,96 @@
+
+.form-control{
+  border: none;
+  padding: 0;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+
+
+
+
+.form-control.ng-invalid,
+.ng-submitted .form-control.ng-invalid{
+  border-bottom:1px solid #900;
+}
+
+.form-control.ng-valid{
+  border-bottom:1px solid #264;
+}
+
+.form-control.ng-pristine{
+  border-bottom: 1px solid #000;
+}
+
+.form-control.ng-pending {
+  border-bottom: 1px solid #04f;
+}
+
+form .form-group {
+  position: relative;
+  padding-top: 15px;
+}
+
+.form-control::-webkit-input-placeholder {
+  /*color: #333;*/
+  font-family: Roboto-Light, Helvetica, Arial;
+  font-size: 14px;
+  color: #afafaf;
+  font-weight: bold;
+}
+
+.form-control:-moz-placeholder {
+  /*color: #333;*/
+  font-family: Roboto-Light, Helvetica, Arial;
+  font-size: 14px;
+  color: #afafaf;
+  font-weight: bold;
+}
+
+.form-control::-moz-placeholder {
+  /*color: #333;*/
+  font-family: Roboto-Light, Helvetica, Arial;
+  font-size: 14px;
+  color: #afafaf;
+  font-weight: bold;
+}
+
+.form-control:-ms-input-placeholder {
+  /*color: #333;*/
+  font-family: Roboto-Light, Helvetica, Arial;
+  font-size: 14px;
+  color: #afafaf;
+  font-weight: bold;
+}
+
+.default-option {
+  font-family: Roboto-Light, Helvetica, Arial;
+  font-size: 14px;
+  color: #afafaf;
+  font-weight: bold;
+}
+
+.form-group input[type="checkbox"]{
+  margin: 0 -20px 0 10px;
+  vertical-align: middle;
+}
+
+.form-group.spinner i {
+  position: absolute;
+  top:0;
+  right:0;
+}
+
+@media only screen and (max-device-width: 640px){
+  .panel {
+    margin: auto;
+  }
+}
+
+input::-ms-clear {
+  display: none;
+}

@@ -1,0 +1,35 @@
+[
+  {
+  "filerID": "ARDHSDSS_244629002",
+  "recipientFirstName": "NETTIE",
+  "recipientLastName": "SWEENY",
+  "recipientDob": "09/25/1922",
+  "recipientSsn": "xxx-xx-6789",
+  "recipientTin": "",
+  "recepientState": "AR",
+    "filerStatus": "R",
+    "status": "active"
+  },
+  {
+    "filerID": "ARDHSDSS_244629002",
+    "recipientFirstName": "NETTIE",
+    "recipientLastName": "SWEENY",
+    "recipientDob": "09/25/1922",
+    "recipientSsn": "xxx-xx-1234",
+    "recipientTin": "",
+    "recepientState": "AR",
+    "filerStatus": "R",
+    "status": "inActive"
+  },
+  {
+    "filerID": "ARDHSDSS_244629002",
+    "recipientFirstName": "NETTIE",
+    "recipientLastName": "SWEENY",
+    "recipientDob": "09/25/1922",
+    "recipientSsn": "xxx-xx-1234",
+    "recipientTin": "",
+    "recepientState": "AR",
+    "filerStatus": "R",
+    "status": "Inactivex"
+  }
+]

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3RecordSkipListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.listeners</a> &gt; <span class="el_source">Step3RecordSkipListener.java</span></div><h1>Step3RecordSkipListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.listeners;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.SkipListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.ingest.step3.Step3DataValidationException;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.BusinessValidationRuleDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by tthakore on 11/24/2015.
+ */
+<span class="nc" id="L19">public class Step3RecordSkipListener implements SkipListener {</span>
+
+
+<span class="nc" id="L22">    private static Logger logger = LoggerFactory.getLogger(Step3RecordSkipListener.class);</span>
+    @Autowired
+    Step3RecordValidationService step3RecordValidationService;
+
+    @Override
+    public void onSkipInRead(Throwable throwable) {
+<span class="nc" id="L28">        logger.error(&quot;Error in reading record so this record will be skipped.-----&gt;&quot;, throwable) ;</span>
+<span class="nc" id="L29">        markRecordAsRejected(((Step3DataValidationException)throwable).getParent());</span>
+<span class="nc" id="L30">    }</span>
+
+    @Override
+    public void onSkipInWrite(Object o, Throwable throwable) {
+<span class="nc" id="L34">        logger.error(&quot;Error in writing  record so this record will be skipped.-----&gt;&quot;, throwable) ;</span>
+       // markRecordAsRejected(((Step3DataValidationException) throwable).getParent());
+<span class="nc" id="L36">    }</span>
+
+    @Override
+    public void onSkipInProcess(Object o, Throwable throwable) {
+<span class="nc" id="L40">        logger.error(&quot;Error in processing  file so this record will be skipped.-----&gt;&quot;, throwable) ;</span>
+<span class="nc" id="L41">        markRecordAsRejected(((Step3DataValidationException) throwable).getParent());</span>
+<span class="nc" id="L42">    }</span>
+
+
+    public void markRecordAsRejected(List&lt;Step3FilerDataDto&gt; step3FilerDataDtos)
+    {
+<span class="nc" id="L47">            List&lt;BusinessValidationRuleDto&gt; businessRuleList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            for(Step3FilerDataDto item : step3FilerDataDtos)</span>
+            {
+<span class="nc" id="L50">                item.setRecordStatus(CommonDataConstants.VALIDATION_RULE_FAILED);</span>
+<span class="nc" id="L51">                item.setBDMessage(&quot;Exception while in CRV. updated status from Skip listener after skipping record.&quot;);</span>
+<span class="nc" id="L52">                businessRuleList.add(getBusinessRuleDTO(item));</span>
+<span class="nc" id="L53">            }</span>
+<span class="nc" id="L54">        step3RecordValidationService.bulkInsertBusinessLogs(businessRuleList);</span>
+<span class="nc" id="L55">    }</span>
+
+    private BusinessValidationRuleDto getBusinessRuleDTO(Step3FilerDataDto step3FilerDataDto) {
+        /*setup current date and time*/
+<span class="nc" id="L59">        BusinessValidationRuleDto businessValidationRuleDto = new BusinessValidationRuleDto();</span>
+<span class="nc" id="L60">        businessValidationRuleDto.setSourceCd(step3FilerDataDto.getSourceCd());</span>
+<span class="nc" id="L61">        businessValidationRuleDto.setSourceUniqueId(Long.valueOf(step3FilerDataDto.getSourceUniqueId()));</span>
+<span class="nc" id="L62">        businessValidationRuleDto.setBatchId(step3FilerDataDto.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L63">        businessValidationRuleDto.setDob(step3FilerDataDto.getRecipientDob());</span>
+<span class="nc" id="L64">        businessValidationRuleDto.setBusinessDecision(step3FilerDataDto.getRecordStatus());</span>
+<span class="nc" id="L65">        businessValidationRuleDto.setBusinessRule(step3FilerDataDto.getBDMessage());</span>
+<span class="nc" id="L66">        businessValidationRuleDto.setTaxYear(step3FilerDataDto.getId().getTaxYear());</span>
+<span class="nc" id="L67">        businessValidationRuleDto.setRowNumber(Integer.valueOf(step3FilerDataDto.getRowNumber()));</span>
+<span class="nc" id="L68">        businessValidationRuleDto.setUpdatedBy(step3FilerDataDto.getUpdatedBy());</span>
+<span class="nc" id="L69">        businessValidationRuleDto.setUpdatedDate(step3FilerDataDto.getUpdatedDt());</span>
+<span class="nc" id="L70">        businessValidationRuleDto.setCorrectionCode(step3FilerDataDto.getCorrection());</span>
+<span class="nc" id="L71">        return businessValidationRuleDto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

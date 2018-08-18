@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportPdfFilerMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.steppdf</a> &gt; <span class="el_source">ExportPdfFilerMapper.java</span></div><h1>ExportPdfFilerMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.steppdf;
+
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.APR;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.AUG;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.DEC;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.FEB;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.JAN;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.JUL;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.JUN;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.MAR;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.MAY;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.NOV;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.OCT;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.SEP;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
+
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.model.FilerExportPrintVendorMapper;
+
+<span class="nc" id="L27">public class ExportPdfFilerMapper  implements RowMapper&lt;Filer&gt; {</span>
+
+<span class="nc" id="L29">	 private static Logger LOGGER = LoggerFactory.getLogger(ExportPdfFilerMapper.class);</span>
+
+<span class="nc" id="L31">	 private static Logger logger = LoggerFactory.getLogger(FilerExportPrintVendorMapper.class);</span>
+
+	    @Override
+	    public Filer mapRow(ResultSet rs, int rowNum) throws SQLException {
+<span class="nc" id="L35">	        Filer filer = new Filer();</span>
+<span class="nc" id="L36">	        filer.setSourceCd(rs.getString(&quot;SOURCE_CD&quot;));</span>
+<span class="nc" id="L37">	        filer.setSourceUniqueId(rs.getLong(&quot;SOURCE_UNIQUE_ID&quot;));</span>
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">	        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L40">	            logger.debug(&quot;FilerMapper on source cd {} and source unique id {}&quot;, filer.getSourceCd(), filer.getSourceUniqueId()) ;</span>
+	        }
+
+	        String name ;
+<span class="nc bnc" id="L44" title="All 2 branches missed.">	        if (rs.getString(&quot;RECIPIENT_MIDDLE_NAME&quot;) == null )</span>
+<span class="nc" id="L45">	            name = rs.getString(&quot;RECIPIENT_FIRST_NAME&quot;) +&quot; &quot;+ rs.getString(&quot;RECIPIENT_LAST_NAME&quot;);</span>
+	        else
+<span class="nc" id="L47">	            name = rs.getString(&quot;RECIPIENT_FIRST_NAME&quot;) +&quot; &quot;+rs.getString(&quot;RECIPIENT_MIDDLE_NAME&quot;)+&quot; &quot;+ rs.getString(&quot;RECIPIENT_LAST_NAME&quot;);</span>
+
+<span class="nc" id="L49">	        filer.setRecipientFirstName(rs.getString(&quot;RECIPIENT_FIRST_NAME&quot;));</span>
+<span class="nc" id="L50">	        filer.setRecipientLastName(rs.getString(&quot;RECIPIENT_LAST_NAME&quot;));</span>
+<span class="nc" id="L51">	        filer.setRecipientMiddleName(rs.getString(&quot;RECIPIENT_MIDDLE_NAME&quot;));</span>
+<span class="nc" id="L52">	        filer.setRecipientSuffix(rs.getString(&quot;RECIPIENT_SUFFIX_NAME&quot;));</span>
+<span class="nc" id="L53">	        filer.setRecipientTIN(rs.getString(&quot;RECIPIENT_TIN&quot;));</span>
+<span class="nc" id="L54">	        filer.setTaxYear(rs.getString(&quot;TAX_YEAR&quot;));</span>
+<span class="nc" id="L55">	        filer.setShopIdentifier(rs.getString(&quot;SHOP_IDENTIFIER&quot;));</span>
+<span class="nc" id="L56">	        filer.setFilerDemoSeq(rs.getLong(&quot;FILER_DEMO_SEQ&quot;));</span>
+<span class="nc" id="L57">	        String ssn = rs.getString(&quot;RECIPIENT_SSN&quot;);</span>
+<span class="nc" id="L58">	        filer.setJan(determineMonthStatus(rs.getString(JAN)));</span>
+<span class="nc" id="L59">	        filer.setFeb(determineMonthStatus(rs.getString(FEB)));</span>
+<span class="nc" id="L60">	        filer.setMar(determineMonthStatus(rs.getString(MAR)));</span>
+<span class="nc" id="L61">	        filer.setApr(determineMonthStatus(rs.getString(APR)));</span>
+<span class="nc" id="L62">	        filer.setMay(determineMonthStatus(rs.getString(MAY)));</span>
+<span class="nc" id="L63">	        filer.setJun(determineMonthStatus(rs.getString(JUN)));</span>
+<span class="nc" id="L64">	        filer.setJul(determineMonthStatus(rs.getString(JUL)));</span>
+<span class="nc" id="L65">	        filer.setAug(determineMonthStatus(rs.getString(AUG)));</span>
+<span class="nc" id="L66">	        filer.setSep(determineMonthStatus(rs.getString(SEP)));</span>
+<span class="nc" id="L67">	        filer.setOct(determineMonthStatus(rs.getString(OCT)));</span>
+<span class="nc" id="L68">	        filer.setNov(determineMonthStatus(rs.getString(NOV)));</span>
+<span class="nc" id="L69">	        filer.setDec(determineMonthStatus(rs.getString(DEC)));</span>
+<span class="nc" id="L70">	        filer.setId(rs.getInt(&quot;FILER_DEMO_SEQ&quot;));</span>
+<span class="nc" id="L71">	        filer.setFilerStatus(rs.getString(&quot;FILER_STATUS&quot;));</span>
+<span class="nc" id="L72">	        filer.setRecipientName(name);</span>
+<span class="nc" id="L73">	        filer.setRecipientDOB(rs.getDate(&quot;RECIPIENT_DOB&quot;).toString());</span>
+<span class="nc" id="L74">	        filer.setRecipientSSN(ssn);</span>
+<span class="nc" id="L75">	        filer.setRecipientAddLine1(rs.getString(&quot;RECIPIENT_ADDRESS_LINE_1&quot;));</span>
+<span class="nc" id="L76">	        filer.setRecipientAddLine2(rs.getString(&quot;RECIPIENT_ADDRESS_LINE_2&quot;));</span>
+<span class="nc" id="L77">	        filer.setRecipientCity(rs.getString(&quot;RECIPIENT_CITY&quot;));</span>
+<span class="nc" id="L78">	        filer.setRecipientState(rs.getString(&quot;RECIPIENT_STATE&quot;));</span>
+<span class="nc" id="L79">	        filer.setRecipientZip(rs.getString(&quot;RECIPIENT_ZIP_5&quot;));</span>
+<span class="nc" id="L80">	        filer.setRecipientZip4(rs.getString(&quot;RECIPIENT_ZIP_4&quot;));</span>
+<span class="nc" id="L81">	        filer.setProviderName(rs.getString(&quot;PROVIDER_NAME&quot;));</span>
+<span class="nc" id="L82">	        filer.setProviderEIN(rs.getString(&quot;PROVIDER_IDENTIFICATION_NUMBER&quot;));</span>
+<span class="nc" id="L83">	        filer.setProviderAddLine1(rs.getString(&quot;PROVIDER_ADDRESS_LINE_1&quot;));</span>
+<span class="nc" id="L84">	        filer.setProviderAddLine2(rs.getString(&quot;PROVIDER_ADDRESS_LINE_2&quot;));</span>
+<span class="nc" id="L85">	        filer.setProviderCity(rs.getString(&quot;PROVIDER_CITY_OR_TOWN&quot;));</span>
+<span class="nc" id="L86">	        filer.setProviderState(rs.getString(&quot;PROVIDER_STATE_OR_PROVINCE&quot;));</span>
+<span class="nc" id="L87">	        filer.setProviderZip(rs.getString(&quot;PROVIDER_ZIP_OR_POSTAL_CODE&quot;));</span>
+<span class="nc" id="L88">	        filer.setProviderContactNo(rs.getLong(&quot;PROVIDER_CONTACT_NO&quot;));</span>
+<span class="nc" id="L89">	        filer.setPolicyOrigin(rs.getString(&quot;POLICY_ORIGIN&quot;));</span>
+<span class="nc" id="L90">	        filer.setShopIdentifier(rs.getString(&quot;SHOP_IDENTIFIER&quot;));</span>
+<span class="nc" id="L91">	        filer.setProviderZip(rs.getString(&quot;PROVIDER_ZIP_OR_POSTAL_CODE&quot;));</span>
+<span class="nc" id="L92">	        filer.setProviderCountry(rs.getString(&quot;PROVIDER_COUNTRY&quot;));</span>
+<span class="nc" id="L93">	        filer.setProviderAddLine2(rs.getString(&quot;PROVIDER_ADDRESS_LINE_2&quot;));</span>
+<span class="nc" id="L94">	        filer.setResponsiblePersonUniqueId(rs.getString(&quot;RESPONSIBLE_PERSON_UNIQUE_ID&quot;));</span>
+<span class="nc" id="L95">	        filer.setFormStatus(rs.getString(&quot;FORM_STATUS&quot;));</span>
+<span class="nc" id="L96">	        filer.setIrsTransmittalStatus(rs.getString(&quot;IRS_TRANSMISSION_STATUS_CD&quot;));</span>
+<span class="nc" id="L97">	        filer.setCorrectionIndicator(rs.getInt(&quot;CORRECTION_INDICATOR&quot;));</span>
+<span class="nc" id="L98">	        filer.setUpdatedBy(rs.getString(&quot;UPDATED_BY&quot;));</span>
+<span class="nc" id="L99">	        filer.setEmployerName(rs.getString(&quot;EMPLOYER_NAME&quot;));</span>
+<span class="nc" id="L100">	        filer.setEmployerEIN(rs.getString(&quot;EMPLOYER_IDENTIFICATION_NUMBER&quot;));</span>
+<span class="nc" id="L101">	        filer.setEmployerAddressLine1(rs.getString(&quot;EMPLOYER_ADDRESS_LINE_1&quot;));</span>
+<span class="nc" id="L102">	        filer.setEmployerAddressLine2(rs.getString(&quot;EMPLOYER_ADDRESS_LINE_2&quot;));</span>
+<span class="nc" id="L103">	        filer.setEmployerCity(rs.getString(&quot;EMPLOYER_CITY_OR_TOWN&quot;));</span>
+<span class="nc" id="L104">	        filer.setEmployerState(rs.getString(&quot;EMPLOYER_STATE_OR_PROVINCE&quot;));</span>
+<span class="nc" id="L105">	        filer.setEmployerZIP(rs.getString(&quot;EMPLOYER_ZIP_OR_POSTAL_CODE&quot;));</span>
+<span class="nc" id="L106">	        return filer;</span>
+	    }
+	    
+	    /**
+	     *
+	     * @param monthValue
+	     * @return Returns CommonEntityConstants.COVERED if the monthValue equals COVERED.  Otherwise returns UNCOVERED.
+	     */
+	    protected String determineMonthStatus(String monthValue) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">	        if (CommonEntityConstants.COVERED.equals(monthValue))</span>
+<span class="nc" id="L116">	            return CommonEntityConstants.COVERED ;</span>
+<span class="nc" id="L117">	        return CommonEntityConstants.UNCOVERED ;</span>
+	    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

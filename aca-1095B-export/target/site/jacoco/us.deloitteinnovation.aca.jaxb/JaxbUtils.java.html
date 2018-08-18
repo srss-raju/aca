@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JaxbUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.jaxb</a> &gt; <span class="el_source">JaxbUtils.java</span></div><h1>JaxbUtils.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.jaxb;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import us.gov.treasury.irs.ext.aca.air._7.Form1095BUpstreamDetailType;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+/**
+ * Created by ergreen on 11/8/2015.
+ */
+public final class JaxbUtils {
+<span class="fc" id="L28">    private static final Logger LOGGER =</span>
+<span class="fc" id="L29">            LoggerFactory.getLogger(JaxbUtils.class);</span>
+
+    /**
+     * Suppress instantiation as this class consists
+     * solely of static utility attributes and methods.
+     */
+<span class="nc" id="L35">    private JaxbUtils() {</span>
+<span class="nc" id="L36">    }</span>
+
+    /**
+     * DatatypeFactory is somewhat expensive to create,
+     * so create and use only one for each thread.
+     */
+<span class="fc" id="L42">    private static final ThreadLocal&lt;DatatypeFactory&gt; threadDatatypeFactory =</span>
+<span class="fc" id="L43">            new ThreadLocal&lt;DatatypeFactory&gt;() {</span>
+                @Override
+                protected DatatypeFactory initialValue() {
+                    try {
+<span class="nc" id="L47">                        return DatatypeFactory.newInstance();</span>
+<span class="nc" id="L48">                    } catch (DatatypeConfigurationException ex) {</span>
+<span class="nc" id="L49">                        LOGGER.error(&quot;Attempting to create DataTypeFactory&quot;, ex);</span>
+<span class="nc" id="L50">                        throw new ExceptionInInitializerError(ex);</span>
+                    }
+                }
+            };
+
+    /**
+     * @param date
+     * @return Date converted to an XMLGregorianCalendar with the Timezone removed.
+     */
+    public static XMLGregorianCalendar createXmlGregorianCalendarNoTimezone(final Date date) {
+        XMLGregorianCalendar calendar;
+        try {
+<span class="nc" id="L62">            calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss'Z'&quot;).format(date));</span>
+<span class="nc" id="L63">        } catch (DatatypeConfigurationException e) {</span>
+<span class="nc" id="L64">            throw new RuntimeException(&quot;Attempting to create XmlGregorianCalendar&quot;, e);</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        return calendar;</span>
+    }
+
+    public static XMLGregorianCalendar createXmlGregorianCalendarNoTimezone(int taxYr) {
+        XMLGregorianCalendar calendar;
+        try {
+<span class="fc" id="L72">            GregorianCalendar date = new GregorianCalendar(taxYr, 0, 1);</span>
+<span class="fc" id="L73">            calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new SimpleDateFormat(&quot;yyyy&quot;).format(date.getTime()));</span>
+<span class="fc" id="L74">            calendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);</span>
+<span class="nc" id="L75">        } catch (DatatypeConfigurationException e) {</span>
+<span class="nc" id="L76">            throw new RuntimeException(&quot;Attempting to create XmlGregorianCalendar&quot;, e);</span>
+<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">        return calendar;</span>
+    }
+
+    public static XMLGregorianCalendar createXmlGregorianCalendarDate(final Date date) {
+        XMLGregorianCalendar calendar;
+        try {
+<span class="nc" id="L84">            calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(date));</span>
+<span class="nc" id="L85">        } catch (DatatypeConfigurationException e) {</span>
+<span class="nc" id="L86">            throw new RuntimeException(&quot;Attempting to create XmlGregorianCalendar&quot;, e);</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">        return calendar;</span>
+    }
+
+    /**
+     * @return XMLGregorianCalendar with the Timezone removed, set to the current time UTC.
+     */
+    public static XMLGregorianCalendar createXmlGregorianCalendarUtcNow() {
+<span class="nc" id="L95">        final GregorianCalendar calendar = new GregorianCalendar();</span>
+<span class="nc" id="L96">        calendar.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));</span>
+<span class="nc" id="L97">        XMLGregorianCalendar xmlGregorianCalendar = threadDatatypeFactory.get().newXMLGregorianCalendar(calendar);</span>
+<span class="nc" id="L98">        xmlGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);</span>
+<span class="nc" id="L99">        return xmlGregorianCalendar;</span>
+    }
+
+    /**
+     * @param jaxb2Marshaller
+     * @param object
+     * @return Renders the given object as XML.
+     */
+    public static String renderToString(Jaxb2Marshaller jaxb2Marshaller, Object object) {
+<span class="nc" id="L108">        StringWriter out = new StringWriter();</span>
+<span class="nc" id="L109">        jaxb2Marshaller.marshal(object, new StreamResult(out));</span>
+<span class="nc" id="L110">        return out.toString();</span>
+    }
+
+    /**
+     * @param jaxb2Marshaller
+     * @param object
+     * @return Renders the given object as XML.
+     */
+    public static String renderToStringNoNamespace(Jaxb2Marshaller jaxb2Marshaller, Object object) throws Exception {
+<span class="nc" id="L119">        JAXBContext context = JAXBContext.newInstance(object.getClass(), Form1095BUpstreamDetailType.class) ;</span>
+<span class="nc" id="L120">        Marshaller m = context.createMarshaller() ;</span>
+<span class="nc" id="L121">        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);</span>
+<span class="nc" id="L122">        m.setProperty(Marshaller.JAXB_FRAGMENT, true);</span>
+
+<span class="nc" id="L124">        StringWriter out = new StringWriter();</span>
+<span class="nc" id="L125">        XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(out);</span>
+<span class="nc" id="L126">        xmlStreamWriter.setNamespaceContext(new EmptyNamespaceContext());</span>
+<span class="nc" id="L127">        m.marshal(object, xmlStreamWriter);</span>
+<span class="nc" id="L128">        return out.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

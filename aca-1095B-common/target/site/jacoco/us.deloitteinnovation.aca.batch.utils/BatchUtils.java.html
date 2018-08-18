@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.utils</a> &gt; <span class="el_source">BatchUtils.java</span></div><h1>BatchUtils.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.utils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.constants.Months;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static us.deloitteinnovation.aca.batch.dto.FilerDemographicDto.FilerDemographicCacheDto;
+import static us.deloitteinnovation.aca.constants.CommonEntityConstants.*;
+
+/**
+ * Created by rgopalani on 9/27/2015.
+ */
+<span class="nc" id="L35">public class BatchUtils {</span>
+
+<span class="nc" id="L37">    private static final Logger LOGGER = LoggerFactory.getLogger(BatchUtils.class);</span>
+
+<span class="nc" id="L39">    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+<span class="nc" id="L40">    private static final SimpleDateFormat SQL_DATE_FORMAT = new SimpleDateFormat(&quot;MM-dd-yyyy&quot;);</span>
+<span class="nc" id="L41">    private static final SimpleDateFormat MMDDYYYY_DATE_FORMAT = new SimpleDateFormat(&quot;MMddyyyy&quot;);</span>
+<span class="nc" id="L42">    private static Map&lt;String, String&gt; sixesNinesDateMap = new HashMap&lt;&gt;();</span>
+
+    static {
+<span class="nc" id="L45">        sixesNinesDateMap.put(ALL_SIXES_DATE_FLAG, CONVERTED_ALL_SIXES_DATE_FLAG);</span>
+<span class="nc" id="L46">        sixesNinesDateMap.put(ALL_NINES_DATE_FLAG, CONVERTED_ALL_NINES_DATE_FLAG);</span>
+<span class="nc" id="L47">    }</span>
+
+    /**
+     * @param dateInString
+     * @return Date
+     */
+    public static Date getDate(final String dateInString) {
+        try {
+<span class="nc" id="L55">            MMDDYYYY_DATE_FORMAT.setLenient(false);</span>
+            // If we get all 6's and all 9's convert them into valid date strings
+<span class="nc bnc" id="L57" title="All 4 branches missed.">            if (ALL_SIXES_DATE_FLAG.equals(dateInString) || ALL_NINES_DATE_FLAG.equals(dateInString)) {</span>
+<span class="nc" id="L58">                return MMDDYYYY_DATE_FORMAT.parse(sixesNinesDateMap.get(dateInString));</span>
+            }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (dateInString.trim().length() != 8) {</span>
+<span class="nc" id="L61">                return null;</span>
+            } else {
+<span class="nc" id="L63">                return MMDDYYYY_DATE_FORMAT.parse(dateInString);</span>
+            }
+<span class="nc" id="L65">        } catch (final ParseException ex) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (LOGGER.isErrorEnabled()) {</span>
+<span class="nc" id="L67">                LOGGER.error(ex.getLocalizedMessage());</span>
+            }
+<span class="nc" id="L69">            return null;</span>
+<span class="nc" id="L70">        } catch (Exception ex) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (LOGGER.isErrorEnabled()) {</span>
+<span class="nc" id="L72">                LOGGER.error(ex.getLocalizedMessage());</span>
+            }
+<span class="nc" id="L74">            return null;</span>
+        }
+    }
+
+    /**
+     * @param fieldSet
+     * @param field
+     * @param dateFormatRegex
+     * @return
+     */
+    public static boolean validateDate(FieldSet fieldSet, String field, String dateFormatRegex) {
+<span class="nc" id="L85">        final String dateStr = StringUtils.trimToNull(fieldSet.readString(field));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        return dateStr != null</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                &amp;&amp; !ALL_NINES_DATE_FLAG.equals(dateStr)</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                &amp;&amp; dateStr.matches(dateFormatRegex);</span>
+    }
+
+    /**
+     * @param fieldSet
+     * @param field
+     * @return
+     */
+    public static boolean isEmpty(FieldSet fieldSet, String field) {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L98">            LOGGER.debug(&quot;Start of BatchUtils.isEmpty&quot;);</span>
+        }
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (fieldSet.readString(field) != null</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                &amp;&amp; !StringUtils.isEmpty(fieldSet.readString(field))) {</span>
+<span class="nc" id="L102">            return true;</span>
+        }
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L105">            LOGGER.debug(&quot;End of BatchUtils.isEmpty&quot;);</span>
+        }
+<span class="nc" id="L107">        return false;</span>
+    }
+
+    /**
+     * @param fieldSet
+     * @param field
+     * @return
+     */
+    public static boolean isNumber(FieldSet fieldSet, String field) {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L117">            LOGGER.debug(&quot;Start of BatchUtils.isNumber&quot;);</span>
+        }
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (fieldSet.readString(field) != null</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                &amp;&amp; !fieldSet.readString(field).equals(&quot;&quot;)</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                &amp;&amp; NumberUtils.isNumber(fieldSet.readString(field))) {</span>
+<span class="nc" id="L122">            return true;</span>
+        }
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L125">            LOGGER.info(&quot;End of BatchUtils.isNumber&quot;);</span>
+        }
+<span class="nc" id="L127">        return false;</span>
+    }
+
+    /**
+     * @param fieldSet
+     * @param field
+     * @return
+     */
+    public static boolean isSingleCharacter(FieldSet fieldSet, String field) {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L137">            LOGGER.debug(&quot;Start of BatchUtils.isSingleCharacter&quot;);</span>
+        }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (fieldSet.readString(field) != null</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                &amp;&amp; !StringUtils.isEmpty(fieldSet.readString(field))</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                &amp;&amp; fieldSet.readString(field).length() == 1) {</span>
+<span class="nc" id="L142">            return true;</span>
+        }
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L145">            LOGGER.debug(&quot;End of BatchUtils.isSingleCharacter&quot;);</span>
+        }
+<span class="nc" id="L147">        return false;</span>
+    }
+
+    /**
+     * @param item
+     * @param validator
+     * @return
+     */
+    public static BindingResult bindAndValidate(Object item, Validator validator) {
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L157">            LOGGER.debug(&quot;Start of BatchUtils.bindAndValidate&quot;);</span>
+        }
+<span class="nc" id="L159">        DataBinder binder = new DataBinder(item);</span>
+<span class="nc" id="L160">        binder.setValidator(validator);</span>
+<span class="nc" id="L161">        binder.validate();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L163">            LOGGER.debug(&quot;End of BatchUtils.bindAndValidate&quot;);</span>
+        }
+<span class="nc" id="L165">        return binder.getBindingResult();</span>
+    }
+
+    public static String buildExceptionMessage(final String message) {
+<span class="nc" id="L169">        return String.format(&quot;%s %s %s&quot;,</span>
+                BatchConstants.NEW_LINE, message, BatchConstants.NEW_LINE);
+    }
+
+    /**
+     * @param results
+     * @return
+     */
+    public static String buildValidationException(BindingResult results) {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L179">            LOGGER.debug(&quot;Start of BatchUtils.buildValidationException&quot;);</span>
+        }
+<span class="nc" id="L181">        StringBuffer msg = new StringBuffer();</span>
+<span class="nc" id="L182">        Set&lt;String&gt; uniqueErrors = new LinkedHashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (ObjectError error : results.getAllErrors()) {</span>
+<span class="nc" id="L184">            uniqueErrors.add(error.getDefaultMessage());</span>
+<span class="nc" id="L185">        }</span>
+
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        for (String error : uniqueErrors) {</span>
+<span class="nc" id="L188">            addErrorLine(error, msg);</span>
+<span class="nc" id="L189">        }</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (LOGGER.isDebugEnabled()) {</span>
+<span class="nc" id="L192">            LOGGER.debug(&quot;End of BatchUtils.buildValidationException&quot;);</span>
+        }
+<span class="nc" id="L194">        return msg.toString();</span>
+    }
+
+    public static void addErrorLine(final String errorMessage, final StringBuffer sb) {
+<span class="nc" id="L198">        sb.append(String.format(&quot;-*-*-*- %s -*-*-*-\n&quot;, errorMessage));</span>
+<span class="nc" id="L199">    }</span>
+
+    /**
+     * @param index
+     * @param preparedStatement
+     * @param item
+     * @throws SQLException
+     */
+    public static void setString(int index, PreparedStatement preparedStatement, Object item) throws SQLException {
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (item != null) {</span>
+<span class="nc" id="L209">            preparedStatement.setString(index, item.toString());</span>
+        } else {
+<span class="nc" id="L211">            preparedStatement.setNull(index, Types.VARCHAR);</span>
+        }
+<span class="nc" id="L213">    }</span>
+
+    /**
+     * @param index
+     * @param preparedStatement
+     * @param item
+     * @throws SQLException
+     */
+    public static void setMonth(int index, PreparedStatement preparedStatement, String item) throws SQLException {
+<span class="nc bnc" id="L222" title="All 4 branches missed.">        if (item != null &amp;&amp; !StringUtils.isEmpty(item)) {</span>
+<span class="nc" id="L223">            preparedStatement.setString(index, item);</span>
+        } else {
+<span class="nc" id="L225">            preparedStatement.setString(index, BatchConstants.NO);</span>
+        }
+<span class="nc" id="L227">    }</span>
+
+    /**
+     * @param index
+     * @param preparedStatement
+     * @param item
+     * @throws SQLException
+     */
+    public static void setDate(int index, PreparedStatement preparedStatement, Date item) throws SQLException {
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (item != null) {</span>
+<span class="nc" id="L237">            preparedStatement.setDate(index, new java.sql.Date(item.getTime()));</span>
+        } else {
+<span class="nc" id="L239">            preparedStatement.setNull(index, Types.DATE);</span>
+        }
+<span class="nc" id="L241">    }</span>
+
+    public static void setCurrentDate(int index, PreparedStatement ps) throws SQLException {
+<span class="nc" id="L244">        ps.setDate(index, new java.sql.Date(System.currentTimeMillis()));</span>
+<span class="nc" id="L245">    }</span>
+
+    public static final int getCoverageMonth(Date date) {
+<span class="nc" id="L248">        Format formatter = new SimpleDateFormat(&quot;MM&quot;);</span>
+<span class="nc" id="L249">        String s = formatter.format(date);</span>
+<span class="nc" id="L250">        return Integer.parseInt(s);</span>
+    }
+
+    public static final int getCoverageYear(Date date) {
+<span class="nc" id="L254">        Format formatter = new SimpleDateFormat(&quot;YYYY&quot;);</span>
+<span class="nc" id="L255">        String s = formatter.format(date);</span>
+<span class="nc" id="L256">        return Integer.parseInt(s);</span>
+    }
+
+    public static void setMonth(FilerCoverageDto filerCoverageDto, int startCoverageMonth, int endCoverageMonth) {
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        for (int i = startCoverageMonth; i &lt;= endCoverageMonth; i++) {</span>
+<span class="nc" id="L261">            String month = Months.byOrdinal(i).toString();</span>
+<span class="nc bnc" id="L262" title="All 50 branches missed.">            switch (month) {</span>
+                case &quot;JAN&quot;:
+<span class="nc" id="L264">                    filerCoverageDto.setJan(BatchConstants.YES);</span>
+<span class="nc" id="L265">                    break;</span>
+
+                case &quot;FEB&quot;:
+<span class="nc" id="L268">                    filerCoverageDto.setFeb(BatchConstants.YES);</span>
+<span class="nc" id="L269">                    break;</span>
+
+                case &quot;MAR&quot;:
+<span class="nc" id="L272">                    filerCoverageDto.setMar(BatchConstants.YES);</span>
+<span class="nc" id="L273">                    break;</span>
+                case &quot;APR&quot;:
+<span class="nc" id="L275">                    filerCoverageDto.setApr(BatchConstants.YES);</span>
+<span class="nc" id="L276">                    break;</span>
+
+                case &quot;MAY&quot;:
+<span class="nc" id="L279">                    filerCoverageDto.setMay(BatchConstants.YES);</span>
+<span class="nc" id="L280">                    break;</span>
+
+                case &quot;JUN&quot;:
+<span class="nc" id="L283">                    filerCoverageDto.setJun(BatchConstants.YES);</span>
+<span class="nc" id="L284">                    break;</span>
+                case &quot;JUL&quot;:
+<span class="nc" id="L286">                    filerCoverageDto.setJul(BatchConstants.YES);</span>
+<span class="nc" id="L287">                    break;</span>
+
+                case &quot;AUG&quot;:
+<span class="nc" id="L290">                    filerCoverageDto.setAug(BatchConstants.YES);</span>
+<span class="nc" id="L291">                    break;</span>
+
+                case &quot;SEP&quot;:
+<span class="nc" id="L294">                    filerCoverageDto.setSep(BatchConstants.YES);</span>
+<span class="nc" id="L295">                    break;</span>
+                case &quot;OCT&quot;:
+<span class="nc" id="L297">                    filerCoverageDto.setOct(BatchConstants.YES);</span>
+<span class="nc" id="L298">                    break;</span>
+
+                case &quot;NOV&quot;:
+<span class="nc" id="L301">                    filerCoverageDto.setNov(BatchConstants.YES);</span>
+<span class="nc" id="L302">                    break;</span>
+
+                case &quot;DEC&quot;:
+<span class="nc" id="L305">                    filerCoverageDto.setDec(BatchConstants.YES);</span>
+<span class="nc" id="L306">                    break;</span>
+                default:
+<span class="nc" id="L308">                    LOGGER.error(&quot;No Month Found&quot;);</span>
+
+            }
+        }
+<span class="nc" id="L312">    }</span>
+
+    /**
+     * @param index
+     * @param map
+     * @param item
+     * @throws SQLException
+     */
+    public static void setString(String index, Map&lt;String, Object&gt; map, Object item) {
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        if (item != null) {</span>
+<span class="nc" id="L322">            map.put(index, item.toString());</span>
+        } else {
+<span class="nc" id="L324">            map.put(index, &quot;&quot;);</span>
+        }
+
+
+<span class="nc" id="L328">    }</span>
+
+    /**
+     * @param index
+     * @param map
+     * @param item
+     * @throws SQLException
+     */
+    public static void setStringWithNull(String index, Map&lt;String, Object&gt; map, Object item) {
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (item != null) {</span>
+<span class="nc" id="L338">            map.put(index, item.toString());</span>
+        } else {
+<span class="nc" id="L340">            map.put(index, null);</span>
+        }
+
+
+<span class="nc" id="L344">    }</span>
+
+    /**
+     * @param index
+     * @param map
+     * @param item
+     * @throws SQLException
+     */
+    public static void setMonth(String index, Map map, String item) {
+<span class="nc bnc" id="L353" title="All 4 branches missed.">        if (item != null &amp;&amp; !StringUtils.isEmpty(item)) {</span>
+<span class="nc" id="L354">            map.put(index, item);</span>
+        } else {
+<span class="nc" id="L356">            map.put(index, BatchConstants.NO);</span>
+        }
+<span class="nc" id="L358">    }</span>
+
+    /**
+     * @param index
+     * @param map
+     * @param item
+     * @throws SQLException
+     */
+    public static void setStringWithoutEmpty(String index, Map map, String item) {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (StringUtils.isNotBlank(item)) {</span>
+<span class="nc" id="L368">            map.put(index, item);</span>
+        } else {
+<span class="nc" id="L370">            map.put(index, Types.VARCHAR);</span>
+        }
+<span class="nc" id="L372">    }</span>
+
+    /**
+     * @param index
+     * @param map
+     * @param item
+     * @throws SQLException
+     */
+    public static void setDate(String index, Map map, Date item) {
+<span class="nc bnc" id="L381" title="All 2 branches missed.">        if (item != null) {</span>
+<span class="nc" id="L382">            map.put(index, new java.sql.Date(item.getTime()));</span>
+        } else {
+<span class="nc" id="L384">            map.put(index, Types.DATE);</span>
+        }
+<span class="nc" id="L386">    }</span>
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static boolean isValidCoverageDateRange(Date startDate, Date endDate) {
+        // false if either value is null
+<span class="nc" id="L395">        boolean isEqualOrGreater = true;</span>
+<span class="nc bnc" id="L396" title="All 4 branches missed.">        if (startDate == null || endDate == null) {</span>
+<span class="nc" id="L397">            isEqualOrGreater = false;</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">        } else if (startDate.equals(endDate)) {</span>
+<span class="nc" id="L399">            isEqualOrGreater = true;</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">        } else if (endDate.after(startDate)) {</span>
+<span class="nc" id="L401">            isEqualOrGreater = true;</span>
+        }
+<span class="nc" id="L403">        return isEqualOrGreater;</span>
+    }
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateShopIdentifier(FilerDemographicDto item, StringBuffer stringBuffer, ProfileProperties profileProperties) {
+<span class="nc bnc" id="L411" title="All 8 branches missed.">        if (item.getId().getTaxYear() != null &amp;&amp; item.getId().getTaxYear().equals(profileProperties.getProperty(BatchConstants.PROP_TAX_YEAR)) &amp;&amp; item.getShopIdentifier() != null &amp;&amp; !org.springframework.util.StringUtils.isEmpty(item.getShopIdentifier())) {</span>
+<span class="nc" id="L412">            addErrorLine(ErrorMessageConstants.TAX_YEAR_SHOP_IDENTIFIER_EMPTY, stringBuffer);</span>
+        }
+<span class="nc" id="L414">    }</span>
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateEmployerDetails(FilerDemographicDto item, StringBuffer stringBuffer) {
+<span class="nc bnc" id="L421" title="All 4 branches missed.">        if (item.getPolicyOrigin() != null &amp;&amp; item.getPolicyOrigin().equals(&quot;C&quot;)) {</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">            if (StringUtils.isNotEmpty(item.getEmployerContactNo())</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerAddressLine1())</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerAddressLine2())</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerCityOrTown())</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerCountry())</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerIdentificationNumber())</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerName())</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getZipOrPostalCode())</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">                    || StringUtils.isNotEmpty(item.getEmployerStateOrProvince())) {</span>
+<span class="nc" id="L431">                addErrorLine(ErrorMessageConstants.POLICY_ORIGIN_EMPLOYER_DETAIL_EMPTY, stringBuffer);</span>
+            }
+        }
+<span class="nc" id="L434">    }</span>
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateEmail(FilerDemographicDto item, StringBuffer stringBuffer) {
+<span class="nc bnc" id="L441" title="All 10 branches missed.">        if ((item.geteMail() == null || org.springframework.util.StringUtils.isEmpty(item.geteMail())) &amp;&amp; item.getCommunicationPreference() != null &amp;&amp; (item.getCommunicationPreference().equals(BatchConstants.COMM_PREFERENCE_EMAIL) || item.getCommunicationPreference().equals(BatchConstants.COMM_PREFERENCE_BOTH))) {</span>
+<span class="nc" id="L442">            addErrorLine(ErrorMessageConstants.EMAIL_COMM_PREFERENCE, stringBuffer);</span>
+        }
+<span class="nc" id="L444">    }</span>
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateRecipientSSNOrTIN(FilerDemographicDto item, StringBuffer stringBuffer) {
+<span class="nc bnc" id="L451" title="All 8 branches missed.">        if ((item.getRecipientSsn() == null || org.springframework.util.StringUtils.isEmpty(item.getRecipientSsn())) &amp;&amp; (item.getRecipientTin() == null || org.springframework.util.StringUtils.isEmpty(item.getRecipientTin()))) {</span>
+<span class="nc" id="L452">            addErrorLine(ErrorMessageConstants.RECIPIENT_SSN_TIN_REQ, stringBuffer);</span>
+        }
+<span class="nc" id="L454">    }</span>
+
+    /**
+     * @param item
+     * @param stringBuffer
+     * @param date
+     */
+    public static void validateRecipientDOB(FilerDemographicDto item, StringBuffer stringBuffer, Date date) {
+<span class="nc bnc" id="L462" title="All 4 branches missed.">        if (item.getRecipientDob() != null &amp;&amp; !BatchUtils.isValidDateRange(item.getRecipientDob(), date)) {</span>
+<span class="nc" id="L463">            addErrorLine(ErrorMessageConstants.RECIPIENT_DATE_OF_BIRTH_AFTER, stringBuffer);</span>
+        }
+<span class="nc" id="L465">    }</span>
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static boolean isValidDateRange(Date startDate, Date endDate) {
+        // false if either value is null
+<span class="nc" id="L474">        boolean isEqualOrGreater = true;</span>
+<span class="nc bnc" id="L475" title="All 4 branches missed.">        if (startDate == null || endDate == null) {</span>
+<span class="nc" id="L476">            isEqualOrGreater = false;</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        } else if (startDate.equals(endDate)) {</span>
+<span class="nc" id="L478">            isEqualOrGreater = true;</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        } else if (endDate.after(startDate)) {</span>
+<span class="nc" id="L480">            isEqualOrGreater = true;</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">        } else if (startDate.after(endDate)) {</span>
+<span class="nc" id="L482">            isEqualOrGreater = false;</span>
+        }
+<span class="nc" id="L484">        return isEqualOrGreater;</span>
+    }
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateTaxYear(FilerDemographicDto item, StringBuffer stringBuffer, ProfileProperties profileProperties) {
+<span class="nc bnc" id="L492" title="All 4 branches missed.">        if (item.getId().getTaxYear() != null &amp;&amp; !profileProperties.getProperty(BatchConstants.PROP_TAX_YEAR).equals(item.getId().getTaxYear())) {</span>
+<span class="nc" id="L493">            addErrorLine(ErrorMessageConstants.TAX_YEAR_CURRENT, stringBuffer);</span>
+        }
+<span class="nc" id="L495">    }</span>
+
+    public static void validateCoverageStartAndEndDate(final FilerDemographicDto item, final StringBuffer sb, ProfileProperties profileProperties) {
+<span class="nc" id="L498">        final FilerCoverageDto filerCoverage = item.getFilerCoverages().get(0);</span>
+<span class="nc bnc" id="L499" title="All 2 branches missed.">        if (&quot;O&quot;.equals(item.getCorrection()) &amp;&amp;</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">                (ALL_NINES_DATE_FLAG.equals(filerCoverage.getOrigCoverageBeginDtStr())</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">                        || ALL_NINES_DATE_FLAG.equals(filerCoverage.getOrigCoverageEndDtStr()))) {</span>
+<span class="nc" id="L502">            addErrorLine(ErrorMessageConstants.FLAG_DATE_ONLY_FOR_UPDATE_RECORDS, sb);</span>
+        }
+<span class="nc bnc" id="L504" title="All 2 branches missed.">        if (&quot;N&quot;.equals(item.getFilerStatus()) &amp;&amp;</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">                (!ALL_ZEROS_DATE_FLAG.equals(filerCoverage.getOrigCoverageBeginDtStr())</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">                        || !ALL_ZEROS_DATE_FLAG.equals(filerCoverage.getOrigCoverageEndDtStr()))) {</span>
+<span class="nc" id="L507">            addErrorLine(String.format(&quot;Record with filer status 'N' must have a &quot;</span>
+                    + &quot;coverage start and end date of \&quot;%s\&quot;.&quot;, ALL_ZEROS_DATE_FLAG), sb);
+        }
+        /** Flag date values are not valid dates, so can't have date validation logic applied to them */
+<span class="nc bnc" id="L511" title="All 2 branches missed.">        if (!isFlagDateValue(filerCoverage.getOrigCoverageBeginDtStr())) {</span>
+            try {
+<span class="nc" id="L513">                final String startDateStr = &quot;01/01/&quot; + profileProperties.getProperty(BatchConstants.PROP_TAX_YEAR);</span>
+<span class="nc" id="L514">                final String endDateStr = &quot;12/31/&quot; + profileProperties.getProperty(BatchConstants.PROP_TAX_YEAR);</span>
+<span class="nc" id="L515">                Date startDate = DATE_FORMAT.parse(startDateStr);</span>
+<span class="nc" id="L516">                Date endDate = DATE_FORMAT.parse(endDateStr);</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">                if (filerCoverage.getOrigCoverageBeginDt().before(startDate)</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">                        || filerCoverage.getOrigCoverageBeginDt().after(endDate)</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">                        || filerCoverage.getOrigCoverageEndDt().after(endDate)</span>
+<span class="nc bnc" id="L520" title="All 2 branches missed.">                        || filerCoverage.getOrigCoverageEndDt().before(startDate)) {</span>
+<span class="nc" id="L521">                    addErrorLine(String.format(</span>
+                            &quot;The coverage begin and end dates must be for the current tax year: \&quot;%s\&quot;.&quot;,
+<span class="nc" id="L523">                            item.getId().getTaxYear()), sb);</span>
+                }
+<span class="nc" id="L525">            } catch (final ParseException ex) {</span>
+<span class="nc" id="L526">                LOGGER.error(&quot;Couldn't parse coverage begin/end date.&quot;, ex);</span>
+<span class="nc" id="L527">                throw new RuntimeException(ex);</span>
+<span class="nc" id="L528">            }</span>
+        }
+<span class="nc" id="L530">    }</span>
+
+    public static boolean isFlagDateValue(final String dateStr) {
+<span class="nc bnc" id="L533" title="All 2 branches missed.">        return ALL_NINES_DATE_FLAG.equals(dateStr)</span>
+<span class="nc bnc" id="L534" title="All 2 branches missed.">                || ALL_ZEROS_DATE_FLAG.equals(dateStr);</span>
+    }
+
+    /**
+     * @param item
+     * @param stringBuffer
+     */
+    public static void validateFilerStatus(FilerDemographicDto item, StringBuffer stringBuffer) {
+<span class="nc bnc" id="L542" title="All 8 branches missed.">        if ((item.getFilerStatus() != null &amp;&amp; item.getFilerStatus().equals(&quot;C&quot;) &amp;&amp; item.getResponsiblePersonUniqueId() != null &amp;&amp; item.getResponsiblePersonUniqueId().toString().equals(&quot;&quot;))) {</span>
+<span class="nc" id="L543">            addErrorLine(ErrorMessageConstants.FILER_STATUS_AS_C_AND_RESPONSIBLE_PERSON_UNIQUE_ID, stringBuffer);</span>
+        }
+        // RECIPIENT UNIQUE ID=RESPONSIBLE_PERSON_UNIQUE_ID and FILER STATUS = R validation is not required now after discussion with States
+       /* if ((item.getFilerStatus() != null &amp;&amp; item.getFilerStatus().equals(&quot;R&quot;) &amp;&amp; item.getResponsiblePersonUniqueId() != null &amp;&amp; item.getId() != null &amp;&amp; item.getId().getSourceUniqueId() != null &amp;&amp; !(item.getResponsiblePersonUniqueId().toString().equals(item.getId().getSourceUniqueId().toString())))) {
+            stringBuffer.append(BatchConstants.NEW_LINE).append(ErrorMessageConstants.FILER_STATUS_AS_R_AND_RESPONSIBLE_PERSON_UNIQUE_ID).append(BatchConstants.NEW_LINE);
+        }*/
+<span class="nc" id="L549">    }</span>
+
+    /**
+     * @param item
+     * @param stringBuffer
+     * @param year
+     */
+    public static void validateCoverageDate(FilerDemographicDto item, StringBuffer stringBuffer, int year) {
+<span class="nc bnc" id="L557" title="All 2 branches missed.">        for (FilerCoverageDto filerCoverage : item.getFilerCoverages()) {</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">            if (filerCoverage != null</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">                    &amp;&amp; filerCoverage.getOrigCoverageBeginDt() != null</span>
+<span class="nc bnc" id="L560" title="All 2 branches missed.">                    &amp;&amp; filerCoverage.getOrigCoverageEndDt() != null</span>
+<span class="nc bnc" id="L561" title="All 2 branches missed.">                    &amp;&amp; !ALL_NINES_DATE_FLAG.equals(filerCoverage.getOrigCoverageEndDtStr())) {</span>
+<span class="nc bnc" id="L562" title="All 2 branches missed.">                if (!BatchUtils.isValidDateRange(</span>
+<span class="nc" id="L563">                        filerCoverage.getOrigCoverageBeginDt(),</span>
+<span class="nc" id="L564">                        filerCoverage.getOrigCoverageEndDt())) {</span>
+<span class="nc" id="L565">                    addErrorLine(ErrorMessageConstants.COVERAGE_START_DATE_END_DATE_GREATER, stringBuffer);</span>
+                }
+            }
+<span class="nc" id="L568">        }</span>
+<span class="nc" id="L569">    }</span>
+
+    public static void rejectResponsiblePersonChange(
+            final FilerDemographicDto item,
+            final FilerDemographicCacheDto mostRecentlyCached,
+            final StringBuffer sb) {
+<span class="nc bnc" id="L575" title="All 4 branches missed.">        if (&quot;C&quot;.equals(item.getFilerStatus())</span>
+                &amp;&amp; mostRecentlyCached != null
+<span class="nc bnc" id="L577" title="All 2 branches missed.">                &amp;&amp; !Objects.equals(</span>
+<span class="nc" id="L578">                item.getResponsiblePersonUniqueId(),</span>
+<span class="nc" id="L579">                mostRecentlyCached.getResponsiblePersonUniqueId())) {</span>
+<span class="nc" id="L580">            addErrorLine(ErrorMessageConstants.RESP_PERSON_CHANGE_NOT_ALLOWED, sb);</span>
+        }
+<span class="nc" id="L582">    }</span>
+
+    public static Filer convert(FilerDemographicDto dto) {
+<span class="nc" id="L585">        Filer filer = new Filer();</span>
+<span class="nc" id="L586">        filer.setCorrection(dto.getCorrection());</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">        if (dto.getCorrectionDt() != null) {</span>
+<span class="nc" id="L588">            filer.setUpdatedDate(new java.sql.Date(dto.getCorrectionDt().getTime()));</span>
+        }
+<span class="nc" id="L590">        filer.setEmployerAddressLine1(dto.getEmployerAddressLine1());</span>
+<span class="nc" id="L591">        filer.setEmployerAddressLine2(dto.getEmployerAddressLine2());</span>
+<span class="nc" id="L592">        filer.setEmployerCity(dto.getEmployerCityOrTown());</span>
+<span class="nc" id="L593">        filer.setEmployerEIN(dto.getEmployerIdentificationNumber());</span>
+<span class="nc" id="L594">        filer.setEmployerName(dto.getEmployerName());</span>
+<span class="nc" id="L595">        filer.setEmployerState(dto.getEmployerStateOrProvince());</span>
+<span class="nc" id="L596">        filer.setFilerStatus(dto.getFilerStatus());</span>
+<span class="nc" id="L597">        filer.setPolicyOrigin(dto.getPolicyOrigin());</span>
+<span class="nc" id="L598">        filer.setProviderAddLine1(dto.getProviderAddressLine1());</span>
+<span class="nc" id="L599">        filer.setProviderAddLine2(dto.getProviderAddressLine2());</span>
+<span class="nc" id="L600">        filer.setProviderCity(dto.getProviderCityOrTown());</span>
+<span class="nc" id="L601">        filer.setProviderContactNo(Long.parseLong(dto.getProviderContactNo()));</span>
+<span class="nc" id="L602">        filer.setProviderEIN(dto.getProviderIdentificationNumber());</span>
+<span class="nc" id="L603">        filer.setProviderName(dto.getProviderName());</span>
+<span class="nc" id="L604">        filer.setProviderState(dto.getProviderStateOrProvince());</span>
+<span class="nc" id="L605">        filer.setProviderZip(dto.getProviderZipOrPostalCode());</span>
+<span class="nc" id="L606">        filer.setRecipientAddLine1(dto.getRecipientAddressLine1());</span>
+<span class="nc" id="L607">        filer.setRecipientAddLine2(dto.getRecipientAddressLine2());</span>
+<span class="nc" id="L608">        filer.setRecipientCity(dto.getRecipientCity());</span>
+<span class="nc" id="L609">        filer.setRecipientDOB(dto.getRecipientDob().toString());</span>
+<span class="nc" id="L610">        filer.setRecipientFirstName(dto.getRecipientFirstName());</span>
+<span class="nc" id="L611">        filer.setRecipientLastName(dto.getRecipientLastName());</span>
+<span class="nc" id="L612">        filer.setRecipientMiddleName(dto.getRecipientMiddleName());</span>
+<span class="nc" id="L613">        filer.setRecipientSSN(dto.getRecipientSsn());</span>
+<span class="nc" id="L614">        filer.setRecipientState(dto.getRecipientState());</span>
+<span class="nc" id="L615">        filer.setRecipientSuffix(dto.getRecepientSuffixName());</span>
+<span class="nc" id="L616">        filer.setRecipientTIN(dto.getRecipientTin());</span>
+<span class="nc" id="L617">        filer.setRecipientZip4(dto.getRecepientZip4());</span>
+<span class="nc" id="L618">        filer.setRecipientZip(dto.getRecepientZip5());</span>
+        // filer.set(dto.getResponsiblePersonUniqueId());
+<span class="nc" id="L620">        filer.setShopIdentifier(dto.getShopIdentifier());</span>
+<span class="nc" id="L621">        filer.setTaxYear(dto.getId().getTaxYear());</span>
+<span class="nc" id="L622">        filer.setUpdatedBy(dto.getUpdatedBy());</span>
+        //filer.setUpdatedDate(dto.getUpdatedDt());
+        // TODO So..... who does this zip belong to?
+        //filer.setZ(dto.getZipOrPostalCode());
+
+<span class="nc" id="L627">        filer.setJan(dto.getJan());</span>
+<span class="nc" id="L628">        filer.setFeb(dto.getFeb());</span>
+<span class="nc" id="L629">        filer.setMar(dto.getMar());</span>
+<span class="nc" id="L630">        filer.setApr(dto.getApr());</span>
+<span class="nc" id="L631">        filer.setMay(dto.getMay());</span>
+<span class="nc" id="L632">        filer.setJun(dto.getJun());</span>
+<span class="nc" id="L633">        filer.setJul(dto.getJul());</span>
+<span class="nc" id="L634">        filer.setAug(dto.getAug());</span>
+<span class="nc" id="L635">        filer.setSep(dto.getSep());</span>
+<span class="nc" id="L636">        filer.setOct(dto.getOct());</span>
+<span class="nc" id="L637">        filer.setNov(dto.getNov());</span>
+<span class="nc" id="L638">        filer.setDec(dto.getDec());</span>
+<span class="nc bnc" id="L639" title="All 2 branches missed.">        filer.setFilerStatus(dto.isActive() ? STATUS_ACTIVE : STATUS_INACTIVE);</span>
+        //BatchUtils.setString(59, pStatement, dto.getMailedForm());
+<span class="nc" id="L641">        filer.setSourceCd(dto.getId().getSourceCd());</span>
+<span class="nc" id="L642">        filer.setSourceUniqueId(Long.parseLong(dto.getId().getSourceUniqueId()));</span>
+<span class="nc" id="L643">        return filer;</span>
+    }
+
+    /**
+     * Method to determine if a string has consecutive/repetitive numbers in it
+     *
+     * @param str the input string
+     * @return true if the string has consecutive numbers, false otherwise.
+     */
+    public static boolean isConsecutiveNumbers(String str) {
+
+<span class="nc bnc" id="L654" title="All 2 branches missed.">        if (StringUtils.isNotBlank(str)) {</span>
+<span class="nc" id="L655">            return str.matches(&quot;^(\\d)\\1+$&quot;);</span>
+        } else {
+<span class="nc" id="L657">            return false;</span>
+        }
+    }
+
+    /**
+     * Method to determine if a string has sequential numbers in it.
+     *
+     * @param str the input string
+     * @return true if the string has sequential numbers, false otherwise.
+     */
+    public static boolean isSequentialNumbers(String str) {
+        boolean isSequential;
+
+<span class="nc bnc" id="L670" title="All 2 branches missed.">        if (StringUtils.isBlank(str)) {</span>
+<span class="nc" id="L671">            return false;</span>
+        }
+        // Since SSN is always 9 digits.
+<span class="nc" id="L674">        isSequential = &quot;012345678&quot;.equals(str);</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;123456789&quot;.equals(str);</span>
+<span class="nc bnc" id="L676" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;234567890&quot;.equals(str);</span>
+<span class="nc bnc" id="L677" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;345678901&quot;.equals(str);</span>
+<span class="nc bnc" id="L678" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;456789012&quot;.equals(str);</span>
+<span class="nc bnc" id="L679" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;567890123&quot;.equals(str);</span>
+<span class="nc bnc" id="L680" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;678901234&quot;.equals(str);</span>
+<span class="nc bnc" id="L681" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;789012345&quot;.equals(str);</span>
+<span class="nc bnc" id="L682" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;890123456&quot;.equals(str);</span>
+<span class="nc bnc" id="L683" title="All 2 branches missed.">        if (!isSequential) isSequential = &quot;901234567&quot;.equals(str);</span>
+
+<span class="nc" id="L685">        return isSequential;</span>
+    }
+
+    public static boolean containsRepeatedAllowedSpecialChars(String str) {
+<span class="nc bnc" id="L689" title="All 2 branches missed.">        if (StringUtils.isBlank(str)) {</span>
+<span class="nc" id="L690">            return false;</span>
+        } else {
+<span class="nc bnc" id="L692" title="All 2 branches missed.">            return (str.contains(&quot;##&quot;)</span>
+<span class="nc bnc" id="L693" title="All 2 branches missed.">                    || str.contains(&quot;&amp;&amp;&quot;)</span>
+<span class="nc bnc" id="L694" title="All 2 branches missed.">                    || str.contains(&quot;[[&quot;)</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">                    || str.contains(&quot;,,&quot;)</span>
+<span class="nc bnc" id="L696" title="All 2 branches missed.">                    || str.contains(&quot;..&quot;)</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">                    || str.contains(&quot;((&quot;)</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">                    || str.contains(&quot;))&quot;)</span>
+<span class="nc bnc" id="L699" title="All 2 branches missed.">                    || str.contains(&quot;\\\\&quot;)</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">                    || str.contains(&quot;''&quot;)</span>
+<span class="nc bnc" id="L701" title="All 2 branches missed.">                    || str.contains(&quot;--&quot;)</span>
+<span class="nc bnc" id="L702" title="All 2 branches missed.">                    || str.contains(&quot;]]&quot;)</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">                    || str.contains(&quot;//&quot;));</span>
+        }
+
+    }
+
+    public static boolean containsAllowedSpecialCharacters(String str) {
+<span class="nc" id="L709">        boolean isContains = true;</span>
+<span class="nc bnc" id="L710" title="All 2 branches missed.">        if (StringUtils.isBlank(str))</span>
+<span class="nc" id="L711">            return true;</span>
+<span class="nc" id="L712">        char[] strToCharArray = str.toCharArray();</span>
+<span class="nc bnc" id="L713" title="All 2 branches missed.">        for (char c : strToCharArray) {</span>
+<span class="nc bnc" id="L714" title="All 28 branches missed.">            if (Character.isLetterOrDigit(c) || c == ' ' || c == '#' || c == '&amp;' || c == '[' || c == '\'' || c == ',' || c == '.' || c == '(' || c == ')' || c == '\\' || c == '-' || c == ']' || c == '/') {</span>
+<span class="nc" id="L715">                isContains = true;</span>
+            } else {
+<span class="nc" id="L717">                isContains = false;</span>
+<span class="nc" id="L718">                break;</span>
+            }
+        }
+<span class="nc" id="L721">        return isContains;</span>
+    }
+
+    public static boolean containsAllowedSpecialCharactersForProviderCity(String str) {
+<span class="nc" id="L725">        boolean isContains = true;</span>
+<span class="nc bnc" id="L726" title="All 2 branches missed.">        if (StringUtils.isBlank(str))</span>
+<span class="nc" id="L727">            return true;</span>
+<span class="nc" id="L728">        char[] strToCharArray = str.toCharArray();</span>
+<span class="nc bnc" id="L729" title="All 2 branches missed.">        for (char c : strToCharArray) {</span>
+<span class="nc bnc" id="L730" title="All 12 branches missed.">            if (Character.isLetterOrDigit(c) || c == ' ' || c == '.' || c == '-' || c == '\'' || c == ',') {</span>
+<span class="nc" id="L731">                isContains = true;</span>
+            } else {
+<span class="nc" id="L733">                isContains = false;</span>
+<span class="nc" id="L734">                break;</span>
+            }
+        }
+<span class="nc" id="L737">        return isContains;</span>
+    }
+
+    public static boolean isCoverageDateValid(String correctionCode, String originalCoverageDt) {
+<span class="nc" id="L741">        boolean isValid = true;</span>
+<span class="nc bnc" id="L742" title="All 2 branches missed.">        if (StringUtils.isNotBlank(correctionCode)) {</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">            if (FileIngestionConstants.CORRECTION_CODE_ORIGINAL.equals(correctionCode)</span>
+<span class="nc bnc" id="L744" title="All 2 branches missed.">                    || FileIngestionConstants.CORRECTION_CODE_UPDATE.equals(correctionCode)) {</span>
+<span class="nc bnc" id="L745" title="All 2 branches missed.">                if (FileIngestionConstants.COVERAGE_DATE_ALL_NINES.equals(originalCoverageDt)</span>
+<span class="nc bnc" id="L746" title="All 2 branches missed.">                        || FileIngestionConstants.COVERAGE_DATE_ALL_SIXES.equals(originalCoverageDt)) {</span>
+<span class="nc" id="L747">                    isValid = false;</span>
+                }
+            }
+        }
+<span class="nc" id="L751">        return isValid;</span>
+    }
+
+    public static boolean isCoverageTaxYearValid(String taxYear, Date coverageDate) {
+<span class="nc" id="L755">        boolean isValid = true;</span>
+<span class="nc" id="L756">        Calendar coverageBeginDtCalendar = new GregorianCalendar();</span>
+<span class="nc bnc" id="L757" title="All 4 branches missed.">        if (StringUtils.isNotBlank(taxYear) &amp;&amp; coverageDate != null) {</span>
+<span class="nc" id="L758">            coverageBeginDtCalendar.setTime(coverageDate);</span>
+<span class="nc bnc" id="L759" title="All 2 branches missed.">            isValid = (Integer.parseInt(taxYear) == (coverageBeginDtCalendar.get(Calendar.YEAR)));</span>
+        }
+<span class="nc" id="L761">        return isValid;</span>
+    }
+
+    public static boolean isCoverageMonthValid(Date coverageBeginDate, Date recipientDob) {
+<span class="nc" id="L765">        boolean isValid = true;</span>
+        Calendar dobCalendar, coverageBeginDateCalendar;
+<span class="nc bnc" id="L767" title="All 4 branches missed.">        if (coverageBeginDate != null &amp;&amp; recipientDob != null) {</span>
+<span class="nc" id="L768">            dobCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L769">            dobCalendar.setTime(recipientDob);</span>
+<span class="nc" id="L770">            coverageBeginDateCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L771">            coverageBeginDateCalendar.setTime(coverageBeginDate);</span>
+<span class="nc bnc" id="L772" title="All 4 branches missed.">            isValid = dobCalendar.before(coverageBeginDateCalendar) || dobCalendar.equals(coverageBeginDateCalendar);</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">            if (!isValid) {</span>
+<span class="nc bnc" id="L774" title="All 2 branches missed.">                if (dobCalendar.get(Calendar.YEAR) == coverageBeginDateCalendar.get(Calendar.YEAR)) {</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">                    isValid = dobCalendar.get(Calendar.MONTH) == coverageBeginDateCalendar.get(Calendar.MONTH);</span>
+                }
+            }
+        }
+<span class="nc" id="L779">        return isValid;</span>
+    }
+
+    public static boolean isBeginDateBeforeEndDate(Date beginDate, Date endDate) {
+<span class="nc" id="L783">        boolean isValid = true;</span>
+<span class="nc bnc" id="L784" title="All 4 branches missed.">        if (beginDate != null &amp;&amp; endDate != null) {</span>
+<span class="nc" id="L785">            Calendar beginDateCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L786">            beginDateCalendar.setTime(beginDate);</span>
+<span class="nc" id="L787">            Calendar endDateCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L788">            endDateCalendar.setTime(endDate);</span>
+<span class="nc bnc" id="L789" title="All 4 branches missed.">            isValid = beginDateCalendar.before(endDateCalendar) || beginDateCalendar.equals(endDateCalendar);</span>
+        }
+<span class="nc" id="L791">        return isValid;</span>
+    }
+
+    public static boolean isRespPersonUniqueIdRecipientUniqueIdEqual(String respPerUniqueId, String reciUniqueId) {
+<span class="nc bnc" id="L795" title="All 2 branches missed.">        boolean isEqual = (respPerUniqueId.compareTo(reciUniqueId) == 0) ? true : false;</span>
+<span class="nc" id="L796">        return isEqual;</span>
+    }
+
+    public static boolean isRespPersonUniqueIdExists(String respPerUniqueId) {
+<span class="nc bnc" id="L800" title="All 2 branches missed.">        boolean isValid = (respPerUniqueId != null) ? true : false;</span>
+<span class="nc" id="L801">        return isValid;</span>
+    }
+
+    public static boolean isEmployerCityExists(String empCity) {
+<span class="nc bnc" id="L805" title="All 2 branches missed.">        boolean isValid = (empCity == null) ? true : false;</span>
+<span class="nc" id="L806">        return isValid;</span>
+    }
+/*    public static void main(String[] args) {
+
+    }*/
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

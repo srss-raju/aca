@@ -1,0 +1,26 @@
+<div class="navbar" role="banner" tabindex="-1">
+  <div class="navbar-container">
+
+    <div class="pull-left" ng-switch on="CitizenSession.staticState ? CitizenSession.staticState : CitizenSession.selectedState">
+      <div ng-switch-when="AR">
+        <img tabindex="-1" ng-src="images/ACAB_Arkansas_Logo.png"/>
+      </div>
+      <div ng-switch-when="IN">
+        <img tabindex="-1" ng-src="images/ACAB_Indiana_Logo.png"/>
+      </div>
+      <div ng-switch-when="LA">
+        <img tabindex="-1" ng-src="images/ACAB_Lousiana_Logo.png"/>
+      </div>
+      <div ng-switch-default>
+        <img tabindex="-1" ng-src="images/LaborWiseLogo.png"/>
+      </div>
+    </div>
+
+    <div class="navbar-option pull-right" style="padding-top: 5px" ng-switch on="CitizenSession.userLogged">
+      <button ng-switch-when="true" class="btn pointer" tabindex="{{modalBox == true ? -1:4}}" ng-click="CitizenSession.userLoggedOut()">
+        <span>Sign Out</span><span class="margin-left-5px"><i class="fa fa-power-off"></i></span>
+      </button>
+      <span ng-switch-when="false"></span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,238 @@
+
+/*** views/templates/acaTypeSelect.html ***/
+.acaSelect-container{
+  >.acaSelect{
+    width:100%;
+
+    input{
+      border: 0;
+    }
+
+    .input-filter{
+      width: 100%;
+      height: 50px;
+      padding-left: 16px;
+      font-family: Roboto-Light, Helvetica, Arial;
+      font-size: 20px;
+      color: @gray;
+    }
+
+    .dropdown-img{
+      position: absolute;
+      top: 17px;
+      right: 38px;
+      color: @gray;
+      font-size:18px;
+    }
+  }
+}
+
+.acaSelect-list{
+  margin-top: 5px;
+  .popover-arrow{
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 13px solid @white;
+    margin-right: 34px;
+  }
+
+  .popover-list{
+    position: relative;
+    margin-top: 13px;
+    background-color: @white;
+  }
+
+  .listItem{
+    padding: 9px 20px;
+    font-family: Roboto-Medium, Helvetica, Arial;
+    font-size: 18px;
+    color: @selectbox-gray;
+    background-color: @white;
+    width: 100%;
+    text-align: left;
+    outline: none;
+    border: 0;
+
+    &:hover,&:focus{
+      color: @white;
+      background-color: @orange;
+    }
+
+  }
+}
+
+/*** views/templates/acaToggleSwitch.html ***/
+.aca-toggle-label-left{
+  color: @gray;
+  margin-right: 15px;
+}
+
+.aca-toggle-label-right{
+  color: @gray;
+  margin-left:15px;
+}
+
+.labelSelected{
+  color: @green;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 36px;
+  height: 18px;
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  background-image: linear-gradient(to bottom, #eeeeee, white 25px);
+}
+
+.switch-green > .switch-input:checked ~ .switch-label {
+  background: @green;
+}
+
+.switch-green > .switch-input:not(:checked) ~ .switch-label {
+  background: @green;
+}
+
+.switch-handle {
+  position: absolute;
+  top: -3px;
+  left: -5px;
+  width: 23px;
+  height: 23px;
+  background: white;
+  border-radius: 12px;
+  transition: left 0.15s ease-out;
+  border:1px solid @green;
+  box-shadow: -1px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.switch-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.switch-input:not(:checked) ~ .switch-handle {
+  left: 18px;
+}
+
+.switch-input:checked ~ .switch-handle {
+  left: -5px;
+}
+
+.switch-label {
+  position: relative;
+  display: block;
+  height: inherit;
+  font-size: 10px;
+  text-transform: uppercase;
+  border-radius: inherit;
+  transition: 0.15s ease-out;
+  transition-property: opacity background;
+  color: @light-gray;
+}
+
+.green-label{
+  color: @green;
+}
+
+
+/*** views/templates/acaCheckBox.html ***/
+.checkBox {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+
+  > .checkbox-input {
+    position: absolute;
+    top: 3px;
+    left: 20px;
+    opacity: 0;
+  }
+
+  .checkbox-label {
+    position: relative;
+    display: block;
+    height: 28px;
+    width: 28px;
+    font-size: 10px;
+    text-transform: uppercase;
+    transition: 0.15s ease-out;
+    transition-property: opacity background;
+    left: 11px;
+  }
+
+  > .checkbox-input:checked ~ .checkbox-label {
+    width: 32px;
+    background: @transparent;
+    &:after{
+      content: '\f00c';
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      color: @green;
+      font-size: 30px;
+      top: -7px;
+      left: 2px;
+      position: absolute;
+    }
+  }
+
+  > .checkbox-input:not(:checked) ~ .checkbox-label {
+    width: 28px;
+    border-radius: 2px;
+    border: 2px solid #C1C1C1;
+    background: @white;
+  }
+}
+
+
+/*** views/templates/successBanner.html & failureBanner.html ***/
+.success-banner {
+  padding: 0.3em 1.5em;
+  background-color: rgba(51, 153, 51, 0.2); /* == #339933 Green*/
+  border-radius: 4px;
+}
+
+.failure-banner {
+  padding: 0.3em 1.5em;
+  background-color: rgba(171, 44, 9, 0.2); /* == #AB2C09 Green*/
+  border-radius: 4px;
+}
+
+.success-icon:after {
+  content: "\f00c";
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  font-size: 0.75em;
+  color: white;
+  background-color: @green;
+  text-align: center;
+  border-radius: 0.9em;
+  padding: 21% 20%;
+}
+
+.failure-icon:after {
+  content: "\f12a";
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  font-size: 0.7em;
+  color: white;
+  background-color: @red;
+  text-align: center;
+  padding: 0.4em 0.8em;
+}
+

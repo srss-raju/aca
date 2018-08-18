@@ -1,0 +1,326 @@
+<div class="scroll-container">
+  <div class="margin-indent-container" role="main" ng-switch on="dataLoad">
+    <div class="col-md-12" ng-switch-when="true">
+      <!-- Success and Failure banner for Send Mail-->
+      <div class="row">
+        <div class="col-md-12 no-padding row-padding-bottom10">
+          <div class="margin-top-5px" success-banner show-flag="sendMailSuccess"
+               success-message="sendMailMsg.successLabel"></div>
+          <div class="margin-top-5px" failure-banner show-flag="sendMailFail"
+               error-message="sendMailMsg.errorLabel"></div>
+        </div>
+      </div>
+
+      <!-- Screen title-->
+      <div class="row row-margin viewUserTitle" tabindex="{{modalBox ? -1:1}}" aria-label="{{ariaLabel.title}}">
+        <div class="col-md-4 no-padding">
+          <span class="screen-title-action">{{label.titleAction}}</span>
+          <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+        </div>
+        <div class="col-md-8 text-right">
+          <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+        </div>
+      </div>
+
+      <!-- Basic details of the citizen -->
+      <div class="row margin-bottom10px" ng-repeat="individual in viewData.coveredFilers">
+
+        <div ng-if="$index < 2">
+          <span class="button-heading table-head text-white-heading16-med">
+            <span ng-if="$index == 0">{{label.primary}}</span>
+            <span ng-if="$index == 1">{{label.dependents}}</span>
+          </span>
+          <span class="inactive-status" ng-if="$index == 0 && individual.status.toLowerCase() == 'inactive' ">{{individual.status.toUpperCase()}}</span>
+          <div class="clearfix"></div>
+          <hr>
+        </div>
+
+        <div class="col-md-9 no-padding">
+          <div class="col-md-4 no-padding">
+            <span class="text-gray-bold">{{label.name}}<span class="detail">:</span></span>
+            <span>
+              <a class="text-decoration-underline no-padding" title="{{imgDesc.viewSourceData}}"
+               style="text-overflow: ellipsis;overflow: hidden;"
+                 aca-aria-click="goToSourceData('sourceData', individual.filerID)"
+                 tabindex="{{ modalBox ? -1:($index + 2) }}"
+               aria-label="{{ariaLabel.individual[$index]}}">
+              {{individual.firstName}} {{individual.lastName}}</a>
+            </span>
+
+          </div>
+          <div class="col-md-3 no-padding">
+            <span class="text-gray-bold">{{label.dob}}<span class="detail">:</span></span>
+            <span class="text-gray-reg">{{individual.dob || 'No Data'}} </span>
+          </div>
+          <div class="col-md-3 no-padding" ng-switch on="individual.uidType">
+            <span ng-switch-when="SSN">
+              <span class="text-gray-bold">{{label.ssn}}<span class="detail">:</span></span>
+              <span class="text-gray-reg">{{individual.uidNumber}}</span>
+            </span>
+            <span ng-switch-when="TIN">
+              <span class="text-gray-bold">{{label.tin}}<span class="detail">:</span></span>
+              <span class="text-gray-reg">{{individual.uidNumber}}</span>
+            </span>
+            <span ng-switch-default>
+              <span class="text-gray-bold">*</span>
+              <span class="text-gray-reg">{{label.noSsnTin}}</span>
+            </span>
+
+          </div>
+          <div class="col-md-2 text-right no-padding">
+            <span class="text-gray-bold">{{label.year}}<span class="detail">:</span></span>
+            <span class="text-gray-reg">
+              {{individual.taxYear}}
+            </span>
+          </div>
+        </div>
+
+        <div class="col-md-3 no-padding">
+          <div class="text-gray-bold col-md-4 no-padding-right">{{label.status}}<span class="detail">:</span>
+          </div>
+
+          <div class="text-gray-reg col-md-8 no-padding" ng-switch on="individual.printStatus.toUpperCase()">
+            <span ng-switch-when="READY_TO_MAIL">
+              Ready to Mail
+            </span>
+            <span ng-switch-when="MAIL_PENDING">
+              Mailing in Progress
+            </span>
+            <span ng-switch-when="RESEND">
+              Mailing in Progress
+            </span>
+            <span ng-switch-when="MAIL_COMPLETE">
+              Mailed
+            </span>
+            <span ng-switch-when="MAILED">
+              Mailed
+            </span>
+            <span ng-switch-default>
+              No print status
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- current form -->
+      <div class="row row-padding-top20 row-margin currentFormTable" tabindex="{{modalBox ? -1:currentFormIndex}}"
+           aria-label="{{ariaLabel.currentForm}}">
+
+        <!-- Heading -->
+        <div class="col-md-12 padding-side25 table-head text-white-heading16-med">
+
+          <div class="col-md-4 no-padding">
+            <div class="col-md-6 no-padding-left">{{label.formActions}}</div>
+            <div class="col-md-6">
+              <span>{{label.lastMailed}}</span>
+            </div>
+          </div>
+
+          <div class="col-md-2">{{label.address}}</div>
+
+          <div class="col-md-6 no-padding">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">{{label.generatedBy}}</div>
+            <div class="col-md-6 no-padding">{{label.comments}}</div>
+          </div>
+
+        </div>
+
+        <!-- Details -->
+        <div class="table-data-button">
+
+          <div class="col-md-12 text-black-reg no-padding">
+
+            <div class="col-md-4 no-padding">
+
+              <!-- file icon & mail icon -->
+              <div class="col-md-6">
+                <!-- pdfAvailable is true then we check for pdfStatus to check if pdf in the database is in sync with the updated data -->
+                <!--<span ng-switch-when="true">-->
+                  <!-- pdfAvailable is true when pdf is generated and available in the database -->
+
+                <!-- file icon -->
+                  <span class="icon-margin">
+                    <i class="fa fa-file-text-o fa-lg blue-icon"
+                       aca-aria-click="viewDocuments('viewPdf', viewData.currentForm.formID)"
+                       tabindex="{{modalBox ? -1:(currentFormIndex + 1)}}" aria-label="{{ariaLabel.viewForm}}"
+                       data-toggle="popover" data-trigger="hover" data-content={{imgDesc.viewPdfForm}}
+                       data-placement="bottom" rel="popover"
+                       data-template={{popoverDetail.templateConst}} onmouseover="$(this).popover('show')"></i>
+                  </span>
+
+                <!-- mail icon -->
+                  <span class="icon-margin">
+
+                    <!-- ADDRESS_INVALID -->
+                    <i class="fa fa-envelope-o fa-lg grey-icon"
+                       ng-if="viewData.currentForm.formStatus.toUpperCase() === serviceConstants.addressInvalid"
+                       onmouseover="$(this).popover('show')" tabindex="{{modalBox ? -1:(currentFormIndex + 2) }}"
+                       aria-label="{{popoverDetail.mailDisabledRegenerate}}" data-toggle="popover" data-trigger="hover"
+                       rel="popover" data-content={{popoverDetail.mailDisabledAddrInvalid}}
+                       data-template={{popoverDetail.template}} data-placement="bottom"></i>
+
+                    <!-- GENERATION_FAILED -->
+                    <i class="fa fa-envelope-o fa-lg grey-icon"
+                       ng-if=" viewData.currentForm.formStatus.toUpperCase() === serviceConstants.generationFailed || viewData.currentForm.formStatus.toUpperCase() == '' "
+                       onmouseover="$(this).popover('show')" tabindex="{{modalBox ? -1:(currentFormIndex + 2) }}"
+                       aria-label="{{popoverDetail.mailDisabledRegenerate}}" data-toggle="popover" data-trigger="hover"
+                       rel="popover" data-content={{popoverDetail.mailDisabledRegenerate}}
+                       data-template={{popoverDetail.template}} data-placement="bottom"></i>
+
+                    <!-- GENERATED or REGENERATED -->
+                    <span class="mail-icon-button"
+                            ng-if="viewData.currentForm.formStatus.toUpperCase() === serviceConstants.generatedPdf || viewData.currentForm.formStatus.toUpperCase() === serviceConstants.regeneratePdf ">
+                      <i class="fa fa-envelope-o fa-lg blue-icon" tabindex="{{modalBox ? -1:(currentFormIndex + 2) }}" aca-aria-click="sendByMailConfirm(viewData.currentForm)"
+                         aria-label="{{ariaLabel.mailForm}}"
+                         data-toggle="popover" data-trigger="hover" data-content={{imgDesc.mailForm}}
+                         data-placement="bottom" rel="popover" onmouseover="$(this).popover('show')"
+                         data-template={{popoverDetail.templateConst}}></i>
+                    </span>
+
+
+                  </span>
+
+                <!--</span>-->
+                <!-- pdfAvailable is false when pdf is generated and available in the database -->
+                <!--<span ng-switch-when="false">-->
+                <!--<span class="icon-margin">-->
+                <!--<i class="fa fa-file-text-o fa-lg grey-icon" onmouseover="$(this).popover('show')"-->
+                <!--tabindex="{{currentFormIndex + 1}}" aria-label="{{ariaLabel.viewForm}}" data-toggle="popover"-->
+                <!--data-trigger="hover" rel="popover" data-content={{popoverDetail.pdfUnavailable}}-->
+                <!--data-template={{popoverDetail.template}} data-placement="bottom"></i>-->
+                <!--<i class="fa fa-envelope-o fa-lg grey-icon" onmouseover="$(this).popover('show')"-->
+                <!--tabindex="{{currentFormIndex + 2 }}" aria-label="{{popoverDetail.mailDisabledUnavailable}}"-->
+                <!--data-toggle="popover" data-trigger="hover" rel="popover"-->
+                <!--data-content={{popoverDetail.mailDisabledUnavailable}} data-template={{popoverDetail.template}}-->
+                <!--data-placement="bottom"></i>-->
+                <!--</span>-->
+                <!--</span>-->
+              </div>
+
+              <!-- last mailed -->
+              <div class="col-md-6">
+                <span ng-if="viewData.currentForm.printStatus.toUpperCase() === serviceConstants.mailComplete">{{viewData.currentForm.mailedDate | dateFilter:'MM/dd/yyyy' || 'No Data'}}</span>
+                <span ng-if="viewData.currentForm.printStatus.toUpperCase() === serviceConstants.mailPending">{{viewData.currentForm.acknowledgeDate | dateFilter:'MM/dd/yyyy' || 'No Data'}}</span>
+                <span ng-if="viewData.currentForm.printStatus.toUpperCase() === serviceConstants.readyToMail">{{viewData.currentForm.printDate | dateFilter:'MM/dd/yyyy' || 'No Data'}}</span>
+                <span ng-if="viewData.currentForm.printStatus.toUpperCase() !== serviceConstants.mailComplete &&
+                              viewData.currentForm.printStatus.toUpperCase() !== serviceConstants.mailPending &&
+                              viewData.currentForm.printStatus.toUpperCase() !== serviceConstants.readyToMail">
+                  Not Available
+                </span>
+
+                <div ng-if="viewData.currentForm.formStatus.toUpperCase() === serviceConstants.addressInvalid"
+                     class="red">
+                  {{label.returned}}
+                  <div>{{label.returnedAddress}}</div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="col-md-2 no-padding-right"
+                 ng-class="{red: viewData.currentForm.formStatus.toUpperCase() === serviceConstants.addressInvalid}">
+
+              <div ellipsis-popover display=viewData.currentForm.addressLine1 hoverlength=15>
+                <span
+                ng-hide="viewData.currentForm.addressLine2 === '' || viewData.currentForm.addressLine2 == null || viewData.currentForm.addressLine1 === '' || viewData.currentForm.addressLine1 == null">,</span>
+              </div>
+
+              <div ellipsis-popover display=viewData.currentForm.addressLine2 hoverlength=15></div>
+              <span ellipsis-popover display=viewData.currentForm.city hoverlength=15></span>
+              <span>{{viewData.currentForm.state}}</span>
+              <span>{{viewData.currentForm.zipcode}}</span>
+
+            </div>
+
+            <div class="col-md-6 no-padding">
+              <div class="col-md-1"></div>
+              <div class="col-md-5">{{viewData.currentForm.generatedBy}}</div>
+              <div class="col-md-6 no-padding">
+                <comment-popup detail="viewData.currentForm.comments"></comment-popup>
+              </div>
+            </div>
+            <!--<div class="no-padding-right screen-navigate pointer" ng-click="goToSourceData('sourceData', viewData.currentForm.formID)"><i class="fa fa-chevron-right fa-2x"></i>-->
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Historic Forms-->
+      <div class="row row-padding-top10 row-margin" ng-show="viewData.historicForms.length > 0">
+        <div class="col-md-12 padding-side25 table-head text-white-heading16-med"
+             tabindex="{{modalBox ? -1:(currentFormIndex + 3)}}"
+             aria-label="{{ariaLabel.historicForms}}">
+          <div class="col-md-4 no-padding">
+            <div class="col-md-6 no-padding">{{label.historicForms}}</div>
+            <div class="col-md-6">{{label.lastModified}}</div>
+          </div>
+          <div class="col-md-2">{{label.address}}</div>
+          <div class="col-md-6 no-padding">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">{{label.generatedBy}}</div>
+            <div class="col-md-6 no-padding">{{label.comments}}</div>
+          </div>
+        </div>
+        <div class="table-data">
+          <div class="col-md-12 no-padding text-black-reg"
+               ng-repeat="record in viewData.historicForms | orderBy: lastModifiedFormat : true">
+            <div class="col-md-4 no-padding">
+              <div class="col-md-6 no-padding">
+                <div class="col-md-7 text-center">
+                  <span class="icon-margin" ng-switch on="record.pdfAvailable">
+                    <i class="fa fa-file-text-o fa-lg blue-icon" ng-switch-when="true"
+                       aca-aria-click="viewDocuments('viewHistoric', record)"
+                       tabindex="{{modalBox ? -1:(currentFormIndex + $index + 4)}}"
+                       aria-label="{{ariaLabel.viewHistoricForm[$index]}}"
+                       data-toggle="popover" data-trigger="hover" data-content={{imgDesc.viewPdfForm}}
+                       data-placement="bottom" rel="popover" onmouseover="$(this).popover('show')"
+                       data-template={{popoverDetail.templateConst}}></i>
+                    <i class="fa fa-file-text-o fa-lg grey-icon" ng-switch-when="false"
+                       tabindex="{{modalBox ? -1:(currentFormIndex + $index + 4)}}"
+                       aria-label="{{popoverDetail.historicPdfUnavailable}}"
+                       onmouseover="$(this).popover('show')" data-toggle="popover" data-trigger="hover" rel="popover"
+                       data-content={{popoverDetail.historicPdfUnavailable}}
+                       data-template={{popoverDetail.templateConst}} data-placement="bottom"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-6">{{record.lastModifiedDate | dateFilter:'MM/dd/yyyy'}}</div>
+            </div>
+
+            <div class="col-md-2 no-padding-right">
+
+              <div ellipsis-popover display=record.addressLine1 hoverlength=15>
+                <span
+                ng-hide="record.addressLine2 === '' || record.addressLine2 == null || record.addressLine1 === '' || record.addressLine1 == null">,</span>
+              </div>
+
+              <div ellipsis-popover display=record.addressLine2 hoverlength=15></div>
+              <span ellipsis-popover display=record.city hoverlength=15></span>
+
+              <span>{{record.state}}</span>
+              <span>{{record.zipcode}}</span>
+            </div>
+
+            <div class="col-md-6 no-padding">
+              <div class="col-md-1"></div>
+              <div class="col-md-5">{{record.generatedBy}}</div>
+              <div class="col-md-6 no-padding">
+                <comment-popup detail="record.comments"></comment-popup>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-md-12 text-center" ng-switch-when="false">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+
+  </div>
+</div>

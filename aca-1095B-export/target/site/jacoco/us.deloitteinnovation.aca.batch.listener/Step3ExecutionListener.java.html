@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3ExecutionListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.listener</a> &gt; <span class="el_source">Step3ExecutionListener.java</span></div><h1>Step3ExecutionListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.listener;
+
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.export.TransmissionIdStack;
+import us.deloitteinnovation.aca.batch.service.TransmissionIdReaderService;
+
+/**
+ * Created by bhchaganti on 5/16/2016.
+ */
+<span class="nc" id="L14">public class Step3ExecutionListener implements StepExecutionListener {</span>
+
+    @Autowired
+    TransmissionIdReaderService transmissionIdReaderService;
+
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+
+    @Autowired
+    TransmissionIdStack transmissionIdStack;
+
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+
+        /*String jobType = BatchExportConstants.getStatusFromTransmissionCode(BatchExportConstants.getJobTypeLetter(stepExecution));
+        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext());
+        SourceSystemConfig config = sourceSystemConfigDataService.getByState(state);
+        List&lt;Integer&gt; transmissionIds = transmissionIdReaderService.getTransmissionIds(config.getSourceCd(), jobType);
+
+        if(transmissionIdStack == null || transmissionIdStack.isStackEmpty()) {
+            transmissionIdStack.buildStack(transmissionIds);
+        }*/
+
+<span class="nc" id="L38">    }</span>
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+<span class="nc" id="L42">        return null;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

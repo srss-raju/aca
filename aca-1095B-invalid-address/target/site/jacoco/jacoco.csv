@@ -1,0 +1,13 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca,Aca109495InvalidAddressApplication,11,0,0,0,3,0,2,0,2,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.util,InvalidAddressConstants,3,0,0,0,1,0,1,0,1,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.util,BatchHistoryCleanupTasklet,190,0,0,0,38,0,8,0,8,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.step,InvalidAddressWriter,517,0,34,0,106,0,24,0,7,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.step,InvalidAddressReader,138,0,12,0,29,0,12,0,6,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.step,StepResult,41,0,0,0,15,0,9,0,9,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.step,InvalidAddressProcessor,418,0,42,0,69,0,32,0,11,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.step,InvalidAddressReader.NameFilter,9,0,0,0,2,0,2,0,2,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress,InvalidAddressConfiguration,75,0,0,0,18,0,11,0,11,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress,InvalidAddressListener,53,0,2,0,10,0,4,0,3,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress,InvalidAddressBatchJobConfiguration,28,0,0,0,2,0,2,0,2,0
+ACA 1095B - Invalid Address Module,us.deloitteinnovation.aca.batch.invalidaddress.repository,InvalidAddressRepository,7,0,0,0,2,0,2,0,2,0

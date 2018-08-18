@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="3 seconds">
+    <appender name="IMPORTLOGFILE" class="ch.qos.logback.core.FileAppender">
+        <file>/var/log/aca1095b/aca_import_batch.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="IMPORTLOGFILE_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/aca1095b/aca_import_batch_rolling.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/aca1095b/aca_import_batch_rolling.%d.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>20MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="IMPORT-PROCESS-AUDIT-LOG-FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/var/log/aca1095b/aca_import_batch_audit.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="root" level="error">
+        <appender-ref ref="IMPORTLOGFILE"/>
+        <appender-ref ref="IMPORTLOGFILE_ROLLING"/>
+    </logger>
+
+    <springProfile name="test,local,dev,qa">
+        <logger name="us.deloitteinnovation.aca.batch" level="INFO"/>
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springframework.beans" level="INFO"/>
+        <logger name="org.springframework.jndi" level="INFO"/>
+        <logger name="org.hibernate.jdbc" level="INFO"/>
+        <logger name="org.hibernate.loader" level="INFO"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="INFO"/>
+        <logger name="us.deloitteinnovation.aca.batch.constants.ImportAuditStats" level="WARN">
+            <appender-ref ref="IMPORT-PROCESS-AUDIT-LOG-FILE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="preprod,prod,dryrun">
+        <logger name="us.deloitteinnovation.aca.batch" level="WARN"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.springframework.web" level="WARN"/>
+        <logger name="org.springframework.beans" level="WARN"/>
+        <logger name="org.springframework.jndi" level="WARN"/>
+        <logger name="org.hibernate.jdbc" level="WARN"/>
+        <logger name="org.hibernate.loader" level="WARN"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="WARN"/>
+        <logger name="us.deloitteinnovation.aca.batch.constants.ImportAuditStats" level="WARN">
+            <appender-ref ref="IMPORT-PROCESS-AUDIT-LOG-FILE"/>
+        </logger>
+    </springProfile>
+</configuration>

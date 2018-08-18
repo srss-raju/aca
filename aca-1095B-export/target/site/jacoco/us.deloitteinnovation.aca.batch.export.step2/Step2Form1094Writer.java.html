@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step2Form1094Writer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step2</a> &gt; <span class="el_source">Step2Form1094Writer.java</span></div><h1>Step2Form1094Writer.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step2;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import us.deloitteinnovation.aca.batch.export.ExportJob1094Repository;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.gov.treasury.irs.ext.aca.air._7.Form1094BUpstreamDetailType;
+
+import javax.xml.bind.JAXBElement;
+import java.io.StringWriter;
+import java.util.List;
+
+/**
+ * Renders each Form1094BUpstreamDetailType as encapsulated within the list of Step2Form1094Dto objects.
+ * Stores the entire Step2Form1094Dto, along with rendered XML to the ExportJob1095Repository.
+ * @see Form1094BUpstreamDetailType
+ * @see ExportJob1095Repository
+ * @see Step2Form1094Dto
+ */
+<span class="fc" id="L23">public class Step2Form1094Writer implements ItemWriter&lt;Step2Form1094Dto&gt; {</span>
+
+<span class="fc" id="L25">    private static final Logger LOG = LoggerFactory.getLogger(Step2Form1094Writer.class) ;</span>
+
+    @Autowired
+    protected Jaxb2Marshaller jaxb2Marshaller;
+
+<span class="fc" id="L30">    private us.gov.treasury.irs.ext.aca.air._7.ObjectFactory</span>
+            air7ObjectFactory = new us.gov.treasury.irs.ext.aca.air._7.ObjectFactory();
+
+    @Autowired
+    ExportJob1094Repository exportJob1094Repository ;
+
+    @Override
+    public void write(List&lt;? extends Step2Form1094Dto&gt; aca1094Forms) throws Exception {
+        JAXBElement&lt;Form1094BUpstreamDetailType&gt; elementWrapper ;
+        StringWriter out ;
+        String xmlString ;
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        for (Step2Form1094Dto dto : aca1094Forms) {</span>
+            // Wrap the IRS data object in the SOAP wrapper
+            //elementWrapper = air7ObjectFactory.createForm1094BUpstreamDetail(dto.form1094BUpstreamDetailType) ;
+            // Render and store the xml
+<span class="fc" id="L45">            out = new StringWriter();</span>
+            //jaxb2Marshaller.marshal(elementWrapper, new StreamResult(out));
+<span class="fc" id="L47">            xmlString = out.toString() ;</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="fc" id="L49">                LOG.debug(&quot;Form 1094B for ein {}:\n{}&quot;, dto.getSourceSystemConfig().getProviderIdentificationNumber(), xmlString) ;</span>
+            }
+<span class="fc" id="L51">            dto.setRawXml(new byte[1]) ;</span>
+            //dto.setRawXml(xmlString.getBytes(Charset.forName(&quot;UTF-8&quot;)));
+<span class="fc" id="L53">            exportJob1094Repository.save(dto) ;</span>
+<span class="fc" id="L54">        }</span>
+<span class="fc" id="L55">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

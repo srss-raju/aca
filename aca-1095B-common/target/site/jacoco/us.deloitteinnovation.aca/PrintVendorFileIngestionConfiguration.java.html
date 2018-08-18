@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorFileIngestionConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca</a> &gt; <span class="el_source">PrintVendorFileIngestionConfiguration.java</span></div><h1>PrintVendorFileIngestionConfiguration.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.configuration.annotation.*;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineMapper;
+import org.springframework.batch.item.file.MultiResourceItemReader;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dao.BatchInfoDao;
+import us.deloitteinnovation.aca.batch.dao.PrintVendorExceptionReportDao;
+import us.deloitteinnovation.aca.batch.dao.impl.BatchInfoDaoImpl;
+import us.deloitteinnovation.aca.batch.dao.impl.PrintVendorExceptionReportDaoImpl;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.mapper.DefaultLineMapper;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.aca.batch.service.PrintVendorExceptionReportService;
+import us.deloitteinnovation.aca.batch.service.PrintVendorFileImportMailerService;
+import us.deloitteinnovation.aca.batch.service.PrintVendorFileIngestionService;
+import us.deloitteinnovation.aca.batch.service.impl.BatchInfoServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.PrintVendorExceptionReportServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.PrintVendorFileImportMailerServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.PrintVendorFileIngestionServiceImpl;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.exception.PrintVendorBatchImportException;
+import us.deloitteinnovation.aca.exception.PrintVendorFileExtensionFilter;
+import us.deloitteinnovation.aca.exception.PrintVendorFileNameVerificationDecider;
+import us.deloitteinnovation.aca.exception.PrintVendorImportFilersJobExecutionListener;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.Date;
+import java.util.Properties;
+
+
+/**
+ * Configuration for various steps, readers, writers, processors and listeners
+ * 1. Bean definitions should stay here
+ * 2. Utility methods should move to a util package
+ */
+
+@Configuration
+@EnableAutoConfiguration
+@EnableBatchProcessing
+@Import(JpaConfiguration.class)
+@PropertySource(&quot;classpath:ValidationMessages.properties&quot;)
+<span class="fc" id="L63">public class PrintVendorFileIngestionConfiguration {</span>
+
+<span class="fc" id="L65">    private final static Logger LOGGER = LoggerFactory.getLogger(PrintVendorFileIngestionConfiguration.class);</span>
+
+    @Autowired
+    JobBuilderFactory jobs;
+    @Autowired
+    StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    ProfileProperties profileProperties;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+
+    
+    @Bean
+    @Qualifier(&quot;multiResourceItemReader&quot;)
+    @StepScope
+    @SuppressWarnings(&quot;SpringJavaAutowiringInspection&quot;)
+    public MultiResourceItemReader multiResourceItemReader(
+            FlatFileItemReader&lt;FilerDemographicDto&gt; applicationReader,
+            @Value(&quot;#{jobParameters[STATE]}&quot;) String state
+    ) {
+<span class="nc" id="L88">        String stateInputFolderKey = state + BatchConstants.INPUT_FILE_FOLDER;</span>
+<span class="nc" id="L89">        String stateInputFolder = profileProperties.getProperty(stateInputFolderKey);</span>
+<span class="nc" id="L90">        MultiResourceItemReader reader = new MultiResourceItemReader();</span>
+        try {
+<span class="nc" id="L92">            Resource[] fileSystemResource = this.getFileSystemResource(stateInputFolder);</span>
+<span class="nc" id="L93">            reader.setResources(fileSystemResource);</span>
+<span class="nc" id="L94">            reader.setDelegate(applicationReader);</span>
+<span class="nc" id="L95">        } catch (PrintVendorBatchImportException e) {</span>
+<span class="nc" id="L96">            LOGGER.error(e.getMessage());</span>
+        } finally {
+<span class="nc" id="L98">            reader.close();</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">        return reader;</span>
+    }
+
+    private Resource[] getFileSystemResource(
+            String inputFileFolder
+    ) throws PrintVendorBatchImportException {
+<span class="nc" id="L106">        Resource[] fileSystemResource = null;</span>
+<span class="nc" id="L107">        File fileDirectory = new File(inputFileFolder);</span>
+
+<span class="nc" id="L109">        File[] fileListInSourceFolder = fileDirectory.listFiles(new PrintVendorFileExtensionFilter(BatchConstants.FILE_FORMAT_EXTENSION));</span>
+
+<span class="nc" id="L111">        fileSystemResource = new FileSystemResource[fileListInSourceFolder.length];</span>
+<span class="nc" id="L112">        int i = 0;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (File file : fileListInSourceFolder) {</span>
+
+<span class="nc" id="L115">            fileSystemResource[i] = new FileSystemResource(file.getAbsolutePath());</span>
+<span class="nc" id="L116">            break;</span>
+        }
+<span class="nc" id="L118">        return fileSystemResource;</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @JobScope
+    public PrintVendorImportFilersJobExecutionListener printVendorImportFilersJobExecutionListener() {
+<span class="nc" id="L127">        return new PrintVendorImportFilersJobExecutionListener();</span>
+    }
+
+
+    /* Not sure if we need this. This is a duplicate configuration file.
+    Needs to be deleted if not require.
+    @Bean
+    public Validator localValidatorFactoryBean() {
+        return new LocalValidatorFactoryBean();
+    }*/
+
+    @Bean
+    @JobScope
+    public PrintVendorFileNameVerificationDecider printVendorFileNameVerificationDecider() {
+<span class="nc" id="L141">        return new PrintVendorFileNameVerificationDecider();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @Qualifier(&quot;applicationReader&quot;)
+    @StepScope
+    public FlatFileItemReader&lt;FilerDemographicDto&gt; applicationReader() {
+<span class="nc" id="L151">        FlatFileItemReader&lt;FilerDemographicDto&gt; reader = new FlatFileItemReader&lt;FilerDemographicDto&gt;();</span>
+<span class="nc" id="L152">        reader.setLineMapper(lineMapper());</span>
+<span class="nc" id="L153">        reader.setLinesToSkip(1);</span>
+<span class="nc" id="L154">        reader.setStrict(true);</span>
+<span class="nc" id="L155">        return reader;</span>
+    }
+
+    @Bean
+    public LineMapper&lt;FilerDemographicDto&gt; lineMapper() {
+<span class="fc" id="L160">        return new DefaultLineMapper&lt;&gt;();</span>
+    }
+
+    @Bean
+    public DelimitedLineTokenizer delimitedLineTokenizer() {
+<span class="fc" id="L165">        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();</span>
+<span class="fc" id="L166">        lineTokenizer.setDelimiter(&quot;|&quot;);</span>
+<span class="fc" id="L167">        lineTokenizer.setStrict(false);</span>
+<span class="fc" id="L168">        lineTokenizer.setNames(new String[]{</span>
+                BatchConstants.RECIPIENT_CASE_APPLICATION_ID,
+                BatchConstants.RECIPIENT_UNIQUE_ID,
+                BatchConstants.TAX_YEAR,
+                CommonEntityConstants.CORRECTION,
+                BatchConstants.RECIPIENT_FIRST_NAME,
+                BatchConstants.RECIPIENT_MIDDLE_NAME,
+                BatchConstants.RECIPIENT_LAST_NAME,
+                BatchConstants.RECIPIENT_NAME_SUFFIX,
+                CommonDataConstants.RECIPIENT_SSN,
+                CommonDataConstants.RECIPIENT_TIN,
+                CommonDataConstants.RECIPIENT_DOB,
+                BatchConstants.RECIPIENT_LANGUAGE_PREFERENCE,
+                BatchConstants.EMAIL,
+                BatchConstants.RECIPIENT_ADDRESS_LINE_1,
+                BatchConstants.RECIPIENT_ADDRESS_LINE_2,
+                BatchConstants.RECIPIENT_CITY,
+                BatchConstants.RECIPIENT_STATE_CODE,
+                BatchConstants.RECIPIENT_ZIP_5,
+                BatchConstants.RECIPIENT_ZIP_4,
+                BatchConstants.POLICY_ORIGIN,
+                BatchConstants.POLICY_PROGRAM_NAME,
+                BatchConstants.POLICY_COVERAGE_BEGIN_DT,
+                BatchConstants.POLICY_COVERAGE_END_DT,
+                BatchConstants.POLICY_SHOP_IDENTIFIER,
+                BatchConstants.EMPLOYER_NAME,
+                BatchConstants.EMPLOYER_IDENTIFICATION_NUMBER,
+                BatchConstants.EMPLOYER_CONTACT_NO,
+                BatchConstants.EMPLOYER_ADDRESS_LINE_1,
+                BatchConstants.EMPLOYER_ADDRESS_LINE_2,
+                BatchConstants.EMPLOYER_CITY_OR_TOWN,
+                BatchConstants.EMPLOYER_STATE_OR_PROVINCE,
+                BatchConstants.EMPLOYER_COUNTRY,
+                BatchConstants.EMPLOYER_ZIP_OR_FOREIGN_POSTAL_CODE,
+                BatchConstants.PROVIDER_NAME,
+                BatchConstants.PROVIDER_IDENTIFICATION_NUMBER,
+                BatchConstants.PROVIDER_CONTACT_NUMBER,
+                BatchConstants.PROVIDER_ADDRESS_LINE_1,
+                BatchConstants.PROVIDER_ADDRESS_LINE_2,
+                BatchConstants.PROVIDER_CITY_OR_TOWN,
+                BatchConstants.PROVIDER_STATE_OR_PROVINCE,
+                BatchConstants.PROVIDER_COUNTRY,
+                BatchConstants.PROVIDER_ZIP_OR_FOREIGN_POSTAL_CODE,
+                BatchConstants.FILER_STATUS,
+                BatchConstants.RESPONSIBLE_PERSON_UNIQUE_ID,
+                BatchConstants.COMM_PREFERENCE,
+                BatchConstants.MAILED_FORM});
+<span class="fc" id="L215">        return lineTokenizer;</span>
+    }
+
+    @Bean
+    JavaMailSenderImpl javaMailSender() {
+<span class="fc" id="L220">        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();</span>
+<span class="fc" id="L221">        javaMailSender.setHost(profileProperties.getProperty(BatchConstants.MAIL_HOST));</span>
+<span class="fc" id="L222">        int port = Integer.parseInt(profileProperties.getProperty(BatchConstants.MAIL_PORT));</span>
+<span class="fc" id="L223">        javaMailSender.setPort(port);</span>
+        /*javaMailSender.setUsername(profileProperties.getProperty(BatchConstants.MAIL_USER_NAME));
+        javaMailSender.setPassword(profileProperties.getProperty(BatchConstants.MAIL_PASSWORD));*/
+<span class="fc" id="L226">        javaMailSender.setProtocol(profileProperties.getProperty(BatchConstants.MAIL_PROTOCOL));</span>
+<span class="fc" id="L227">        Properties javaMailProperties = new Properties();</span>
+<span class="fc" id="L228">        javaMailProperties.put(&quot;mail.transport.protocol&quot;, profileProperties.getProperty(BatchConstants.MAIL_PROTOCOL));</span>
+<span class="fc" id="L229">        javaMailProperties.put(&quot;mail.smtp.auth&quot;, false);</span>
+<span class="fc" id="L230">        javaMailProperties.put(&quot;mail.smtp.starttls.enable&quot;, true);</span>
+<span class="fc" id="L231">        javaMailProperties.put(&quot;mail.debug&quot;, true);</span>
+<span class="fc" id="L232">        javaMailProperties.put(&quot;mail.smtp.ssl.trust&quot;, profileProperties.getProperty(BatchConstants.MAIL_HOST));</span>
+<span class="fc" id="L233">        javaMailSender.setJavaMailProperties(javaMailProperties);</span>
+<span class="fc" id="L234">        return javaMailSender;</span>
+    }
+
+    @Bean
+    public PrintVendorFileImportMailerService applicationMailerService() {
+<span class="fc" id="L239">        PrintVendorFileImportMailerService printVendorFileImportMailerService = new PrintVendorFileImportMailerServiceImpl();</span>
+<span class="fc" id="L240">        return printVendorFileImportMailerService;</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @JobScope
+    public BatchInfoDto getBatchInfo(BatchInfoService batchInfoService) {
+<span class="nc" id="L249">        LOGGER.info(&quot;Start of BatchInfo&quot;);</span>
+<span class="nc" id="L250">        BatchInfoDto batchInfo = new BatchInfoDto();</span>
+<span class="nc" id="L251">        batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L252">        int batchId = batchInfoService.save(batchInfo);</span>
+<span class="nc" id="L253">        batchInfo.setBatchId(batchId);</span>
+<span class="nc" id="L254">        LOGGER.info(&quot;End of BatchInfo&quot;);</span>
+<span class="nc" id="L255">        return batchInfo;</span>
+    }
+
+    @Bean
+    public PrintVendorExceptionReportService exceptionReportService() {
+<span class="fc" id="L260">        return new PrintVendorExceptionReportServiceImpl();</span>
+    }
+
+    @Bean
+    public PrintVendorExceptionReportDao exceptionReportDao() {
+<span class="fc" id="L265">    	PrintVendorExceptionReportDaoImpl exceptionReportDao = new PrintVendorExceptionReportDaoImpl();</span>
+<span class="fc" id="L266">        exceptionReportDao.setJdbcTemplate(jdbcTemplate);</span>
+<span class="fc" id="L267">        return exceptionReportDao;</span>
+    }
+
+    @Bean
+    public BatchInfoService batchInfoService() {
+<span class="fc" id="L272">        return new BatchInfoServiceImpl();</span>
+    }
+
+    @Bean
+    public BatchInfoDao batchInfoDao() {
+<span class="fc" id="L277">        BatchInfoDaoImpl batchInfoDao = new BatchInfoDaoImpl();</span>
+<span class="fc" id="L278">        batchInfoDao.setJdbcTemplate(jdbcTemplate);</span>
+<span class="fc" id="L279">        return batchInfoDao;</span>
+    }
+
+
+    
+
+    @Bean
+    public PrintVendorFileIngestionService fileIngestionDao() {
+<span class="fc" id="L287">    	PrintVendorFileIngestionServiceImpl fileIngestionService = new PrintVendorFileIngestionServiceImpl();</span>
+<span class="fc" id="L288">        fileIngestionService.setJdbcTemplate(jdbcTemplate);</span>
+<span class="fc" id="L289">        return fileIngestionService;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3FileIngestionCRVReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3</a> &gt; <span class="el_source">Step3FileIngestionCRVReader.java</span></div><h1>Step3FileIngestionCRVReader.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.support.ListItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3InitialFilerList;
+import us.deloitteinnovation.aca.batch.ingest.step3.listeners.Step3FIExecutionListener;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.util.*;
+
+/**
+ * &lt;p&gt;
+ *     Step3FileIngestionCRVReader is created to read records provided by Step3InitialFilerList which contains unique list od uid's(sourcecd_sourceuiniqueid_taxyear)
+ *     in file. Purpose :-
+ *  &lt;li&gt;
+ *     Step1 :- Read all uid one by one available in file.
+ *     Step2 :- get list of all matching uid's from filer_demographics_staging table (DB and File)
+ *     Step3 :- Loop throught each record and get matching records with ssn/tin.
+ *     Step4 :- fill responsible persons and covered persons list in record.
+ *     Step4 :- Create unique list of all the records with same uid but different line number and db
+ *     Step5  :- Add file and Db lists to container object which we received in read function. i.e nextUID here and pass object to processor to process.
+ *  &lt;/li&gt;
+ *
+ *  @see Step3FileIngestionCRVProcessor
+ *  @see Step3FileIngestionCRVWriter
+ *  @see us.deloitteinnovation.aca.batch.ingest.step3.listeners.Step3FIExecutionListener
+ * &lt;/p&gt;
+ */
+@Component
+public class Step3FileIngestionCRVReader extends ListItemReader&lt;Step3FilerDataDto&gt;  {
+
+
+<span class="fc" id="L39">    private final static Logger LOGGER = LoggerFactory.getLogger(Step3FileIngestionCRVReader.class);</span>
+
+    @Autowired
+    Step3RecordValidationService step3RecordValidationService;
+
+
+    public  Step3FileIngestionCRVReader(Step3InitialFilerList list) {
+<span class="fc" id="L46">        super(list.getStep3InitialFilerList());</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    public Step3FilerDataDto read() {
+<span class="nc" id="L51">        Step3FilerDataDto nextUID = null;</span>
+        try{
+<span class="nc" id="L53">            nextUID = super.read();</span>
+<span class="nc" id="L54">            Step3FilerDataDto filerDataDto = nextUID;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if(nextUID != null)</span>
+<span class="nc" id="L56">                createUIDListByRowNumber(filerDataDto);</span>
+        }
+<span class="nc" id="L58">        catch (Exception e)</span>
+        {
+<span class="nc" id="L60">            LOGGER.error(&quot;error in Step3FileIngestionCRVReader read &quot;,e);</span>
+<span class="nc" id="L61">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L62">            step3DataValidationException.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L63">            throw step3DataValidationException;</span>
+
+<span class="nc" id="L65">        }</span>
+
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        LOGGER.info(&quot;reading record with UID &quot; + ((nextUID != null) ? nextUID.getUIDValue() : &quot;N/A&quot;));</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        return ((nextUID != null)?nextUID:null);</span>
+    }
+
+
+    /**
+     * this function will create list of UID's(source cd and source unique id)  and IID(ssn/TIN dob and tax year) for each record.
+     ***/
+    protected void createUIDListByRowNumber(Step3FilerDataDto filerDataDto) throws Step3DataValidationException {
+
+<span class="fc" id="L78">        List&lt;Step3FilerDataDto&gt; iidList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L79">        List&lt;Step3FilerDataDto&gt; uidList = step3RecordValidationService.getRecordsByUID(filerDataDto.getSourceCd(), Long.valueOf(filerDataDto.getSourceUniqueId()), filerDataDto.getId().getTaxYear());</span>
+
+        try {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            for (Step3FilerDataDto item : uidList) {</span>
+<span class="fc" id="L83">                updateItemWithData(item, iidList,filerDataDto);</span>
+<span class="fc" id="L84">            }</span>
+
+            /* get the list of people with same responsible person unique id as  source unique id of current record it can be filer_status=C  or FILER_STATUS as O*/
+<span class="fc" id="L87">            Map&lt;String, Step3FilerDataDto&gt; recordMapByRowNo = new LinkedHashMap&lt;&gt;();// we are using linked hash map here to maintain the order of the records by which they are getting inserted.</span>
+<span class="fc" id="L88">            List&lt;Step3FilerDataDto&gt; fdRecordList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L90">            Iterator uidIterator = uidList.iterator();</span>
+<span class="fc" id="L91">            Iterator iidIterator = iidList.iterator();</span>
+
+<span class="fc" id="L93">            arrangeFilersByIds(uidIterator, recordMapByRowNo, fdRecordList);</span>
+<span class="fc" id="L94">            arrangeFilersByIds(iidIterator, recordMapByRowNo, fdRecordList);</span>
+
+<span class="fc" id="L96">            filerDataDto.setFilersWithSameIdsInFile(new ArrayList&lt;Step3FilerDataDto&gt;(recordMapByRowNo.values()));</span>
+<span class="fc" id="L97">            filerDataDto.setFilersWithSameIdsInDB(fdRecordList);</span>
+<span class="nc" id="L98">        } catch (Exception e) {</span>
+<span class="nc" id="L99">            LOGGER.error(&quot;Error in reading file so this file will be skipped.-----&gt;&quot;, e) ;</span>
+<span class="nc" id="L100">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L101">            step3DataValidationException.setParent(uidList);</span>
+<span class="nc" id="L102">            step3DataValidationException.setErrorMessage(&quot;Error in reading record for given source unique id hence all the records with given source unique id will be skipped : &quot; + filerDataDto.getSourceUniqueId());</span>
+<span class="nc" id="L103">            throw step3DataValidationException;</span>
+<span class="fc" id="L104">        }</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * arrangeFilersByIds()
+     * arranges all the records received on basis of UID and IID into two collections
+     * 1. From File
+     * 2. From DB and passes  it to parent record for business rule validation.
+     * used map to filter same records from IID list and UIL list by row number , means if record exists in
+     **/
+    protected void arrangeFilersByIds(Iterator iterator, Map recordMapByRowNo, List&lt;Step3FilerDataDto&gt; fdRecordList){
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L116">            Step3FilerDataDto element = (Step3FilerDataDto) iterator.next();</span>
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">            if (!&quot;0&quot;.equals(element.getRowNumber()) &amp;&amp; !recordMapByRowNo.containsKey(element.getRowNumber())) {</span>
+<span class="fc" id="L118">                recordMapByRowNo.put(element.getRowNumber(), element);</span>
+<span class="fc" id="L119">                iterator.remove();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            } else if (recordMapByRowNo.containsKey(element.getRowNumber())) {</span>
+<span class="nc" id="L121">                iterator.remove();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            } else if (&quot;0&quot;.equals(element.getRowNumber())) {</span>
+<span class="nc" id="L123">                updateRecordList(fdRecordList, element);</span>
+            }
+<span class="fc" id="L125">        }</span>
+<span class="fc" id="L126">    }</span>
+
+
+    /**
+     * create a unique record list fdRecordList for DB.
+     * Before adding any element into it
+     * we are looping through it to make sure that records are not getting repeted for DB since DB should have only one id for ine record.
+     * @param fdRecordList unique record list to update
+     * @param element    element to check from db wether it exists inlist or not if not we will add it.
+     * **/
+    protected void updateRecordList(List&lt;Step3FilerDataDto&gt; fdRecordList, Step3FilerDataDto element)
+    {
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (!fdRecordList.isEmpty()) {</span>
+<span class="fc" id="L139">            Iterator&lt;Step3FilerDataDto&gt; fdRecordIterator = fdRecordList.iterator();</span>
+<span class="fc" id="L140">            List&lt;Step3FilerDataDto&gt; tempObjectContainer = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L141">            Boolean isItemInFD = false;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">            while (fdRecordIterator.hasNext() ) {</span>
+<span class="fc" id="L143">                Step3FilerDataDto item = fdRecordIterator.next();</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">                if (item.getUIDValue().equals(element.getUIDValue()))</span>
+<span class="fc" id="L145">                     isItemInFD = true;</span>
+<span class="fc" id="L146">            }</span>
+
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if(!isItemInFD)</span>
+<span class="fc" id="L149">                fdRecordList.add(element);</span>
+<span class="fc" id="L150">        } else {</span>
+<span class="nc" id="L151">            fdRecordList.add(element);</span>
+        }
+<span class="fc" id="L153">    }</span>
+
+    /**
+     * fill in list of responsible person from file or db into responsible person list.
+     * makes a service call and gets all records matchinf with responsible person sourceunie id's
+     *
+     * **/
+    public void updateResposiblePersonDetails(Step3FilerDataDto step3FilerDataDto) {
+
+<span class="fc" id="L162">        List&lt;Step3FilerDataDto&gt; step3FilerDataDtos = step3RecordValidationService.getRecordsByUID(step3FilerDataDto.getSourceCd(), Long.valueOf(step3FilerDataDto.getResponsiblePersonUniqueId()), step3FilerDataDto.getId().getTaxYear());</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (step3FilerDataDtos != null)</span>
+        {
+<span class="fc" id="L165">            step3FilerDataDto.getResposiblePersonList().addAll(step3FilerDataDtos);</span>
+        }
+<span class="fc" id="L167">    }</span>
+
+
+    /**
+     * Purpose of below function it to fill value for covered person list. but we need covered person list only in  case of update or correction to either maintain version of record or
+     * check for active inactive logic so avoiding original correction code.
+     * **/
+    protected void updateCoveredPersonDetails(Step3FilerDataDto step3FilerDataDto) {
+<span class="pc bpc" id="L175" title="1 of 4 branches missed.">        if(&quot;U&quot;.equals(step3FilerDataDto.getCorrection()) || &quot;C&quot;.equals(step3FilerDataDto.getCorrection()))</span>
+        {
+<span class="fc" id="L177">            List&lt;Step3FilerDataDto&gt; step3FilerDataDtos = step3RecordValidationService.getCoveredPersonListbyUID(step3FilerDataDto.getSourceCd(), Long.valueOf(step3FilerDataDto.getResponsiblePersonUniqueId()), step3FilerDataDto.getId().getTaxYear());</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">            if (step3FilerDataDtos != null)</span>
+            {
+<span class="fc bfc" id="L180" title="All 2 branches covered.">                for(Step3FilerDataDto coveredPerson : step3FilerDataDtos)</span>
+                {
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">                    if(&quot;C&quot;.equals(coveredPerson.getFilerStatus()))</span>
+<span class="fc" id="L183">                        step3FilerDataDto.getCoveredPersonList().add(coveredPerson);</span>
+<span class="fc" id="L184">                }</span>
+
+            }
+        }
+<span class="fc" id="L188">    }</span>
+
+    /**
+     * This function will fill up data into iid list on the basis of uid list so that we can create a unique list of iid's and uid's.
+     * also it makes service call to fill responsible person list and covered person list.
+     * **/
+    protected void updateItemWithData(Step3FilerDataDto item,  List&lt;Step3FilerDataDto&gt; iidList, Step3FilerDataDto filerDataDto)
+    {
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        String ssnValue = (item.getRecipientSsn() != null) ? item.getRecipientSsn() : &quot;NA&quot;;</span>
+<span class="pc bpc" id="L197" title="2 of 4 branches missed.">        if (ssnValue != &quot;NA&quot; &amp;&amp; ssnValue.length() &gt; 0) {</span>
+<span class="fc" id="L198">            iidList.addAll(step3RecordValidationService.getRecordsBySSN(ssnValue, item.getId().getTaxYear(), filerDataDto.getSourceCd()));</span>
+        }
+
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        String tinValue = (item.getRecipientTin() != null) ? item.getRecipientTin() : &quot;NA&quot;;</span>
+<span class="pc bpc" id="L202" title="1 of 4 branches missed.">        if (tinValue != &quot;NA&quot; &amp;&amp; tinValue.length() &gt; 0) {</span>
+<span class="fc" id="L203">            iidList.addAll(step3RecordValidationService.getRecordsByTIN(tinValue, item.getId().getTaxYear(), filerDataDto.getSourceCd()));</span>
+        }
+
+<span class="pc bpc" id="L206" title="3 of 4 branches missed.">        if (&quot;C&quot;.equals(item.getFilerStatus()) &amp;&amp; &quot;FILE&quot;.equals(item.getRecordSource())) {</span>
+<span class="nc" id="L207">            updateResposiblePersonDetails(item);</span>
+<span class="nc" id="L208">            updateSimilarCoveredPersonList(item);</span>
+        }
+
+<span class="fc bfc" id="L211" title="All 2 branches covered.">       if (&quot;R&quot;.equals(item.getFilerStatus())</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">                        &amp;&amp; &quot;FILE&quot;.equals(item.getRecordSource())) {</span>
+<span class="nc" id="L213">            updateCoveredPersonDetails(item);</span>
+        }
+<span class="fc" id="L215">    }</span>
+
+    /** In case of covered person there can be other records also which has the same responsible person we
+     * need their list to update their version info..**/
+    public void updateSimilarCoveredPersonList(Step3FilerDataDto item)
+    {
+<span class="nc" id="L221">        List&lt;Step3FilerDataDto&gt; step3FilerDataDtos = step3RecordValidationService.getCoveredPersonListbyUID(item.getSourceCd(), Long.valueOf(item.getResponsiblePersonUniqueId()), item.getId().getTaxYear());</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (step3FilerDataDtos != null)</span>
+        {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            for(Step3FilerDataDto coveredPerson : step3FilerDataDtos)</span>
+            {
+<span class="nc bnc" id="L226" title="All 4 branches missed.">                if(&quot;C&quot;.equals(coveredPerson.getFilerStatus()) &amp;&amp; CommonDataConstants.RECORD_VALIDATION_TYPE_DB.equals(coveredPerson.getRecordSource()))</span>
+<span class="nc" id="L227">                    item.getCoveredPersonListSharingSameResponsible().add(coveredPerson);</span>
+<span class="nc" id="L228">            }</span>
+        }
+<span class="nc" id="L230">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

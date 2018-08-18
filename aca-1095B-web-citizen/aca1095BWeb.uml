@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="-656.0" y="-377.0">us.deloitteinnovation.aca.web.citizenportal.services.internal.CitizenPortalServiceImpl</node>
+    <node x="-656.0" y="-104.0">us.deloitteinnovation.aca.web.citizenportal.citizenlogin.controller.CitizenLoginController</node>
+    <node x="-507.0" y="246.0">us.deloitteinnovation.aca.web.caseworkerportal.services.internal.CaseworkerPortalServiceImpl</node>
+    <node x="439.0" y="-358.0">us.deloitteinnovation.aca.web.opsportal.controller.OpsController</node>
+    <node x="-112.0" y="-42.0">us.deloitteinnovation.aca.web.caseworkerportal.caseworkerlogin.controller.CaseworkerLoginController</node>
+    <node x="461.0" y="-130.0">us.deloitteinnovation.aca.web.opsportal.data.impl.OpsPortalDataServiceImpl</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="us.deloitteinnovation.aca.web.caseworkerportal.caseworkerlogin.controller.CaseworkerLoginController" target="us.deloitteinnovation.aca.web.caseworkerportal.services.internal.CaseworkerPortalServiceImpl">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.opsportal.data.impl.OpsPortalDataServiceImpl" target="us.deloitteinnovation.aca.web.opsportal.controller.OpsController">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.web.citizenportal.services.internal.CitizenPortalServiceImpl" target="us.deloitteinnovation.aca.web.citizenportal.citizenlogin.controller.CitizenLoginController">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="240.0" y="129.0" />
+  <SelectedNodes>
+    <node>us.deloitteinnovation.aca.web.caseworkerportal.services.internal.CaseworkerPortalServiceImpl</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Constructors</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

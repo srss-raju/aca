@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorExceptionReportDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.exception</a> &gt; <span class="el_source">PrintVendorExceptionReportDto.java</span></div><h1>PrintVendorExceptionReportDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.exception;
+
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+
+import java.io.Serializable;
+
+public class PrintVendorExceptionReportDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int exceptionReportId;
+
+    private String exDetails;
+
+    private String whiteSpaceDiffForErrors;
+
+    private String whiteSpaceDiffForRowNumber;
+
+    private int rowNumber;
+
+
+    private long sourceUniqueId;
+
+
+    private BatchInfoDto batchInfo;
+
+<span class="nc" id="L25">    public PrintVendorExceptionReportDto() {</span>
+<span class="nc" id="L26">    }</span>
+
+    public int getExceptionReportId() {
+<span class="nc" id="L29">        return this.exceptionReportId;</span>
+    }
+
+    public void setExceptionReportId(int exceptionReportId) {
+<span class="nc" id="L33">        this.exceptionReportId = exceptionReportId;</span>
+<span class="nc" id="L34">    }</span>
+
+    public String getExDetails() {
+<span class="nc" id="L37">        return this.exDetails;</span>
+    }
+
+    public void setExDetails(String exDetails) {
+<span class="nc" id="L41">        this.exDetails = exDetails;</span>
+<span class="nc" id="L42">    }</span>
+
+    public int getRowNumber() {
+<span class="nc" id="L45">        return this.rowNumber;</span>
+    }
+
+    public void setRowNumber(int rowNumber) {
+<span class="nc" id="L49">        this.rowNumber = rowNumber;</span>
+<span class="nc" id="L50">    }</span>
+
+    public long getSourceUniqueId() {
+<span class="nc" id="L53">        return this.sourceUniqueId;</span>
+    }
+
+    public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L57">        this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L58">    }</span>
+
+    public BatchInfoDto getBatchInfo() {
+<span class="nc" id="L61">        return batchInfo;</span>
+    }
+
+    public void setBatchInfo(BatchInfoDto batchInfo) {
+<span class="nc" id="L65">        this.batchInfo = batchInfo;</span>
+<span class="nc" id="L66">    }</span>
+
+    public String getWhiteSpaceDiffForErrors() {
+<span class="nc" id="L69">        return whiteSpaceDiffForErrors;</span>
+    }
+
+    public void setWhiteSpaceDiffForErrors(String whiteSpaceDiffForErrors) {
+<span class="nc" id="L73">        this.whiteSpaceDiffForErrors = whiteSpaceDiffForErrors;</span>
+<span class="nc" id="L74">    }</span>
+
+    public String getWhiteSpaceDiffForRowNumber() {
+<span class="nc" id="L77">        return whiteSpaceDiffForRowNumber;</span>
+    }
+
+    public void setWhiteSpaceDiffForRowNumber(String whiteSpaceDiffForRowNumber) {
+<span class="nc" id="L81">        this.whiteSpaceDiffForRowNumber = whiteSpaceDiffForRowNumber;</span>
+<span class="nc" id="L82">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

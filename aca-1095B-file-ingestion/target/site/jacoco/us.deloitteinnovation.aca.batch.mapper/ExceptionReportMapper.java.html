@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionReportMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.mapper</a> &gt; <span class="el_source">ExceptionReportMapper.java</span></div><h1>ExceptionReportMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.mapper;
+
+import org.springframework.jdbc.core.RowMapper;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+
+/**
+ * Created by rgopalani on 11/3/2015.
+ */
+<span class="nc" id="L16">public class ExceptionReportMapper implements RowMapper {</span>
+    @Override
+    public ExceptionReportDto mapRow(ResultSet resultSet, int i) throws SQLException {
+<span class="nc" id="L19">        ExceptionReportDto exceptionReportDto = new ExceptionReportDto();</span>
+<span class="nc" id="L20">        exceptionReportDto.setExceptionReportId(resultSet.getInt(BatchConstants.EXCEPTION_REPORT_ID));</span>
+<span class="nc" id="L21">        BatchInfoDto batchInfoDto = new BatchInfoDto();</span>
+<span class="nc" id="L22">        batchInfoDto.setBatchId(resultSet.getInt(BatchConstants.BATCHID));</span>
+<span class="nc" id="L23">        exceptionReportDto.setBatchInfo(batchInfoDto);</span>
+<span class="nc" id="L24">        String exDetails = resultSet.getString(BatchConstants.EX_DETAIL);</span>
+<span class="nc" id="L25">        String errorDetails = getExDetails(exDetails);</span>
+<span class="nc" id="L26">        String SOURCE_UNIQUE_ID = String.valueOf(resultSet.getLong(CommonDataConstants.SOURCE_UNIQUE_ID));</span>
+<span class="nc" id="L27">        String whiteSpaceDiffForError = getWhiteSpaceDiff(SOURCE_UNIQUE_ID);</span>
+<span class="nc" id="L28">        String whiteSpaceDiffForRowNumber = getWhiteSpaceDiff(String.valueOf(resultSet.getInt(BatchConstants.ROW_NUMBER)));</span>
+<span class="nc" id="L29">        exceptionReportDto.setSourceUniqueId(resultSet.getLong(CommonDataConstants.SOURCE_UNIQUE_ID));</span>
+<span class="nc" id="L30">        exceptionReportDto.setWhiteSpaceDiffForErrors(whiteSpaceDiffForError);</span>
+<span class="nc" id="L31">        exceptionReportDto.setWhiteSpaceDiffForRowNumber(whiteSpaceDiffForRowNumber);</span>
+<span class="nc" id="L32">        exceptionReportDto.setExDetails(errorDetails);</span>
+<span class="nc" id="L33">        exceptionReportDto.setRowNumber(resultSet.getInt(BatchConstants.ROW_NUMBER));</span>
+<span class="nc" id="L34">        return exceptionReportDto;</span>
+    }
+
+    /**
+     * @param SOURCE_UNIQUE_ID
+     * @return
+     */
+    private String getWhiteSpaceDiff(String SOURCE_UNIQUE_ID) {
+<span class="nc" id="L42">        char[] bytes = new char[BatchConstants.WHITE_SPACE_DIFF_LENGTH - SOURCE_UNIQUE_ID.length()];</span>
+<span class="nc" id="L43">        Arrays.fill(bytes, BatchConstants.EMPTY_CHAR);</span>
+<span class="nc" id="L44">        return new String(bytes);</span>
+    }
+
+    /**
+     * @param exDetails
+     * @return
+     */
+    private String getExDetails(String exDetails) {
+<span class="nc" id="L52">        exDetails = exDetails.replace(BatchConstants.DELIMITED_EX_DETAILS, BatchConstants.WHITE_SPACE);</span>
+<span class="nc" id="L53">        exDetails = exDetails.replaceAll(BatchConstants.REMOVE_WHITE_SPACE, BatchConstants.WHITE_SPACE);</span>
+<span class="nc" id="L54">        exDetails = exDetails.replaceAll(BatchConstants.NEW_LINE_STR, BatchConstants.COMMA);</span>
+<span class="nc" id="L55">        exDetails = exDetails.trim();</span>
+<span class="nc" id="L56">        String errorDetails = BatchConstants.EMPTY;</span>
+<span class="nc" id="L57">        String[] errors = exDetails.split(BatchConstants.COMMA);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (String error : errors) {</span>
+<span class="nc" id="L59">            errorDetails = errorDetails + error.trim();</span>
+<span class="nc" id="L60">            errorDetails = errorDetails + BatchConstants.NEW_LINE_STR + &quot;                                                                            &quot;;</span>
+        }
+<span class="nc" id="L62">        return errorDetails;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

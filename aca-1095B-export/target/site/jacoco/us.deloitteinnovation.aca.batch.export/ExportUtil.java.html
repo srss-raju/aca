@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export</a> &gt; <span class="el_source">ExportUtil.java</span></div><h1>ExportUtil.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.export.step4.Step4109495Data;
+import us.deloitteinnovation.aca.constants.PrintVendorConstants;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.model.SourceSystemConfig;
+import us.deloitteinnovation.aca.util.Convert;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.ext.aca.air._7.BusinessAddressGrpType;
+import us.gov.treasury.irs.ext.aca.air._7.OtherCompletePersonNameType;
+import us.gov.treasury.irs.ext.aca.air._7.StateType;
+import us.gov.treasury.irs.ext.aca.air._7.USAddressGrpType;
+import us.gov.treasury.irs.ext.aca.air._7.VendorInformationGrpType;
+
+/**
+ */
+public abstract class ExportUtil {
+	
+<span class="fc" id="L46">	static final Logger LOGGER = LoggerFactory.getLogger(ExportUtil.class);</span>
+	
+<span class="nc" id="L48">	private ExportUtil(){</span>
+		
+<span class="nc" id="L50">	}</span>
+
+    /**
+     *
+     * @return  The directory into which the XML output file should be written.
+     * @throws IllegalArgumentException If the XML output folder key does not exist in the properties file, or the directory does not exist.
+     */
+    public static File getOutputDirectory(String state, ProfileProperties profileProperties) {
+<span class="nc" id="L58">        String key = state + &quot;_XML_OUTPUT_FOLDER&quot; ;</span>
+<span class="nc" id="L59">        String outputDir = profileProperties.getProperty(key) ;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (outputDir == null) {</span>
+<span class="nc" id="L61">            throw new IllegalArgumentException(&quot;XML output directory property not found using key '&quot; + key + &quot;'&quot;) ;</span>
+        }
+<span class="nc" id="L63">        File dir = new File(outputDir) ;</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (! dir.exists()) {</span>
+<span class="nc" id="L66">            throw new IllegalArgumentException(&quot;XML output directory '&quot; + dir.getAbsolutePath() + &quot;' does not exist.  &quot; +</span>
+                    &quot;Please create the directory with correct write permissions before XML export.&quot;) ;
+        }
+<span class="nc" id="L69">        return dir ;</span>
+    }
+    
+    public static File getPrintVendorOutputDirectory(ProfileProperties profileProperties) {
+<span class="nc" id="L73">        String outputDir = profileProperties.getProperty(&quot;PRINT_VENDOR_XML_OUTPUT_FOLDER&quot;) ;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (outputDir == null) {</span>
+<span class="nc" id="L75">            throw new IllegalArgumentException(&quot;XML output directory property not found using key &quot;+outputDir) ;</span>
+        }
+<span class="nc" id="L77">        File dir = new File(outputDir) ;</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (! dir.exists()) {</span>
+<span class="nc" id="L80">            throw new IllegalArgumentException(&quot;XML output directory '&quot; + dir.getAbsolutePath() + &quot;' does not exist.  &quot; +</span>
+                    &quot;Please create the directory with correct write permissions before XML export.&quot;) ;
+        }
+<span class="nc" id="L83">        return dir ;</span>
+    }
+
+    /**
+     * Helper method for writing an object to a given File.  The OutputStream associated with this operation is closed silently.
+     * @param jaxb2Marshaller
+     * @param outputFile
+     * @param rootElementDoc
+     * @throws IOException
+     */
+    public static void writeXml(Jaxb2Marshaller jaxb2Marshaller, File outputFile, Object rootElementDoc) throws IOException {
+<span class="nc" id="L94">        FileOutputStream outputStream = null ;</span>
+        try {
+<span class="nc" id="L96">            outputStream = new FileOutputStream(outputFile);</span>
+<span class="nc" id="L97">            Result xmlResult = new StreamResult(outputStream);</span>
+<span class="nc" id="L98">            jaxb2Marshaller.marshal(rootElementDoc, xmlResult);</span>
+        } finally {
+<span class="nc" id="L100">            IOUtils.closeQuietly(outputStream);</span>
+<span class="nc" id="L101">        }</span>
+<span class="nc" id="L102">    }</span>
+
+    /**
+     * Removes ALL non alpha-numeric characters from the String.  Also removes all whitespace from front and end of the string,
+     * as well as extra whitespace within.
+     * @param value
+     * @return  The value String provided, with all non-alpha-numerics and extra whitespace removed.
+     */
+    public static String sanitize(String value) {
+<span class="pc bpc" id="L111" title="1 of 4 branches missed.">        if (value == null || &quot;&quot;.equals(value))</span>
+<span class="fc" id="L112">            return null ;</span>
+<span class="fc" id="L113">        String ret = new String(value) ;</span>
+        // Remove everything that is not alpha-numeric
+<span class="fc" id="L115">        ret = ret.replaceAll(&quot;[^a-zA-Z0-9 ]&quot;, &quot;&quot;) ;</span>
+        // Finally, strip out all unnecessary whitespace
+<span class="fc" id="L117">        ret = ret.trim().replaceAll(&quot; +&quot;, &quot; &quot;);</span>
+<span class="fc" id="L118">       return ret ;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Stores the 109495B document data within the JobExecutionContext for use during Step 4.
+     * If the filename list has not been initialized, it is created and stored on the JobExecutionContext.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     *  File data is serialized using the Step4109495Data#toString() method.
+     * &lt;/p&gt;
+     * @param jobExecution JobExecution within which the filenames should be stored.
+     * @param fileData
+     * @see Step4109495Data#toString()
+     */
+    public static void addForm109495FilenameForStep4(JobExecution jobExecution, Step4109495Data fileData) {
+<span class="nc" id="L134">        List&lt;String&gt; fileDataList = getForm109495FileDataForStep4AsStringList(jobExecution) ;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (fileDataList == null) {</span>
+<span class="nc" id="L136">            fileDataList = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L137">            jobExecution.getExecutionContext().put(BatchExportConstants.JobExecutionContextKeys.FORM_109495B_FILEDATA, fileDataList) ;</span>
+        }
+<span class="nc" id="L139">        fileDataList.add(fileData.toString()) ;</span>
+<span class="nc" id="L140">    }</span>
+
+    /**
+     * &lt;p&gt;
+     *     Removes the 109495B document data within the JobExecutionContext so that the next iteration should
+     *     not pick up this file again.
+     * &lt;/p&gt;
+     * @param jobExecution JobExecution within which the filenames should be stored.
+     */
+    public static void removeForm109495FilenameForStep4(JobExecution jobExecution) {
+
+<span class="nc" id="L151">        jobExecution.getExecutionContext().remove(BatchExportConstants.JobExecutionContextKeys.FORM_109495B_FILEDATA) ;</span>
+<span class="nc" id="L152">    }</span>
+
+    private static List&lt;String&gt; getForm109495FileDataForStep4AsStringList(JobExecution jobExecution) {
+<span class="nc" id="L155">        return (List&lt;String&gt;) jobExecution.getExecutionContext().get(BatchExportConstants.JobExecutionContextKeys.FORM_109495B_FILEDATA) ;</span>
+    }
+
+    /**
+     *
+     * @param jobExecution JobExecution within which the filenames should be stored.
+     * @returns Retrieves all 109495B document filenames that were processed in Step 3. on the JobExecutionContext.
+     * @see Step4109495Data#fromString(String)
+     */
+    public static List&lt;Step4109495Data&gt; getForm109495FilenamesForStep4(JobExecution jobExecution) {
+<span class="nc" id="L165">        List&lt;String&gt; fileDataAsStringList = getForm109495FileDataForStep4AsStringList(jobExecution) ;</span>
+<span class="nc" id="L166">        List&lt;Step4109495Data&gt; fileDataList = new ArrayList&lt;&gt;(fileDataAsStringList.size()) ;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (String fileDataStr : fileDataAsStringList) {</span>
+<span class="nc" id="L168">            fileDataList.add(Step4109495Data.fromString(fileDataStr)) ;</span>
+<span class="nc" id="L169">        }</span>
+<span class="nc" id="L170">        return fileDataList ;</span>
+    }
+
+    /**
+     *
+     * @param stepExecution StepExecution within which the filenames counter should be stored.
+     * @returns The current filename processing count in Step 4.
+     */
+    public static int getForm109495FilenamesCounterForStep4(StepExecution stepExecution) {
+<span class="nc" id="L179">        Integer counter =  (Integer) stepExecution.getExecutionContext().get(BatchExportConstants.StepExecutionContextKeys.FORM_109495B_FILENAMES_COUNTER) ;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (counter == null) {</span>
+<span class="nc" id="L181">            counter = 0 ;</span>
+<span class="nc" id="L182">            stepExecution.getExecutionContext().put(BatchExportConstants.StepExecutionContextKeys.FORM_109495B_FILENAMES_COUNTER, counter) ;</span>
+        }
+<span class="nc" id="L184">        return counter ;</span>
+    }
+
+    /**
+     *
+     * @param stepExecution StepExecution within which the filenames counter should be stored.
+     * @returns The current filename processing count in Step 4 after being incremented.
+     */
+    public static int incrementForm109495FilenamesCounterForStep4(StepExecution stepExecution) {
+<span class="nc" id="L193">        int count = getForm109495FilenamesCounterForStep4(stepExecution) ;</span>
+<span class="nc" id="L194">        stepExecution.getExecutionContext().putInt(BatchExportConstants.StepExecutionContextKeys.FORM_109495B_FILENAMES_COUNTER, ++count) ;</span>
+<span class="nc" id="L195">        return count ;</span>
+    }
+
+
+    /**
+     * &lt;p&gt;
+     * Stores the manifest document filename within the JobExecutionContext.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * At present, the only reason for doing so is for testing purposes.  We may wish to remove this, or only utilize it during test scenarios.
+     * &lt;/p&gt;
+     * @param stepExecution JobExecution within which the filenames should be stored.
+     * @param filename
+     */
+    public static void addManifestFilename(StepExecution stepExecution, String filename) {
+<span class="nc" id="L210">        List&lt;String&gt; filenameList = getManifestFilenames(stepExecution) ;</span>
+<span class="nc" id="L211">        filenameList.add(filename) ;</span>
+<span class="nc" id="L212">    }</span>
+
+    /**
+     * If the filename list has not been initialized, it is created and stored on the JobExecutionContext.
+     * @param stepExecution
+     * @return
+     */
+    public static List&lt;String&gt; getManifestFilenames(StepExecution stepExecution) {
+<span class="nc" id="L220">        List&lt;String&gt; filenameList = (List&lt;String&gt;) stepExecution.getExecutionContext().get(BatchExportConstants.StepExecutionContextKeys.MANIFEST_FILENAMES) ;</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (filenameList == null) {</span>
+<span class="nc" id="L222">            filenameList = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L223">            stepExecution.getExecutionContext().put(BatchExportConstants.StepExecutionContextKeys.MANIFEST_FILENAMES, filenameList) ;</span>
+        }
+<span class="nc" id="L225">        return filenameList ;</span>
+    }
+
+    /**
+     * Helper to get a particular StepExecution from the JobExecution by name.
+     * @param jobExecution
+     * @param name
+     * @return   Null if not found.
+     */
+    public static StepExecution getStepExecutionByName(JobExecution jobExecution, String name) {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        for (StepExecution stepExecution : jobExecution.getStepExecutions()) {</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (stepExecution.getStepName().equals(name))</span>
+<span class="nc" id="L237">                return stepExecution ;</span>
+<span class="nc" id="L238">        }</span>
+<span class="nc" id="L239">        return null ;</span>
+    }
+
+
+    /**
+     * Determines if an IRS test scenario is being executed, and that the manifest should specify such.
+     * If the test property is missing from the properties, then the run is considered to be a test (true is returned).
+     * @param props
+     * @return  True if the run is for a test scenario.  If property not found, also returns true.
+     */
+    public static boolean isTestXml(ProfileProperties props) {
+<span class="nc" id="L250">        String isTestValue = props.getProperty(&quot;batch.export.xml.test&quot;) ;</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        return isTestValue == null ? true : Boolean.parseBoolean(isTestValue) ;</span>
+    }
+
+
+    /**
+     *
+     * @param config
+     * @return
+     */
+    public static BusinessAddressGrpType getBusinessAddressFromSourceSystemConfig(SourceSystemConfig config) {
+<span class="fc" id="L261">        BusinessAddressGrpType addressGrpType = new BusinessAddressGrpType() ;</span>
+<span class="fc" id="L262">        USAddressGrpType usAddress = new USAddressGrpType() ;</span>
+<span class="fc" id="L263">        usAddress.setAddressLine1Txt(sanitize(config.getProviderAddressLine1()));</span>
+<span class="fc" id="L264">        String line2 = sanitize(config.getProviderAddressLine2()) ;</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        if (StringUtils.isNotEmpty(line2))</span>
+<span class="nc" id="L266">            usAddress.setAddressLine2Txt(line2);</span>
+<span class="fc" id="L267">        usAddress.setCityNm(sanitize(sanitize(config.getProviderCityOrTown())));</span>
+<span class="fc" id="L268">        usAddress.setUSStateCd(StateType.fromValue(config.getStateAbbreviation()));</span>
+<span class="fc" id="L269">        String zip = config.getProviderZipOrPostalCode() ;</span>
+<span class="fc" id="L270">        String [] zipFull = Convert.toZipCode(zip) ;</span>
+<span class="fc" id="L271">        usAddress.setUSZIPCd(zipFull[0]);</span>
+<span class="fc" id="L272">        usAddress.setUSZIPExtensionCd(zipFull[1]);</span>
+<span class="fc" id="L273">        addressGrpType.setUSAddressGrp(usAddress);</span>
+<span class="fc" id="L274">        return addressGrpType ;</span>
+    }
+    
+    public static BusinessAddressGrpType getBusinessAddressFromFilerDemographics(Filer filer) {
+<span class="nc" id="L278">    	 BusinessAddressGrpType addressGrpType = new BusinessAddressGrpType() ;</span>
+<span class="nc" id="L279">    	 USAddressGrpType usAddress = new USAddressGrpType() ;</span>
+<span class="nc" id="L280">    	 usAddress.setAddressLine1Txt(sanitize(filer.getProviderAddLine1()));</span>
+<span class="nc" id="L281">    	 String line2 = sanitize(filer.getProviderAddLine2()) ;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">    	 if (StringUtils.isNotEmpty(line2))</span>
+<span class="nc" id="L283">             usAddress.setAddressLine2Txt(line2);</span>
+<span class="nc" id="L284">    	 usAddress.setCityNm(sanitize(sanitize(filer.getProviderCity())));</span>
+<span class="nc" id="L285">    	 usAddress.setUSStateCd(StateType.fromValue(filer.getProviderState()));</span>
+<span class="nc" id="L286">    	 String zip = filer.getProviderZip() ;</span>
+<span class="nc" id="L287">         String [] zipFull = Convert.toZipCode(zip) ;</span>
+<span class="nc" id="L288">         usAddress.setUSZIPCd(zipFull[0]);</span>
+<span class="nc" id="L289">         usAddress.setUSZIPExtensionCd(zipFull[1]);</span>
+<span class="nc" id="L290">         addressGrpType.setUSAddressGrp(usAddress);</span>
+<span class="nc" id="L291">         return addressGrpType ;</span>
+	}
+
+    public static OtherCompletePersonNameType getContactName(SourceSystemConfig config) {
+<span class="fc" id="L295">        OtherCompletePersonNameType contact = new OtherCompletePersonNameType() ;</span>
+<span class="fc" id="L296">        contact.setPersonLastNm(sanitize(config.getProviderContactLastName()));</span>
+<span class="fc" id="L297">        contact.setPersonFirstNm(sanitize(config.getProviderContactFirstName()));</span>
+<span class="fc" id="L298">        return contact ;</span>
+    }
+
+    public static VendorInformationGrpType getVendorInfo() {
+<span class="nc" id="L302">        VendorInformationGrpType vendor = new VendorInformationGrpType() ;</span>
+<span class="nc" id="L303">        vendor.setVendorCd(&quot;V&quot;);</span>
+<span class="nc" id="L304">        vendor.setContactPhoneNum(&quot;5102514425&quot;);</span>
+<span class="nc" id="L305">        OtherCompletePersonNameType name = new OtherCompletePersonNameType() ;</span>
+<span class="nc" id="L306">        name.setPersonLastNm(&quot;Rice&quot;);</span>
+<span class="nc" id="L307">        name.setPersonFirstNm(&quot;Matthew&quot;);</span>
+<span class="nc" id="L308">        vendor.setContactNameGrp(name);</span>
+<span class="nc" id="L309">        return vendor ;</span>
+    }
+
+    public static Integer getYear(ExecutionContext executionContext) {
+        // Job parameter may be a Long or a String.  Just parse as object to be safe.
+<span class="fc" id="L314">        Object year = executionContext.get(BatchExportConstants.JobPropertiesKeys.YEAR) ;</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        if (year == null)</span>
+<span class="nc" id="L316">            return null ;</span>
+<span class="fc" id="L317">        return Integer.parseInt(year.toString()) ;</span>
+    }
+
+    public static String getReceiptId(ExecutionContext executionContext) {
+<span class="nc" id="L321">        return (String) executionContext.get(BatchExportConstants.JobPropertiesKeys.RECEIPT_ID) ;</span>
+    }
+
+    public static String getState(ExecutionContext executionContext) {
+<span class="nc" id="L325">        return (String) executionContext.get(BatchExportConstants.JobPropertiesKeys.STATE) ;</span>
+    }
+    public static String getFrequency(ExecutionContext executionContext) {
+<span class="nc" id="L328">        return (String) executionContext.get(BatchExportConstants.StepExecutionContextKeys.PRINT_VENDOR_XML_FREQUENCY) ;</span>
+    }
+    
+    public static String getMailStatus(ExecutionContext executionContext) {
+<span class="nc" id="L332">        return (String) executionContext.get(BatchExportConstants.StepExecutionContextKeys.PRINT_VENDOR_XML_MAILSTATUS) ;</span>
+    }
+
+    public static String getTestScenario(ExecutionContext executionContext) {
+<span class="fc" id="L336">        return (String) executionContext.get(BatchExportConstants.JobPropertiesKeys.TEST_SCENARIO) ;</span>
+    }
+
+
+
+    public static String getPrettyPrintedXML(String form1095xml) {
+
+        try
+        {
+<span class="nc" id="L345">            Document doc = DocumentHelper.parseText(form1095xml);</span>
+<span class="nc" id="L346">            StringWriter sw = new StringWriter();</span>
+<span class="nc" id="L347">            OutputFormat format = OutputFormat.createPrettyPrint();</span>
+<span class="nc" id="L348">            format.setSuppressDeclaration(true);</span>
+<span class="nc" id="L349">            format.setIndent(true);</span>
+<span class="nc" id="L350">            format.setIndentSize(3);</span>
+<span class="nc" id="L351">            format.setNewLineAfterDeclaration(false);</span>
+<span class="nc" id="L352">            XMLWriter xw = new XMLWriter(sw, format);</span>
+<span class="nc" id="L353">            xw.write(doc);</span>
+
+<span class="nc" id="L355">            return sw.toString().trim();</span>
+        }
+<span class="nc" id="L357">        catch(Exception e)</span>
+        {
+<span class="nc" id="L359">        	LOGGER.error(e.getMessage(),e);</span>
+<span class="nc" id="L360">            return form1095xml;</span>
+        }
+    }
+    
+    public static String createFileNameForPrintVendor(StepExecution stepExecution){
+<span class="nc" id="L365">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext());</span>
+<span class="nc" id="L366">        Integer year = ExportUtil.getYear(stepExecution.getJobExecution().getExecutionContext());</span>
+<span class="nc" id="L367">        String frequency = ExportUtil.getFrequency(stepExecution.getJobExecution().getExecutionContext());</span>
+<span class="nc" id="L368">        String mailStatus = ExportUtil.getMailStatus(stepExecution.getJobExecution().getExecutionContext());</span>
+        
+<span class="nc" id="L370">        Integer totalRecordCount=Integer.parseInt((String)stepExecution.getJobExecution().getExecutionContext().get(BatchExportConstants.StepExecutionContextKeys.FORM_1095S_RECORD_COUNT));</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        int totalFileCount = (totalRecordCount % PrintVendorConstants.RECORDSSIZE == 0) ? (totalRecordCount/PrintVendorConstants.RECORDSSIZE): Math.incrementExact(totalRecordCount /  PrintVendorConstants.RECORDSSIZE);</span>
+        
+<span class="nc" id="L373">        String yearForFileName = year.toString().substring(year.toString().length() -2);</span>
+<span class="nc" id="L374">        DateFormat formatter = new SimpleDateFormat(&quot;MMddyyHHmm&quot;);</span>
+<span class="nc" id="L375">        StringBuilder printVendorXMLfFileName = new StringBuilder();</span>
+<span class="nc" id="L376">        printVendorXMLfFileName.append(yearForFileName).append(state).append(formatter.format(new Date()));</span>
+<span class="nc" id="L377">        printVendorXMLfFileName.append(&quot;_&quot;);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">        if(&quot;Y&quot;.equals(mailStatus)){</span>
+<span class="nc" id="L379">        	printVendorXMLfFileName.append(&quot;M&quot;);</span>
+        }else{
+<span class="nc" id="L381">        	printVendorXMLfFileName.append(&quot;N&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        if(&quot;D&quot;.equals(frequency)){</span>
+<span class="nc" id="L385">        	printVendorXMLfFileName.append(&quot;D&quot;);</span>
+        }else{
+<span class="nc" id="L387">        	printVendorXMLfFileName.append(&quot;I&quot;);</span>
+        }
+<span class="nc" id="L389">        printVendorXMLfFileName.append(&quot;_&quot;);</span>
+<span class="nc" id="L390">        printVendorXMLfFileName.append(appendZero(PrintVendorConstants.FILECOUNT));</span>
+<span class="nc" id="L391">        printVendorXMLfFileName.append(&quot;_&quot;);</span>
+<span class="nc" id="L392">        printVendorXMLfFileName.append(appendZero(totalFileCount));</span>
+<span class="nc" id="L393">        printVendorXMLfFileName.append(&quot;.xml&quot;);</span>
+<span class="nc" id="L394">        return printVendorXMLfFileName.toString();</span>
+
+    }
+    
+    private static String appendZero(int fileCount){
+<span class="nc" id="L399">    	String count = String.valueOf(fileCount);</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">    	if(count.length() == 1){</span>
+<span class="nc" id="L401">    		return &quot;00&quot;+count;</span>
+		}else{
+<span class="nc" id="L403">			return &quot;0&quot;+count;</span>
+		}
+    }
+    
+    public static String getAgencyCode(String state){
+<span class="nc" id="L408">    	String agencyCode = null;</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">    	if(&quot;AR&quot;.equals(state)){</span>
+<span class="nc" id="L410">    		agencyCode = &quot;DHS&quot;;</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">    	}else if(&quot;IN&quot;.equals(state)){</span>
+<span class="nc" id="L412">    		agencyCode = &quot;FSS&quot;;</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">    	}else if(&quot;LA&quot;.equals(state)){</span>
+<span class="nc" id="L414">    		agencyCode = &quot;DHH&quot;;</span>
+    	}
+<span class="nc" id="L416">    	return agencyCode;</span>
+    }
+    
+    public static String getSystemCode(String state){
+<span class="nc" id="L420">    	String systemCode = null;</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">    	if(&quot;AR&quot;.equals(state)){</span>
+<span class="nc" id="L422">    		systemCode = &quot;DSS&quot;;</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">    	}else if(&quot;IN&quot;.equals(state)){</span>
+<span class="nc" id="L424">    		systemCode = &quot;ICE&quot;;</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">    	}else if(&quot;LA&quot;.equals(state)){</span>
+<span class="nc" id="L426">    		systemCode = &quot;EES&quot;;</span>
+    	}
+<span class="nc" id="L428">    	return systemCode;</span>
+    }
+
+    public static void main(String[]args) {
+
+        /* Disable the comments when testing the util methods
+        String normalXML = &quot;&lt;Form1095BUpstreamDetail recordType=\&quot;String\&quot; lineNum=\&quot;0\&quot;&gt;&lt;RecordId&gt;1&lt;/RecordId&gt;&lt;CorrectedInd&gt;0&lt;/CorrectedInd&gt;&lt;TaxYr&gt;2015&lt;/TaxYr&gt;&lt;/Form1095BUpstreamDetail&gt;&quot;;
+        System.out.println(&quot;Pretty printed XML: &quot;+getPrettyPrintedXML(normalXML));*/
+<span class="nc" id="L436">    }</span>
+
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

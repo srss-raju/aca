@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerCoverage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerCoverage.java</span></div><h1>FilerCoverage.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+
+/**
+ * The persistent class for the filer_coverage database table.
+ * 
+ */
+@Entity
+@Table(name=&quot;filer_coverage_source&quot;)
+public class FilerCoverage implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@EmbeddedId
+	private FilerCoveragePK id;
+	private Character jan;
+	private Character feb;
+	private Character mar;
+	private Character apr;
+	private Character may;
+	private Character jun;
+	private Character jul;
+	private Character aug;
+	private Character sep;
+	private Character oct;
+	private Character nov;
+	private Character dec;
+	private String comments;
+
+
+	@Column(name= CommonEntityConstants.TAX_YEAR)
+	private int taxYear;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name= CommonEntityConstants.POLICY_COVERAGE_BEGIN_DT)
+	private Date origCoverageBeginDt;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name= CommonEntityConstants.ORIG_COVERAGE_END_DT)
+	private Date origCoverageEndDt;
+
+
+	@Column(name=&quot;UPDATED_BY&quot;)
+	private String updatedBy;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name=&quot;UPDATED_DATE&quot;)
+	private Date updatedDt;
+
+	@Column(name=&quot;CASE_APPLICATION_ID&quot;)
+	private String caseApplicationId;
+
+
+	@Column(name=&quot;FILER_DEMO_SEQ&quot;)
+	private Long filerDemoSeq;
+
+
+	@Column(name=CommonEntityConstants.POLICY_PROGRAM_NAME)
+	private String programName;
+
+<span class="nc" id="L67">	public FilerCoverage() {</span>
+<span class="nc" id="L68">	}</span>
+
+	public FilerCoveragePK getId() {
+<span class="nc" id="L71">		return id;</span>
+	}
+
+	public void setId(FilerCoveragePK id) {
+<span class="nc" id="L75">		this.id = id;</span>
+<span class="nc" id="L76">	}</span>
+
+	public Character getApr() {
+<span class="nc" id="L79">		return this.apr;</span>
+	}
+
+	public void setApr(Character apr) {
+<span class="nc" id="L83">		this.apr = apr;</span>
+<span class="nc" id="L84">	}</span>
+
+	public Character getAug() {
+<span class="nc" id="L87">		return this.aug;</span>
+	}
+
+	public void setAug(Character aug) {
+<span class="nc" id="L91">		this.aug = aug;</span>
+<span class="nc" id="L92">	}</span>
+
+	public String getComments() {
+<span class="nc" id="L95">		return this.comments;</span>
+	}
+
+	public void setComments(String comments) {
+<span class="nc" id="L99">		this.comments = comments;</span>
+<span class="nc" id="L100">	}</span>
+
+	public Character getDec() {
+<span class="nc" id="L103">		return this.dec;</span>
+	}
+
+	public void setDec(Character dece) {
+<span class="nc" id="L107">		this.dec = dece;</span>
+<span class="nc" id="L108">	}</span>
+
+	public Character getFeb() {
+<span class="nc" id="L111">		return this.feb;</span>
+	}
+
+	public void setFeb(Character feb) {
+<span class="nc" id="L115">		this.feb = feb;</span>
+<span class="nc" id="L116">	}</span>
+
+	public Character getJan() {
+<span class="nc" id="L119">		return this.jan;</span>
+	}
+
+	public void setJan(Character jan) {
+<span class="nc" id="L123">		this.jan = jan;</span>
+<span class="nc" id="L124">	}</span>
+
+	public Character getJul() {
+<span class="nc" id="L127">		return this.jul;</span>
+	}
+
+	public void setJul(Character jul) {
+<span class="nc" id="L131">		this.jul = jul;</span>
+<span class="nc" id="L132">	}</span>
+
+	public Character getJun() {
+<span class="nc" id="L135">		return this.jun;</span>
+	}
+
+	public void setJun(Character jun) {
+<span class="nc" id="L139">		this.jun = jun;</span>
+<span class="nc" id="L140">	}</span>
+
+	public Character getMar() {
+<span class="nc" id="L143">		return this.mar;</span>
+	}
+
+	public void setMar(Character mar) {
+<span class="nc" id="L147">		this.mar = mar;</span>
+<span class="nc" id="L148">	}</span>
+
+	public Character getMay() {
+<span class="nc" id="L151">		return this.may;</span>
+	}
+
+	public void setMay(Character may) {
+<span class="nc" id="L155">		this.may = may;</span>
+<span class="nc" id="L156">	}</span>
+
+	public Character getNov() {
+<span class="nc" id="L159">		return this.nov;</span>
+	}
+
+	public void setNov(Character nov) {
+<span class="nc" id="L163">		this.nov = nov;</span>
+<span class="nc" id="L164">	}</span>
+
+	public Character getOct() {
+<span class="nc" id="L167">		return this.oct;</span>
+	}
+
+	public void setOct(Character oct) {
+<span class="nc" id="L171">		this.oct = oct;</span>
+<span class="nc" id="L172">	}</span>
+
+	public Character getSep() {
+<span class="nc" id="L175">		return sep;</span>
+	}
+
+	public void setSep(Character sep) {
+<span class="nc" id="L179">		this.sep = sep;</span>
+<span class="nc" id="L180">	}</span>
+	public Date getOrigCoverageBeginDt() {
+<span class="nc" id="L182">		return this.origCoverageBeginDt;</span>
+	}
+
+	public void setOrigCoverageBeginDt(Date origCoverageBeginDt) {
+<span class="nc" id="L186">		this.origCoverageBeginDt = origCoverageBeginDt;</span>
+<span class="nc" id="L187">	}</span>
+
+	public Date getOrigCoverageEndDt() {
+<span class="nc" id="L190">		return this.origCoverageEndDt;</span>
+	}
+
+	public void setOrigCoverageEndDt(Date origCoverageEndDt) {
+<span class="nc" id="L194">		this.origCoverageEndDt = origCoverageEndDt;</span>
+<span class="nc" id="L195">	}</span>
+
+	public Long getFilerDemoSeq() {
+<span class="nc" id="L198">		return filerDemoSeq;</span>
+	}
+
+	public void setFilerDemoSeq(Long filerDemoSeq) {
+<span class="nc" id="L202">		this.filerDemoSeq = filerDemoSeq;</span>
+<span class="nc" id="L203">	}</span>
+
+
+	public String getUpdatedBy() {
+<span class="nc" id="L207">		return this.updatedBy;</span>
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L211">		this.updatedBy = updatedBy;</span>
+<span class="nc" id="L212">	}</span>
+
+	public Date getUpdatedDt() {
+<span class="nc" id="L215">		return this.updatedDt;</span>
+	}
+
+	public void setUpdatedDt(Date updatedDt) {
+<span class="nc" id="L219">		this.updatedDt = updatedDt;</span>
+<span class="nc" id="L220">	}</span>
+
+
+	public String getCaseApplicationId() {
+<span class="nc" id="L224">		return caseApplicationId;</span>
+	}
+
+	public void setCaseApplicationId(String caseApplicationId) {
+<span class="nc" id="L228">		this.caseApplicationId = caseApplicationId;</span>
+<span class="nc" id="L229">	}</span>
+
+	public String getProgramName() {
+<span class="nc" id="L232">		return programName;</span>
+	}
+
+	public void setProgramName(String programName) {
+<span class="nc" id="L236">		this.programName = programName;</span>
+<span class="nc" id="L237">	}</span>
+
+	public int getTaxYear() {
+<span class="nc" id="L240">		return taxYear;</span>
+	}
+
+	public void setTaxYear(int taxYear) {
+<span class="nc" id="L244">		this.taxYear = taxYear;</span>
+<span class="nc" id="L245">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

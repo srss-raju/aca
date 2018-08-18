@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportBatchConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export</a> &gt; <span class="el_source">ExportBatchConfiguration.java</span></div><h1>ExportBatchConfiguration.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
+import javax.xml.bind.Marshaller;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.oxm.xstream.XStreamMarshaller;
+
+import us.deloitteinnovation.aca.JpaConfiguration;
+import us.deloitteinnovation.aca.batch.dao.BatchInfoDao;
+import us.deloitteinnovation.aca.batch.dao.IRSTransmittalDetailsDao;
+import us.deloitteinnovation.aca.batch.dao.impl.BatchInfoDaoImpl;
+import us.deloitteinnovation.aca.batch.dao.impl.IRSTransmittalDetailsDaoImpl;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095CorrectionsMapper;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095OriginalsMapper;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095PrintVendorOriginalsMapper;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095PrintVendorProcessor;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095PrintVendorWriter;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Processor;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Writer;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Mapper;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094PrintVendorWriter;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Processor;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Writer;
+import us.deloitteinnovation.aca.batch.export.step3.Step3Form109495Pairing;
+import us.deloitteinnovation.aca.batch.export.step3.Step3Form109495Processor;
+import us.deloitteinnovation.aca.batch.export.step3.Step3Form109495Reader;
+import us.deloitteinnovation.aca.batch.export.step3.Step3Form109495Writer;
+import us.deloitteinnovation.aca.batch.export.step3.Step3PrintVendorForm109495Reader;
+import us.deloitteinnovation.aca.batch.export.step3.Step3PrintVendorForm109495Writer;
+import us.deloitteinnovation.aca.batch.export.step3.Step3ProcessorResult;
+import us.deloitteinnovation.aca.batch.export.step3.XMLRenderingDecider;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495HeaderAndXmlDto;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495PrintVendorReader;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495PrintVendorWriter;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495Processor;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495Reader;
+import us.deloitteinnovation.aca.batch.export.step4.Step4Form109495Writer;
+import us.deloitteinnovation.aca.batch.export.step4.Step4ManifestData;
+import us.deloitteinnovation.aca.batch.export.step5.Step5BatchHistoryCleanupTasklet;
+import us.deloitteinnovation.aca.batch.export.steppdf.ExportPdfDto;
+import us.deloitteinnovation.aca.batch.export.steppdf.ExportPdfFilerMapper;
+import us.deloitteinnovation.aca.batch.export.steppdf.ExportPdfMapper;
+import us.deloitteinnovation.aca.batch.export.steppdf.ExportPdfProcessor;
+import us.deloitteinnovation.aca.batch.export.steppdf.ExportPdfWriter;
+import us.deloitteinnovation.aca.batch.listener.Step1ProcessorListener;
+import us.deloitteinnovation.aca.batch.listener.Step1ProcessorPrintVendorListener;
+import us.deloitteinnovation.aca.batch.listener.Step4ExecutionListener;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.aca.batch.service.FilerCoveredPersonService;
+import us.deloitteinnovation.aca.batch.service.TransmissionIdReaderService;
+import us.deloitteinnovation.aca.batch.service.impl.BatchInfoServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.PrintVendorFilerCoveredPersonServiceImpl;
+import us.deloitteinnovation.aca.batch.service.impl.TransmissionIdReaderServiceImpl;
+import us.deloitteinnovation.aca.constants.PrintVendorConstants;
+import us.deloitteinnovation.aca.model.FilerExportMapper;
+import us.deloitteinnovation.aca.model.FilerExportPrintVendorMapper;
+import us.deloitteinnovation.aca.model.FilerMapper;
+import us.deloitteinnovation.aca.model.FilerWithCountCoveredMapper;
+import us.deloitteinnovation.aca.model.FilerWithExportCountCoveredMapper;
+import us.deloitteinnovation.aca.model.FilerWithExportCountCoveredPrintVendorMapper;
+import us.deloitteinnovation.aca.repository.IrsRecordDetails1095BJdbcRepository;
+import us.deloitteinnovation.aca.repository.PrintVendorJdbcRepository;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.Form109495BTrnsmtUpstreamType;
+
+/**
+ * &lt;p&gt;
+ * The IRS XML Export batch consists of 3 steps in the Job.
+ * &lt;ul&gt;
+ * &lt;li&gt;Step 1: Convert the Filer (1095B) information into IRS transmission objects and render as XML.&lt;/li&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Read - Load Filers and their corresponding dependents from FILER_DEMOGRAPHICS. &lt;/li&gt;
+ * &lt;li&gt;Process - Convert Filers to associated IRS XML wrappers.&lt;/li&gt;
+ * &lt;li&gt;Write - Write the Filer 1095B objects with rendered XML (and file size) to the storage facade for later aggregation.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;li&gt;Step 2: Convert Payer (1094B) information into IRS objects and render as XML.&lt;/li&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Read - Load unique Payers that correspond to the Filers from Step 1.&lt;/li&gt;
+ * &lt;li&gt;Process - Convert Payers to associated IRS XML wrappers.&lt;/li&gt;
+ * &lt;li&gt;Write - Write the Payer 1094B objects with rendered XML (and file size) to the storage facade for later aggregation.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;li&gt;Step 3: Collate the Filer 1095B objects by size and create manifest/headers.&lt;/li&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Read - Load Filer 1095B and Payer 1094B objects for collation.&lt;/li&gt;
+ * &lt;li&gt;Process - Associate 10954B and 1095B into separate files, as needed, to maintain file size maximum.
+ * Create and associate manifest/header XML for each file.&lt;/li&gt;
+ * &lt;li&gt;Write - Write each manifest/header and 1094B/1095b association to the storage facade.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;li&gt;Step 4: Sanitize data as required by IRS, and write the XML to files.&lt;/li&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Read - Load manifest/header, corresponding Payer 1094B, and associated Filer 1095B objects.&lt;/li&gt;
+ * &lt;li&gt;Process - Sanitize each data element, removing special characters as per IRS requirements.&lt;/li&gt;
+ * &lt;li&gt;Write - Write each manifest, body, and corresponding files to XML.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * @see Step1Form1095Processor
+ * @see Step1Form1095Writer
+ */
+@Configuration
+@EnableBatchProcessing
+@Import(JpaConfiguration.class)
+<span class="fc" id="L131">public class ExportBatchConfiguration {</span>
+<span class="fc" id="L132">    static final Logger LOGGER = LoggerFactory.getLogger(ExportBatchConfiguration.class);</span>
+    @Autowired
+    JobBuilderFactory  jobs;
+    @Autowired
+    StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    DataSource         dataSource;
+    @Autowired
+    ProfileProperties  profileProperties;
+    @Autowired
+    JdbcTemplate       jdbcTemplate;
+
+    /**
+     * @return
+     */
+    @Bean
+    public Step step1OriginalConvertFilers(ItemReader&lt;Step1Form1095Dto&gt; step1OriginalFilersReader,
+                                           Step1Form1095Processor step1Form1095bProcessor,
+                                           Step1Form1095Writer step1Form1095bWriter,
+                                           Step1ProcessorListener step1ProcessorListener) {
+<span class="nc" id="L152">        return stepBuilderFactory.get(&quot;step1OriginalConvertFilers&quot;).&lt;Step1Form1095Dto, Step1Form1095Dto&gt;chunk(10000)</span>
+<span class="nc" id="L153">                .reader(step1OriginalFilersReader)</span>
+<span class="nc" id="L154">                .processor(step1Form1095bProcessor)</span>
+<span class="nc" id="L155">                .writer(step1Form1095bWriter)</span>
+<span class="nc" id="L156">                .listener(step1ProcessorListener)</span>
+<span class="nc" id="L157">                .build();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    public Step step1CorrectionConvertFilers(ItemReader&lt;Step1Form1095Dto&gt; step1CorrectedFilersReader,
+                                             Step1Form1095Processor step1Form1095bProcessor,
+                                             Step1Form1095Writer step1Form1095bWriter,
+                                             Step1ProcessorListener step1ProcessorListener) {
+<span class="nc" id="L168">        return stepBuilderFactory.get(&quot;step1CorrectionConvertFilers&quot;).&lt;Step1Form1095Dto, Step1Form1095Dto&gt;chunk(10000)</span>
+<span class="nc" id="L169">                .reader(step1CorrectedFilersReader)</span>
+<span class="nc" id="L170">                .processor(step1Form1095bProcessor)</span>
+<span class="nc" id="L171">                .writer(step1Form1095bWriter)</span>
+<span class="nc" id="L172">                .listener(step1ProcessorListener)</span>
+<span class="nc" id="L173">                .build();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    public Step step1ReplacementsConvertFilers(ItemReader&lt;Step1Form1095Dto&gt; step1ReplacementsFilersReader,
+                                             Step1Form1095Processor step1Form1095bProcessor,
+                                             Step1Form1095Writer step1Form1095bWriter,
+                                             Step1ProcessorListener step1ProcessorListener) {
+<span class="nc" id="L184">        return stepBuilderFactory.get(&quot;step1ReplacementsConvertFilers&quot;).&lt;Step1Form1095Dto, Step1Form1095Dto&gt;chunk(10000)</span>
+<span class="nc" id="L185">                .reader(step1ReplacementsFilersReader)</span>
+<span class="nc" id="L186">                .processor(step1Form1095bProcessor)</span>
+<span class="nc" id="L187">                .writer(step1Form1095bWriter)</span>
+<span class="nc" id="L188">                .listener(step1ProcessorListener)</span>
+<span class="nc" id="L189">                .build();</span>
+    }
+
+    @Bean
+    public Step step2ConvertPayers(JdbcPagingItemReader&lt;Step2Form1094Dto&gt; step2ConvertPayersReader,
+                                   Step2Form1094Processor step2Form1094bProcessor,
+                                   Step2Form1094Writer step2Form1094bWriter) {
+<span class="nc" id="L196">        return stepBuilderFactory.get(&quot;step2ConvertPayers&quot;).&lt;Step2Form1094Dto, Step2Form1094Dto&gt;chunk(10)</span>
+<span class="nc" id="L197">                .reader(step2ConvertPayersReader)</span>
+<span class="nc" id="L198">                .processor(step2Form1094bProcessor)</span>
+<span class="nc" id="L199">                .writer(step2Form1094bWriter)</span>
+<span class="nc" id="L200">                .build();</span>
+    }
+
+    @Bean
+    public Step step3CollateAndCreateManifests(Step3Form109495Reader step3Form10945bReader,
+                                               Step3Form109495Processor step3Form10945bProcessor,
+                                               Step3Form109495Writer step3Form10945bWriter) {
+<span class="nc" id="L207">        return stepBuilderFactory.get(&quot;step3CollateAndCreateManifests&quot;).&lt;Step3Form109495Pairing, Step3ProcessorResult&gt;chunk(1)</span>
+<span class="nc" id="L208">                .reader(step3Form10945bReader)</span>
+<span class="nc" id="L209">                .processor(step3Form10945bProcessor)</span>
+<span class="nc" id="L210">                .writer(step3Form10945bWriter)</span>
+<span class="nc" id="L211">                .build();</span>
+    }
+
+    @Bean
+    public Step step4WriteXml(Step4Form109495Reader step4Form10945bReader,
+                              Step4Form109495Processor step4Form10945bProcessor,
+                              Step4Form109495Writer step4Form10945bWriter,
+                              Step4ExecutionListener step4ExecutionListener) {
+<span class="nc" id="L219">        return stepBuilderFactory.get(&quot;step4WriteXml&quot;).&lt;Step4Form109495HeaderAndXmlDto, Step4ManifestData&gt;chunk(1)</span>
+<span class="nc" id="L220">                .reader(step4Form10945bReader)</span>
+<span class="nc" id="L221">                .processor(step4Form10945bProcessor)</span>
+<span class="nc" id="L222">                .writer(step4Form10945bWriter)</span>
+<span class="nc" id="L223">                .listener(step4ExecutionListener)</span>
+<span class="nc" id="L224">                .build();</span>
+    }
+
+    @Bean
+    public Step step5CleanupBatchMetaData(Step5BatchHistoryCleanupTasklet cleanupTasklet){
+<span class="nc" id="L229">        return stepBuilderFactory</span>
+<span class="nc" id="L230">                .get(&quot;step5CleanupBatchMetaData&quot;)</span>
+<span class="nc" id="L231">                .tasklet(cleanupTasklet)</span>
+<span class="nc" id="L232">                .build();</span>
+    }
+
+    @Bean
+    public FilerMapper filerMapper() {
+<span class="nc" id="L237">        return new FilerMapper();</span>
+    }
+
+    @Bean
+    public FilerExportMapper filerExportMapper() {
+<span class="nc" id="L242">        return new FilerExportMapper();</span>
+    }
+
+    @Bean
+    public FilerWithCountCoveredMapper filerWithCountCoveredMapper() {
+<span class="nc" id="L247">        return new FilerWithCountCoveredMapper();</span>
+    }
+
+    @Bean
+    public FilerWithExportCountCoveredMapper filerWithCountCoveredExportMapper() {
+<span class="nc" id="L252">        return new FilerWithExportCountCoveredMapper();</span>
+    }
+
+    @Bean
+    public Step1Form1095OriginalsMapper step1Form1095bMapper() {
+<span class="nc" id="L257">        return new Step1Form1095OriginalsMapper();</span>
+    }
+
+    @Bean
+    public Step1Form1095CorrectionsMapper step1Form1095CorrectionsMapper() {
+<span class="nc" id="L262">        return new Step1Form1095CorrectionsMapper();</span>
+    }
+    
+    @Bean
+    public Step1Form1095PrintVendorOriginalsMapper step1Form1095PrintVendorOriginalsMapper() {
+<span class="nc" id="L267">        return new Step1Form1095PrintVendorOriginalsMapper();</span>
+    }
+    
+    @Bean
+    public FilerWithExportCountCoveredPrintVendorMapper filerWithExportCountCoveredPrintVendorMapper() {
+<span class="nc" id="L272">        return new FilerWithExportCountCoveredPrintVendorMapper();</span>
+    }
+    
+    @Bean
+    public FilerExportPrintVendorMapper filerExportPrintVendorMapper() {
+<span class="nc" id="L277">        return new FilerExportPrintVendorMapper();</span>
+    }
+
+    @Bean
+    public Step1ProcessorListener step1ProcessorListener() {
+<span class="nc" id="L282">        return new Step1ProcessorListener();</span>
+    }
+    
+    @Bean
+    public Step1ProcessorPrintVendorListener step1ProcessorPrintVendorListener() {
+<span class="nc" id="L287">        return new Step1ProcessorPrintVendorListener();</span>
+    }
+
+    @Bean
+<span class="nc" id="L291">    public Step4ExecutionListener step4ExecutionListener() {return new Step4ExecutionListener(); }</span>
+
+    @Bean
+    public Step2Form1094Mapper step2Form1094bMapper() {
+<span class="nc" id="L295">        return new Step2Form1094Mapper();</span>
+    }
+
+    @Bean
+<span class="nc" id="L299">    public XMLRenderingDecider xmlRenderingDecider(){ return new XMLRenderingDecider(); }</span>
+
+    /**
+     * Load Filers and their corresponding dependents from FILER_DEMOGRAPHICS for an original IRS transmission.
+     *
+     * @return
+     */
+    @Bean
+    @StepScope
+    public JdbcCursorItemReader&lt;Step1Form1095Dto&gt; step1OriginalFilersReader(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state) {
+<span class="nc" id="L309">        JdbcCursorItemReader reader = new JdbcCursorItemReader();</span>
+<span class="nc" id="L310">        reader.setDataSource(dataSource);</span>
+<span class="nc" id="L311">        reader.setFetchSize(100);</span>
+        // TODO Needs join on 1095B details to ensure the row has not been sent before
+<span class="nc" id="L313">        String sql = &quot;with cte as ( SELECT RESPONSIBLE_PERSON_UNIQUE_ID ,count(1) as countcovered FROM FILER_DEMOGRAPHICS a GROUP BY RESPONSIBLE_PERSON_UNIQUE_ID ) &quot; +</span>
+                &quot;select fd.SOURCE_UNIQUE_ID ,fd.SOURCE_CD ,fd.TAX_YEAR, fd.RECIPIENT_FIRST_NAME ,fd.RECIPIENT_MIDDLE_NAME ,fd.RECIPIENT_LAST_NAME ,fd.RECIPIENT_SUFFIX_NAME ,&quot; +
+                &quot;fd.RECIPIENT_SSN ,fd.RECIPIENT_TIN ,fd.RECIPIENT_DOB ,fd.RECIPIENT_ADDRESS_LINE_1 ,fd.RECIPIENT_ADDRESS_LINE_2 ,fd.RECIPIENT_CITY ,fd.RECIPIENT_STATE ,&quot; +
+                &quot;fd.RECIPIENT_ZIP_5 ,fd.RECIPIENT_ZIP_4 ,fd.POLICY_ORIGIN ,fd.SHOP_IDENTIFIER ,fd.PROVIDER_NAME ,fd.PROVIDER_IDENTIFICATION_NUMBER ,fd.PROVIDER_CONTACT_NO ,&quot; +
+                &quot;fd.PROVIDER_ADDRESS_LINE_1 ,fd.PROVIDER_ADDRESS_LINE_2 ,fd.PROVIDER_CITY_OR_TOWN ,fd.PROVIDER_STATE_OR_PROVINCE ,fd.PROVIDER_COUNTRY ,fd.PROVIDER_ZIP_OR_POSTAL_CODE ,&quot; +
+                &quot;fd.FILER_DEMO_SEQ ,fd.FILER_STATUS, fd.JAN ,fd.FEB ,fd.MAR ,fd.APR ,fd.MAY ,fd.JUN ,fd.JUL ,fd.AUG ,fd.SEP ,fd.OCT ,fd.NOV ,fd.DEC ,fd.RESPONSIBLE_PERSON_UNIQUE_ID,&quot; +
+                &quot;cte.countcovered from FILER_DEMOGRAPHICS fd inner join cte on cte.RESPONSIBLE_PERSON_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID WHERE left(SOURCE_CD,2) = '&quot;+ state +&quot;' &quot; +
+                &quot;AND FD.STATUS = 'ACTIVE' AND fd.IRS_TRANSMISSION_STATUS_CD IS NULL AND fd.FILER_STATUS in ('R','N')&quot;;
+<span class="nc" id="L321">        reader.setSql(sql);</span>
+<span class="nc" id="L322">        reader.setRowMapper(step1Form1095bMapper());</span>
+<span class="nc" id="L323">        return reader;</span>
+    }
+
+    /**
+     * Load Filers and their corresponding dependents from FILER_DEMOGRAPHICS for a correction IRS transmission.
+     *
+     * @return
+     */
+    @Bean
+    @StepScope
+    public JdbcCursorItemReader&lt;Step1Form1095Dto&gt; step1CorrectedFilersReader(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state,
+                                                                             @Value(&quot;#{jobExecutionContext[RECEIPT_ID]}&quot;) String originalReceiptId) {
+<span class="nc" id="L335">        JdbcCursorItemReader reader = new JdbcCursorItemReader();</span>
+<span class="nc" id="L336">        reader.setDataSource(dataSource);</span>
+        String sql;
+        // TODO Make sure the correction receipt, submission, and record id is included in query.
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (StringUtils.isNotEmpty(originalReceiptId)) {</span>
+            // TODO hacking count covered so all will query for dependents.
+<span class="nc" id="L341">            sql = &quot;select fd_head.*, 2 as countcovered, r_details.record_id, r_details.submission_id, r_details.transmission_id, r_details.RECORD_STATUS, t_details.TRANSMISSION_RECEIPT_ID &quot; +</span>
+                    &quot;from filer_demographics fd, irs_record_details_1095b r_details, IRS_TRANSMISSION_DETAILS t_details, filer_demographics fd_head &quot; +
+                    &quot;where t_details.TRANSMISSION_RECEIPT_ID = '&quot; + originalReceiptId + &quot;' and t_details.transmission_id = r_details.transmission_id &quot; +
+                    &quot;and fd_head.source_cd = r_details.source_cd and fd_head.source_unique_id = r_details.source_unique_id &quot; +
+                    &quot;and fd.source_cd = fd_head.source_cd and fd_head.SOURCE_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID &quot; +
+                    &quot;and fd.IRS_TRANSMISSION_STATUS_CD = 'CO' AND fd.FILER_STATUS in ('R','N')&quot;;
+        } else {
+            // To send a correction, we need the head of household as a filer.  There are instances where a correction could be provided for a dependent covered person,
+            // but the head of house hold is in ORIGINAL state.  Therefore, we select all Filers (head of household *and* dependents) in Correction state, whose head of household
+            // IRS DETAILS row has been sent, but is not in a state where corrected data has (possibly) been sent.
+            // TODO this doesn't work either.  Consider dependent 1 corrected.  IRS correction sent for household.  Dependent 2 is corrected.  record in corrected state, doesn't get picked up.
+            // UNLESS we join on the second record detail in a CORRECTION state.  (Correction is state of detail on a correction transmission?
+            //TODO : Select only required columns and modify the mapper. Instead of specifying which columns to select, is it possible to specify which columns to exclude in SQL?
+<span class="nc" id="L354">            sql =   &quot;with cte as (SELECT RESPONSIBLE_PERSON_UNIQUE_ID,  count(RESPONSIBLE_PERSON_UNIQUE_ID) as countcovered FROM FILER_DEMOGRAPHICS  a GROUP BY RESPONSIBLE_PERSON_UNIQUE_ID ) &quot; +</span>
+                    &quot;select DISTINCT fd.SOURCE_UNIQUE_ID ,fd.SOURCE_CD ,fd.TAX_YEAR, fd.RECIPIENT_FIRST_NAME ,fd.RECIPIENT_MIDDLE_NAME ,fd.RECIPIENT_LAST_NAME ,fd.RECIPIENT_SUFFIX_NAME , &quot; +
+                    &quot;fd.RECIPIENT_SSN ,fd.RECIPIENT_TIN ,fd.RECIPIENT_DOB ,fd.RECIPIENT_ADDRESS_LINE_1 ,fd.RECIPIENT_ADDRESS_LINE_2 ,fd.RECIPIENT_CITY ,fd.RECIPIENT_STATE , &quot; +
+                    &quot;fd.RECIPIENT_ZIP_5 ,fd.RECIPIENT_ZIP_4 ,fd.POLICY_ORIGIN ,fd.SHOP_IDENTIFIER ,fd.PROVIDER_NAME ,fd.PROVIDER_IDENTIFICATION_NUMBER ,fd.PROVIDER_CONTACT_NO , &quot; +
+                    &quot;fd.PROVIDER_ADDRESS_LINE_1 ,fd.PROVIDER_ADDRESS_LINE_2 ,fd.PROVIDER_CITY_OR_TOWN ,fd.PROVIDER_STATE_OR_PROVINCE ,fd.PROVIDER_COUNTRY ,fd.PROVIDER_ZIP_OR_POSTAL_CODE , &quot; +
+                    &quot;fd.FILER_DEMO_SEQ ,fd.FILER_STATUS, fd.JAN ,fd.FEB ,fd.MAR ,fd.APR ,fd.MAY ,fd.JUN ,fd.JUL ,fd.AUG ,fd.SEP ,fd.OCT ,fd.NOV ,fd.DEC ,fd.RESPONSIBLE_PERSON_UNIQUE_ID, &quot; +
+                    &quot;cte.countcovered, t_details.transmission_id, t_details.TRANSMISSION_RECEIPT_ID, r_details.record_id, r_details.submission_id &quot; +
+                    &quot;from FILER_DEMOGRAPHICS fd inner join cte on cte.RESPONSIBLE_PERSON_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID, IRS_TRANSMISSION_DETAILS t_details, &quot; +
+                    &quot;irs_record_details_1095b r_details, IRS_SUBMISSION_DETAILS s_details WHERE  &quot; +
+                    &quot;SUBSTRING(fd.SOURCE_CD,0,3) = '&quot;+state+&quot;' and (fd.FILER_STATUS='R' or fd.FILER_STATUS='N') and fd.STATUS='ACTIVE' &quot; +
+                    &quot;and fd.IRS_TRANSMISSION_STATUS_CD = 'CO' and fd.SOURCE_UNIQUE_ID = r_details.source_unique_id &quot; +
+                    &quot;and r_details.transmission_id = t_details.transmission_id and r_details.RECORD_STATUS IN ('AC', 'ER') and &quot; +
+                    &quot;r_details.TRANSMISSION_ID = (SELECT TOP 1 TRANSMISSION_ID FROM IRS_RECORD_DETAILS_1095B WHERE SOURCE_UNIQUE_ID = fd.SOURCE_UNIQUE_ID &quot; +
+                    &quot;AND SUBSTRING(fd.SOURCE_CD,0,3) = '&quot;+state+&quot;' AND RECORD_STATUS IN ('AC', 'ER')  ORDER BY TRANSMISSION_ID DESC)&quot;;
+        }
+<span class="nc" id="L369">        reader.setSql(sql);</span>
+<span class="nc" id="L370">        reader.setRowMapper(step1Form1095CorrectionsMapper());</span>
+<span class="nc" id="L371">        return reader;</span>
+    }
+
+
+    @Bean
+    @StepScope
+    public JdbcCursorItemReader&lt;Step1Form1095Dto&gt; step1ReplacementsFilersReader(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state,
+                                                                                @Value(&quot;#{jobExecutionContext[RECEIPT_ID]}&quot;) String originalReceiptId) {
+<span class="nc" id="L379">        JdbcCursorItemReader reader = new JdbcCursorItemReader();</span>
+<span class="nc" id="L380">        reader.setDataSource(dataSource);</span>
+        String sql;
+        // TODO The replacements query will need to be revisited, along with the step 3 writer, once the replacement state logic is finalized
+<span class="nc bnc" id="L383" title="All 2 branches missed.">        if (StringUtils.isNotEmpty(originalReceiptId)) {</span>
+
+<span class="nc" id="L385">            sql = &quot;select fd_head.*, 2 as countcovered, r_details.record_id, r_details.submission_id, r_details.transmission_id, r_details.RECORD_STATUS, t_details.TRANSMISSION_RECEIPT_ID &quot; +</span>
+                    &quot;from filer_demographics fd, irs_record_details_1095b r_details, IRS_TRANSMISSION_DETAILS t_details, filer_demographics fd_head &quot; +
+                    &quot;where t_details.TRANSMISSION_RECEIPT_ID = '&quot; + originalReceiptId + &quot;' and t_details.transmission_id = r_details.transmission_id &quot; +
+                    &quot;and fd_head.source_cd = r_details.source_cd and fd_head.source_unique_id = r_details.source_unique_id &quot; +
+                    &quot;and fd.source_cd = fd_head.source_cd and fd_head.SOURCE_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID &quot; +
+                    &quot;and fd_head.IRS_TRANSMISSION_STATUS_CD IN ('RC', 'RR') AND fd.FILER_STATUS in ('R','N')&quot;;
+        } else {
+
+<span class="nc" id="L393">            sql = &quot;with cte as (SELECT RESPONSIBLE_PERSON_UNIQUE_ID,  count(RESPONSIBLE_PERSON_UNIQUE_ID) as countcovered FROM FILER_DEMOGRAPHICS  a GROUP BY RESPONSIBLE_PERSON_UNIQUE_ID )&quot; +</span>
+                    &quot;select DISTINCT fd.SOURCE_UNIQUE_ID ,fd.SOURCE_CD ,fd.TAX_YEAR, fd.RECIPIENT_FIRST_NAME ,fd.RECIPIENT_MIDDLE_NAME ,fd.RECIPIENT_LAST_NAME ,fd.RECIPIENT_SUFFIX_NAME , &quot; +
+                    &quot;fd.RECIPIENT_SSN ,fd.RECIPIENT_TIN ,fd.RECIPIENT_DOB ,fd.RECIPIENT_ADDRESS_LINE_1 ,fd.RECIPIENT_ADDRESS_LINE_2 ,fd.RECIPIENT_CITY ,fd.RECIPIENT_STATE , &quot; +
+                    &quot;fd.RECIPIENT_ZIP_5 ,fd.RECIPIENT_ZIP_4 ,fd.POLICY_ORIGIN ,fd.SHOP_IDENTIFIER ,fd.PROVIDER_NAME ,fd.PROVIDER_IDENTIFICATION_NUMBER ,fd.PROVIDER_CONTACT_NO , &quot; +
+                    &quot;fd.PROVIDER_ADDRESS_LINE_1 ,fd.PROVIDER_ADDRESS_LINE_2 ,fd.PROVIDER_CITY_OR_TOWN ,fd.PROVIDER_STATE_OR_PROVINCE ,fd.PROVIDER_COUNTRY ,fd.PROVIDER_ZIP_OR_POSTAL_CODE , &quot; +
+                    &quot;fd.FILER_DEMO_SEQ ,fd.FILER_STATUS, fd.JAN ,fd.FEB ,fd.MAR ,fd.APR ,fd.MAY ,fd.JUN ,fd.JUL ,fd.AUG ,fd.SEP ,fd.OCT ,fd.NOV ,fd.DEC ,fd.RESPONSIBLE_PERSON_UNIQUE_ID, &quot; +
+                    &quot;cte.countcovered, t_details.transmission_id, t_details.TRANSMISSION_RECEIPT_ID, r_details.record_id, r_details.submission_id &quot; +
+                    &quot;from FILER_DEMOGRAPHICS fd inner join cte on cte.RESPONSIBLE_PERSON_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID, IRS_TRANSMISSION_DETAILS t_details, &quot; +
+                    &quot;irs_record_details_1095b r_details, IRS_SUBMISSION_DETAILS s_details WHERE  &quot; +
+                    &quot;SUBSTRING(fd.SOURCE_CD,0,3) = '&quot;+state+&quot;' and (fd.FILER_STATUS='R' or fd.FILER_STATUS='N') and fd.STATUS='ACTIVE' &quot; +
+                    &quot;and fd.IRS_TRANSMISSION_STATUS_CD in ('RC', 'RR') and fd.SOURCE_UNIQUE_ID = r_details.source_unique_id &quot; +
+                    &quot;and r_details.transmission_id = t_details.transmission_id and r_details.RECORD_STATUS IN ('RC', 'RR') and &quot; +
+                    &quot;r_details.TRANSMISSION_ID = (SELECT TOP 1 TRANSMISSION_ID FROM IRS_RECORD_DETAILS_1095B WHERE SOURCE_UNIQUE_ID = fd.SOURCE_UNIQUE_ID &quot; +
+                    &quot;AND SUBSTRING(fd.SOURCE_CD,0,3) = '&quot;+state+&quot;' AND RECORD_STATUS IN ('RC', 'RR')  ORDER BY TRANSMISSION_ID DESC)&quot;;
+        }
+<span class="nc" id="L408">        reader.setSql(sql);</span>
+<span class="nc" id="L409">        reader.setRowMapper(step1Form1095bMapper());</span>
+<span class="nc" id="L410">        return reader;</span>
+    }
+
+
+    @Bean
+    @StepScope
+    public Step1Form1095Processor step1Form1095bProcessor(@Value(&quot;#{jobExecutionContext[RECEIPT_ID]}&quot;) String originalReceiptId) {
+<span class="nc" id="L417">        Step1Form1095Processor step1Form1095bProcessor = new Step1Form1095Processor();</span>
+<span class="nc" id="L418">        step1Form1095bProcessor.setOriginalReceiptId(originalReceiptId);</span>
+<span class="nc" id="L419">        return step1Form1095bProcessor;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step1Form1095Writer step1Form1095bWriter() {
+<span class="nc" id="L425">        return new Step1Form1095Writer();</span>
+    }
+
+    /**
+     * Load unique Payees that correspond to the Filers from Step 2.
+     *
+     * @return
+     */
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader&lt;Step2Form1094Dto&gt; step2ConvertPayersReader(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state) {
+<span class="nc" id="L436">        JdbcPagingItemReader jdbcPagingItemReader = new JdbcPagingItemReader();</span>
+<span class="nc" id="L437">        jdbcPagingItemReader.setDataSource(dataSource);</span>
+<span class="nc" id="L438">        SqlPagingQueryProviderFactoryBean sqlPagingQueryProviderFactoryBean = new SqlPagingQueryProviderFactoryBean();</span>
+<span class="nc" id="L439">        sqlPagingQueryProviderFactoryBean.setDataSource(dataSource);</span>
+<span class="nc" id="L440">        sqlPagingQueryProviderFactoryBean.setSelectClause(&quot;select *&quot;);</span>
+<span class="nc" id="L441">        sqlPagingQueryProviderFactoryBean.setFromClause(&quot;from dbo.source_system_config&quot;);</span>
+<span class="nc" id="L442">        sqlPagingQueryProviderFactoryBean.setWhereClause(&quot;where SUBSTRING(SOURCE_CD,0,3) = :STATE&quot;);</span>
+<span class="nc" id="L443">        sqlPagingQueryProviderFactoryBean.setSortKey(&quot;source_cd_id&quot;);</span>
+        try {
+<span class="nc" id="L445">            jdbcPagingItemReader.setQueryProvider(sqlPagingQueryProviderFactoryBean.getObjectType().cast(sqlPagingQueryProviderFactoryBean.getObject()));</span>
+<span class="nc" id="L446">        } catch (Exception e) {</span>
+<span class="nc" id="L447">            LOGGER.error(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L448">            throw new RuntimeException(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L449">        }</span>
+<span class="nc" id="L450">        Map&lt;String, Object&gt; parameterValues = new HashMap();</span>
+<span class="nc" id="L451">        parameterValues.put(&quot;STATE&quot;, state);</span>
+<span class="nc" id="L452">        jdbcPagingItemReader.setParameterValues(parameterValues);</span>
+<span class="nc" id="L453">        jdbcPagingItemReader.setPageSize(1);</span>
+<span class="nc" id="L454">        jdbcPagingItemReader.setRowMapper(step2Form1094bMapper());</span>
+<span class="nc" id="L455">        return jdbcPagingItemReader;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step2Form1094Processor step2Form1094bProcessor() {
+<span class="nc" id="L461">        Step2Form1094Processor step2Form1094bProcessor = new Step2Form1094Processor();</span>
+<span class="nc" id="L462">        return step2Form1094bProcessor;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step2Form1094Writer step2Form1094bWriter() {
+<span class="nc" id="L468">        Step2Form1094Writer step2Form1094bWriter = new Step2Form1094Writer();</span>
+<span class="nc" id="L469">        return step2Form1094bWriter;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3Form109495Reader step3Form10945bReader() {
+<span class="nc" id="L475">        Step3Form109495Reader step3Form10945bReader = new Step3Form109495Reader();</span>
+<span class="nc" id="L476">        return step3Form10945bReader;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3Form109495Processor step3Form10945bProcessor() {
+<span class="nc" id="L482">        Step3Form109495Processor step3Form10945bProcessor = new Step3Form109495Processor();</span>
+<span class="nc" id="L483">        return step3Form10945bProcessor;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step3Form109495Writer step3Form10945bWriter() {
+<span class="nc" id="L489">        Step3Form109495Writer step3Form10945bWriter = new Step3Form109495Writer();</span>
+<span class="nc" id="L490">        return step3Form10945bWriter;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4Form109495Reader step4Form10945bReader() {
+<span class="nc" id="L496">        Step4Form109495Reader step4Form10945bReader = new Step4Form109495Reader();</span>
+<span class="nc" id="L497">        return step4Form10945bReader;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4Form109495Processor step4Form10945bProcessor() {
+<span class="nc" id="L503">        Step4Form109495Processor step4Form10945bProcessor = new Step4Form109495Processor();</span>
+<span class="nc" id="L504">        return step4Form10945bProcessor;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step4Form109495Writer step4Form10945bWriter() {
+<span class="nc" id="L510">        Step4Form109495Writer step4Form10945bWriter = new Step4Form109495Writer();</span>
+<span class="nc" id="L511">        return step4Form10945bWriter;</span>
+    }
+
+    @Bean
+    @StepScope
+    public Step5BatchHistoryCleanupTasklet step5BatchHistoryCleanupTasklet() {
+<span class="nc" id="L517">        Step5BatchHistoryCleanupTasklet step5Tasklet = new Step5BatchHistoryCleanupTasklet();</span>
+<span class="nc" id="L518">        step5Tasklet.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L519">        return step5Tasklet;</span>
+    }
+
+
+    @Bean
+    public XStreamMarshaller xStreamMarshaller() {
+<span class="nc" id="L525">        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();</span>
+<span class="nc" id="L526">        Map aliases = new HashMap();</span>
+<span class="nc" id="L527">        aliases.put(&quot;Form109495BTrnsmtUpstreamType&quot;, Form109495BTrnsmtUpstreamType.class);</span>
+<span class="nc" id="L528">        xStreamMarshaller.setAliases(aliases);</span>
+<span class="nc" id="L529">        return xStreamMarshaller;</span>
+    }
+
+    /**
+     * @return
+     */
+    @Bean
+    @JobScope
+    public BatchInfoDto getBatchInfo(BatchInfoService batchInfoService) {
+<span class="nc" id="L538">        LOGGER.info(&quot;Start of BatchInfo&quot;);</span>
+<span class="nc" id="L539">        BatchInfoDto batchInfo = new BatchInfoDto();</span>
+<span class="nc" id="L540">        batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L541">        int batchId = batchInfoService.save(batchInfo);</span>
+<span class="nc" id="L542">        batchInfo.setBatchId(batchId);</span>
+<span class="nc" id="L543">        LOGGER.info(&quot;End of BatchInfo&quot;);</span>
+<span class="nc" id="L544">        return batchInfo;</span>
+    }
+
+    @Bean
+<span class="nc" id="L548">    public ExportBatchJobExecutionListener exportBatchJobExecutionListener() {return new ExportBatchJobExecutionListener() ;}</span>
+
+    /**
+     * @return Storage mechanism for Form 1094 and 1095 data during Job processing.
+     */
+    @Bean
+    public ExportJob1095Repository exportJob1095Repository() {
+<span class="nc" id="L555">        return new ExportJob1095RepositoryInMemory();</span>
+    }
+
+    @Bean
+    public ExportJob1094Repository exportJob1094Repository() {
+        //return new ExportJobRepositoryInMemory();
+<span class="nc" id="L561">        return new ExportJob1094RepositoryInMemory();    }</span>
+
+    @Bean
+<span class="nc" id="L564">    public ExportJob1095Repository exportJobRepository() { return new ExportJobRepositoryInDB();    }</span>
+
+    @Bean
+    public BatchInfoService batchInfoService() {
+<span class="nc" id="L568">        return new BatchInfoServiceImpl();</span>
+    }
+
+    @Bean
+    public BatchInfoDao batchInfoDao() {
+<span class="nc" id="L573">        BatchInfoDaoImpl batchInfoDao = new BatchInfoDaoImpl();</span>
+<span class="nc" id="L574">        batchInfoDao.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L575">        return batchInfoDao;</span>
+    }
+
+    @Bean
+    public IRSTransmittalDetailsDao irsTransmittalDetailsDao() {
+<span class="nc" id="L580">        IRSTransmittalDetailsDaoImpl irsTransmittalDetailsDao = new IRSTransmittalDetailsDaoImpl();</span>
+<span class="nc" id="L581">        irsTransmittalDetailsDao.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L582">        return irsTransmittalDetailsDao;</span>
+    }
+
+    @Bean
+    public FilerCoveredPersonService filerCoveredPersonService() {
+<span class="nc" id="L587">        return new PrintVendorFilerCoveredPersonServiceImpl();</span>
+    }
+
+    @Bean
+    public TransmissionIdReaderService transmissionIdReaderService(){
+<span class="nc" id="L592">        return new TransmissionIdReaderServiceImpl();</span>
+    }
+
+    @Bean
+    public TransmissionIdStack transmissionIdStack(){
+<span class="nc" id="L597">        return new TransmissionIdStack();</span>
+    }
+
+    @Bean
+    public IrsRecordDetails1095BJdbcRepository irsRecordDetails1095BJdbcRepository() {
+<span class="nc" id="L602">        IrsRecordDetails1095BJdbcRepository repo = new IrsRecordDetails1095BJdbcRepository();</span>
+<span class="nc" id="L603">        repo.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L604">        return repo;</span>
+    }
+    
+    @Bean
+    public PrintVendorJdbcRepository printVendorJdbcRepository() {
+<span class="nc" id="L609">    	PrintVendorJdbcRepository repo = new PrintVendorJdbcRepository();</span>
+<span class="nc" id="L610">        repo.setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L611">        return repo;</span>
+    }
+
+    @Bean(name=&quot;jaxb2Marshaller&quot;)
+    public Jaxb2Marshaller jaxb2Marshaller() {
+<span class="fc" id="L616">        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();</span>
+<span class="fc" id="L617">        jaxb2Marshaller.setPackagesToScan(&quot;us.gov.treasury.irs&quot;);</span>
+<span class="fc" id="L618">        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L619">        map.put(&quot;jaxb.formatted.output&quot;, true);</span>
+<span class="fc" id="L620">        jaxb2Marshaller.setMarshallerProperties(map);</span>
+<span class="fc" id="L621">        return jaxb2Marshaller;</span>
+    }
+
+    @Bean(name=&quot;jaxb2FragmentMarshaller&quot;)
+    public Jaxb2Marshaller jaxb2FragmentMarshaller() {
+<span class="fc" id="L626">        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();</span>
+<span class="fc" id="L627">        jaxb2Marshaller.setPackagesToScan(&quot;us.gov.treasury.irs&quot;);</span>
+<span class="fc" id="L628">        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L629">        map.put(&quot;jaxb.formatted.output&quot;, true);</span>
+<span class="fc" id="L630">        map.put(Marshaller.JAXB_FRAGMENT, true);</span>
+<span class="fc" id="L631">        jaxb2Marshaller.setMarshallerProperties(map);</span>
+<span class="fc" id="L632">        return jaxb2Marshaller;</span>
+    }
+    
+    @Bean
+    public Step1Form1095PrintVendorWriter step1Form1095PrintVendorWriter(){
+<span class="nc" id="L637">    	return new Step1Form1095PrintVendorWriter();</span>
+    }
+    
+    @Bean
+    @StepScope
+    public Step1Form1095PrintVendorProcessor step1Form1095PrintVendorProcessor() {
+<span class="nc" id="L643">        return new Step1Form1095PrintVendorProcessor();</span>
+    }
+    
+    @Bean
+    @StepScope
+    public Step1Form1095PrintVendorWriter step1Form1095bPrintVendorWriter() {
+<span class="nc" id="L649">        return new Step1Form1095PrintVendorWriter();</span>
+    }
+    
+    @Bean
+    @StepScope
+    public Step2Form1094PrintVendorWriter step2Form1094PrintVendorWriter() {
+<span class="nc" id="L655">        return new Step2Form1094PrintVendorWriter();</span>
+    }
+    
+    @Bean
+    public ExportBatchJobExecutionPrintVendorListener exportBatchJobExecutionListenerForPrintVendor() {
+<span class="nc" id="L660">    	return new ExportBatchJobExecutionPrintVendorListener() ;</span>
+    }
+    
+    @Bean
+    public Step3PrintVendorForm109495Reader step3PrintVendorForm109495Reader() {
+<span class="nc" id="L665">    	return new Step3PrintVendorForm109495Reader() ;</span>
+    }
+    
+    @Bean
+    @StepScope
+    public Step3PrintVendorForm109495Writer step3PrintVendorForm109495Writer() {
+<span class="nc" id="L671">    	Step3PrintVendorForm109495Writer step3PrintVendorForm109495Writer = new Step3PrintVendorForm109495Writer();</span>
+<span class="nc" id="L672">        return step3PrintVendorForm109495Writer;</span>
+    }
+    
+    @Bean
+    @StepScope
+    public Step4Form109495PrintVendorReader step4Form109495PrintVendorReader() {
+<span class="nc" id="L678">    	Step4Form109495PrintVendorReader step4Form109495PrintVendorReader = new Step4Form109495PrintVendorReader();</span>
+<span class="nc" id="L679">        return step4Form109495PrintVendorReader;</span>
+    }
+
+    
+    @Bean
+    public Step4Form109495PrintVendorWriter step4Form109495PrintVendorWriter() {
+<span class="nc" id="L685">    	return new Step4Form109495PrintVendorWriter() ;</span>
+    }
+    
+    @Bean
+    public Step step1OriginalFilersForPrintVendor(ItemReader&lt;Step1Form1095Dto&gt; step1OriginalFilersReaderForPrintVendor,
+                                                  Step1Form1095PrintVendorProcessor step1Form1095PrintVendorProcessor,
+                                                  Step1Form1095PrintVendorWriter step1Form1095PrintVendorWriter,
+                                                  Step1ProcessorPrintVendorListener step1ProcessorPrintVendorListener) {
+<span class="nc" id="L693">        return stepBuilderFactory.get(&quot;step1OriginalFilersForPrintVendor&quot;).&lt;Step1Form1095Dto, Step1Form1095Dto&gt;chunk(PrintVendorConstants.RECORDSSIZE)</span>
+<span class="nc" id="L694">                .reader(step1OriginalFilersReaderForPrintVendor)</span>
+<span class="nc" id="L695">                .processor(step1Form1095PrintVendorProcessor)</span>
+<span class="nc" id="L696">                .writer(step1Form1095PrintVendorWriter)</span>
+<span class="nc" id="L697">                .listener(step1ProcessorPrintVendorListener)</span>
+<span class="nc" id="L698">                .build();</span>
+    }
+    
+    
+    @Bean
+    public Step step2PrintVendorConvertPayers(JdbcPagingItemReader&lt;Step2Form1094Dto&gt; step2ConvertPayersReader,
+                                   Step2Form1094Processor step2Form1094bProcessor,
+                                   Step2Form1094PrintVendorWriter step2Form1094PrintVendorWriter) {
+<span class="nc" id="L706">        return stepBuilderFactory.get(&quot;step2PrintVendorConvertPayers&quot;).&lt;Step2Form1094Dto, Step2Form1094Dto&gt;chunk(PrintVendorConstants.RECORDSSIZE)</span>
+<span class="nc" id="L707">                .reader(step2ConvertPayersReader)</span>
+<span class="nc" id="L708">                .processor(step2Form1094bProcessor)</span>
+<span class="nc" id="L709">                .writer(step2Form1094PrintVendorWriter)</span>
+<span class="nc" id="L710">                .build();</span>
+    }
+    
+    @Bean
+    public Step step3PrintVendorCollateAndCreateManifests(Step3PrintVendorForm109495Reader step3PrintVendorForm109495Reader,
+                                               Step3Form109495Processor step3Form10945bProcessor,
+                                               Step3PrintVendorForm109495Writer step3PrintVendorForm109495Writer) {
+<span class="nc" id="L717">        return stepBuilderFactory.get(&quot;step3PrintVendorCollateAndCreateManifests&quot;).&lt;Step3Form109495Pairing, Step3ProcessorResult&gt;chunk(PrintVendorConstants.RECORDSSIZE)</span>
+<span class="nc" id="L718">                .reader(step3PrintVendorForm109495Reader)</span>
+<span class="nc" id="L719">                .processor(step3Form10945bProcessor)</span>
+<span class="nc" id="L720">                .writer(step3PrintVendorForm109495Writer)</span>
+<span class="nc" id="L721">                .build();</span>
+    }
+    
+    @Bean
+    public Step step4PrintVendorWriteXml(Step4Form109495PrintVendorReader step4Form109495PrintVendorReader,
+                              Step4Form109495Processor step4Form10945bProcessor,
+                              Step4Form109495PrintVendorWriter step4Form109495PrintVendorWriter,
+                              Step4ExecutionListener step4ExecutionListener) {
+<span class="nc" id="L729">        return stepBuilderFactory.get(&quot;step4PrintVendorWriteXml&quot;).&lt;Step4Form109495HeaderAndXmlDto, Step4ManifestData&gt;chunk(PrintVendorConstants.RECORDSSIZE)</span>
+<span class="nc" id="L730">                .reader(step4Form109495PrintVendorReader)</span>
+<span class="nc" id="L731">                .processor(step4Form10945bProcessor)</span>
+<span class="nc" id="L732">                .writer(step4Form109495PrintVendorWriter)</span>
+<span class="nc" id="L733">                .listener(step4ExecutionListener)</span>
+<span class="nc" id="L734">                .build();</span>
+    }
+
+    /**
+     * Load Filers  for an original .
+     *
+     * @return
+     */
+
+    /*@Bean
+    @StepScope
+    public JdbcCursorItemReader&lt;Step1Form1095Dto&gt; step1OriginalFilersReaderForPrintVendor(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state,@Value(&quot;#{jobExecutionContext[YEAR]}&quot;) String year) {
+        JdbcCursorItemReader reader = new JdbcCursorItemReader();
+        reader.setDataSource(dataSource);
+        reader.setFetchSize(10);
+        String sql = &quot; with cte as ( SELECT RESPONSIBLE_PERSON_UNIQUE_ID ,count(1) as countcovered FROM FILER_DEMOGRAPHICS a where a.TAX_YEAR='&quot;+year+&quot;' and (a.FILER_STATUS IS NULL or a.FILER_STATUS='R')&quot; +
+                &quot; and a.SOURCE_CD like '&quot;+state+&quot;%' and a.STATUS='ACTIVE' and (FORM_STATUS IS NULL or FORM_STATUS='GENERATED') GROUP BY RESPONSIBLE_PERSON_UNIQUE_ID )&quot; +
+                &quot; select fd.SOURCE_UNIQUE_ID ,fd.SOURCE_CD ,fd.TAX_YEAR, fd.RECIPIENT_FIRST_NAME ,fd.RECIPIENT_MIDDLE_NAME ,fd.RECIPIENT_LAST_NAME ,fd.RECIPIENT_SUFFIX_NAME ,fd.RECIPIENT_SSN ,fd.RECIPIENT_TIN ,&quot; +
+                &quot; fd.RECIPIENT_DOB ,fd.RECIPIENT_ADDRESS_LINE_1 ,fd.RECIPIENT_ADDRESS_LINE_2 ,fd.RECIPIENT_CITY ,fd.RECIPIENT_STATE ,fd.RECIPIENT_ZIP_5 ,fd.RECIPIENT_ZIP_4 ,fd.POLICY_ORIGIN ,fd.SHOP_IDENTIFIER ,fd.PROVIDER_NAME ,&quot; +
+                &quot; fd.PROVIDER_IDENTIFICATION_NUMBER ,fd.PROVIDER_CONTACT_NO ,fd.PROVIDER_ADDRESS_LINE_1 ,fd.PROVIDER_ADDRESS_LINE_2 ,fd.PROVIDER_CITY_OR_TOWN ,fd.PROVIDER_STATE_OR_PROVINCE ,fd.PROVIDER_COUNTRY ,fd.PROVIDER_ZIP_OR_POSTAL_CODE ,&quot; +
+                &quot; fd.FILER_DEMO_SEQ ,fd.FILER_STATUS, fd.JAN ,fd.FEB ,fd.MAR ,fd.APR ,fd.MAY ,fd.JUN ,fd.JUL ,fd.AUG ,fd.SEP ,fd.OCT ,fd.NOV ,fd.DEC ,fd.RESPONSIBLE_PERSON_UNIQUE_ID,fd.IRS_TRANSMISSION_STATUS_CD,fd.FORM_STATUS,fd.FILER_STATUS ,&quot; +
+                &quot; cte.countcovered from FILER_DEMOGRAPHICS fd inner join cte on cte.RESPONSIBLE_PERSON_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID&quot;;
+        reader.setSql(sql);
+        LOGGER.debug(&quot;The sql is &quot;+sql);
+        reader.setRowMapper(step1Form1095bMapper());
+        return reader;
+
+    }*/
+    
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader&lt;Step1Form1095Dto&gt; step1OriginalFilersReaderForPrintVendor(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state,@Value(&quot;#{jobExecutionContext[YEAR]}&quot;) String year
+    		,@Value(&quot;#{jobExecutionContext[FREQUENCY]}&quot;) String frequency, @Value(&quot;#{jobExecutionContext[MAILSTATUS]}&quot;) String mailStatus) {
+        
+    	
+<span class="nc" id="L769">    	JdbcPagingItemReader&lt;Step1Form1095Dto&gt; jdbcPagingItemReader = new JdbcPagingItemReader&lt;Step1Form1095Dto&gt;();</span>
+<span class="nc" id="L770">    	StringBuilder builder = new StringBuilder(&quot;%&quot;);</span>
+<span class="nc" id="L771">    	builder.append(state).append(&quot;%&quot;);</span>
+<span class="nc" id="L772">        jdbcPagingItemReader.setDataSource(dataSource);</span>
+<span class="nc" id="L773">        SqlPagingQueryProviderFactoryBean sqlPagingQueryProviderFactoryBean = new SqlPagingQueryProviderFactoryBean();</span>
+<span class="nc" id="L774">        sqlPagingQueryProviderFactoryBean.setDataSource(dataSource);</span>
+        
+<span class="nc" id="L776">        sqlPagingQueryProviderFactoryBean.setSelectClause(&quot;SELECT SOURCE_UNIQUE_ID, SOURCE_CD, BATCH_ID, TAX_YEAR, RECIPIENT_FIRST_NAME, RECIPIENT_MIDDLE_NAME, RECIPIENT_LAST_NAME, RECIPIENT_SUFFIX_NAME, RECIPIENT_SSN, RECIPIENT_TIN, RECIPIENT_DOB, RECIPIENT_ADDRESS_LINE_1, RECIPIENT_ADDRESS_LINE_2, RECIPIENT_CITY, RECIPIENT_STATE, RECIPIENT_ZIP_5, RECIPIENT_ZIP_4, RECIPIENT_E_MAIL, RECIPIENT_LANGUAGE_PREFERENCE, POLICY_ORIGIN, SHOP_IDENTIFIER, EMPLOYER_NAME, EMPLOYER_IDENTIFICATION_NUMBER, EMPLOYER_CONTACT_NO, EMPLOYER_ADDRESS_LINE_1, EMPLOYER_ADDRESS_LINE_2, EMPLOYER_CITY_OR_TOWN, EMPLOYER_STATE_OR_PROVINCE, EMPLOYER_COUNTRY, EMPLOYER_ZIP_OR_POSTAL_CODE, PROVIDER_NAME, PROVIDER_IDENTIFICATION_NUMBER, PROVIDER_CONTACT_NO, PROVIDER_ADDRESS_LINE_1, PROVIDER_ADDRESS_LINE_2, PROVIDER_CITY_OR_TOWN, PROVIDER_STATE_OR_PROVINCE, PROVIDER_COUNTRY, PROVIDER_ZIP_OR_POSTAL_CODE, FILER_STATUS, COMMUNICATION_PREFERENCE, COMMENTS, UPDATED_BY, UPDATED_DATE, CORRECTION_DATE, CORRECTION_CODE, FORM_STATUS, STATUS, FILER_DEMO_SEQ, JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, [DEC], fd.RESPONSIBLE_PERSON_UNIQUE_ID, MAILED_FORM, IRS_TRANSMISSION_STATUS_CD, RECORD_CREATED_DATE, CORRECTION_INDICATOR, CTE.COUNTCOVERED&quot;);</span>
+<span class="nc" id="L777">        sqlPagingQueryProviderFactoryBean.setFromClause(&quot;FROM FILER_DEMOGRAPHICS fd inner join (  SELECT RESPONSIBLE_PERSON_UNIQUE_ID ,count(1) as countcovered   FROM FILER_DEMOGRAPHICS a GROUP BY RESPONSIBLE_PERSON_UNIQUE_ID   ) CTE  on CTE.RESPONSIBLE_PERSON_UNIQUE_ID = fd.RESPONSIBLE_PERSON_UNIQUE_ID&quot;);</span>
+<span class="nc bnc" id="L778" title="All 2 branches missed.">        if(&quot;D&quot;.equalsIgnoreCase(frequency)){</span>
+<span class="nc" id="L779">        	sqlPagingQueryProviderFactoryBean.setWhereClause(&quot;WHERE  TAX_YEAR = :YEAR AND STATUS='ACTIVE' AND (FORM_STATUS IS NULL OR FORM_STATUS='REGENERATE') AND FILER_STATUS IN ('N','R') AND SOURCE_CD LIKE :STATE AND MAILED_FORM = :MAILSTATUS&quot;);</span>
+        }else{
+<span class="nc" id="L781">        	sqlPagingQueryProviderFactoryBean.setWhereClause(&quot;WHERE  TAX_YEAR = :YEAR AND STATUS='ACTIVE' AND (FORM_STATUS IS NULL) AND FILER_STATUS IN ('N','R') AND SOURCE_CD LIKE :STATE AND MAILED_FORM = :MAILSTATUS&quot;);</span>
+        }
+<span class="nc" id="L783">        sqlPagingQueryProviderFactoryBean.setSortKey(&quot;SOURCE_UNIQUE_ID&quot;);</span>
+        
+        try {
+<span class="nc" id="L786">            jdbcPagingItemReader.setQueryProvider(sqlPagingQueryProviderFactoryBean.getObjectType().cast(sqlPagingQueryProviderFactoryBean.getObject()));</span>
+<span class="nc" id="L787">        } catch (Exception e) {</span>
+<span class="nc" id="L788">            LOGGER.error(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L789">            throw new RuntimeException(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L790">        }</span>
+<span class="nc" id="L791">        LOGGER.debug(&quot;The sql is &quot;+sqlPagingQueryProviderFactoryBean);</span>
+<span class="nc" id="L792">        Map&lt;String, Object&gt; parameterValues = new HashMap();</span>
+<span class="nc" id="L793">        parameterValues.put(&quot;YEAR&quot;, year);</span>
+<span class="nc" id="L794">        parameterValues.put(&quot;STATE&quot;, builder.toString());</span>
+<span class="nc" id="L795">        parameterValues.put(&quot;MAILSTATUS&quot;, mailStatus);</span>
+<span class="nc" id="L796">        jdbcPagingItemReader.setParameterValues(parameterValues);</span>
+<span class="nc" id="L797">        jdbcPagingItemReader.setFetchSize(PrintVendorConstants.RECORDSSIZE); </span>
+<span class="nc" id="L798">        jdbcPagingItemReader.setPageSize(PrintVendorConstants.RECORDSSIZE);</span>
+<span class="nc" id="L799">        jdbcPagingItemReader.setRowMapper(step1Form1095PrintVendorOriginalsMapper());</span>
+<span class="nc" id="L800">        return jdbcPagingItemReader;</span>
+    } 
+    
+    @Bean
+    public ExportBatchPrintVendorListener exportBatchJobExecutionPrintVendorParamListener() {
+<span class="nc" id="L805">    	return new ExportBatchPrintVendorListener() ;</span>
+    }
+    
+    @Bean
+    @StepScope
+    public ExportPdfProcessor exportPdfProcessor() {
+<span class="nc" id="L811">        return new ExportPdfProcessor();</span>
+    }
+    
+    @Bean
+    @StepScope
+    public ExportPdfWriter exportPdfWriter() {
+<span class="nc" id="L817">        return new ExportPdfWriter();</span>
+    }
+    
+    @Bean
+    public ExportPdfListener exportPdfListener() {
+<span class="nc" id="L822">    	return new ExportPdfListener() ;</span>
+    }
+    
+    @Bean
+    public ExportPdfFilerMapper exportPdfFilerMapper() {
+<span class="nc" id="L827">    	return new ExportPdfFilerMapper() ;</span>
+    }
+    
+    @Bean
+    public ExportPdfMapper exportPdfMapper() {
+<span class="nc" id="L832">    	return new ExportPdfMapper() ;</span>
+    }
+    
+    @Bean
+    public Step stepExportPdf(ItemReader&lt;ExportPdfDto&gt; exportPdfReader,
+                                                  ExportPdfProcessor exportPdfProcessor,
+                                                  ExportPdfWriter exportPdfWriter,
+                                                  ExportPdfListener exportPdfListener) {
+<span class="nc" id="L840">        return stepBuilderFactory.get(&quot;stepExportPdf&quot;).&lt;ExportPdfDto, ExportPdfDto&gt;chunk(PrintVendorConstants.RECORDSSIZE)</span>
+<span class="nc" id="L841">                .reader(exportPdfReader)</span>
+<span class="nc" id="L842">                .processor(exportPdfProcessor)</span>
+<span class="nc" id="L843">                .writer(exportPdfWriter)</span>
+<span class="nc" id="L844">                .listener(exportPdfListener)</span>
+<span class="nc" id="L845">                .build();</span>
+    }
+    
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader&lt;ExportPdfDto&gt; exportPdfReader(@Value(&quot;#{jobExecutionContext[STATE]}&quot;) String state,@Value(&quot;#{jobExecutionContext[YEAR]}&quot;) Long year
+    		,@Value(&quot;#{jobExecutionContext[STARTDATE]}&quot;) String startDate, @Value(&quot;#{jobExecutionContext[ENDDATE]}&quot;) String endDate) {
+    	
+<span class="nc" id="L853">    	JdbcPagingItemReader&lt;ExportPdfDto&gt; jdbcPagingItemReader = new JdbcPagingItemReader&lt;ExportPdfDto&gt;();</span>
+<span class="nc" id="L854">    	StringBuilder builder = new StringBuilder(&quot;%&quot;);</span>
+<span class="nc" id="L855">    	builder.append(state).append(&quot;%&quot;);</span>
+<span class="nc" id="L856">        jdbcPagingItemReader.setDataSource(dataSource);</span>
+<span class="nc" id="L857">        SqlPagingQueryProviderFactoryBean sqlPagingQueryProviderFactoryBean = new SqlPagingQueryProviderFactoryBean();</span>
+<span class="nc" id="L858">        sqlPagingQueryProviderFactoryBean.setDataSource(dataSource);</span>
+        
+<span class="nc" id="L860">        sqlPagingQueryProviderFactoryBean.setSelectClause(&quot;SELECT SOURCE_UNIQUE_ID, SOURCE_CD, BATCH_ID, TAX_YEAR, RECIPIENT_FIRST_NAME, RECIPIENT_MIDDLE_NAME, RECIPIENT_LAST_NAME, RECIPIENT_SUFFIX_NAME, RECIPIENT_SSN, RECIPIENT_TIN, RECIPIENT_DOB, RECIPIENT_ADDRESS_LINE_1, RECIPIENT_ADDRESS_LINE_2, RECIPIENT_CITY, RECIPIENT_STATE, RECIPIENT_ZIP_5, RECIPIENT_ZIP_4, RECIPIENT_E_MAIL, RECIPIENT_LANGUAGE_PREFERENCE, POLICY_ORIGIN, SHOP_IDENTIFIER, EMPLOYER_NAME, EMPLOYER_IDENTIFICATION_NUMBER, EMPLOYER_CONTACT_NO, EMPLOYER_ADDRESS_LINE_1, EMPLOYER_ADDRESS_LINE_2, EMPLOYER_CITY_OR_TOWN, EMPLOYER_STATE_OR_PROVINCE, EMPLOYER_COUNTRY, EMPLOYER_ZIP_OR_POSTAL_CODE, PROVIDER_NAME, PROVIDER_IDENTIFICATION_NUMBER, PROVIDER_CONTACT_NO, PROVIDER_ADDRESS_LINE_1, PROVIDER_ADDRESS_LINE_2, PROVIDER_CITY_OR_TOWN, PROVIDER_STATE_OR_PROVINCE, PROVIDER_COUNTRY, PROVIDER_ZIP_OR_POSTAL_CODE, FILER_STATUS, COMMUNICATION_PREFERENCE, COMMENTS, UPDATED_BY, UPDATED_DATE, CORRECTION_DATE, CORRECTION_CODE, FORM_STATUS, STATUS, FILER_DEMO_SEQ, JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, [DEC], RESPONSIBLE_PERSON_UNIQUE_ID, MAILED_FORM, IRS_TRANSMISSION_STATUS_CD, RECORD_CREATED_DATE, CORRECTION_INDICATOR&quot;);</span>
+<span class="nc" id="L861">        sqlPagingQueryProviderFactoryBean.setFromClause(&quot;FROM FILER_DEMOGRAPHICS&quot;);</span>
+<span class="nc" id="L862">        sqlPagingQueryProviderFactoryBean.setWhereClause(&quot;WHERE  TAX_YEAR = :YEAR AND STATUS='ACTIVE' AND FORM_STATUS='GENERATED' AND FILER_STATUS IN ('N','R') AND SOURCE_CD LIKE :STATE AND UPDATED_DATE BETWEEN :STARTDATE AND :ENDDATE&quot;);</span>
+<span class="nc" id="L863">        sqlPagingQueryProviderFactoryBean.setSortKey(&quot;SOURCE_UNIQUE_ID&quot;);</span>
+        
+        try {
+<span class="nc" id="L866">            jdbcPagingItemReader.setQueryProvider(sqlPagingQueryProviderFactoryBean.getObjectType().cast(sqlPagingQueryProviderFactoryBean.getObject()));</span>
+<span class="nc" id="L867">        } catch (Exception e) {</span>
+<span class="nc" id="L868">            LOGGER.error(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L869">            throw new RuntimeException(&quot;Failed attempt to create PagingQueryProvider.&quot;, e);</span>
+<span class="nc" id="L870">        }</span>
+<span class="nc" id="L871">        LOGGER.debug(&quot;The sql is &quot;+sqlPagingQueryProviderFactoryBean);</span>
+<span class="nc" id="L872">        Map&lt;String, Object&gt; parameterValues = new HashMap();</span>
+<span class="nc" id="L873">        parameterValues.put(&quot;YEAR&quot;, year);</span>
+<span class="nc" id="L874">        parameterValues.put(&quot;STATE&quot;, builder.toString());</span>
+<span class="nc" id="L875">        parameterValues.put(&quot;STARTDATE&quot;, startDate);</span>
+<span class="nc" id="L876">        parameterValues.put(&quot;ENDDATE&quot;, endDate);</span>
+<span class="nc" id="L877">        jdbcPagingItemReader.setParameterValues(parameterValues);</span>
+<span class="nc" id="L878">        jdbcPagingItemReader.setFetchSize(PrintVendorConstants.RECORDSSIZE); </span>
+<span class="nc" id="L879">        jdbcPagingItemReader.setPageSize(PrintVendorConstants.RECORDSSIZE);</span>
+<span class="nc" id="L880">        jdbcPagingItemReader.setRowMapper(exportPdfMapper());</span>
+<span class="nc" id="L881">        return jdbcPagingItemReader;</span>
+    }
+   
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="3 seconds">
+    <appender name="IMPORTLOGFILE" class="ch.qos.logback.core.FileAppender">
+        <file>/var/log/aca1095b/aca_irs_error_reports.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <springProfile name="test,local,dev">
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springframework.beans" level="INFO"/>
+        <logger name="org.springframework.jndi" level="INFO"/>
+        <logger name="org.hibernate.jdbc" level="INFO"/>
+        <logger name="org.hibernate.loader" level="INFO"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="INFO"/>
+        <logger name="us.deloitteinnovation.aca" level="INFO">
+            <appender-ref ref="IMPORTLOGFILE"/>
+        </logger>
+    </springProfile>
+    <springProfile name="qa,preprod,prod,dryrun">
+        <logger name="org.springframework" level="ERROR"/>
+        <logger name="org.springframework.web" level="ERROR"/>
+        <logger name="org.springframework.beans" level="ERROR"/>
+        <logger name="org.springframework.jndi" level="ERROR"/>
+        <logger name="org.hibernate.jdbc" level="ERROR"/>
+        <logger name="org.hibernate.loader" level="ERROR"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="ERROR"/>
+        <logger name="us.deloitteinnovation.aca" level="ERROR">
+            <appender-ref ref="IMPORTLOGFILE"/>
+        </logger>
+    </springProfile>
+</configuration>

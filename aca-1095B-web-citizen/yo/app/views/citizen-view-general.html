@@ -1,0 +1,87 @@
+<div class="citizen-view-general-container">
+
+  <div class="citizen-view-print-info">
+
+    <div class="row general-header">
+      <div class="col-md-6 title" tabindex="{{vm.modalBox == true ? -1:1}}" aria-label="{{vm.ariaLabel.title}}">
+        View/Print 1095-B Form
+      </div>
+      <div class="col-md-offset-2 col-md-4 text-right">
+        <button class="btn btn-dark-gray" tabindex="{{vm.modalBox == true ? -1:2}}" ng-click="vm.printForm()">Print Form</button>
+        <button class="btn btn-orange" tabindex="{{vm.modalBox == true ? -1:3}}" ng-click="vm.goToDetail()">View Form</button>
+      </div>
+    </div>
+
+    <div class="row general-details">
+      <div class="heading">
+        <div class="col-md-1">
+          Name
+        </div>
+        <div class="col-md-offset-4 col-md-1 text-center">
+          DOB
+        </div>
+        <div class="col-md-offset-2 col-md-1 text-center">
+          <span>SSN/TIN</span>
+        </div>
+        <div class="col-md-offset-2 col-md-1">
+          Year
+        </div>
+      </div>
+      <div class="detail">
+        <div class="col-md-2">
+          <span>{{vm.citizenData.recipientFirstName}}, {{vm.citizenData.recipientLastName}}</span>
+        </div>
+        <div class="col-md-offset-3 col-md-1">
+          <span>{{vm.citizenData.recipientDOB}}</span>
+        </div>
+        <div class="col-md-offset-2 col-md-2">
+          <span>{{vm.citizenData.uidNumber}}</span>
+        </div>
+        <div class="col-md-offset-1 col-md-1">
+          <span>{{vm.citizenData.taxYear}}</span>
+        </div>
+      </div>
+      <div class="heading">
+        <div class="col-md-2">
+          Address
+        </div>
+        <div class="col-md-offset-3 col-md-2">
+          City, State
+        </div>
+        <div class="col-md-offset-1 col-md-1">
+          Zipcode
+        </div>
+        <div class="col-md-offset-1 col-md-2 text-right">
+          Generated Date
+        </div>
+      </div>
+      <div class="detail">
+        <div class="col-md-2">
+          <span>{{vm.citizenData.recipientDOBAddressLine1}} {{vm.citizenData.recipientDOBAddressLine2}}</span>
+        </div>
+        <div class="col-md-offset-3 col-md-2">
+          <span>{{vm.citizenData.recipientCity}}, {{vm.citizenData.recipientState}}</span>
+        </div>
+        <div class="col-md-offset-1 col-md-1">
+          <span>{{vm.citizenData.recipientZip}}</span>
+        </div>
+        <div class="col-md-offset-1 col-md-2 text-right">
+          <i class="fa fa-check-circle icon-check"></i>
+          <span>{{vm.citizenData.generatedDate}}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row general-footer">
+      <div>{{vm.citizenData.message}}</div>
+    </div>
+
+    <div ng-hide="true">
+      <aca-actual-form citizen-data="vm.citizenData" modal-box="vm.modalBox">
+      </aca-actual-form>
+    </div>
+
+  </div>
+</div>
+

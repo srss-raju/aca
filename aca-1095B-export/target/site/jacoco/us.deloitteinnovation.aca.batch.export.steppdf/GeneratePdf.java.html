@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GeneratePdf.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.steppdf</a> &gt; <span class="el_source">GeneratePdf.java</span></div><h1>GeneratePdf.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.steppdf;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import us.deloitteinnovation.aca.model.Filer;
+
+<span class="nc" id="L16">public class GeneratePdf {</span>
+
+<span class="nc" id="L18">	private static final Logger LOG = LoggerFactory.getLogger(GeneratePdf.class);</span>
+
+	private static PDDocument _pdfDocument;
+
+	public static void exportPdf(String originalPdf, String targetFileLocation, Filer filer) {
+
+<span class="nc" id="L24">		StringBuilder targetFileName = new StringBuilder();</span>
+<span class="nc" id="L25">		targetFileName.append(filer.getTaxYear()).append(&quot;_&quot;).append(filer.getSourceUniqueId()).append(&quot;.pdf&quot;);</span>
+
+		try {
+<span class="nc" id="L28">			populateAndCopy(originalPdf, targetFileLocation+targetFileName, filer);</span>
+<span class="nc" id="L29">		} catch (Exception e) {</span>
+<span class="nc" id="L30">			LOG.error(e.getMessage(),e);</span>
+<span class="nc" id="L31">		}</span>
+<span class="nc" id="L32">		LOG.info(&quot;Pdf Generated&quot;);</span>
+<span class="nc" id="L33">	}</span>
+
+	private static void populateAndCopy(String originalPdf, String targetPdf, Filer filer)
+			throws IOException {
+<span class="nc" id="L37">		_pdfDocument = PDDocument.load(new File(originalPdf));</span>
+<span class="nc" id="L38">		_pdfDocument.removePage(1);</span>
+<span class="nc" id="L39">		setField(filer);</span>
+<span class="nc" id="L40">    	_pdfDocument.save(targetPdf);</span>
+<span class="nc" id="L41">		_pdfDocument.close();</span>
+<span class="nc" id="L42">	}</span>
+
+	public static void setField(Filer filer) throws IOException {
+<span class="nc" id="L45">		PDDocumentCatalog docCatalog = _pdfDocument.getDocumentCatalog();</span>
+<span class="nc" id="L46">		PDAcroForm acroForm = docCatalog.getAcroForm();</span>
+<span class="nc" id="L47">		Iterator&lt;PDField&gt; iterator = acroForm.getFieldIterator();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		while (iterator.hasNext()) {</span>
+<span class="nc" id="L49">			PDField field = iterator.next();</span>
+<span class="nc" id="L50">			FillPdf.fillPdfwithData(field, filer);</span>
+<span class="nc" id="L51">		}</span>
+<span class="nc" id="L52">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

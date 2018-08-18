@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorJdbcRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.repository</a> &gt; <span class="el_source">PrintVendorJdbcRepository.java</span></div><h1>PrintVendorJdbcRepository.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.repository;
+
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+import us.deloitteinnovation.aca.entity.FilerDemographic;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.List;
+
+/**
+ */
+@Transactional
+<span class="nc" id="L18">public class PrintVendorJdbcRepository extends JdbcDaoSupport {</span>
+
+    public void insertPrintDetails(final List&lt;PrintDetail&gt; printDetailList) {
+
+<span class="nc" id="L22">        final String sql = &quot;INSERT INTO [dbo].[PRINT_DETAILS]([SOURCE_UNIQUE_ID] ,[SOURCE_CD],[LAST_MAIL_REQUESTED_DATE],[BATCH_ID],[PRINT_REASON],[PRINT_STATUS],[TAX_YEAR],[PRINT_FILE_NAME],[UPDATED_BY],[CREATED_DATE],[ORIGINAL_FORM_STATUS],[CORRECTION_INDICATOR]) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)&quot;;</span>
+
+<span class="nc" id="L24">        super.getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {</span>
+
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+<span class="nc" id="L28">                final PrintDetail printDetailsObject = printDetailList.get(i);</span>
+<span class="nc" id="L29">                ps.setLong(1, printDetailsObject.getId().getSourceUniqueId());</span>
+<span class="nc" id="L30">                ps.setString(2, printDetailsObject.getId().getSourceCd());</span>
+<span class="nc" id="L31">                ps.setTimestamp(3, createSQLDate());</span>
+<span class="nc" id="L32">                ps.setInt(4, printDetailsObject.getBatchId());</span>
+<span class="nc" id="L33">                ps.setString(5, printDetailsObject.getPrintReason());</span>
+<span class="nc" id="L34">                ps.setString(6, printDetailsObject.getPrintStatus());</span>
+<span class="nc" id="L35">                ps.setInt(7, Integer.parseInt(printDetailsObject.getId().getTaxYear()));</span>
+<span class="nc" id="L36">                ps.setString(8, printDetailsObject.getId().getPrintFileName());</span>
+<span class="nc" id="L37">                ps.setString(9, printDetailsObject.getUpdatedBy());</span>
+<span class="nc" id="L38">                ps.setTimestamp(10, createSQLDate());</span>
+<span class="nc" id="L39">                ps.setString(11, printDetailsObject.getOriginalFormStatus());</span>
+<span class="nc" id="L40">                ps.setInt(12, printDetailsObject.getCorrectionIndicator());</span>
+
+<span class="nc" id="L42">            }</span>
+
+            @Override
+            public int getBatchSize() {
+<span class="nc" id="L46">                return printDetailList.size();</span>
+            }
+        });
+<span class="nc" id="L49">    }</span>
+
+    private Timestamp createSQLDate() {
+<span class="nc" id="L52">        final Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L53">        final java.sql.Timestamp timestamp = new Timestamp(cal.getTimeInMillis());</span>
+<span class="nc" id="L54">        return timestamp;</span>
+    }
+
+    public Long getFilerDemographicrecordCount(String state, String year) {
+<span class="nc" id="L58">        final StringBuilder queryBuilder = new StringBuilder(&quot;select count(*) from FILER_DEMOGRAPHICS where FILER_DEMOGRAPHICS.TAX_YEAR = &quot;);</span>
+<span class="nc" id="L59">        queryBuilder</span>
+<span class="nc" id="L60">                .append(year)</span>
+<span class="nc" id="L61">                .append(&quot; and FILER_DEMOGRAPHICS.SOURCE_CD like '&quot;)</span>
+<span class="nc" id="L62">                .append(state)</span>
+<span class="nc" id="L63">                .append(&quot;%'  and FILER_DEMOGRAPHICS.FILER_STATUS IN ('N','R') and (FILER_DEMOGRAPHICS.FORM_STATUS IS NULL) and FILER_DEMOGRAPHICS.STATUS='ACTIVE'&quot;);</span>
+
+<span class="nc" id="L65">        return super.getJdbcTemplate().queryForObject(queryBuilder.toString(), Long.class);</span>
+    }
+
+    public Long getFilerDemographicrecordCount(String state, String year, String mailStatus, String frequency) {
+<span class="nc" id="L69">        final StringBuilder queryBuilder = new StringBuilder(&quot;select count(*) from FILER_DEMOGRAPHICS where FILER_DEMOGRAPHICS.TAX_YEAR = &quot;);</span>
+<span class="nc" id="L70">        queryBuilder.append(year).append(&quot; and FILER_DEMOGRAPHICS.MAILED_FORM = '&quot;).append(mailStatus).append(&quot;' and FILER_DEMOGRAPHICS.SOURCE_CD like '&quot;)</span>
+<span class="nc" id="L71">                .append(state).append(&quot;%'  and FILER_DEMOGRAPHICS.FILER_STATUS In ('N','R') and FILER_DEMOGRAPHICS.STATUS='ACTIVE'&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (&quot;D&quot;.equalsIgnoreCase(frequency)) {</span>
+<span class="nc" id="L73">            queryBuilder.append(&quot; and (FILER_DEMOGRAPHICS.FORM_STATUS IS NULL OR FILER_DEMOGRAPHICS.FORM_STATUS='REGENERATE' )&quot;);</span>
+        } else {
+<span class="nc" id="L75">            queryBuilder.append(&quot; and (FILER_DEMOGRAPHICS.FORM_STATUS IS NULL)&quot;);</span>
+        }
+<span class="nc" id="L77">        return super.getJdbcTemplate().queryForObject(queryBuilder.toString(), Long.class);</span>
+    }
+
+    public int[] updateFilerDemographicStatus(final List&lt;FilerDemographic&gt; filerDemographicList) {
+<span class="nc" id="L81">        final String sql = &quot;UPDATE FILER_DEMOGRAPHICS SET FORM_STATUS = ?, UPDATED_DATE=? WHERE SOURCE_UNIQUE_ID = ? AND SOURCE_CD = ? AND TAX_YEAR = ? AND FILER_STATUS='R'&quot;;</span>
+        
+<span class="nc" id="L83">        PrintVendorUpdateBatchSetter setter = new PrintVendorUpdateBatchSetter(filerDemographicList);</span>
+<span class="nc" id="L84">        int[] recordsUpdated = super.getJdbcTemplate().batchUpdate(sql, setter);</span>
+<span class="nc" id="L85">        return recordsUpdated;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

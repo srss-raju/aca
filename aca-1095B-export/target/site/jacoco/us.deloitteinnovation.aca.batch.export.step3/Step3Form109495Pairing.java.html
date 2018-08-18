@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3Form109495Pairing.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step3</a> &gt; <span class="el_source">Step3Form109495Pairing.java</span></div><h1>Step3Form109495Pairing.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step3;
+
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Encapsulation of a single Form 1094 and multiple corresponding Form 1095s.  There may be more 1095s in this object
+ * than can be successfully rendered as XML in a single 100MB file.
+ */
+public class Step3Form109495Pairing {
+
+    Step2Form1094Dto step2Form1094bDto ;
+
+    public List&lt;Step1Form1095Dto&gt; step1Form1095bDtoList ;
+
+<span class="nc" id="L19">    public Step3Form109495Pairing() {</span>
+        // Intentionally blank
+<span class="nc" id="L21">    }</span>
+
+<span class="fc" id="L23">    public Step3Form109495Pairing(Step2Form1094Dto form1094bDto) {</span>
+<span class="fc" id="L24">        this.step2Form1094bDto = form1094bDto ;</span>
+<span class="fc" id="L25">        step1Form1095bDtoList = new ArrayList&lt;&gt;() ;</span>
+<span class="fc" id="L26">    }</span>
+
+    public Step2Form1094Dto getStep2Form1094bDto() {
+<span class="fc" id="L29">        return step2Form1094bDto;</span>
+    }
+
+    public void setStep2Form1094bDto(Step2Form1094Dto step2Form1094bDto) {
+<span class="nc" id="L33">        this.step2Form1094bDto = step2Form1094bDto;</span>
+<span class="nc" id="L34">    }</span>
+
+    public List&lt;Step1Form1095Dto&gt; getStep1Form1095bDtoList() {
+<span class="fc" id="L37">        return step1Form1095bDtoList;</span>
+    }
+
+    public void setStep1Form1095bDtoList(List&lt;Step1Form1095Dto&gt; step1Form1095bDtoList) {
+<span class="nc" id="L41">        this.step1Form1095bDtoList = step1Form1095bDtoList;</span>
+<span class="nc" id="L42">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

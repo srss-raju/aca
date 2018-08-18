@@ -1,0 +1,43 @@
+<div class="scroll-container">
+  <div class="margin-indent-container view-current-form" role="main" ng-switch on="dataLoad">
+    <div class="row" ng-switch-when="true">
+      <!-- Success and Failure banner for Send Mail-->
+      <div class="row">
+        <div class="col-md-12 no-padding row-padding-bottom10">
+          <div class="margin-top-5px" success-banner show-flag="sendMailSuccess" success-message="sendMailMsg.successLabel"></div>
+          <div class="margin-top-5px" failure-banner show-flag="sendMailFail" error-message="sendMailMsg.errorLabel"></div>
+        </div>
+      </div>
+
+      <!-- Screen title-->
+      <div class="row row-margin" tabindex="1" aria-label="{{ariaLabel.title}}">
+        <div class="col-md-4 no-padding screen-title" tabindex="1">
+          <span class="screen-title-action">{{label.titleAction}}</span>
+          <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+        </div>
+        <div class="col-md-8 text-right">
+          <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+        </div>
+      </div>
+
+      <div class="row-margin row margin-left-25px">
+        <customer-data tabindex="2" iconstatus="iconstatus" mail="sendByMailConfirm()" filerinfo="currentFormView.filerInfo" currentform="currentFormView.currentForm" label="labelCustomer"></customer-data>
+      </div>
+
+      <!-- PDF Iframe -->
+      <div class="row row-margin" ng-switch on="pdfLoad">
+        <div id="frame-wrap overflow-auto" ng-switch-when="true">
+          <div data-display-file="fileObject" data-file-created="filePDF"></div>
+        </div>
+        <div class="col-md-12 text-center" ng-switch-when="false">
+          <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-md-12 text-center" ng-switch-when="false">
+      <i class="fa fa-spinner fa-5x fa-pulse color-spinner"></i>
+    </div>
+
+  </div>
+</div>

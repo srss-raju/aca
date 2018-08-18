@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorDetailsDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dto</a> &gt; <span class="el_source">ErrorDetailsDTO.java</span></div><h1>ErrorDetailsDTO.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by tthakore on 4/1/2016.
+ */
+<span class="fc" id="L9">public class ErrorDetailsDTO {</span>
+
+<span class="fc" id="L11">    List&lt;TransmitterErrorDetailGrpDTO&gt; transmitterErrorDetailGrps = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L12">    List&lt;TransmitterErrorDetailGrpDTO&gt; acceptedRecord = new ArrayList&lt;&gt;();</span>
+    String transmissionID;
+    String receiptID;
+    private String submissionLvlStatusCd;
+
+
+    public String getReceiptID() {
+<span class="nc" id="L19">        return receiptID;</span>
+    }
+
+    public void setReceiptID(String receiptID) {
+<span class="fc" id="L23">        this.receiptID = receiptID;</span>
+<span class="fc" id="L24">    }</span>
+
+    public String getTransmissionID() {
+<span class="fc" id="L27">        return transmissionID;</span>
+    }
+
+    public void setTransmissionID(String transmissionID) {
+<span class="fc" id="L31">        this.transmissionID = transmissionID;</span>
+<span class="fc" id="L32">    }</span>
+
+    public List&lt;TransmitterErrorDetailGrpDTO&gt; getTransmitterErrorDetailGrps() {
+<span class="fc" id="L35">        return transmitterErrorDetailGrps;</span>
+    }
+
+    public void setTransmitterErrorDetailGrps(List&lt;TransmitterErrorDetailGrpDTO&gt; transmitterErrorDetailGrps) {
+<span class="fc" id="L39">        this.transmitterErrorDetailGrps = transmitterErrorDetailGrps;</span>
+<span class="fc" id="L40">    }</span>
+
+
+    public List&lt;TransmitterErrorDetailGrpDTO&gt; getAcceptedRecord() {
+<span class="nc" id="L44">        return acceptedRecord;</span>
+    }
+
+    public void setAcceptedRecord(List&lt;TransmitterErrorDetailGrpDTO&gt; acceptedRecord) {
+<span class="nc" id="L48">        this.acceptedRecord = acceptedRecord;</span>
+<span class="nc" id="L49">    }</span>
+
+    public String getSubmissionLvlStatusCd() {
+<span class="nc" id="L52">        return submissionLvlStatusCd;</span>
+    }
+
+    public void setSubmissionLvlStatusCd(String submissionLvlStatusCd) {
+<span class="fc" id="L56">        this.submissionLvlStatusCd = submissionLvlStatusCd;</span>
+<span class="fc" id="L57">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

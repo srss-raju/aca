@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Filer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">Filer.java</span></div><h1>Filer.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import java.io.ByteArrayOutputStream;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.TreeMap;
+
+<span class="nc" id="L9">public class Filer {</span>
+	private int id;
+	private long sourceUniqueId;
+	private String sourceCd;
+<span class="nc" id="L13">	private String correction=&quot;&quot;;</span>
+	private String recipientName;
+	private String recipientFirstName;
+	private String recipientLastName;
+	private String recipientMiddleName;
+	private String recipientSuffix;
+	private String recipientSSN;
+	private String recipientTIN;
+	// TODO Why store this as a string when it is a java.sql.Date in the database?  Also converted two different ways.  see getDOBDateFormat
+	private String recipientDOB;
+	private String recipientAddLine1;
+	private String recipientAddLine2;
+	private String recipientCity;
+	private String recipientState;
+	private String recipientZip;
+	private String recipientZip4;
+	private String taxYear;
+	private String policyOrigin;
+	private String providerName;
+	private String providerEIN;
+	private String providerAddLine1;
+	private String providerAddLine2;
+	private String providerCity;
+	private String providerState;
+	private String providerZip;
+	private String providerCountry;
+	private Long providerContactNo;
+	private String employerName;
+	private String employerEIN;
+	private String employerAddressLine1;
+	private String employerAddressLine2;
+	private String employerCity;
+	private String employerState;
+	private String employerZIP;
+	private String responsiblePersonUniqueId;
+	/** Sequence number assigned to this Filer.  TODO Should this be incremented on each edit? */
+	private Long filerDemoSeq ;
+	private String jan;
+	private String feb;
+	private String mar;
+	private String apr;
+	private String may;
+	private String jun;
+	private String jul;
+	private String aug;
+	private String sep;
+	private String oct;
+	private String nov;
+	private String dec;
+<span class="nc" id="L62">	private TreeMap&lt;String, CoveredPerson&gt; coveredpersons = null;</span>
+	private int coveredPersonSize;
+	private String filerStatus;
+<span class="nc" id="L65">	private boolean isExceptionFound = false;</span>
+	private String maskedSSN;
+    private ByteArrayOutputStream byteArrayOutputStream;
+<span class="nc" id="L68">	private String formStatus = null;</span>
+	private String updatedBy;
+	private Date updatedDate;
+	private String printStatus;
+	private String shopIdentifier;
+<span class="nc" id="L73">	private String irsTransmittalStatus=null;</span>
+	private int correctionIndicator;
+
+	public long getSourceUniqueId() {
+<span class="nc" id="L77">		return sourceUniqueId;</span>
+	}
+	public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L80">		this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L81">	}</span>
+	public String getCorrection() {
+<span class="nc" id="L83">		return correction;</span>
+	}
+	public void setCorrection(String correction) {
+<span class="nc" id="L86">		this.correction = correction;</span>
+<span class="nc" id="L87">	}</span>
+	public String getRecipientName() {
+<span class="nc" id="L89">		return recipientName;</span>
+	}
+	public void setRecipientName(String recipientName) {
+<span class="nc" id="L92">		this.recipientName = recipientName;</span>
+<span class="nc" id="L93">	}</span>
+	public String getRecipientSSN() {
+<span class="nc" id="L95">		return recipientSSN;</span>
+	}
+	public void setRecipientSSN(String recipientSSN) {
+<span class="nc" id="L98">		this.recipientSSN = recipientSSN;</span>
+<span class="nc" id="L99">	}</span>
+	public String getRecipientDOB() {
+<span class="nc" id="L101">		return getDOBDateFormat(recipientDOB) ;</span>
+	}
+	public void setRecipientDOB(String recipientDOB) {
+<span class="nc" id="L104">		this.recipientDOB = recipientDOB;</span>
+<span class="nc" id="L105">	}</span>
+	public String getRecipientAddLine1() {
+<span class="nc" id="L107">		return recipientAddLine1;</span>
+	}
+	public void setRecipientAddLine1(String recipientAddLine1) {
+<span class="nc" id="L110">		this.recipientAddLine1 = recipientAddLine1;</span>
+<span class="nc" id="L111">	}</span>
+<span class="nc" id="L112">	public String getRecipientAddLine2() {	return recipientAddLine2;	}</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">	public void setRecipientAddLine2(String recipientAddLine2) {this.recipientAddLine2 = (recipientAddLine2 != null)?recipientAddLine2:&quot;&quot;;	}</span>
+	public String getRecipientCity() {
+<span class="nc" id="L115">		return recipientCity;</span>
+	}
+	public void setRecipientCity(String recipientCity) {
+<span class="nc" id="L118">		this.recipientCity = recipientCity;</span>
+<span class="nc" id="L119">	}</span>
+	public String getRecipientState() {
+<span class="nc" id="L121">		return recipientState;</span>
+	}
+	public void setRecipientState(String recipientState) {
+<span class="nc" id="L124">		this.recipientState = recipientState;</span>
+<span class="nc" id="L125">	}</span>
+	public String getRecipientZip() {
+<span class="nc" id="L127">		return recipientZip;</span>
+	}
+	public void setRecipientZip(String recipientZip) {
+<span class="nc" id="L130">		this.recipientZip = recipientZip;</span>
+<span class="nc" id="L131">	}</span>
+	public String getPolicyOrigin() {
+<span class="nc" id="L133">		return policyOrigin;</span>
+	}
+	public void setPolicyOrigin(String policyOrigin) {
+<span class="nc" id="L136">		this.policyOrigin = policyOrigin;</span>
+<span class="nc" id="L137">	}</span>
+	public String getProviderName() {
+<span class="nc" id="L139">		return providerName;</span>
+	}
+	public void setProviderName(String providerName) {
+<span class="nc" id="L142">		this.providerName = providerName;</span>
+<span class="nc" id="L143">	}</span>
+	public String getProviderEIN() {
+<span class="nc" id="L145">		return providerEIN;</span>
+	}
+	public void setProviderEIN(String providerEIN) {
+<span class="nc" id="L148">		this.providerEIN = providerEIN;</span>
+<span class="nc" id="L149">	}</span>
+	public String getProviderAddLine1() {
+<span class="nc" id="L151">		return providerAddLine1;</span>
+	}
+	public void setProviderAddLine1(String providerAddLine1) {
+<span class="nc" id="L154">		this.providerAddLine1 = providerAddLine1;</span>
+<span class="nc" id="L155">	}</span>
+	public String getProviderCity() {
+<span class="nc" id="L157">		return providerCity;</span>
+	}
+	public void setProviderCity(String providerCity) {
+<span class="nc" id="L160">		this.providerCity = providerCity;</span>
+<span class="nc" id="L161">	}</span>
+	public String getProviderState() {
+<span class="nc" id="L163">		return providerState;</span>
+	}
+	public void setProviderState(String providerState) {
+<span class="nc" id="L166">		this.providerState = providerState;</span>
+<span class="nc" id="L167">	}</span>
+	public String getProviderZip() {
+<span class="nc" id="L169">		return providerZip;</span>
+	}
+	public void setProviderZip(String providerZip) {
+<span class="nc" id="L172">		this.providerZip = providerZip;</span>
+<span class="nc" id="L173">	}</span>
+	public String getJan() {
+<span class="nc" id="L175">		return jan;</span>
+	}
+	public void setJan(String jan) {
+<span class="nc" id="L178">		this.jan = jan;</span>
+<span class="nc" id="L179">	}</span>
+	public String getFeb() {
+<span class="nc" id="L181">		return feb;</span>
+	}
+	public void setFeb(String feb) {
+<span class="nc" id="L184">		this.feb = feb;</span>
+<span class="nc" id="L185">	}</span>
+	public String getMar() {
+<span class="nc" id="L187">		return mar;</span>
+	}
+	public void setMar(String mar) {
+<span class="nc" id="L190">		this.mar = mar;</span>
+<span class="nc" id="L191">	}</span>
+	public String getApr() {
+<span class="nc" id="L193">		return apr;</span>
+	}
+	public void setApr(String apr) {
+<span class="nc" id="L196">		this.apr = apr;</span>
+<span class="nc" id="L197">	}</span>
+	public String getMay() {
+<span class="nc" id="L199">		return may;</span>
+	}
+	public void setMay(String may) {
+<span class="nc" id="L202">		this.may = may;</span>
+<span class="nc" id="L203">	}</span>
+	public String getJun() {
+<span class="nc" id="L205">		return jun;</span>
+	}
+	public void setJun(String jun) {
+<span class="nc" id="L208">		this.jun = jun;</span>
+<span class="nc" id="L209">	}</span>
+	public String getJul() {
+<span class="nc" id="L211">		return jul;</span>
+	}
+	public void setJul(String jul) {
+<span class="nc" id="L214">		this.jul = jul;</span>
+<span class="nc" id="L215">	}</span>
+	public String getAug() {
+<span class="nc" id="L217">		return aug;</span>
+	}
+	public void setAug(String aug) {
+<span class="nc" id="L220">		this.aug = aug;</span>
+<span class="nc" id="L221">	}</span>
+	public String getSep() {
+<span class="nc" id="L223">		return sep;</span>
+	}
+	public void setSep(String sep) {
+<span class="nc" id="L226">		this.sep = sep;</span>
+<span class="nc" id="L227">	}</span>
+	public String getOct() {
+<span class="nc" id="L229">		return oct;</span>
+	}
+	public void setOct(String oct) {
+<span class="nc" id="L232">		this.oct = oct;</span>
+<span class="nc" id="L233">	}</span>
+	public String getNov() {
+<span class="nc" id="L235">		return nov;</span>
+	}
+	public void setNov(String nov) {
+<span class="nc" id="L238">		this.nov = nov;</span>
+<span class="nc" id="L239">	}</span>
+	public String getDec() {
+<span class="nc" id="L241">		return dec;</span>
+	}
+	public void setDec(String dec) {
+<span class="nc" id="L244">		this.dec = dec;</span>
+<span class="nc" id="L245">	}</span>
+	public int getId() {
+<span class="nc" id="L247">		return id;</span>
+	}
+	public void setId(int id) {
+<span class="nc" id="L250">		this.id = id;</span>
+<span class="nc" id="L251">	}</span>
+	public String getSourceCd() {
+<span class="nc" id="L253">		return sourceCd;</span>
+	}
+	public void setSourceCd(String sourceCd) {
+<span class="nc" id="L256">		this.sourceCd = sourceCd;</span>
+<span class="nc" id="L257">	}</span>
+
+	public TreeMap&lt;String, CoveredPerson&gt; getCoveredpersons() {
+<span class="nc" id="L260">		return coveredpersons;</span>
+	}
+	public void setCoveredpersons(TreeMap&lt;String, CoveredPerson&gt; coveredpersons) {
+<span class="nc" id="L263">		this.coveredpersons = coveredpersons;</span>
+<span class="nc" id="L264">	}</span>
+	public int getCoveredPersonSize() {
+<span class="nc" id="L266">		return coveredPersonSize;</span>
+	}
+	public void setCoveredPersonSize(int coveredPersonSize) {
+<span class="nc" id="L269">		this.coveredPersonSize = coveredPersonSize;</span>
+<span class="nc" id="L270">	}</span>
+
+<span class="nc" id="L272">	public String getRecipientMergedAddress(){return this.recipientCity+&quot; &quot;+this.recipientState+&quot; &quot;+this.recipientZip;}</span>
+
+	public String getFilerStatus() {
+<span class="nc" id="L275">		return filerStatus;</span>
+	}
+
+	public void setFilerStatus(String filerStatus) {
+<span class="nc" id="L279">		this.filerStatus = filerStatus;</span>
+<span class="nc" id="L280">	}</span>
+	public boolean isExceptionFound() {
+<span class="nc" id="L282">		return isExceptionFound;</span>
+	}
+
+	public void setIsExceptionFound(boolean isExceptionFound) {
+<span class="nc" id="L286">		this.isExceptionFound = isExceptionFound;</span>
+<span class="nc" id="L287">	}</span>
+	public String getMaskedSSN() {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">		return (recipientSSN != null)?recipientSSN.replaceAll (&quot;^[0-9]{5}&quot;, &quot;xxx-xx-&quot;):&quot;&quot;;</span>
+	}
+
+	public void setMaskedSSN(String maskedSSN) {
+<span class="nc" id="L293">		this.maskedSSN = maskedSSN;</span>
+<span class="nc" id="L294">	}</span>
+	public Long getProviderContactNo() {
+<span class="nc" id="L296">		return providerContactNo;</span>
+	}
+
+	public void setProviderContactNo(Long providerContactNo) {
+<span class="nc" id="L300">		this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L301">	}</span>
+	public String getEmployerName() {
+<span class="nc" id="L303">		return employerName;</span>
+	}
+
+	public void setEmployerName(String employerName) {
+<span class="nc" id="L307">		this.employerName = employerName;</span>
+<span class="nc" id="L308">	}</span>
+
+	public String getEmployerEIN() {
+<span class="nc" id="L311">		return employerEIN;</span>
+	}
+
+	public void setEmployerEIN(String employerEIN) {
+<span class="nc" id="L315">		this.employerEIN = employerEIN;</span>
+<span class="nc" id="L316">	}</span>
+
+	public String getEmployerAddressLine1() {
+<span class="nc" id="L319">		return employerAddressLine1;</span>
+	}
+
+	public void setEmployerAddressLine1(String employerAddressLine1) {
+<span class="nc" id="L323">		this.employerAddressLine1 = employerAddressLine1;</span>
+<span class="nc" id="L324">	}</span>
+
+	public String getEmployerAddressLine2() {
+<span class="nc" id="L327">		return employerAddressLine2;</span>
+	}
+
+	public void setEmployerAddressLine2(String employerAddressLine2) {
+<span class="nc bnc" id="L331" title="All 2 branches missed.">		this.employerAddressLine2 = (employerAddressLine2 != null)?employerAddressLine2:&quot;&quot;;</span>
+<span class="nc" id="L332">	}</span>
+
+	public String getEmployerCity() {
+<span class="nc" id="L335">		return employerCity;</span>
+	}
+
+	public void setEmployerCity(String employerCity) {
+<span class="nc" id="L339">		this.employerCity = employerCity;</span>
+<span class="nc" id="L340">	}</span>
+
+	public String getEmployerState() {
+<span class="nc" id="L343">		return employerState;</span>
+	}
+
+	public void setEmployerState(String employerState) {
+<span class="nc" id="L347">		this.employerState = employerState;</span>
+<span class="nc" id="L348">	}</span>
+
+	public String getEmployerZIP() {
+<span class="nc" id="L351">		return employerZIP;</span>
+	}
+
+	public void setEmployerZIP(String employerZIP) {
+<span class="nc" id="L355">		this.employerZIP = employerZIP;</span>
+<span class="nc" id="L356">	}</span>
+	public String getProviderAddLine2() {
+<span class="nc" id="L358">		return providerAddLine2;</span>
+	}
+
+	public void setProviderAddLine2(String providerAddLine2) {
+<span class="nc bnc" id="L362" title="All 2 branches missed.">		this.providerAddLine2 = (providerAddLine2 != null)?providerAddLine2:&quot;&quot;;</span>
+<span class="nc" id="L363">	}</span>
+
+	public ByteArrayOutputStream getByteArrayOutputStream() {
+<span class="nc" id="L366">		return byteArrayOutputStream;</span>
+	}
+
+	public void setByteArrayOutputStream(ByteArrayOutputStream byteArrayOutputStream) {
+<span class="nc" id="L370">		this.byteArrayOutputStream = byteArrayOutputStream;</span>
+<span class="nc" id="L371">	}</span>
+
+	public String getFormStatus() {
+<span class="nc" id="L374">		return formStatus;</span>
+	}
+
+	public void setFormStatus(String formStatus) {
+<span class="nc" id="L378">		this.formStatus = formStatus;</span>
+<span class="nc" id="L379">	}</span>
+	public String getUpdatedBy() {
+<span class="nc" id="L381">		return updatedBy;</span>
+	}
+	public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L384">		this.updatedBy = updatedBy;</span>
+<span class="nc" id="L385">	}</span>
+
+	public Date getUpdatedDate() {
+<span class="nc" id="L388">		return updatedDate;</span>
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+<span class="nc" id="L392">		this.updatedDate = updatedDate;</span>
+<span class="nc" id="L393">	}</span>
+
+	public String getPrintStatus() {
+<span class="nc" id="L396">		return printStatus;</span>
+	}
+
+	public void setPrintStatus(String printStatus) {
+<span class="nc" id="L400">		this.printStatus = printStatus;</span>
+<span class="nc" id="L401">	}</span>
+
+	// TODO What is this method?  What does it do any why? Should it throw an exception or not?
+
+	public String getDOBDateFormat(String date)
+	{
+<span class="nc" id="L407">		SimpleDateFormat formatterOld = new SimpleDateFormat(&quot;yyyy-mm-dd&quot;);</span>
+<span class="nc" id="L408">		SimpleDateFormat formatterNew = new SimpleDateFormat(&quot;mm/dd/yyyy&quot;);</span>
+<span class="nc" id="L409">		String formattedDate = &quot;&quot;;</span>
+		try {
+
+<span class="nc" id="L412">			formattedDate = formatterNew.format(formatterOld.parse(date));</span>
+		}
+<span class="nc" id="L414">		catch (ParseException e) {</span>
+			//throw new RuntimeException(&quot;Attempt to parse date '&quot; + date + &quot;'&quot;, e) ;
+<span class="nc" id="L416">		}</span>
+<span class="nc" id="L417">		return formattedDate;</span>
+	}
+	public String getRecipientFirstName() {
+<span class="nc" id="L420">		return recipientFirstName;</span>
+	}
+
+	public void setRecipientFirstName(String recipientFirstName) {
+<span class="nc" id="L424">		this.recipientFirstName = recipientFirstName;</span>
+<span class="nc" id="L425">	}</span>
+
+	public String getRecipientLastName() {
+<span class="nc" id="L428">		return recipientLastName;</span>
+	}
+
+	public void setRecipientLastName(String recipientLastName) {
+<span class="nc" id="L432">		this.recipientLastName = recipientLastName;</span>
+<span class="nc" id="L433">	}</span>
+
+	public String getRecipientMiddleName() {
+<span class="nc" id="L436">		return recipientMiddleName;</span>
+	}
+
+	public void setRecipientMiddleName(String recipientMiddleName) {
+<span class="nc" id="L440">		this.recipientMiddleName = recipientMiddleName;</span>
+<span class="nc" id="L441">	}</span>
+
+	public String getRecipientSuffix() {
+<span class="nc" id="L444">		return recipientSuffix;</span>
+	}
+
+	public void setRecipientSuffix(String recipientSuffix) {
+<span class="nc" id="L448">		this.recipientSuffix = recipientSuffix;</span>
+<span class="nc" id="L449">	}</span>
+
+	public String getRecipientTIN() {
+<span class="nc" id="L452">		return recipientTIN;</span>
+	}
+
+	public void setRecipientTIN(String recipientTIN) {
+<span class="nc" id="L456">		this.recipientTIN = recipientTIN;</span>
+<span class="nc" id="L457">	}</span>
+
+	public String getRecipientZip4() {
+<span class="nc" id="L460">		return recipientZip4;</span>
+	}
+
+	public void setRecipientZip4(String recipientZip4) {
+<span class="nc" id="L464">		this.recipientZip4 = recipientZip4;</span>
+<span class="nc" id="L465">	}</span>
+
+	public String getTaxYear() {
+<span class="nc" id="L468">		return taxYear;</span>
+	}
+
+	public void setTaxYear(String taxYear) {
+<span class="nc" id="L472">		this.taxYear = taxYear;</span>
+<span class="nc" id="L473">	}</span>
+
+	public String getShopIdentifier() {
+<span class="nc" id="L476">		return shopIdentifier;</span>
+	}
+
+	public void setShopIdentifier(String shopIdentifier) {
+<span class="nc" id="L480">		this.shopIdentifier = shopIdentifier;</span>
+<span class="nc" id="L481">	}</span>
+	public String getIrsTransmittalStatus() {
+<span class="nc" id="L483">		return irsTransmittalStatus;</span>
+	}
+
+	public void setIrsTransmittalStatus(String irsTransmittalStatus) {
+<span class="nc" id="L487">		this.irsTransmittalStatus = irsTransmittalStatus;</span>
+<span class="nc" id="L488">	}</span>
+
+	public Long getFilerDemoSeq() {
+<span class="nc" id="L491">		return filerDemoSeq;</span>
+	}
+
+	public void setFilerDemoSeq(Long filerDemoSeq) {
+<span class="nc" id="L495">		this.filerDemoSeq = filerDemoSeq;</span>
+<span class="nc" id="L496">	}</span>
+
+	public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L499">		this.providerCountry = providerCountry;</span>
+<span class="nc" id="L500">	}</span>
+	public String getProviderCountry() {
+<span class="nc" id="L502">		return providerCountry;</span>
+	}
+
+	public void setResponsiblePersonUniqueId(String responsiblePersonUniqueId) {
+<span class="nc" id="L506">		this.responsiblePersonUniqueId = responsiblePersonUniqueId;</span>
+<span class="nc" id="L507">	}</span>
+
+	public String getResponsiblePersonUniqueId() {
+<span class="nc" id="L510">		return responsiblePersonUniqueId;</span>
+	}
+	public int getCorrectionIndicator() {
+<span class="nc" id="L513">		return correctionIndicator;</span>
+	}
+	public void setCorrectionIndicator(int correctionIndicator) {
+<span class="nc" id="L516">		this.correctionIndicator = correctionIndicator;</span>
+<span class="nc" id="L517">	}</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

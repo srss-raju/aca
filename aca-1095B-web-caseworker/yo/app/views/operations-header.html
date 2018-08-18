@@ -1,0 +1,27 @@
+<div class="navbar" role="banner" tabindex="-1">
+  <div class="navbar-container">
+    <div class="pull-left">
+      <div>
+        <img tabindex="-1" ng-src="images/LaborWiseLogo.png"/>
+      </div>
+    </div>
+    <div class="navbar-option pull-right text-right">
+      <span class="action-button" aca-aria-click="vm.openDropdown()">
+        Hi! {{vm.user.firstName}} {{vm.user.lastName}}
+        <span class="action-button" tabindex="9000" aria-label="Click or Press Enter to view more options"  aca-aria-click="vm.openDropdown()">
+          <img class="action-button" src="images/Avatar.png"  aca-aria-click="vm.openDropdown()"/>
+        </span>
+        <span class="action-button margin-left-5px fa fa-caret-down white" style="padding:10px 0 10px 10px" aca-aria-click="vm.openDropdown()">
+        </span>
+      </span>
+      <span class="action-dropdown" data-ng-show="vm.operationsPortal.showDropDown">
+        <span class="dropdown-arrow"></span>
+        <ul>
+          <li ng-hide='hideMyProfile'><span tabindex="9001" class="myProfile focusList" aca-aria-click="vm.myProfileView()" aria-label="Click or Press enter to view profile settings, you can change your password as well as security questions here">My Profile</span></li>
+          <li><span tabindex="9002" class="focusList" aca-aria-click="vm.applicationLogoutConfirm()" aria-label="Click or Press enter to sign out."><i class="fa fa-power-off fa-lg"></i>Sign Out</span>
+          </li>
+        </ul>
+      </span>
+    </div>
+  </div>
+</div>

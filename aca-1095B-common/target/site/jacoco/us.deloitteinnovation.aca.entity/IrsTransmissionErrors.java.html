@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IrsTransmissionErrors.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">IrsTransmissionErrors.java</span></div><h1>IrsTransmissionErrors.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.*;
+import java.util.Date;
+
+/**
+ */
+@Entity
+@Table(name = &quot;IRS_TRANSMISSION_ERRORS&quot;)
+<span class="fc" id="L10">public class IrsTransmissionErrors {</span>
+
+    @Id
+    @Column(name = &quot;TRANSMISSION_ERROR_SEQ&quot;)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = &quot;ERROR_ID&quot;, nullable = false, length = 45)
+    private String  errorId;
+    @Column(name = &quot;ERROR_MSG_CODE&quot;, nullable = false, length = 45)
+    private String  errorMsgCode;
+    @Column(name = &quot;ERROR_MSG_TEXT&quot;, nullable = false, length = 450)
+    private String  errorMsgText;
+    @Column(name = &quot;ERROR_ELEMENT_NAME&quot;, nullable = false, length = 450)
+    private String  errorElementName;
+    @Column(name = &quot;RECEIPT_ID&quot;, nullable = false, length = 45)
+    private String  receiptId;
+    @Column(name = &quot;SUBMISSION_ID&quot;, nullable = false)
+    private Integer submissionId;
+    @Column(name = &quot;RECORD_ID&quot;, nullable = false)
+    private Integer recordId;
+    @Column(name = &quot;TRANSMISSION_ID&quot;, nullable = false)
+    private Integer transmissionId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;UPDATED_DATE&quot;, nullable = false)
+    private Date    updatedDate;
+    @Column(name = &quot;UPDATED_BY&quot;, nullable = false, length = 45)
+    private String  updatedBy;
+
+    public Integer getId() {
+<span class="nc" id="L40">        return id;</span>
+    }
+
+    public void setId(Integer id) {
+<span class="nc" id="L44">        this.id = id;</span>
+<span class="nc" id="L45">    }</span>
+
+    public String getErrorId() {
+<span class="nc" id="L48">        return errorId;</span>
+    }
+
+    public void setErrorId(String errorId) {
+<span class="nc" id="L52">        this.errorId = errorId;</span>
+<span class="nc" id="L53">    }</span>
+
+    public String getErrorMsgCode() {
+<span class="nc" id="L56">        return errorMsgCode;</span>
+    }
+
+    public void setErrorMsgCode(String errorMsgCode) {
+<span class="nc" id="L60">        this.errorMsgCode = errorMsgCode;</span>
+<span class="nc" id="L61">    }</span>
+
+    public String getErrorMsgText() {
+<span class="nc" id="L64">        return errorMsgText;</span>
+    }
+
+    public void setErrorMsgText(String errorMsgText) {
+<span class="nc" id="L68">        this.errorMsgText = errorMsgText;</span>
+<span class="nc" id="L69">    }</span>
+
+    public String getErrorElementName() {
+<span class="nc" id="L72">        return errorElementName;</span>
+    }
+
+    public void setErrorElementName(String errorElementName) {
+<span class="nc" id="L76">        this.errorElementName = errorElementName;</span>
+<span class="nc" id="L77">    }</span>
+
+    public String getReceiptId() {
+<span class="nc" id="L80">        return receiptId;</span>
+    }
+
+    public void setReceiptId(String receiptId) {
+<span class="nc" id="L84">        this.receiptId = receiptId;</span>
+<span class="nc" id="L85">    }</span>
+
+    public Integer getSubmissionId() {
+<span class="nc" id="L88">        return submissionId;</span>
+    }
+
+    public void setSubmissionId(Integer submissionId) {
+<span class="nc" id="L92">        this.submissionId = submissionId;</span>
+<span class="nc" id="L93">    }</span>
+
+    public Integer getRecordId() {
+<span class="nc" id="L96">        return recordId;</span>
+    }
+
+    public void setRecordId(Integer recordId) {
+<span class="nc" id="L100">        this.recordId = recordId;</span>
+<span class="nc" id="L101">    }</span>
+
+    public Integer getTransmissionId() {
+<span class="nc" id="L104">        return transmissionId;</span>
+    }
+
+    public void setTransmissionId(Integer transmissionId) {
+<span class="nc" id="L108">        this.transmissionId = transmissionId;</span>
+<span class="nc" id="L109">    }</span>
+
+    public Date getUpdatedDate() {
+<span class="nc" id="L112">        return updatedDate;</span>
+    }
+
+    public void setUpdatedDate(Date updatedDate) {
+<span class="nc" id="L116">        this.updatedDate = updatedDate;</span>
+<span class="nc" id="L117">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L120">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L124">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L125">    }</span>
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

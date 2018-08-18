@@ -1,0 +1,21 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt,ProcessReceiptBatchJobConfiguration,53,0,0,0,10,0,3,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt,ProcessReceiptConfiguration,104,0,0,0,23,0,15,0,15,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt,ProcessReceiptListener,53,0,2,0,10,0,4,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca,Aca109495ProcessReceiptApplication,11,0,0,0,3,0,2,0,2,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.step,ProcessReceiptReader,60,0,6,0,17,0,7,0,4,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.step,ProcessReceiptProcessor,12,0,0,0,4,0,3,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.step,ProcessReceiptWriter,46,0,4,0,10,0,5,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.repository,PrintDetailsMailRepository.FilerDemographicMapper,35,0,0,0,9,0,2,0,2,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.repository,PrintDetailsMailRepository.new BatchPreparedStatementSetter() {...},86,0,0,0,12,0,3,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.repository,PrintDetailsMailRepository.new BatchPreparedStatementSetter() {...},46,0,0,0,7,0,3,0,3,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.repository,PrintDetailsMailRepository,158,0,4,0,38,0,13,0,11,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.util,ProcessReceiptUtil,455,0,36,0,89,0,28,0,10,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.util,BatchHistoryCleanupTasklet,190,0,0,0,38,0,8,0,8,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.util,ProcessReceiptConstants,9,0,0,0,3,0,2,0,2,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.reader,ConfirmationFileReader.NameFilter,24,0,4,0,4,0,4,0,2,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.reader,ConfirmationFileReader,107,0,4,0,24,0,9,0,7,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.reader,ConfirmationFileProcessor,1313,0,134,0,250,0,94,0,27,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.reader,ConfirmationFileWriter,318,0,26,0,79,0,21,0,8,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.dto,ProcessReceiptDto,24,0,0,0,10,0,7,0,7,0
+ACA 1095B - Process Receipt Module,us.deloitteinnovation.aca.batch.receipt.dto,StepResult,91,0,0,0,35,0,21,0,21,0

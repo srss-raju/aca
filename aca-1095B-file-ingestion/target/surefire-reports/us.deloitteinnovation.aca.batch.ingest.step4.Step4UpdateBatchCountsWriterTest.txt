@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.ingest.step4.Step4UpdateBatchCountsWriterTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.036 sec - in us.deloitteinnovation.aca.batch.ingest.step4.Step4UpdateBatchCountsWriterTest

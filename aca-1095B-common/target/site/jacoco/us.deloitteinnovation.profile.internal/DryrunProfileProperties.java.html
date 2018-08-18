@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DryrunProfileProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.profile.internal</a> &gt; <span class="el_source">DryrunProfileProperties.java</span></div><h1>DryrunProfileProperties.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.profile.internal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.profile.AbstractProfileProperties;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.deloitteinnovation.profile.annotation.Dryrun;
+
+import java.io.IOException;
+
+/**
+ * Created by yaojia on 11/16/2016.
+ */
+
+@Dryrun
+@Component(&quot;profileProperties&quot;)
+public class DryrunProfileProperties extends AbstractProfileProperties implements ProfileProperties {
+<span class="nc" id="L21">    private static final Logger LOGGER = LoggerFactory.getLogger(DryrunProfileProperties.class);</span>
+
+    public DryrunProfileProperties() throws IOException {
+<span class="nc" id="L24">        super(&quot;classpath*:profiles/dryrun/**/*.properties&quot;);</span>
+<span class="nc" id="L25">        LOGGER.info(&quot;DryrunProfileProperties loaded!&quot;);</span>
+<span class="nc" id="L26">    }</span>
+
+    @Configuration
+    @PropertySource({&quot;classpath:profiles/dryrun/config.properties&quot;})
+    static class properties {
+<span class="fc" id="L31">        properties() {}</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

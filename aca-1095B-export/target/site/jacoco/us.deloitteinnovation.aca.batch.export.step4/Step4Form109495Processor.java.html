@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4Form109495Processor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step4</a> &gt; <span class="el_source">Step4Form109495Processor.java</span></div><h1>Step4Form109495Processor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step4;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.batch.export.TransmissionIdStack;
+import us.deloitteinnovation.aca.jaxb.JaxbUtils;
+import us.deloitteinnovation.aca.repository.IrsTransmissionDetailsRepository;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.common.BinaryFormatCodeType;
+import us.gov.treasury.irs.ext.aca.air._7.ACATrnsmtManifestReqDtlType;
+
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.File;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+
+/**
+ * Sanitize each data element, removing special characters as per IRS requirements.
+ */
+<span class="nc" id="L26">public class Step4Form109495Processor implements ItemProcessor&lt;Step4Form109495HeaderAndXmlDto, Step4ManifestData&gt; {</span>
+
+    @Autowired
+    ProfileProperties profileProperties;
+    @Autowired
+    TransmissionIdStack transmissionIdStack;
+    @Autowired
+    IrsTransmissionDetailsRepository irsTransmissionDetailsRepository;
+    StepExecution stepExecution ;
+<span class="nc" id="L35">    private us.gov.treasury.irs.ext.aca.air._7.ObjectFactory air7ObjectFactory = new us.gov.treasury.irs.ext.aca.air._7.ObjectFactory();</span>
+
+    @Override
+    public Step4ManifestData process(Step4Form109495HeaderAndXmlDto dto) throws Exception {
+<span class="nc" id="L39">        validateFile(dto.formDataFile);</span>
+<span class="nc" id="L40">        dto.formDataSize = dto.formDataFile.length();</span>
+<span class="nc" id="L41">        MessageDigest md = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="nc" id="L42">        dto.formDataMd5 = (new HexBinaryAdapter()).marshal(md.digest(FileUtils.readFileToByteArray(dto.formDataFile)));</span>
+
+<span class="nc" id="L44">        String originalReceiptId = ExportUtil.getReceiptId(stepExecution.getJobExecution().getExecutionContext()) ;</span>
+<span class="nc" id="L45">        Step4ManifestData manifestData = new Step4ManifestData();</span>
+<span class="nc" id="L46">        manifestData.acaTrnsmtManifestReqDtlType = createManifestHeader(dto, originalReceiptId, dto.total1094Forms, dto.total1095Forms);</span>
+
+        // TODO Switch to correct TCC in non-test mode
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L50">            manifestData.tcc = dto.getSourceSystem().getTestTcc();</span>
+        else
+<span class="nc" id="L52">            manifestData.tcc = dto.getSourceSystem().getTransmitterControlCode();</span>
+<span class="nc" id="L53">        return manifestData;</span>
+    }
+
+    /**
+     * Ensures that a Form 109495 file was provided to the processor and it exists.
+     *
+     * @param form10945File
+     * @throws IllegalArgumentException If the file object is null, or the file does not exist.
+     */
+    protected void validateFile(File form10945File) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (form10945File == null) {</span>
+<span class="nc" id="L64">            throw new IllegalArgumentException(&quot;Form 109495B file was not provided to Step 4 Processor. A file is required &quot; +</span>
+                    &quot;to calculate checksum and retrieve file size.&quot;);
+        }
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!form10945File.exists()) {</span>
+<span class="nc" id="L69">            throw new IllegalArgumentException(&quot;Form 109495B file not found using path and filename '&quot; + form10945File.getAbsolutePath() + &quot;'.  A file is required &quot; +</span>
+                    &quot;to calculate checksum and retrieve file size.&quot;);
+        }
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * @param dto
+     * @return The DTO information converted into a manifest.
+     */
+    protected ACATrnsmtManifestReqDtlType createManifestHeader(Step4Form109495HeaderAndXmlDto dto, String originalReceiptId, int total1094Forms, int total1095Forms) {
+<span class="nc" id="L79">        ACATrnsmtManifestReqDtlType manifest = air7ObjectFactory.createACATrnsmtManifestReqDtlType();</span>
+<span class="nc" id="L80">        manifest.setPaymentYr(JaxbUtils.createXmlGregorianCalendarNoTimezone(dto.paymentYear));</span>
+
+        // Only set the original receipt if the transmission is a REPLACEMENT
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (BatchExportConstants.isJobReplacement(this.stepExecution)) {</span>
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if(StringUtils.isBlank(originalReceiptId)) {</span>
+
+<span class="nc" id="L87">                Integer currentTransmissionId = transmissionIdStack.peekTransmissionId();</span>
+<span class="nc" id="L88">                String receiptId = irsTransmissionDetailsRepository.getOriginalReceiptIdForTransmissionId(currentTransmissionId);</span>
+<span class="nc" id="L89">                manifest.setOriginalReceiptId(receiptId);</span>
+<span class="nc" id="L90">            }else {</span>
+<span class="nc" id="L91">                manifest.setOriginalReceiptId(originalReceiptId);</span>
+            }
+        }
+
+        // “0” for current filing year, “1” for prior filing year
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        manifest.setPriorYearDataInd(dto.isPriorYearFiling ? &quot;1&quot; : &quot;0&quot;);</span>
+<span class="nc" id="L97">        manifest.setTransmissionTypeCd(dto.transmissionType);</span>
+<span class="nc" id="L98">        manifest.setEIN(dto.sourceSystem.getProviderIdentificationNumber());</span>
+<span class="nc" id="L99">        manifest.setTransmitterNameGrp(dto.transmitterName);</span>
+<span class="nc" id="L100">        manifest.setCompanyInformationGrp(dto.contactCompany);</span>
+<span class="nc" id="L101">        manifest.setVendorInformationGrp(dto.softwareDeveloper);</span>
+        // Determines if this is a test or production manifest.  “T” – AATS “P” – Production
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L104">            manifest.setTestFileCd(&quot;T&quot;);</span>
+        else
+<span class="nc" id="L106">            manifest.setTestFileCd(&quot;P&quot;);</span>
+<span class="nc" id="L107">        manifest.setTotalPayerRecordCnt(BigInteger.valueOf(total1094Forms));</span>
+<span class="nc" id="L108">        manifest.setTotalPayeeRecordCnt(BigInteger.valueOf(total1095Forms));</span>
+<span class="nc" id="L109">        manifest.setSoftwareId(dto.softwareId);</span>
+<span class="nc" id="L110">        manifest.setFormTypeCd(dto.form10945Type.toString());</span>
+<span class="nc" id="L111">        manifest.setBinaryFormatCd(BinaryFormatCodeType.APPLICATION_XML);</span>
+<span class="nc" id="L112">        manifest.setChecksumAugmentationNum(dto.formDataMd5);</span>
+<span class="nc" id="L113">        manifest.setAttachmentByteSizeNum(BigInteger.valueOf(dto.formDataSize));</span>
+<span class="nc" id="L114">        manifest.setDocumentSystemFileNm(dto.formDataFile.getName());</span>
+<span class="nc" id="L115">        return manifest;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L120">        this.stepExecution = stepExecution ;</span>
+<span class="nc" id="L121">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

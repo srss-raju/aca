@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step1Form1095PrintVendorProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step1</a> &gt; <span class="el_source">Step1Form1095PrintVendorProcessor.java</span></div><h1>Step1Form1095PrintVendorProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step1;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.constants.PrintVendorConstants;
+import us.deloitteinnovation.aca.jaxb.ACA1095BDetailBuilder;
+import us.deloitteinnovation.aca.jaxb.JaxbUtils;
+import us.deloitteinnovation.aca.model.CoveredPerson;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.model.SourceSystemConfig;
+import us.gov.treasury.irs.common.TINRequestTypeCodeType;
+import us.gov.treasury.irs.ext.aca.air._7.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static us.deloitteinnovation.aca.batch.export.ExportUtil.sanitize;
+
+/**
+ * Converts Filer Demographics into FORM 1095B AIR7 objects for export to the IRS as XML SOAP message(s).
+ */
+<span class="nc" id="L33">public class Step1Form1095PrintVendorProcessor implements ItemProcessor&lt;Step1Form1095Dto, Step1Form1095Dto&gt; {</span>
+<span class="nc" id="L34">    private static final Logger                                           logger     = LoggerFactory.getLogger(Step1Form1095PrintVendorProcessor.class);</span>
+    /**
+     * For Correction and Replacements, the original receipt id provided by the IRS.
+     */
+<span class="nc" id="L38">    String originalReceiptId = null;</span>
+    StepExecution stepExecution;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+<span class="nc" id="L42">    private ObjectFactory airFactory = new ObjectFactory();</span>
+
+    /**
+     * &lt;p&gt;Since this step has no idea how many Form 1095B elements will be in a document, or in what order,
+     * the recordId field is not set.&lt;/p&gt;
+     *
+     * @param form1095BProcessDto
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Step1Form1095Dto process(Step1Form1095Dto form1095BProcessDto) throws Exception {
+
+<span class="nc" id="L55">        Filer filer = form1095BProcessDto.getFiler();</span>
+
+        /************************************/
+        /** Part 1: Responsible Individual  */
+        /************************************/
+<span class="nc" id="L60">        final ResponsibleIndividualGrpType respInd = airFactory.createResponsibleIndividualGrpType();</span>
+
+        /** 1. Name of responsible individual */
+<span class="nc" id="L63">        final OtherCompletePersonNameType respIndName = airFactory.createOtherCompletePersonNameType();</span>
+<span class="nc" id="L64">        respIndName.setPersonFirstNm(sanitize(filer.getRecipientFirstName()));</span>
+<span class="nc" id="L65">        respIndName.setPersonMiddleNm(sanitize(filer.getRecipientMiddleName()));</span>
+<span class="nc" id="L66">        respIndName.setPersonLastNm(sanitize(filer.getRecipientLastName()));</span>
+<span class="nc" id="L67">        respIndName.setSuffixNm(sanitize(filer.getRecipientSuffix()));</span>
+<span class="nc" id="L68">        respInd.setResponsibleIndividualName(respIndName);</span>
+
+        /** 2 Social security number (SSN) */
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (StringUtils.isNotEmpty(filer.getRecipientSSN())) {</span>
+<span class="nc" id="L72">            respInd.setTINRequestTypeCd(TINRequestTypeCodeType.INDIVIDUAL_TIN);</span>
+<span class="nc" id="L73">            respInd.setSSN(replaceTINSSN(sanitize(filer.getRecipientSSN())));</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        } else if (StringUtils.isNotEmpty(filer.getRecipientTIN())) {</span>
+<span class="nc" id="L75">            respInd.setTINRequestTypeCd(TINRequestTypeCodeType.INDIVIDUAL_TIN);</span>
+<span class="nc" id="L76">            respInd.setSSN(replaceTINSSN(sanitize(filer.getRecipientTIN())));</span>
+        } else {
+            /** 3 Date of birth (If SSN is not available) */
+            // Should we send TIN here instead?
+<span class="nc" id="L80">            SimpleDateFormat formatter = new SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+            try {
+<span class="nc" id="L82">                Date date = formatter.parse(filer.getRecipientDOB());</span>
+<span class="nc" id="L83">                respInd.setBirthDt(JaxbUtils.createXmlGregorianCalendarDate(date));</span>
+<span class="nc" id="L84">            } catch (ParseException e) {</span>
+                // Should this be fatal?  Why in the hell are we storing DOB as a string in DB?  Lukas Bradley
+<span class="nc" id="L86">                logger.info(&quot;Parse exception on Filer DOB {} record source cd {} source id {} is empty.&quot;, filer.getRecipientDOB(),</span>
+<span class="nc" id="L87">                        filer.getSourceCd(), filer.getSourceUniqueId(), e);</span>
+<span class="nc" id="L88">            }</span>
+        }
+
+<span class="nc" id="L91">        final USAddressGrpType respIndAddr = airFactory.createUSAddressGrpType();</span>
+<span class="nc" id="L92">        BusinessAddressGrpType busAdd = new BusinessAddressGrpType();</span>
+<span class="nc" id="L93">        busAdd.setUSAddressGrp(respIndAddr);</span>
+<span class="nc" id="L94">        respInd.setMailingAddressGrp(busAdd);</span>
+        /** 4 Street address (including apartment no.) */
+<span class="nc" id="L96">        respIndAddr.setAddressLine1Txt(sanitize(filer.getRecipientAddLine1()));</span>
+<span class="nc" id="L97">        String line2 = sanitize(filer.getRecipientAddLine2());</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (StringUtils.isNotEmpty(line2))</span>
+<span class="nc" id="L99">            respIndAddr.setAddressLine2Txt(line2);</span>
+
+        /** 5 City or town */
+<span class="nc" id="L102">        respIndAddr.setCityNm(sanitize(filer.getRecipientCity()));</span>
+
+        /** 6 State or province */
+<span class="nc" id="L105">        final String recipientState = filer.getRecipientState();</span>
+        try {
+<span class="nc" id="L107">            final StateType stateType = StateType.fromValue(recipientState);</span>
+<span class="nc" id="L108">            respIndAddr.setUSStateCd(stateType);</span>
+<span class="nc" id="L109">        } catch (final Exception ex) {</span>
+<span class="nc" id="L110">            logger.warn(String.format(</span>
+                    &quot;Invalid recipient state: [%s].  No corresponding StateType found.&quot;,
+                        recipientState));
+<span class="nc" id="L113">            logger.error(ex.getMessage(),ex);</span>
+<span class="nc" id="L114">            return null;    // skip this item</span>
+<span class="nc" id="L115">        }</span>
+
+        /** 7 Country and ZIP or foreign postal code */
+<span class="nc" id="L118">        respIndAddr.setUSZIPCd(sanitize(filer.getRecipientZip()));</span>
+<span class="nc" id="L119">        respIndAddr.setUSZIPExtensionCd(sanitize(filer.getRecipientZip4()));</span>
+
+        /** 8 Enter letter identifying Origin of the Policy (see instructions for codes) */
+<span class="nc" id="L122">        respInd.setPolicyOriginCd(sanitize(filer.getPolicyOrigin()));</span>
+        /** 9 Small Business Health Options Program (SHOP) Marketplace identifier, if applicable */
+<span class="nc" id="L124">        respInd.setSHOPIdentificationNum(sanitize(filer.getShopIdentifier()));</span>
+
+        /*************************************************************/
+        /** Part II: Employer Sponsored Coverage (see instructions) **/
+        /*************************************************************/
+
+        // Employer information not supported
+
+<span class="nc" id="L132">        CorrectedRecordInfoGrpType correctedRecord = null;</span>
+        /** Corrected Record Info Group */
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (BatchExportConstants.isJobCorrections(stepExecution)) {</span>
+<span class="nc" id="L135">            correctedRecord = airFactory.createCorrectedRecordInfoGrpType();</span>
+<span class="nc" id="L136">            correctedRecord.setCorrectedUniqueRecordId(createOriginalRecordId(form1095BProcessDto));</span>
+<span class="nc" id="L137">            correctedRecord.setCorrectedRecordPayeeTIN(sanitize(filer.getRecipientTIN()));</span>
+<span class="nc" id="L138">            OtherCompletePersonNameType correctedRecordPersonName = airFactory.createOtherCompletePersonNameType();</span>
+<span class="nc" id="L139">            correctedRecordPersonName.setPersonFirstNm(sanitize(filer.getRecipientFirstName()));</span>
+<span class="nc" id="L140">            correctedRecordPersonName.setPersonMiddleNm(sanitize(filer.getRecipientMiddleName()));</span>
+<span class="nc" id="L141">            correctedRecordPersonName.setPersonLastNm(sanitize(filer.getRecipientLastName()));</span>
+<span class="nc" id="L142">            correctedRecordPersonName.setSuffixNm(sanitize(filer.getRecipientSuffix()));</span>
+<span class="nc" id="L143">            correctedRecord.setCorrectedRecordPayeeName(correctedRecordPersonName);</span>
+        }
+
+        /** Issuer Info Group */
+<span class="nc" id="L147">        final IssuerInfoGrpType issuerInfo = airFactory.createIssuerInfoGrpType();</span>
+<span class="nc" id="L148">        final BusinessNameType issuerName = airFactory.createBusinessNameType();</span>
+<span class="nc" id="L149">        issuerName.setBusinessNameLine1Txt(sanitize(filer.getProviderName()));</span>
+<span class="nc" id="L150">        issuerInfo.setBusinessName(issuerName);</span>
+<span class="nc" id="L151">        final Long providerContactNo = filer.getProviderContactNo();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        final String contactPhoneNum = providerContactNo != null ? providerContactNo.toString() : &quot;&quot;;</span>
+<span class="nc" id="L153">        issuerInfo.setContactPhoneNum(contactPhoneNum);</span>
+<span class="nc" id="L154">        issuerInfo.setEIN(sanitize(filer.getProviderEIN()));</span>
+<span class="nc" id="L155">        final BusinessAddressGrpType issuerAddrGrp = ExportUtil.getBusinessAddressFromFilerDemographics(filer);</span>
+<span class="nc" id="L156">        line2 = sanitize(filer.getRecipientAddLine2());</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (StringUtils.isNotEmpty(line2))</span>
+<span class="nc" id="L158">            respIndAddr.setAddressLine2Txt(line2);</span>
+<span class="nc" id="L159">        issuerInfo.setMailingAddressGrp(issuerAddrGrp);</span>
+
+<span class="nc" id="L161">        issuerInfo.setTINRequestTypeCd(TINRequestTypeCodeType.BUSINESS_TIN);</span>
+<span class="nc" id="L162">        List&lt;EmployerCoveredIndividualType&gt; employerCoveredIndividualTypes = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L164" title="All 4 branches missed.">        if (filer.getCoveredpersons() != null &amp;&amp; filer.getCoveredpersons().size() &gt; 0) {</span>
+<span class="nc" id="L165">            Iterator&lt;Map.Entry&lt;String, CoveredPerson&gt;&gt; entries = filer.getCoveredpersons().entrySet().iterator();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            while (entries.hasNext()) {</span>
+<span class="nc" id="L167">                Map.Entry entry = (Map.Entry) entries.next();</span>
+<span class="nc" id="L168">                CoveredPerson coveredPerson = (CoveredPerson) entry.getValue();</span>
+<span class="nc" id="L169">                EmployerCoveredIndividualType employerCoveredIndividualType = airFactory.createEmployerCoveredIndividualType();</span>
+<span class="nc" id="L170">                OtherCompletePersonNameType coveredIndividualName = airFactory.createOtherCompletePersonNameType();</span>
+<span class="nc" id="L171">                coveredIndividualName.setPersonFirstNm(sanitize(coveredPerson.getFirstName()));</span>
+<span class="nc" id="L172">                coveredIndividualName.setPersonLastNm(sanitize(coveredPerson.getLastName()));</span>
+<span class="nc" id="L173">                coveredIndividualName.setPersonMiddleNm(sanitize(coveredPerson.getMiddleName()));</span>
+<span class="nc" id="L174">                coveredIndividualName.setSuffixNm(sanitize(coveredPerson.getSuffix()));</span>
+<span class="nc" id="L175">                employerCoveredIndividualType.setCoveredIndividualName(coveredIndividualName);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                if (StringUtils.isNotEmpty(coveredPerson.getSsnPlainText())) {</span>
+<span class="nc" id="L177">                    employerCoveredIndividualType.setSSN(replaceTINSSN(sanitize(coveredPerson.getSsnPlainText())));</span>
+<span class="nc" id="L178">                    employerCoveredIndividualType.setTINRequestTypeCd(TINRequestTypeCodeType.INDIVIDUAL_TIN);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                } else if (StringUtils.isNotEmpty(coveredPerson.getTin())) {</span>
+<span class="nc" id="L180">                    employerCoveredIndividualType.setSSN(replaceTINSSN(sanitize(coveredPerson.getTin())));</span>
+<span class="nc" id="L181">                    employerCoveredIndividualType.setTINRequestTypeCd(TINRequestTypeCodeType.INDIVIDUAL_TIN);</span>
+                } else {
+<span class="nc" id="L183">                    SimpleDateFormat formatter = new SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+                    try {
+<span class="nc" id="L185">                        Date date = formatter.parse(coveredPerson.getDob());</span>
+<span class="nc" id="L186">                        employerCoveredIndividualType.setBirthDt(JaxbUtils.createXmlGregorianCalendarDate(date));</span>
+<span class="nc" id="L187">                    } catch (ParseException e) {</span>
+<span class="nc" id="L188">                        logger.info(e.getMessage());</span>
+<span class="nc" id="L189">                    }</span>
+                }
+<span class="nc" id="L191">                boolean coveredAllMonths = CommonEntityConstants.CHECKED.equalsIgnoreCase(coveredPerson.getAll());</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                if (coveredAllMonths) {</span>
+<span class="nc" id="L193">                    employerCoveredIndividualType.setCoveredIndividualAnnualInd(&quot;1&quot;);</span>
+                } else {
+<span class="nc" id="L195">                    employerCoveredIndividualType.setCoveredIndividualAnnualInd(&quot;0&quot;);</span>
+<span class="nc" id="L196">                    MonthIndGrpType monthIndGrpType = airFactory.createMonthIndGrpType();</span>
+<span class="nc" id="L197">                    monthIndGrpType.setJanuaryInd(coveredPerson.getJan());</span>
+<span class="nc" id="L198">                    monthIndGrpType.setFebruaryInd(coveredPerson.getFeb());</span>
+<span class="nc" id="L199">                    monthIndGrpType.setMarchInd(coveredPerson.getMar());</span>
+<span class="nc" id="L200">                    monthIndGrpType.setAprilInd(coveredPerson.getApr());</span>
+<span class="nc" id="L201">                    monthIndGrpType.setMayInd(coveredPerson.getMay());</span>
+<span class="nc" id="L202">                    monthIndGrpType.setJuneInd(coveredPerson.getJun());</span>
+<span class="nc" id="L203">                    monthIndGrpType.setJulyInd(coveredPerson.getJul());</span>
+<span class="nc" id="L204">                    monthIndGrpType.setAugustInd(coveredPerson.getAug());</span>
+<span class="nc" id="L205">                    monthIndGrpType.setSeptemberInd(coveredPerson.getSep());</span>
+<span class="nc" id="L206">                    monthIndGrpType.setOctoberInd(coveredPerson.getOct());</span>
+<span class="nc" id="L207">                    monthIndGrpType.setNovemberInd(coveredPerson.getNov());</span>
+<span class="nc" id="L208">                    monthIndGrpType.setDecemberInd(coveredPerson.getDec());</span>
+<span class="nc" id="L209">                    employerCoveredIndividualType.setCoveredIndividualMonthlyIndGrp(monthIndGrpType);</span>
+                }
+<span class="nc" id="L211">                employerCoveredIndividualTypes.add(employerCoveredIndividualType);</span>
+<span class="nc" id="L212">            }</span>
+        }
+
+
+<span class="nc" id="L216">        final Form1095BUpstreamDetailType form1095 = new ACA1095BDetailBuilder()</span>
+<span class="nc" id="L217">                .setRecordId(filer.getSourceUniqueId())</span>
+<span class="nc" id="L218">                .setCorrectedRecordInfoGrp(correctedRecord)</span>
+<span class="nc" id="L219">                .setIssuerInfoGrp(issuerInfo)</span>
+                // Line number is always zero
+<span class="nc" id="L221">                .setLineNum(0)</span>
+<span class="nc" id="L222">                .setResponsibleIndividualGrp(respInd)</span>
+<span class="nc" id="L223">                .setTaxYr(Integer.parseInt(filer.getTaxYear()))</span>
+<span class="nc" id="L224">                .setTestScenarioId(null)</span>
+<span class="nc" id="L225">                .addCoveredIndividualGrps(employerCoveredIndividualTypes)</span>
+<span class="nc" id="L226">                .build();</span>
+<span class="nc" id="L227">        form1095.setCorrectedInd(setCorrectedIndValue(filer));</span>
+<span class="nc" id="L228">        form1095BProcessDto.setForm1095BUpstreamDetailType(form1095);</span>
+<span class="nc" id="L229">        return form1095BProcessDto;</span>
+    }
+    
+    private String replaceTINSSN(String tinSSN){
+<span class="nc" id="L233">    	return tinSSN.substring(0, PrintVendorConstants.TINSSNREPLACELENGTH).replace(tinSSN.substring(0, PrintVendorConstants.TINSSNREPLACELENGTH), PrintVendorConstants.TINSSNREPLACESTRING).concat(tinSSN.substring(5, tinSSN.length()));</span>
+    }
+
+
+	private String setCorrectedIndValue(Filer filer) {
+		
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		if (filer.getFormStatus() == null ){</span>
+<span class="nc" id="L240">			return &quot;0&quot;;</span>
+<span class="nc bnc" id="L241" title="All 4 branches missed.">		}else if (filer.getFormStatus() != null &amp;&amp; filer.getIrsTransmittalStatus() == null){</span>
+<span class="nc" id="L242">			return &quot;1&quot;;</span>
+<span class="nc bnc" id="L243" title="All 4 branches missed.">		}else if (filer.getFormStatus() != null &amp;&amp; filer.getIrsTransmittalStatus() != null){</span>
+<span class="nc" id="L244">			return &quot;2&quot;;</span>
+		}
+		
+<span class="nc" id="L247">		return null;</span>
+	}
+
+    /**
+     * @param form1095BProcessDto
+     * @return Combination of the receipt id | submission id | record id.
+     */
+    protected String createOriginalRecordId(Step1Form1095Dto form1095BProcessDto) {
+<span class="nc" id="L255">        StringBuilder b = new StringBuilder(form1095BProcessDto.receiptId);</span>
+<span class="nc" id="L256">        b.append(&quot;|&quot;);</span>
+<span class="nc" id="L257">        b.append(form1095BProcessDto.irsRecordDetails1095BPK.getSubmissionId());</span>
+<span class="nc" id="L258">        b.append(&quot;|&quot;);</span>
+<span class="nc" id="L259">        b.append(form1095BProcessDto.irsRecordDetails1095BPK.getRecordId());</span>
+<span class="nc" id="L260">        return b.toString();</span>
+    }
+
+    public String getOriginalReceiptId() {
+<span class="nc" id="L264">        return originalReceiptId;</span>
+    }
+
+    public void setOriginalReceiptId(String originalReceiptId) {
+<span class="nc" id="L268">        this.originalReceiptId = originalReceiptId;</span>
+<span class="nc" id="L269">    }</span>
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L273">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L274">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

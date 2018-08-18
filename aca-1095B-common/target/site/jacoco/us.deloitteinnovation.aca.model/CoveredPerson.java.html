@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoveredPerson.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.model</a> &gt; <span class="el_source">CoveredPerson.java</span></div><h1>CoveredPerson.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.model;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+/**
+ * All month coverage values will either use CommonEntityConstants.COVERED or CommonEntityConstants.UNCOVERED
+ */
+<span class="nc" id="L9">public class CoveredPerson {</span>
+	private String name;
+	private String firstName;
+	private String lastName;
+	private String middleName;
+	private String suffix;
+	private String ssn;
+	private String tin;
+	private String dob;
+	/** Values of all are either CommonEntityConstants.UNCHECKED or CommonEntityConstants.CHECKED */
+	private String all;
+	private String jan;
+	private String feb;
+	private String mar;
+	private String apr;
+	private String may;
+	private String jun;
+	private String jul;
+	private String aug;
+	private String sep;
+	private String oct;
+	private String nov;
+	private String dec;
+
+	public String getFirstName() {
+<span class="nc" id="L34">		return firstName;</span>
+	}
+
+	public void setFirstName(String firstName) {
+<span class="nc" id="L38">		this.firstName = firstName;</span>
+<span class="nc" id="L39">	}</span>
+
+	public String getLastName() {
+<span class="nc" id="L42">		return lastName;</span>
+	}
+
+	public void setLastName(String lastName) {
+<span class="nc" id="L46">		this.lastName = lastName;</span>
+<span class="nc" id="L47">	}</span>
+
+	public String getMiddleName() {
+<span class="nc" id="L50">		return middleName;</span>
+	}
+
+	public void setMiddleName(String middleName) {
+<span class="nc" id="L54">		this.middleName = middleName;</span>
+<span class="nc" id="L55">	}</span>
+
+	public String getSuffix() {
+<span class="nc" id="L58">		return suffix;</span>
+	}
+
+	public void setSuffix(String suffix) {
+<span class="nc" id="L62">		this.suffix = suffix;</span>
+<span class="nc" id="L63">	}</span>
+
+
+	public String getName() {
+<span class="nc" id="L67">		return name;</span>
+	}
+	public void setName(String name) {
+<span class="nc" id="L70">		this.name = name;</span>
+<span class="nc" id="L71">	}</span>
+
+	/**
+	 * @return The SSN with the first 5 digits masked as 'xxx-xx-'
+     */
+	public String getSsn() {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		return (ssn != null)?ssn.replaceAll (&quot;^[0-9]{5}&quot;, &quot;xxx-xx-&quot;):&quot;&quot;;</span>
+	}
+
+	/** @return The actual SSN, with no masking of the first 5 digits. */
+	public String getSsnPlainText() {
+<span class="nc" id="L82">		return ssn ;</span>
+	}
+
+	public void setSsn(String ssn) {
+<span class="nc" id="L86">		this.ssn = ssn;</span>
+<span class="nc" id="L87">	}</span>
+	public String getDob() {
+
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		return (dob != null)?getDOBDateFormat(dob):&quot;&quot;;</span>
+	}
+	public void setDob(String dob) {
+<span class="nc" id="L93">		this.dob = dob;</span>
+<span class="nc" id="L94">	}</span>
+	public String getAll() {
+<span class="nc" id="L96">		return all;</span>
+	}
+	public void setAll(String all) {
+<span class="nc" id="L99">		this.all = all;</span>
+<span class="nc" id="L100">	}</span>
+	public String getJan() {
+<span class="nc" id="L102">		return jan;</span>
+	}
+	public void setJan(String jan) {
+<span class="nc" id="L105">		this.jan = jan;</span>
+<span class="nc" id="L106">	}</span>
+	public String getFeb() {
+<span class="nc" id="L108">		return feb;</span>
+	}
+	public void setFeb(String feb) {
+<span class="nc" id="L111">		this.feb = feb;</span>
+<span class="nc" id="L112">	}</span>
+	public String getMar() {
+<span class="nc" id="L114">		return mar;</span>
+	}
+	public void setMar(String mar) {
+<span class="nc" id="L117">		this.mar = mar;</span>
+<span class="nc" id="L118">	}</span>
+	public String getApr() {
+<span class="nc" id="L120">		return apr;</span>
+	}
+	public void setApr(String apr) {
+<span class="nc" id="L123">		this.apr = apr;</span>
+<span class="nc" id="L124">	}</span>
+	public String getMay() {
+<span class="nc" id="L126">		return may;</span>
+	}
+	public void setMay(String may) {
+<span class="nc" id="L129">		this.may = may;</span>
+<span class="nc" id="L130">	}</span>
+	public String getJun() {
+<span class="nc" id="L132">		return jun;</span>
+	}
+	public void setJun(String jun) {
+<span class="nc" id="L135">		this.jun = jun;</span>
+<span class="nc" id="L136">	}</span>
+	public String getJul() {
+<span class="nc" id="L138">		return jul;</span>
+	}
+	public void setJul(String jul) {
+<span class="nc" id="L141">		this.jul = jul;</span>
+<span class="nc" id="L142">	}</span>
+	public String getAug() {
+<span class="nc" id="L144">		return aug;</span>
+	}
+	public void setAug(String aug) {
+<span class="nc" id="L147">		this.aug = aug;</span>
+<span class="nc" id="L148">	}</span>
+	public String getSep() {
+<span class="nc" id="L150">		return sep;</span>
+	}
+	public void setSep(String sep) {
+<span class="nc" id="L153">		this.sep = sep;</span>
+<span class="nc" id="L154">	}</span>
+	public String getOct() {
+<span class="nc" id="L156">		return oct;</span>
+	}
+	public void setOct(String oct) {
+<span class="nc" id="L159">		this.oct = oct;</span>
+<span class="nc" id="L160">	}</span>
+	public String getNov() {
+<span class="nc" id="L162">		return nov;</span>
+	}
+	public void setNov(String nov) {
+<span class="nc" id="L165">		this.nov = nov;</span>
+<span class="nc" id="L166">	}</span>
+	public String getDec() {
+<span class="nc" id="L168">		return dec;</span>
+	}
+	public void setDec(String dec) {
+<span class="nc" id="L171">		this.dec = dec;</span>
+<span class="nc" id="L172">	}</span>
+
+	public String getDOBDateFormat(String date)
+	{
+<span class="nc" id="L176">		String formattedDate = &quot;&quot;;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		if(date.contains(&quot;/&quot;))</span>
+		{
+<span class="nc" id="L179">			return date;</span>
+		}
+		else
+		{
+<span class="nc" id="L183">			SimpleDateFormat formatterOld = new SimpleDateFormat(&quot;yyyy-mm-dd&quot;);</span>
+<span class="nc" id="L184">			SimpleDateFormat formatterNew = new SimpleDateFormat(&quot;mm/dd/yyyy&quot;);</span>
+			try {
+
+<span class="nc" id="L187">				formattedDate = formatterNew.format(formatterOld.parse(date));</span>
+			}
+<span class="nc" id="L189">			catch (ParseException e) {</span>
+
+<span class="nc" id="L191">			}</span>
+		}
+
+
+<span class="nc" id="L195">		return formattedDate;</span>
+	}
+
+	public String getTin() {
+<span class="nc" id="L199">		return tin;</span>
+	}
+
+	public void setTin(String tin) {
+<span class="nc" id="L203">		this.tin = tin;</span>
+<span class="nc" id="L204">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

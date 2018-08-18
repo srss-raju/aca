@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportJob1094RepositoryInMemory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export</a> &gt; <span class="el_source">ExportJob1094RepositoryInMemory.java</span></div><h1>ExportJob1094RepositoryInMemory.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export;
+
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by pebradley on 4/5/16.
+ */
+<span class="fc" id="L11">public class ExportJob1094RepositoryInMemory implements ExportJob1094Repository {</span>
+
+    /** Key is EIN, value is the 1094 data. */
+<span class="fc" id="L14">    Map&lt;String, Step2Form1094Dto&gt; form1094Map = new HashMap&lt;&gt;() ;</span>
+
+    @Override
+    public Step2Form1094Dto getForm1094bById(String ein) {
+<span class="fc" id="L18">        return form1094Map.get(ein);</span>
+    }
+
+    @Override
+    public void save(Step2Form1094Dto form1094B) {
+<span class="fc" id="L23">        form1094Map.put(form1094B.getSourceSystemConfig().getProviderIdentificationNumber(), form1094B) ;</span>
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Clears all in-memory data storage maps.  Useful for testing.
+     */
+    protected void clearAll() {
+<span class="nc" id="L30">        form1094Map.clear() ;</span>
+<span class="nc" id="L31">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

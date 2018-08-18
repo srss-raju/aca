@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicPK.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerDemographicPK.java</span></div><h1>FilerDemographicPK.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+
+import org.springframework.util.Assert;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The primary key class for the filer_demographics database table.
+ * 
+ */
+@Embeddable
+public class FilerDemographicPK implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	//@BigIntegerLength(min = 15, max = 15, message = ErrorMessageConstants.RECIPIENT_UNIQUE_ID_LENGTH_LIMIT)
+    @Digits(fraction = 0, integer = 15, message = ErrorMessageConstants.RECIPIENT_UNIQUE_ID_REQ_NUM)
+    @Column(name= CommonEntityConstants.RECIPIENT_UNIQUE_ID)
+	private long sourceUniqueId;
+
+	@Column(name=&quot;SOURCE_CD&quot;)
+	private String sourceCd;
+
+
+	//@IntegerLength(min = 4, max = 4, message = ErrorMessageConstants.TAX_YEAR_LENGTH_LIMIT)
+	@Digits(fraction = 0, integer = 4, message = ErrorMessageConstants.TAX_YEAR_REQ_NUM)
+	@Column(name = CommonEntityConstants.TAX_YEAR)
+	private Integer taxYear;
+
+
+<span class="nc" id="L40">	public FilerDemographicPK() {</span>
+		/* Default COnstructor */
+<span class="nc" id="L42">	}</span>
+
+<span class="nc" id="L44">	public FilerDemographicPK(String formId) {</span>
+<span class="nc" id="L45">		List&lt;String&gt; components = Arrays.asList(formId.split(&quot;_&quot;));</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		Assert.isTrue(components.size() &gt;= 2); // a formID should have at least 2 components</span>
+<span class="nc" id="L47">		this.sourceCd = components.get(0);</span>
+<span class="nc" id="L48">		this.sourceUniqueId = Long.parseLong(components.get(1));</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (components.size() &gt;= 3) {</span>
+<span class="nc" id="L50">			this.taxYear = Integer.parseInt(components.get(2));</span>
+		} else {
+<span class="nc" id="L52">			this.taxYear = 2015;</span>
+		}
+<span class="nc" id="L54">	}</span>
+
+<span class="nc" id="L56">	public FilerDemographicPK(long sourceUniqueId, String sourceCd, int taxYear) {</span>
+<span class="nc" id="L57">		this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L58">		this.sourceCd = sourceCd;</span>
+<span class="nc" id="L59">		this.taxYear = taxYear;</span>
+<span class="nc" id="L60">	}</span>
+
+	public FilerDemographicPK(long sourceUniqueId, String sourceCd) {
+<span class="nc" id="L63">		this(sourceUniqueId, sourceCd, 2015);</span>
+<span class="nc" id="L64">	}</span>
+
+	public Integer getTaxYear() {
+<span class="nc" id="L67">		return taxYear;</span>
+	}
+
+	public void setTaxYear(Integer taxYear) {
+<span class="nc" id="L71">		this.taxYear = taxYear;</span>
+<span class="nc" id="L72">	}</span>
+
+	public long getSourceUniqueId() {
+<span class="nc" id="L75">		return this.sourceUniqueId;</span>
+	}
+	public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L78">		this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L79">	}</span>
+	public String getSourceCd() {
+<span class="nc" id="L81">		return this.sourceCd;</span>
+	}
+	public void setSourceCd(String sourceCd) {
+<span class="nc" id="L84">		this.sourceCd = sourceCd;</span>
+<span class="nc" id="L85">	}</span>
+
+	@Override
+	public boolean equals(Object o) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (this == o) return true;</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L92">		FilerDemographicPK that = (FilerDemographicPK) o;</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		if (sourceUniqueId != that.sourceUniqueId) return false;</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">		return sourceCd != null ? sourceCd.equals(that.sourceCd) : that.sourceCd == null;</span>
+
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L101">		int result = (int) (sourceUniqueId ^ (sourceUniqueId &gt;&gt;&gt; 32));</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		result = 31 * result + (sourceCd != null ? sourceCd.hashCode() : 0);</span>
+<span class="nc" id="L103">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

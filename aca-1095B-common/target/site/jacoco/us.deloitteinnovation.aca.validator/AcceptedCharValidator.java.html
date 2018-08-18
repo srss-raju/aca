@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AcceptedCharValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.validator</a> &gt; <span class="el_source">AcceptedCharValidator.java</span></div><h1>AcceptedCharValidator.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.validator;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by yaojia on 11/18/2016.
+ */
+<span class="nc" id="L11">public class AcceptedCharValidator implements</span>
+        ConstraintValidator&lt;AcceptedChar, Character&gt; {
+
+    private List&lt;Character&gt; valueList;
+
+    @Override
+    public void initialize(AcceptedChar constraintAnnotation) {
+<span class="nc" id="L18">        valueList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        for (char val : constraintAnnotation.acceptValues()) {</span>
+<span class="nc" id="L20">            valueList.add(val);</span>
+        }
+<span class="nc" id="L22">    }</span>
+
+    @Override
+    public boolean isValid(Character character, ConstraintValidatorContext constraintValidatorContext) {
+<span class="nc bnc" id="L26" title="All 6 branches missed.">        if (valueList!=null &amp;&amp; character!=null &amp;&amp; !valueList.contains(character)) {</span>
+<span class="nc" id="L27">            return false;</span>
+        }
+<span class="nc" id="L29">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

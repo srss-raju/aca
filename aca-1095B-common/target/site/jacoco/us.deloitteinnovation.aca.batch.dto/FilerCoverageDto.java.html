@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerCoverageDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dto</a> &gt; <span class="el_source">FilerCoverageDto.java</span></div><h1>FilerCoverageDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dto;
+
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ */
+public class FilerCoverageDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private FilerDemographicPKDto id;
+
+    private String apr;
+
+    private String aug;
+
+    private String comments;
+
+    private String dec;
+
+    private String feb;
+
+    private String jan;
+
+    private String jul;
+
+    private String jun;
+
+    private String mar;
+
+    private String may;
+
+    private String nov;
+
+    private String oct;
+
+
+    private String origCoverageBeginDtStr;
+
+    @NotNull(message = &quot;{original.coverage.begin.date.length.invalid}&quot;)
+    @DateTimeFormat(pattern = BatchConstants.DATE_FORMAT)
+    private Date origCoverageBeginDt;
+
+    private String origCoverageEndDtStr;
+
+    @NotNull(message = &quot;{original.coverage.end.date.length.invalid}&quot;)
+    @DateTimeFormat(pattern = BatchConstants.DATE_FORMAT)
+    private Date origCoverageEndDt;
+
+    private String sep;
+
+    private String updatedBy;
+
+    private String updatedDt;
+
+    @NotBlank(message = &quot;{case.id.field.length.invalid}&quot;)
+    @Pattern.List({
+            @Pattern(regexp = &quot;^.{1,15}$&quot;, message = &quot;{case.id.field.length.invalid}&quot;),
+            @Pattern(regexp = &quot;^[a-zA-Z0-9]+$&quot;, message = &quot;{case.id.content.invalid}&quot;)
+    })
+    private String recipientCaseApplicationId;
+
+    @NotNull(message = &quot;{policy.program.name.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{0,50}$&quot;, message = &quot;{policy.program.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{policy.program.name.spchar.num.error}&quot;)
+            }
+    )
+    private String programName;
+
+    private String taxYear;
+
+    private FilerDemographicDto filerDemographic;
+
+<span class="nc" id="L82">    public FilerCoverageDto() {</span>
+<span class="nc" id="L83">    }</span>
+
+    public FilerDemographicPKDto getId() {
+<span class="nc" id="L86">        return this.id;</span>
+    }
+
+    public void setId(FilerDemographicPKDto id) {
+<span class="nc" id="L90">        this.id = id;</span>
+<span class="nc" id="L91">    }</span>
+
+    public String getApr() {
+<span class="nc" id="L94">        return this.apr;</span>
+    }
+
+    public void setApr(String apr) {
+<span class="nc" id="L98">        this.apr = apr;</span>
+<span class="nc" id="L99">    }</span>
+
+    public String getAug() {
+<span class="nc" id="L102">        return this.aug;</span>
+    }
+
+    public void setAug(String aug) {
+<span class="nc" id="L106">        this.aug = aug;</span>
+<span class="nc" id="L107">    }</span>
+
+    public String getComments() {
+<span class="nc" id="L110">        return this.comments;</span>
+    }
+
+    public void setComments(String comments) {
+<span class="nc" id="L114">        this.comments = comments;</span>
+<span class="nc" id="L115">    }</span>
+
+    public String getDec() {
+<span class="nc" id="L118">        return this.dec;</span>
+    }
+
+    public void setDec(String dece) {
+<span class="nc" id="L122">        this.dec = dece;</span>
+<span class="nc" id="L123">    }</span>
+
+    public String getFeb() {
+<span class="nc" id="L126">        return this.feb;</span>
+    }
+
+    public void setFeb(String feb) {
+<span class="nc" id="L130">        this.feb = feb;</span>
+<span class="nc" id="L131">    }</span>
+
+    public String getJan() {
+<span class="nc" id="L134">        return this.jan;</span>
+    }
+
+    public void setJan(String jan) {
+<span class="nc" id="L138">        this.jan = jan;</span>
+<span class="nc" id="L139">    }</span>
+
+    public String getJul() {
+<span class="nc" id="L142">        return this.jul;</span>
+    }
+
+    public void setJul(String jul) {
+<span class="nc" id="L146">        this.jul = jul;</span>
+<span class="nc" id="L147">    }</span>
+
+    public String getJun() {
+<span class="nc" id="L150">        return this.jun;</span>
+    }
+
+    public void setJun(String jun) {
+<span class="nc" id="L154">        this.jun = jun;</span>
+<span class="nc" id="L155">    }</span>
+
+    public String getMar() {
+<span class="nc" id="L158">        return this.mar;</span>
+    }
+
+    public void setMar(String mar) {
+<span class="nc" id="L162">        this.mar = mar;</span>
+<span class="nc" id="L163">    }</span>
+
+    public String getMay() {
+<span class="nc" id="L166">        return this.may;</span>
+    }
+
+    public void setMay(String may) {
+<span class="nc" id="L170">        this.may = may;</span>
+<span class="nc" id="L171">    }</span>
+
+    public String getNov() {
+<span class="nc" id="L174">        return this.nov;</span>
+    }
+
+    public void setNov(String nov) {
+<span class="nc" id="L178">        this.nov = nov;</span>
+<span class="nc" id="L179">    }</span>
+
+    public String getOct() {
+<span class="nc" id="L182">        return this.oct;</span>
+    }
+
+    public void setOct(String oct) {
+<span class="nc" id="L186">        this.oct = oct;</span>
+<span class="nc" id="L187">    }</span>
+
+    public Date getOrigCoverageBeginDt() {
+<span class="nc" id="L190">        return this.origCoverageBeginDt;</span>
+    }
+
+    public void setOrigCoverageBeginDt(Date origCoverageBeginDt) {
+<span class="nc" id="L194">        this.origCoverageBeginDt = origCoverageBeginDt;</span>
+<span class="nc" id="L195">    }</span>
+
+    public Date getOrigCoverageEndDt() {
+<span class="nc" id="L198">        return this.origCoverageEndDt;</span>
+    }
+
+    public void setOrigCoverageEndDt(Date origCoverageEndDt) {
+<span class="nc" id="L202">        this.origCoverageEndDt = origCoverageEndDt;</span>
+<span class="nc" id="L203">    }</span>
+
+    public String getSep() {
+<span class="nc" id="L206">        return this.sep;</span>
+    }
+
+    public void setSep(String sep) {
+<span class="nc" id="L210">        this.sep = sep;</span>
+<span class="nc" id="L211">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L214">        return this.updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L218">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L219">    }</span>
+
+    public String getUpdatedDt() {
+<span class="nc" id="L222">        return this.updatedDt;</span>
+    }
+
+    public void setUpdatedDt(String updatedDt) {
+<span class="nc" id="L226">        this.updatedDt = updatedDt;</span>
+<span class="nc" id="L227">    }</span>
+
+    public String getOrigCoverageBeginDtStr() {
+<span class="nc" id="L230">        return origCoverageBeginDtStr;</span>
+    }
+
+    public void setOrigCoverageBeginDtStr(String origCoverageBeginDtStr) {
+<span class="nc" id="L234">        this.origCoverageBeginDtStr = origCoverageBeginDtStr;</span>
+<span class="nc" id="L235">    }</span>
+
+    public String getOrigCoverageEndDtStr() {
+<span class="nc" id="L238">        return origCoverageEndDtStr;</span>
+    }
+
+    public void setOrigCoverageEndDtStr(String origCoverageEndDtStr) {
+<span class="nc" id="L242">        this.origCoverageEndDtStr = origCoverageEndDtStr;</span>
+<span class="nc" id="L243">    }</span>
+
+    public FilerDemographicDto getFilerDemographic() {
+<span class="nc" id="L246">        return filerDemographic;</span>
+    }
+
+    public void setFilerDemographic(FilerDemographicDto filerDemographic) {
+<span class="nc" id="L250">        this.filerDemographic = filerDemographic;</span>
+<span class="nc" id="L251">    }</span>
+
+    public String getRecipientCaseApplicationId() {
+<span class="nc" id="L254">        return this.recipientCaseApplicationId;</span>
+    }
+
+    public void setRecipientCaseApplicationId(String recipientCaseApplicationId) {
+<span class="nc" id="L258">        this.recipientCaseApplicationId = recipientCaseApplicationId;</span>
+<span class="nc" id="L259">    }</span>
+
+    public String getProgramName() {
+<span class="nc" id="L262">        return this.programName;</span>
+    }
+
+    public void setProgramName(String programName) {
+<span class="nc" id="L266">        this.programName = programName;</span>
+<span class="nc" id="L267">    }</span>
+
+    public String getTaxYear() {
+<span class="nc" id="L270">        return taxYear;</span>
+    }
+
+    public void setTaxYear(String taxYear) {
+<span class="nc" id="L274">        this.taxYear = taxYear;</span>
+<span class="nc" id="L275">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L279">        return String.format(&quot;FilerCoverageDto=[Primary-Key=[%s], Coverages=[%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s]]&quot;,</span>
+                id, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

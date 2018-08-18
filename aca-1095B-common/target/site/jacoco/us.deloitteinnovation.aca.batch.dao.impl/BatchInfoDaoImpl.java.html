@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchInfoDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dao.impl</a> &gt; <span class="el_source">BatchInfoDaoImpl.java</span></div><h1>BatchInfoDaoImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dao.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.transaction.annotation.Transactional;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.BatchQueryConstants;
+import us.deloitteinnovation.aca.batch.dao.BatchInfoDao;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ */
+@Transactional
+<span class="fc" id="L21">public class BatchInfoDaoImpl extends NamedParameterJdbcDaoSupport implements BatchInfoDao {</span>
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    /**
+     * @param batchInfo
+     * @return
+     */
+    @Override
+    @Transactional
+    public int save(BatchInfoDto batchInfo) {
+<span class="nc" id="L35">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L36">        params.put(CommonEntityConstants.RECEIVE_DATE, batchInfo.getReceiveDt());</span>
+<span class="nc" id="L37">        this.namedParameterJdbcTemplate.update(BatchQueryConstants.INSERT_BATCH_INFO, params);</span>
+<span class="nc" id="L38">        return this.namedParameterJdbcTemplate.queryForObject(&quot;select MAX(BATCH_ID) from BATCH_INFO&quot;, params, Integer.class);</span>
+    }
+
+    /**
+     * @param batchInfo
+     * @return
+     */
+    @Override
+    public int update(BatchInfoDto batchInfo) {
+<span class="nc" id="L47">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">        params.put(BatchConstants.AGENCY_CODE, batchInfo.getAgencyCd());</span>
+<span class="nc" id="L49">        params.put(BatchConstants.STATE_CODE, batchInfo.getStateCd());</span>
+<span class="nc" id="L50">        params.put(BatchConstants.SYSTEM_CODE, batchInfo.getSystemCd());</span>
+<span class="nc" id="L51">        params.put(BatchConstants.FILE_VERSION, batchInfo.getFileVersion());</span>
+<span class="nc" id="L52">        params.put(BatchConstants.BATCH_ID, batchInfo.getBatchId());</span>
+<span class="nc" id="L53">        params.put(BatchConstants.FILE_NAME, batchInfo.getFileName());</span>
+<span class="nc" id="L54">        params.put(BatchConstants.BATCH_TYPE, batchInfo.getBatchType());</span>
+<span class="nc" id="L55">        return this.namedParameterJdbcTemplate.update(BatchQueryConstants.UPDATE_BATCH_INFO_CODES, params);</span>
+    }
+
+    /**
+     * @param batchInfo
+     * @return
+     */
+    @Override
+    public int updateCounts(BatchInfoDto batchInfo) {
+<span class="nc" id="L64">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L65">        params.put(BatchConstants.TOTAL_COUNT, batchInfo.getTotalCount());</span>
+<span class="nc" id="L66">        params.put(BatchConstants.TOTAL_FAIL, batchInfo.getTotalFail());</span>
+<span class="nc" id="L67">        params.put(BatchConstants.TOTAL_PASS, batchInfo.getTotalPass());</span>
+<span class="nc" id="L68">        params.put(BatchConstants.BATCH_ID, batchInfo.getBatchId());</span>
+<span class="nc" id="L69">        return this.namedParameterJdbcTemplate.update(BatchQueryConstants.UPDATE_BATCH_INFO_COUNTS, params);</span>
+
+    }
+
+    @Override
+    public void clearAll() {
+<span class="nc" id="L75">        this.jdbcTemplate.update(BatchQueryConstants.CLEAR_BATCH_INFO);</span>
+<span class="nc" id="L76">    }</span>
+
+    @Override
+    public int getTopBatchId() {
+<span class="nc" id="L80">        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(BatchQueryConstants.GET_TOP_BATCH_ID);</span>
+<span class="nc" id="L81">        Integer batchId = 0;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        while (sqlRowSet.next()) {</span>
+<span class="nc" id="L83">            batchId = sqlRowSet.getInt(&quot;BATCH_ID&quot;);</span>
+        }
+<span class="nc" id="L85">        return batchId;</span>
+    }
+
+    @Override
+    public String getFileNameForBatchId(int batchId) {
+<span class="nc" id="L90">        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(BatchQueryConstants.GET_FILE_NAME_FOR_BATCH_ID + batchId);</span>
+<span class="nc" id="L91">        String fileName = null;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        while (sqlRowSet.next()) {</span>
+<span class="nc" id="L93">            fileName = sqlRowSet.getString(&quot;FILENAME&quot;);</span>
+        }
+<span class="nc" id="L95">        return fileName;</span>
+    }
+    
+    
+    @Override
+    public int updatePrintAndProcess(BatchInfoDto batchInfo) {
+<span class="nc" id="L101">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L102">        params.put(BatchConstants.AGENCY_CODE, batchInfo.getAgencyCd());</span>
+<span class="nc" id="L103">        params.put(BatchConstants.STATE_CODE, batchInfo.getStateCd());</span>
+<span class="nc" id="L104">        params.put(BatchConstants.SYSTEM_CODE, batchInfo.getSystemCd());</span>
+<span class="nc" id="L105">        params.put(BatchConstants.FILE_VERSION, batchInfo.getFileVersion());</span>
+<span class="nc" id="L106">        params.put(BatchConstants.FILE_NAME, batchInfo.getFileName());</span>
+     
+<span class="nc" id="L108">        params.put(BatchConstants.TOTAL_COUNT, batchInfo.getTotalCount());</span>
+<span class="nc" id="L109">        params.put(BatchConstants.TOTAL_FAIL, batchInfo.getTotalFail());</span>
+<span class="nc" id="L110">        params.put(BatchConstants.TOTAL_PASS, batchInfo.getTotalPass());</span>
+<span class="nc" id="L111">        params.put(BatchConstants.REQUISITION_ID, batchInfo.getRequisitionId());</span>
+<span class="nc" id="L112">        params.put(BatchConstants.BATCH_TYPE, batchInfo.getBatchType());</span>
+<span class="nc" id="L113">        params.put(BatchConstants.BATCH_INFO_ID, batchInfo.getBatchId());</span>
+<span class="nc" id="L114">        return this.namedParameterJdbcTemplate.update(BatchQueryConstants.UPDATE_BATCH_INFO_PRINTANDPROCESS_XML, params);</span>
+
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

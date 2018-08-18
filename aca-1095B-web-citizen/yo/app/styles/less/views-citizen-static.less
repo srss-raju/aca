@@ -1,0 +1,55 @@
+
+/** views/citizen-static.html **/
+.static-content-container{
+  background-image: url('../images/landing-page-bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: fixed;
+  min-width: 100%;
+  min-height: 100%;
+  background-color: @dark-blue-bg;
+  overflow: hidden;
+}
+
+.static-content{
+  position: absolute;
+  bottom: @footer-height + 55px;
+  top: 0;
+  right: 0;
+  left: 0;
+  border: 1px solid #FFFFFF;
+  background-color: #FFFFFF;
+  margin: 35px;
+  border-radius: 3px;
+  padding: 0 30px;
+  overflow: hidden;
+  .title {
+    padding-top: 16px;
+    padding-bottom: 12px;
+    text-align: center;
+    font-size: 26px;
+    color: @dark-blue;
+    border-bottom : 2px solid @light-gray;
+  }
+  .bold{
+    font-family: Roboto-Bold, Helvetica, Arial;
+  }
+  .red{
+    color: red !important;
+  }
+  .container-scroll{
+    height: 86%;
+    padding-top:30px;
+  }
+  .static-content-scroll{
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    > div{
+      margin: 0 30px;
+    }
+  }
+  .full-width{
+    width:100%;
+  }
+}

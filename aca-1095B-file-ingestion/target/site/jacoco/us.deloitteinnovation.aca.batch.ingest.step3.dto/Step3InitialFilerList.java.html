@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3InitialFilerList.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.dto</a> &gt; <span class="el_source">Step3InitialFilerList.java</span></div><h1>Step3InitialFilerList.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.dto;
+
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+
+/**
+ * Created by tthakore on 11/4/2016.
+ */
+@Component
+<span class="fc" id="L11">public class Step3InitialFilerList {</span>
+
+
+    public ArrayList&lt;Step3FilerDataDto&gt; getStep3InitialFilerList() {
+<span class="fc" id="L15">        return step3InitialFilerList;</span>
+    }
+
+    public void setStep3InitialFilerList(ArrayList&lt;Step3FilerDataDto&gt; step3InitialFilerList) {
+<span class="nc" id="L19">        this.step3InitialFilerList = step3InitialFilerList;</span>
+<span class="nc" id="L20">    }</span>
+
+<span class="fc" id="L22">    ArrayList&lt;Step3FilerDataDto&gt; step3InitialFilerList = new ArrayList&lt;&gt;();</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintDetailsMailRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Process Receipt Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.receipt.repository</a> &gt; <span class="el_source">PrintDetailsMailRepository.java</span></div><h1>PrintDetailsMailRepository.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.receipt.repository;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import us.deloitteinnovation.aca.entity.FilerDemographic;
+import us.deloitteinnovation.aca.entity.FilerDemographicPK;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+import us.deloitteinnovation.aca.repository.PrintVendorUpdateCOMBatchSetter;
+
+@Transactional
+<span class="nc" id="L24">public class PrintDetailsMailRepository extends JdbcDaoSupport {</span>
+<span class="nc" id="L25">    private static final Logger LOGGER = LoggerFactory.getLogger(PrintDetailsMailRepository.class);</span>
+
+    public int[] updatePrintDetailsStatus(final List&lt;PrintDetail&gt; printDetailList, boolean isCOR) {
+
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (isCOR) {</span>
+<span class="nc" id="L30">        	return updateCORFileStatus(printDetailList);</span>
+        } else {
+<span class="nc" id="L32">        	return updateCOMFileStatus(printDetailList);</span>
+        }
+
+    }
+
+    private Timestamp createSQLDate() {
+<span class="nc" id="L38">        final Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L39">        return new Timestamp(cal.getTimeInMillis());</span>
+    }
+
+    public void updatePrintDetailsForEmptyFiles(List&lt;String&gt; emptyFiles) {
+        try {
+<span class="nc" id="L44">            final String sql = &quot;UPDATE PRINT_DETAILS SET PRINT_STATUS = ?, ACKNOWLEDGE_DATE =? WHERE PRINT_FILE_NAME = ?&quot;;</span>
+<span class="nc" id="L45">            super.getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {</span>
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+<span class="nc" id="L48">                    LOGGER.info(&quot;File name &quot; + emptyFiles.get(i));</span>
+<span class="nc" id="L49">                    ps.setString(1, &quot;RESEND&quot;);</span>
+<span class="nc" id="L50">                    ps.setTimestamp(2, createSQLDate());</span>
+<span class="nc" id="L51">                    ps.setString(3, emptyFiles.get(i));</span>
+<span class="nc" id="L52">                }</span>
+
+                @Override
+                public int getBatchSize() {
+<span class="nc" id="L56">                    return emptyFiles.size();</span>
+                }
+            });
+<span class="nc" id="L59">        } catch (final Exception e) {</span>
+<span class="nc" id="L60">            LOGGER.error(&quot;Error while updating print details for empty files &quot;, e);</span>
+<span class="nc" id="L61">        }</span>
+<span class="nc" id="L62">    }</span>
+
+    public boolean isPrintXMLExists(String xmlFileName) {
+
+        try {
+<span class="nc" id="L67">            final String sql = &quot;SELECT COUNT(*) FROM BATCH_INFO WHERE FILENAME=?&quot;;</span>
+<span class="nc" id="L68">            final int count = super.getJdbcTemplate().queryForObject(sql, new Object[] { xmlFileName }, Integer.class);</span>
+<span class="nc" id="L69">            LOGGER.info(&quot;Total {} records exist with file name {} &quot;, count, xmlFileName);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            return count &gt; 0;</span>
+<span class="nc" id="L71">        } catch (final Exception e) {</span>
+<span class="nc" id="L72">            LOGGER.error(&quot;Error while reading  record count &quot;, e);</span>
+        }
+<span class="nc" id="L74">        return false;</span>
+    }
+
+    public int getTotalRecordsCount(String xmlFileName) {
+
+        try {
+<span class="nc" id="L80">            final String sql = &quot;SELECT TOTAL_COUNT FROM BATCH_INFO WHERE FILENAME=?&quot;;</span>
+<span class="nc" id="L81">            return super.getJdbcTemplate().queryForObject(sql, new Object[] { xmlFileName }, Integer.class);</span>
+<span class="nc" id="L82">        } catch (final Exception e) {</span>
+<span class="nc" id="L83">            LOGGER.error(&quot;Error while reading total count &quot;, e);</span>
+        }
+<span class="nc" id="L85">        return 0;</span>
+    }
+
+    public List&lt;FilerDemographic&gt; getRequiredDetailsFromPrintDetails(final String xmlFileName) {
+<span class="nc" id="L89">        LOGGER.info(&quot;Reading details for the file {} &quot;, xmlFileName);</span>
+<span class="nc" id="L90">        final String sql = &quot;SELECT SOURCE_UNIQUE_ID, SOURCE_CD, TAX_YEAR FROM PRINT_DETAILS WHERE PRINT_FILE_NAME=?&quot;;</span>
+
+<span class="nc" id="L92">        return super.getJdbcTemplate().query(sql, (PreparedStatementSetter) ps -&gt; ps.setString(1, xmlFileName), new FilerDemographicMapper());</span>
+
+    }
+
+<span class="nc" id="L96">    static class FilerDemographicMapper implements RowMapper&lt;FilerDemographic&gt; {</span>
+        @Override
+        public FilerDemographic mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+<span class="nc" id="L100">            final FilerDemographic filerDemographic = new FilerDemographic();</span>
+<span class="nc" id="L101">            final FilerDemographicPK id = new FilerDemographicPK();</span>
+<span class="nc" id="L102">            id.setSourceUniqueId(rs.getLong(1));</span>
+<span class="nc" id="L103">            id.setSourceCd(rs.getString(2));</span>
+<span class="nc" id="L104">            id.setTaxYear(rs.getInt(3));</span>
+<span class="nc" id="L105">            filerDemographic.setId(id);</span>
+<span class="nc" id="L106">            filerDemographic.setStatus(null);</span>
+
+<span class="nc" id="L108">            return filerDemographic;</span>
+        }
+    }
+    
+    private int[] updateCORFileStatus(final List&lt;PrintDetail&gt; printDetailList){
+<span class="nc" id="L113">    	String sql = &quot;UPDATE PRINT_DETAILS SET PRINT_STATUS = ?, ACKNOWLEDGE_DATE =? WHERE SOURCE_UNIQUE_ID = ? AND TAX_YEAR = ? AND SOURCE_CD = ? AND PRINT_FILE_NAME = ?&quot;;</span>
+    	try {
+<span class="nc" id="L115">            super.getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {</span>
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+<span class="nc" id="L118">                    final PrintDetail printDetail = printDetailList.get(i);</span>
+<span class="nc" id="L119">                    ps.setString(1, printDetail.getPrintStatus());</span>
+<span class="nc" id="L120">                    ps.setTimestamp(2, createSQLDate());</span>
+<span class="nc" id="L121">                    ps.setLong(3, printDetail.getId().getSourceUniqueId());</span>
+<span class="nc" id="L122">                    ps.setInt(4, Integer.parseInt(printDetail.getId().getTaxYear()));</span>
+<span class="nc" id="L123">                    ps.setString(5, printDetail.getId().getSourceCd());</span>
+<span class="nc" id="L124">                    ps.setString(6, printDetail.getId().getPrintFileName());</span>
+
+<span class="nc" id="L126">                    LOGGER.info(&quot;Updating record with File name {} , sourceUniqueId {} , taxYear {} , sourceCd {} &quot;, printDetail.getId().getPrintFileName(),</span>
+<span class="nc" id="L127">                            printDetail.getId().getSourceUniqueId(), printDetail.getId().getTaxYear(), printDetail.getId().getSourceCd());</span>
+<span class="nc" id="L128">                }</span>
+
+                @Override
+                public int getBatchSize() {
+<span class="nc" id="L132">                    return printDetailList.size();</span>
+                }
+            });
+<span class="nc" id="L135">        } catch (final Exception e) {</span>
+<span class="nc" id="L136">            LOGGER.error(&quot;Error while updating printDetails status &quot;, e);</span>
+<span class="nc" id="L137">        }</span>
+<span class="nc" id="L138">    	return null;</span>
+    }
+    
+    private int[] updateCOMFileStatus(final List&lt;PrintDetail&gt; printDetailList){
+<span class="nc" id="L142">    	String sql = &quot;UPDATE PRINT_DETAILS SET PRINT_STATUS = ?, MAILED_DATE=? WHERE SOURCE_UNIQUE_ID = ? AND TAX_YEAR = ? AND SOURCE_CD = ? AND PRINT_FILE_NAME = ? AND PRINT_STATUS=?&quot;;</span>
+    	
+<span class="nc" id="L144">    	PrintVendorUpdateCOMBatchSetter setter = new PrintVendorUpdateCOMBatchSetter(printDetailList);</span>
+<span class="nc" id="L145">        int[] recordsUpdated = super.getJdbcTemplate().batchUpdate(sql, setter);</span>
+<span class="nc" id="L146">        return recordsUpdated;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,50 @@
+.edit_user_details {
+  .container-round;
+  width: 650px;
+  height: 500px;
+  .form-group {
+    margin-bottom: 20px;
+    ::-webkit-input-placeholder {
+      .placeholder-custom;
+    }
+    :-moz-placeholder {
+      /* Firefox 18- */
+      .placeholder-custom;
+    }
+    ::-moz-placeholder {
+      /* Firefox 19+ */
+      .placeholder-custom;
+    }
+    :-ms-input-placeholder {
+      .placeholder-custom;
+    }
+    padding: 10px 0 0 0;
+    select {
+      padding-left: 0px !important;
+    }
+    .form-control {
+      padding-left: 5px;
+    }
+    .ng-pristine {
+      border-bottom: 1px solid #7E7E7E !important;
+      padding-top: 10px;
+      padding-left: 5px
+    }
+    .ng-valid {
+      border-bottom: 2px solid @dark-blue;
+      padding-top: 10px;
+      padding-left: 5px
+    }
+    .ng-invalid {
+      border-bottom: 2px solid @red;
+      padding-top: 10px;
+      padding-left: 5px
+    }
+  }
+}
+
+.modal-dialog {
+  width: 650px;
+  height: 500px;
+  margin-top: 10%;
+}

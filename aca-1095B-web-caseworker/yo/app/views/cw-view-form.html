@@ -1,0 +1,21 @@
+<div class="cw-view-detail-container">
+
+  <div class="row cw-view-form-header">
+    <div class="col-md-6 title" tabindex="1" aria-label="{{vm.ariaLabel.title}}">
+      View/Print 1095-B Form
+    </div>
+    <div class="col-md-offset-3 col-md-3 text-right">
+      <button class="btn btn-dark-gray" tabindex="2" aria-label="Go Back" ng-click="vm.goBack()">Back</button>
+      <button class="btn btn-orange" tabindex="3" aria-label="Print form"
+              ng-click="vm.printDiv('cw-view-form-actual')">Print Form
+      </button>
+    </div>
+  </div>
+
+  <div class="cw-view-form-detail scroll-container">
+    <aca-actual-form cw-data="vm.cwData">
+    </aca-actual-form>
+  </div>
+
+</div>
+<iframe name="print_frame" id="portal" width="0" height="0" tabindex="-1" frameborder="0" src="about:blank"></iframe>

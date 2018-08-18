@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3Form109495Writer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step3</a> &gt; <span class="el_source">Step3Form109495Writer.java</span></div><h1>Step3Form109495Writer.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step3;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+import us.deloitteinnovation.aca.batch.export.step4.Step4109495Data;
+import us.deloitteinnovation.aca.entity.*;
+import us.deloitteinnovation.aca.jaxb.JaxbUtils;
+import us.deloitteinnovation.aca.model.Filer;
+import us.deloitteinnovation.aca.repository.*;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.ext.aca.air._7.Form1094BUpstreamDetailType;
+import us.gov.treasury.irs.ext.aca.air._7.ObjectFactory;
+import us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.Form109495BTrnsmtUpstreamType;
+
+import javax.xml.bind.JAXBElement;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Write the provided 1094B and associated 1095B filers to the provided outputStream as XML.
+ */
+@Transactional
+<span class="fc" id="L45">public class Step3Form109495Writer implements ItemWriter&lt;Step3ProcessorResult&gt; {</span>
+
+<span class="fc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(Step3Form109495Writer.class);</span>
+
+    /**
+     * String constant to use for entities updated in this class.
+     */
+    private static final String UPDATED_BY = &quot;System&quot;;
+    private static final String TRANSMISSION_STATUS_CD = &quot;XG&quot;;
+
+    @Autowired
+    @Qualifier(&quot;jaxb2Marshaller&quot;)
+    Jaxb2Marshaller                     jaxb2Marshaller;
+    @Autowired
+    @Qualifier(&quot;jaxb2FragmentMarshaller&quot;)
+    Jaxb2Marshaller                     jaxb2FragmentMarshaller ;
+    @Autowired
+    ExportJob1095Repository             exportJobRepository;
+    @Autowired
+    IrsTransmissionDetailsRepository    irsTransmissionDetailsRepository;
+    @Autowired
+    IrsSubmissionDetailsRepository      irsSubmissionDetailsRepository;
+    @Autowired
+    IrsRecordDetails1095BRepository     irsRecordDetails1095BRepository;
+    @Autowired
+    IrsRecordDetails1095BJdbcRepository irsRecordDetails1095BJdbcRepository;
+    @Autowired
+    Irs1095XMLRepository irs1095XMLRepository;
+    @Autowired
+    ProfileProperties                   profileProperties;
+
+    StepExecution stepExecution;
+<span class="fc" id="L77">    private us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.ObjectFactory</span>
+            messageObjectFactory =
+            new us.gov.treasury.irs.msg.form1094_1095btransmitterupstreammessage.ObjectFactory();
+
+
+<span class="fc" id="L82">    private    ObjectFactory air7ObjectFactory             = new ObjectFactory();</span>
+
+    /** Regular expression to find the closing element of the Form 1094 detail. */
+<span class="fc" id="L85">    private static Pattern       FORM_1094_END_ELEMENT_MATCHER = Pattern.compile(&quot;&lt;/.*?Form1094BUpstreamDetail&gt;&quot;) ;</span>
+
+    /**
+     * The implementation assumes the following:
+     * &lt;ol&gt;
+     * &lt;li&gt;The Step2Form1094Dto list provided is the exact number that should be written to the XML file.&lt;/li&gt;
+     * &lt;li&gt;Each Step2Form1094Dto object has its corresponding 1095B data pre-populated.&lt;/li&gt;
+     * &lt;/ol&gt;
+     *
+     * &lt;p&gt;
+     * Since it is possible for Form 1095s to be pre-rendered as XML, the logic first endures all 1095s are rendered and
+     * stored in a List as Strings.  If the XML has not been pre-rendered, it is marshalled to a String along with
+     * the appropriate recordId.  If it has been pre-rendered, the RecordId element will be replaced via regular
+     * expression with the correct record id.
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;
+     *
+     * &lt;/p&gt;
+     *
+     * @param list
+     * @throws Exception
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void write(List&lt;? extends Step3ProcessorResult&gt; list) throws Exception {
+        JAXBElement&lt;Form109495BTrnsmtUpstreamType&gt; rootElementDoc;
+        Form109495BTrnsmtUpstreamType rootElement;
+        Form1094BUpstreamDetailType form1094bXmlType;
+        Step2Form1094Dto form1094bDto;
+        List&lt;String&gt; form1095BXmlList;
+
+<span class="nc" id="L117">        String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext());</span>
+<span class="nc" id="L118">        Integer year = ExportUtil.getYear(stepExecution.getJobExecution().getExecutionContext());</span>
+
+        String tcc;
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        for (Step3ProcessorResult dto : list) {</span>
+
+<span class="nc" id="L123">            int submissionId = 1;</span>
+            /*  Hard coded this to 1 since we send only 1 submission per transmission.
+                This can be properly initialized when we start supporting multiple submissions
+                per transmission
+             */
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            for (Step3Form109495Pairing pairing : dto.getPairings()) {</span>
+                // Wrap the Form 1094B XML Type
+<span class="nc" id="L130">                form1094bDto = pairing.getStep2Form1094bDto();</span>
+<span class="nc" id="L131">                form1094bXmlType = form1094bDto.getForm1094BUpstreamDetailType();</span>
+<span class="nc" id="L132">                form1094bXmlType.setSubmissionId(BigInteger.valueOf(submissionId));</span>
+<span class="nc" id="L133">                form1094bXmlType.setForm1095BAttachedCnt(BigInteger.valueOf(pairing.getStep1Form1095bDtoList().size()));</span>
+                // In the future, if we support multiple 1094s per transmission, the TCC should not be stored on SourceSystemConfig
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                if (ExportUtil.isTestXml(profileProperties))</span>
+<span class="nc" id="L136">                    tcc = form1094bDto.getSourceSystemConfig().getTestTcc();</span>
+                else
+<span class="nc" id="L138">                    tcc = form1094bDto.getSourceSystemConfig().getTransmitterControlCode();</span>
+<span class="nc" id="L139">                String filename = createFormDataFilename(&quot;B&quot;, tcc, LocalDateTime.now());</span>
+
+                // Add all Form 1095B XML Types
+<span class="nc" id="L142">                form1095BXmlList = new ArrayList&lt;&gt;(pairing.getStep1Form1095bDtoList().size());</span>
+<span class="nc" id="L143">                int recordCount = 1;</span>
+                String form1095xml ;
+                String prettyPrintedXML;
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (Step1Form1095Dto form1095bDto : pairing.getStep1Form1095bDtoList()) {</span>
+                    // If the XML has already been rendered, replace the record id and add it to the list
+<span class="nc bnc" id="L148" title="All 4 branches missed.">                    if (form1095bDto.getRawXml() != null &amp;&amp; form1095bDto.getRawXml().length &gt; 0) {</span>
+<span class="nc" id="L149">                        form1095xml = replaceRecordId(new String(form1095bDto.getRawXml()), recordCount);</span>
+                    } else {
+                        // Otherwise, go ahead and render the 1095 XML
+<span class="nc" id="L152">                        form1095bDto.getForm1095BUpstreamDetailType().setRecordId(BigInteger.valueOf(recordCount));</span>
+<span class="nc" id="L153">                        form1095xml = JaxbUtils.renderToString(jaxb2FragmentMarshaller,</span>
+<span class="nc" id="L154">                                air7ObjectFactory.createForm1095BUpstreamDetail(form1095bDto.getForm1095BUpstreamDetailType())) ;</span>
+                    }
+<span class="nc" id="L156">                    prettyPrintedXML = ExportUtil.getPrettyPrintedXML(form1095xml);</span>
+<span class="nc" id="L157">                    form1095BXmlList.add(prettyPrintedXML) ;</span>
+<span class="nc" id="L158">                    recordCount++ ;</span>
+<span class="nc" id="L159">                }</span>
+                // Render the Form 1094 without the 1095s
+<span class="nc" id="L161">                rootElement = messageObjectFactory.createForm109495BTrnsmtUpstreamType();</span>
+<span class="nc" id="L162">                rootElement.getForm1094BUpstreamDetail().add(form1094bXmlType);</span>
+<span class="nc" id="L163">                rootElementDoc = messageObjectFactory.createForm109495BTransmittalUpstream(rootElement);</span>
+
+<span class="nc" id="L165">                File outputDir = ExportUtil.getOutputDirectory(state, profileProperties);</span>
+
+<span class="nc" id="L167">                File outputFile = new File(outputDir, filename);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L169">                    LOG.debug(&quot;Step 3 writing XML to {}&quot;, outputFile.getAbsoluteFile());</span>
+                }
+
+<span class="nc" id="L172">                writeForm1094(outputFile, rootElementDoc, form1095BXmlList);</span>
+
+                // Subtract 1 from record count, as the count will be incremented on each loop
+<span class="nc" id="L175">                ExportUtil.addForm109495FilenameForStep4(stepExecution.getJobExecution(), new Step4109495Data(outputFile, submissionId, recordCount - 1));</span>
+
+                // Save IRS Transmittal data
+<span class="nc" id="L178">                createAndSaveIrsTransmissionDetails(pairing, year, BatchExportConstants.getJobTypeLetter(stepExecution), submissionId, filename);</span>
+<span class="nc" id="L179">            }</span>
+<span class="nc" id="L180">            submissionId++;</span>
+<span class="nc" id="L181">        }</span>
+<span class="nc" id="L182">    }</span>
+
+    /**
+     * Creates and saves IrsTransmissionDetails, IrsSubmissionDetails and all required IrsRecordDetails1095B.  Each method is separate
+     * so that performance metrics can be recorded.
+     *
+     * @param pairing
+     * @param year
+     * @param transmissionTypeCode
+     * @param submissionId
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected IrsTransmissionDetails createAndSaveIrsTransmissionDetails(Step3Form109495Pairing pairing, int year, String transmissionTypeCode, int submissionId, String filename) {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (LOG.isInfoEnabled()) {</span>
+<span class="nc" id="L197">            LOG.info(&quot;Saving data for IRS transmission type {}, to filename {}, with {} 1095B forms.&quot;, transmissionTypeCode, filename, pairing.getStep1Form1095bDtoList().size());</span>
+        }
+
+        //Retrieve original transmission id if present
+        //TODO: Populate this original transmission id in getForm1095bBySourceCode method in ExportJobRepositoryInDB for each DTO
+<span class="nc" id="L202">        Integer originalTransmissionId = null;</span>
+<span class="nc" id="L203">        Integer originalSubmissionId = null;</span>
+
+        /* Get the original transmission and submission id's in case the transmission type is Correction or Replacement */
+<span class="nc bnc" id="L206" title="All 4 branches missed.">        if(transmissionTypeCode.equals(&quot;C&quot;) || transmissionTypeCode.equals(&quot;R&quot;)) {</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            if(pairing.getStep1Form1095bDtoList().size() &gt; 0) {</span>
+
+<span class="nc" id="L210">                originalTransmissionId = pairing.getStep1Form1095bDtoList().get(0).getIrsRecordDetails1095BPK().getTransmissionId();</span>
+<span class="nc" id="L211">                originalSubmissionId = pairing.getStep1Form1095bDtoList().get(0).getIrsRecordDetails1095BPK().getSubmissionId();</span>
+            }
+        }
+
+<span class="nc" id="L215">        IrsTransmissionDetails irsTransmissionDetails = createTransmission(pairing.getStep2Form1094bDto().getSourceSystemConfig().getSourceCd(), year, transmissionTypeCode, filename);</span>
+<span class="nc" id="L216">        saveIrsTransmissionDetails(irsTransmissionDetails);</span>
+<span class="nc" id="L217">        IrsSubmissionDetails irsSubmissionDetails = createSubmission(irsTransmissionDetails.getTransmissionId(), submissionId, originalTransmissionId, originalSubmissionId);</span>
+<span class="nc" id="L218">        saveIrsSubmissionDetails(irsSubmissionDetails);</span>
+<span class="nc" id="L219">        createAndSaveDetails(irsTransmissionDetails.getTransmissionId(), submissionId, pairing.getStep1Form1095bDtoList());</span>
+<span class="nc" id="L220">        updateIrs1095XmlStatus(pairing.getStep1Form1095bDtoList(), transmissionTypeCode);</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if(transmissionTypeCode.equals(&quot;C&quot;)) {</span>
+<span class="nc" id="L223">            updateRecordDetailsEndStatus(originalTransmissionId, pairing.getStep1Form1095bDtoList());</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        } else if (transmissionTypeCode.equals(&quot;R&quot;)){</span>
+<span class="nc" id="L225">            updateRecordDetailsEndStatus(originalTransmissionId, null);</span>
+        }
+
+<span class="nc" id="L228">        return irsTransmissionDetails;</span>
+    }
+
+
+    /**
+     * Updates the records of a transmission in IRS_RECORD_DETAILS_1095B
+     * with end status 'XC'
+     * @param originalTransmissionId
+     * @return void
+     */
+    private void updateRecordDetailsEndStatus(Integer originalTransmissionId, List&lt;Step1Form1095Dto&gt; step1Form1095DtoList) {
+
+<span class="nc" id="L240">        List&lt;Long&gt; sourceUniqueIdList = new ArrayList();</span>
+<span class="nc bnc" id="L241" title="All 4 branches missed.">        if( step1Form1095DtoList != null &amp;&amp; ! step1Form1095DtoList.isEmpty()) {</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">            for (Step1Form1095Dto step1Form1095Dto : step1Form1095DtoList) {</span>
+
+<span class="nc" id="L244">                sourceUniqueIdList.add(step1Form1095Dto.getFiler().getSourceUniqueId());</span>
+<span class="nc" id="L245">            }</span>
+        }
+<span class="nc" id="L247">        irsRecordDetails1095BJdbcRepository.updateEndStatusForRecords(originalTransmissionId,sourceUniqueIdList);</span>
+<span class="nc" id="L248">    }</span>
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void saveIrsTransmissionDetails(IrsTransmissionDetails irsTransmissionDetails) {
+<span class="nc" id="L252">        irsTransmissionDetailsRepository.save(irsTransmissionDetails);</span>
+<span class="nc" id="L253">    }</span>
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void saveIrsSubmissionDetails(IrsSubmissionDetails irsSubmissionDetails) {
+<span class="nc" id="L257">        irsSubmissionDetailsRepository.save(irsSubmissionDetails);</span>
+<span class="nc" id="L258">    }</span>
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void updateIrs1095XmlStatus(List&lt;Step1Form1095Dto&gt; step1Form1095DtoList, String transmissionTypeCode) {
+
+        Irs1095XML irs1095XML;
+        Irs1095XMLPK id;
+
+<span class="nc" id="L266">        Set&lt;Irs1095XML&gt; irs1095XMLSet = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        for (Step1Form1095Dto dto : step1Form1095DtoList){</span>
+<span class="nc" id="L268">            id = new Irs1095XMLPK();</span>
+<span class="nc" id="L269">            id.setSourceUniqueId(dto.getFiler().getSourceUniqueId());</span>
+<span class="nc" id="L270">            id.setSourceCd(dto.getFiler().getSourceCd());</span>
+
+<span class="nc" id="L272">            irs1095XML = new Irs1095XML();</span>
+<span class="nc" id="L273">            irs1095XML.setId(id);</span>
+<span class="nc" id="L274">            irs1095XML.setUpdatedBy(UPDATED_BY);</span>
+<span class="nc" id="L275">            irs1095XML.setUpdatedDate(new Date());</span>
+<span class="nc" id="L276">            irs1095XML.setIrsTransmissionStatusCd(TRANSMISSION_STATUS_CD);</span>
+<span class="nc" id="L277">            irs1095XML.setIrs1095BXml(new String(dto.getRawXml()));</span>
+<span class="nc" id="L278">            irs1095XMLSet.add(irs1095XML);</span>
+<span class="nc" id="L279">        }</span>
+<span class="nc" id="L280">        irs1095XMLRepository.save(irs1095XMLSet);</span>
+<span class="nc" id="L281">    }</span>
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected IrsTransmissionDetails createTransmission(String sourceCode, Integer taxYear, String transmissionTypeCode, String filename) {
+<span class="nc" id="L285">        IrsTransmissionDetails details = new IrsTransmissionDetails();</span>
+<span class="nc" id="L286">        details.setUpdatedDate(new Date());</span>
+<span class="nc" id="L287">        details.setUpdatedBy(UPDATED_BY);</span>
+<span class="nc" id="L288">        details.setSourceCd(sourceCode);</span>
+<span class="nc" id="L289">        details.setTaxYear(taxYear);</span>
+<span class="nc" id="L290">        details.setTransmissionFormType(&quot;B&quot;);</span>
+<span class="nc" id="L291">        details.setTransferDate(new Date());</span>
+<span class="nc" id="L292">        details.setTransmissionTypeCd(transmissionTypeCode);</span>
+<span class="nc" id="L293">        details.setTransmissionFileName(filename);</span>
+<span class="nc" id="L294">        return details;</span>
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected IrsSubmissionDetails createSubmission(Integer transmissionId, int submissionId, Integer originalTransmissionId, Integer originalSubmissionId) {
+<span class="nc" id="L299">        IrsSubmissionDetailsPK id = new IrsSubmissionDetailsPK();</span>
+<span class="nc" id="L300">        id.setTransmissionId(transmissionId);</span>
+<span class="nc" id="L301">        id.setSubmissionId(submissionId);</span>
+
+<span class="nc" id="L303">        IrsSubmissionDetails details = new IrsSubmissionDetails();</span>
+<span class="nc" id="L304">        details.setId(id);</span>
+<span class="nc" id="L305">        details.setUpdatedDate(new Date());</span>
+<span class="nc" id="L306">        details.setUpdatedBy(UPDATED_BY);</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        details.setOriginalTransmissionId( originalTransmissionId != null ? new Long( originalTransmissionId ) : null );</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        details.setOriginalSubmissionId( originalSubmissionId != null ? new Long(originalSubmissionId) : null );</span>
+
+<span class="nc" id="L310">        return details;</span>
+    }
+
+    /**
+     * @param transmissionId
+     * @param submissionId
+     * @param form1095bDtoList List of Form 1095B to saveIrsTransmissionDetails to IRS Transmittal table.
+     * @return List of newly created and persisted IrsRecordDetails1095B objects.
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected Set&lt;IrsRecordDetails1095B&gt; createAndSaveDetails(Integer transmissionId, int submissionId, List&lt;Step1Form1095Dto&gt; form1095bDtoList) {
+        IrsRecordDetails1095B details;
+        IrsRecordDetails1095BPK id;
+        Integer actualRecordId;
+
+<span class="nc" id="L325">        Set&lt;IrsRecordDetails1095B&gt; set = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">        for (Step1Form1095Dto form1095bDto : form1095bDtoList) {</span>
+<span class="nc" id="L327">            details = new IrsRecordDetails1095B();</span>
+<span class="nc" id="L328">            id = new IrsRecordDetails1095BPK();</span>
+<span class="nc" id="L329">            id.setTransmissionId(transmissionId);</span>
+<span class="nc" id="L330">            id.setSubmissionId(submissionId);</span>
+<span class="nc" id="L331">            actualRecordId = getActualRecordId(form1095bDto.getForm1095BUpstreamDetailType().getRecordId().intValueExact());</span>
+<span class="nc" id="L332">            id.setRecordId(actualRecordId);</span>
+<span class="nc" id="L333">            details.setId(id);</span>
+<span class="nc" id="L334">            Filer filer = form1095bDto.getFiler();</span>
+<span class="nc" id="L335">            details.setSourceCode(filer.getSourceCd());</span>
+<span class="nc" id="L336">            details.setSourceUniqueId(filer.getSourceUniqueId());</span>
+<span class="nc" id="L337">            details.setUpdatedBy(UPDATED_BY);</span>
+<span class="nc" id="L338">            details.setUpdatedDate(new Date());</span>
+<span class="nc" id="L339">            details.setFilerDemoSeq(filer.getFilerDemoSeq());</span>
+            // TODO The IRS Transmission Status field is hard coded as Processing.  Not sure how this should be handled.
+            //details.setRecordStatus(&quot;PR&quot;); // Record status will be blank as it will be updated from front end.
+<span class="nc" id="L342">            set.add(details);</span>
+<span class="nc" id="L343">        }</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L345">            LOG.debug(&quot;Saving batch of {} Form 1095B data to IRS Record Details&quot;, set.size());</span>
+        }
+        //irsRecordDetails1095BRepository.save(list);
+<span class="nc" id="L348">        irsRecordDetails1095BJdbcRepository.saveInBatch(set);</span>
+<span class="nc" id="L349">        return set;</span>
+    }
+
+    /**
+     * The Form Data file naming convention includes the Form Type, a static indicator (Request), the transmitter’s TCC,
+     * and the date and time (in GMT time) the transmitter submits the file. The name specifically includes the following components:
+     * &lt;p&gt;
+     * 1094(form type)_Request_(TCC)_(Date)T(TimeStamp)Z.xml
+     * &lt;p&gt;
+     * For example:
+     * 1094B_Request_BY01G_20140101T010102000Z.xml
+     * 1094C_Request_BY02G_20140101T010102000Z.xml
+     *
+     * @param formType
+     * @param tcc      The Transmitter's Control Code.
+     * @param dateTime Date to utilize in the filename.  Will almost always be the current date/time.  Will be set to UTC timezone.
+     * @return
+     */
+    protected String createFormDataFilename(String formType, String tcc, LocalDateTime dateTime) {
+        // TODO This UTC timezone logic is wrong.  Always renders as provided time, not UTC time.  Needs to be fixed.
+<span class="fc" id="L369">        dateTime.atOffset(ZoneOffset.UTC);</span>
+        // Don't include the Zed for timezone, or it will render the UTC difference
+<span class="fc" id="L371">        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyyMMdd'T'HHmmssSSS'Z'&quot;);</span>
+<span class="fc" id="L372">        return &quot;1094&quot; + formType + &quot;_Request_&quot; + tcc + &quot;_&quot; + formatter.format(dateTime) + &quot;.xml&quot;;</span>
+    }
+
+    /**
+     * @param xml
+     * @param recordId
+     * @return String with the first RecordId element contents replaced with the given recordId.
+     */
+    protected String replaceRecordId(String xml, int recordId) {
+        // Match the first RecordId found and replace it.
+<span class="fc" id="L382">        String xml2 = xml.replaceFirst(&quot;&lt;RecordId&gt;.*?&lt;/RecordId&gt;&quot;, &quot;&lt;RecordId&gt;&quot; + recordId + &quot;&lt;/RecordId&gt;&quot;);</span>
+<span class="fc" id="L383">        return xml2.replaceFirst(&quot;&lt;ns2:RecordId&gt;.*?&lt;/ns2:RecordId&gt;&quot;, &quot;&lt;ns2:RecordId&gt;&quot; + recordId + &quot;&lt;/ns2:RecordId&gt;&quot;);</span>
+    }
+
+    /**
+     * Outputs the combination of a single 1094 and one or more 1095s.  Since the 1095s have been pre-rendered as XML Strings,
+     * the 1094 is rendered as an XML String first, split on the end Form1094BUpstreamDetail element, and the beginning written to the file.
+     * Then all 1095s are written, followed by the closing 1094 XML.
+     * @param file
+     * @param form1094
+     * @param form1095s
+     * @throws IOException
+     */
+    protected void writeForm1094(File file, JAXBElement&lt;Form109495BTrnsmtUpstreamType&gt; form1094, List&lt;String&gt; form1095s) throws IOException {
+<span class="nc" id="L396">        String form1094xml = JaxbUtils.renderToString(jaxb2Marshaller, form1094) ;</span>
+        // Determine the position of the 1094 closing element &lt;/Form1094BUpstreamDetail&gt;
+<span class="nc" id="L398">        Matcher matcher = FORM_1094_END_ELEMENT_MATCHER.matcher(form1094xml) ;</span>
+<span class="nc" id="L399">        matcher.find() ;</span>
+<span class="nc" id="L400">        int form1094elementEndPosition = matcher.start() ;</span>
+<span class="nc" id="L401">        FileWriter writer = null ;</span>
+        try {
+<span class="nc" id="L403">            writer = new FileWriter(file) ;</span>
+            // Write the start of the 1094
+<span class="nc" id="L405">            writer.write(form1094xml.substring(0,form1094elementEndPosition));</span>
+            // Write all 1095s
+<span class="nc bnc" id="L407" title="All 2 branches missed.">            for (String form1095 :form1095s) {</span>
+<span class="nc" id="L408">                writer.write(form1095) ;</span>
+<span class="nc" id="L409">            }</span>
+            // Write the end of the 1094
+<span class="nc" id="L411">            writer.write(form1094xml.substring(form1094elementEndPosition)) ;</span>
+        } finally {
+<span class="nc" id="L413">            IOUtils.closeQuietly(writer);</span>
+<span class="nc" id="L414">        }</span>
+<span class="nc" id="L415">    }</span>
+
+    protected Integer getActualRecordId(Integer recordId){
+        Integer actualRecordId ;
+<span class="nc bnc" id="L419" title="All 2 branches missed.">        actualRecordId = (recordId &gt; 25000 ? recordId % 25000 : recordId); // Since we send 25000 records per transmission</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">        actualRecordId = (actualRecordId == 0 ? 25000 : actualRecordId);</span>
+<span class="nc" id="L421">        return actualRecordId;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L426">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L427">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

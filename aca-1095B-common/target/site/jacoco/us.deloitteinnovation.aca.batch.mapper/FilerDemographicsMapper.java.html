@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicsMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.mapper</a> &gt; <span class="el_source">FilerDemographicsMapper.java</span></div><h1>FilerDemographicsMapper.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.mapper;
+
+import org.springframework.jdbc.core.RowMapper;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicPKDto;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+
+import static us.deloitteinnovation.aca.batch.constants.BatchConstants.*;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.*;
+
+/**
+ * Created by rgopalani on 10/21/2015.
+ */
+<span class="nc" id="L19">public class FilerDemographicsMapper implements RowMapper&lt;FilerDemographicDto&gt; {</span>
+
+    @Override
+    public FilerDemographicDto mapRow(final ResultSet rs, int i) throws SQLException {
+
+<span class="nc" id="L24">        final FilerDemographicDto fd = new FilerDemographicDto();</span>
+
+<span class="nc" id="L26">        final FilerDemographicPKDto filerDemographicPKDto = new FilerDemographicPKDto();</span>
+<span class="nc" id="L27">        final Long sourceUniqueId = rs.getLong(SOURCE_UNIQUE_ID);</span>
+<span class="nc" id="L28">        filerDemographicPKDto.setSourceUniqueId(sourceUniqueId.toString());</span>
+<span class="nc" id="L29">        final String sourceCd = rs.getString(SOURCE_CD);</span>
+<span class="nc" id="L30">        filerDemographicPKDto.setSourceCd(sourceCd);</span>
+<span class="nc" id="L31">        filerDemographicPKDto.setTaxYear(rs.getString(TAX_YEAR));</span>
+<span class="nc" id="L32">        fd.setId(filerDemographicPKDto);</span>
+
+<span class="nc" id="L34">        final BatchInfoDto batchInfo = new BatchInfoDto();</span>
+
+<span class="nc" id="L36">        final int batchId = rs.getInt(BATCH_ID);</span>
+<span class="nc" id="L37">        batchInfo.setBatchId(batchId);</span>
+<span class="nc" id="L38">        fd.setBatchInfo(batchInfo);</span>
+
+<span class="nc" id="L40">        fd.setRecipientFirstName(rs.getString(CommonDataConstants.RECIPIENT_FIRST_NAME));</span>
+<span class="nc" id="L41">        fd.setRecipientMiddleName(rs.getString(CommonDataConstants.RECIPIENT_MIDDLE_NAME));</span>
+<span class="nc" id="L42">        fd.setRecipientFirstName(rs.getString(CommonDataConstants.RECIPIENT_FIRST_NAME));</span>
+<span class="nc" id="L43">        fd.setRecepientSuffixName(rs.getString(RECIPIENT_NAME_SUFFIX));</span>
+<span class="nc" id="L44">        fd.setRecipientSsn(rs.getString(RECIPIENT_SSN));</span>
+<span class="nc" id="L45">        fd.setRecipientTin(rs.getString(RECIPIENT_TIN));</span>
+
+<span class="nc" id="L47">        Date recipientDob = rs.getDate(RECIPIENT_DOB);</span>
+<span class="nc" id="L48">        fd.setRecipientDob(recipientDob);</span>
+<span class="nc" id="L49">        fd.setRecipientDobStr(MMDDYYYY.format(recipientDob));</span>
+
+<span class="nc" id="L51">        fd.setRecipientAddressLine1(rs.getString(CommonDataConstants.RECIPIENT_ADDRESS_LINE_1));</span>
+<span class="nc" id="L52">        fd.setRecipientAddressLine2(rs.getString(CommonDataConstants.RECIPIENT_ADDRESS_LINE_2));</span>
+<span class="nc" id="L53">        fd.setRecipientCity(rs.getString(CommonDataConstants.RECIPIENT_CITY));</span>
+<span class="nc" id="L54">        fd.setRecipientState(rs.getString(RECIPIENT_STATE));</span>
+<span class="nc" id="L55">        fd.setRecipientZip5(rs.getString(CommonDataConstants.RECIPIENT_ZIP_5));</span>
+<span class="nc" id="L56">        fd.setRecipientZip4(rs.getString(RECIPIENT_ZIP_4));</span>
+
+
+
+<span class="nc" id="L60">        return fd;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

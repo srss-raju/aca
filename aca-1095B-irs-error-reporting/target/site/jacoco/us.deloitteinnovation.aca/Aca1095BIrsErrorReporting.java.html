@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Aca1095BIrsErrorReporting.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Error Reporting</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca</a> &gt; <span class="el_source">Aca1095BIrsErrorReporting.java</span></div><h1>Aca1095BIrsErrorReporting.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration;
+
+/**
+ * Created by tthakore on 3/25/2016.
+ * This will be intial class for IRS error report generation.
+ * primary task of this class is of intialise spring framework and import common module.
+ */
+
+@SpringBootApplication
+@ComponentScan(basePackages = &quot;us.deloitteinnovation.aca&quot;, excludeFilters = @ComponentScan.Filter(Configuration.class))
+@Import({CommonConfiguration.class, IrsErrorReportingConfiguration.class})
+<span class="nc" id="L19">public class Aca1095BIrsErrorReporting {</span>
+
+    public static void main(String[] args) {
+        // System.exit is common for Batch applications since the exit code can be used to
+        // drive a workflow followed export module for coding practice.
+<span class="nc" id="L24">        System.exit(SpringApplication.exit(SpringApplication.run(Aca1095BIrsErrorReporting.class, args)));</span>
+<span class="nc" id="L25">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

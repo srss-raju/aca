@@ -1,0 +1,116 @@
+<div class="function-container" data-ng-click="editRecord()" ng-class="{'editModeClass' : editMode, 'normalModeEven' : !editMode && (recordIndex%2 === 0), 'normalModeOdd' : !editMode && !(recordIndex%2 === 0)}">
+  <div class="record-panel">
+    <!-- Transfer date and file name -->
+    <div class="col-md-3 no-padding">
+      <!-- Transfer date -->
+      <div class="col-md-5 align-text no-padding-right">{{recordData.transferDate | dateFilter: 'MM/dd/yyyy' : false}}</div>
+      <!-- file name -->
+      <div class="col-md-7 align-text text-center no-padding">
+        <div class="reverse-truncater" rel="popover" data-container="body" data-trigger="hover"
+             data-content={{recordData.transmissionFileName}} data-placement="bottom" data-template={{popover.templateBig}}
+             onmouseover="$(this).popover('show')">
+          <span>{{recordData.transmissionFileName}}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Transmission date, receipt id , status and actions -->
+    <div class="col-md-9 no-padding" ng-switch on="editMode">
+      <!-- Transmission date, receipt id and status --->
+      <div class="col-md-10 no-padding">
+        <!-- Transmission date -->
+        <div class="col-md-4 no-padding-right text-center">
+          <div class="align-text" ng-switch-when="false">{{recordData.transmissionAckDate |
+            dateFilter:'MM/dd/yyyy'}}
+          </div>
+          <div ng-switch-when="true">
+            <input class="text-center date-parser" placeholder="mm/dd/yyyy hh:mm:ss AM/PM" data-ng-model="editableFields.transmissionAckDate"
+                   data-ng-change="activateAction()" aca-date-parser date-format="'MM/dd/YYYY HH:MM:SS AM/PM'" invalid-class="'invalid-input'"/>
+          </div>
+        </div>
+        <!--  receipt id -->
+        <div class="col-md-4 no-padding text-center">
+          <div class="text-center align-text" ng-switch-when="false">{{recordData.transmissionReceiptId}}</div>
+          <div ng-switch-when="true">
+            <input class="text-center receipt-id" placeholder="Type Receipt ID" data-ng-model="editableFields.transmissionReceiptId" ng-pattern="/([0-9A-z]{5})[-]([0-9]{2})[-]([0-9]{8})/" ng-maxlength="17"
+                   data-ng-change="activateAction()"/>
+          </div>
+        </div>
+        <div class="col-md-1"></div>
+        <!-- status -->
+        <div class="col-md-3 no-padding-left">
+          <div class="btn-grp-container" ng-switch-when="true">
+            <div class="btn-grp" ng-switch on="statusSelected.dropdown !== null">
+              <div class="type-value" ng-switch-when="true" rel="popover" data-content={{statusSelected.hoverMsg}} data-placement="bottom" data-container="body" data-template={{popover.templateMedium}}
+                   data-trigger="hover" onmouseover="$(this).popover('show')">
+                <div class="truncate-value">
+                  <span>{{statusSelected.dropdown}}</span>
+                </div>
+              </div>
+              <div class="type-value" ng-switch-default>Status</div>
+              <div class="caret-box pointer" data-ng-click="fnShowStatus()"><span class="caret"></span></div>
+            </div>
+            <div data-ng-switch on="showStatus">
+              <div class="showList" data-ng-switch-when="true">
+                <div data-ng-repeat="status in statusList" ng-click="setStatus(status)">
+                  {{status.statusDesc}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="align-text" data-ng-switch-when="false">
+            {{statusSelected.nonEdit}}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 no-padding icon-container" ng-switch on="editMode">
+        <!-- action icons -->
+        <div class="align-text no-padding text-center icon-panel"> <!-- Check if in edit mode : set to true when in edit mode -->
+        <span class="text-right" ng-switch-when="true" data-ng-switch on="moreInfo"><!-- Check for more info clicked : set to true when in more info mode limited is set as false -->
+          <span ng-switch-when="false" ng-switch on="hideMode" data-ng-click="activeAction ? hideShowRecord() : null"><!-- Check for hide visible mode : set to true when in visible  -->
+            <i class="fa fa-eye fa-dim" ng-class="{'active' : activeAction, 'inactive' : !activeAction}"
+               rel="popover" data-content="{{hideMode ? 'visible' : 'hide'}}" data-container="body"
+               data-placement="bottom" ng-switch-when="true" data-template={{popover.templateSmall}}
+               data-trigger="hover" onmouseenter="$(this).popover('show')" onmouseout="$(this).popover('hide')" onclick="$(this).popover('hide')"> <!-- onclick="$(this).popover('show')">-->
+            </i>
+            <i class="fa fa-eye-slash fa-dim" ng-class="{'active' : activeAction, 'inactive' : !activeAction}"
+               ng-switch-when="false" rel="popover" data-content="hide" data-container="body"
+               data-placement="bottom" data-template={{popover.templateSmall}}
+               data-trigger="hover" onmouseover="$(this).popover('show')" onmouseout="$(this).popover('hide')" onclick="$(this).popover('hide')"><!-- onclick="$(this).popover('show')">-->
+            </i>
+          </span>
+          <span ng-switch-when="false" ><i class="fa fa-floppy-o fa-dim"
+                                           ng-class="{'active' : activeAction, 'inactive' : !activeAction}"
+                                           data-ng-click="activeAction ? saveRecordConfirm() : null" rel="popover" data-trigger="hover"  data-content="Save" data-placement="bottom" data-container="body" data-template={{popover.templateSmall}}
+                                           onmouseover="$(this).popover('show')" onmouseout="$(this).popover('hide')" onclick="$(this).popover('hide')"></i></span>
+          <span ng-switch-when="false"><i class="fa fa-ban fa-dim active"
+                                          data-ng-click="dataChanged ? closeEditRecordConfirm() : closeEditRecord()" rel="popover" data-trigger="hover" data-content="Cancel" data-placement="bottom" data-container="body" data-template={{popover.templateSmall}}
+                                          onmouseover="$(this).popover('show')" onmouseout="$(this).popover('hide')" onclick="$(this).popover('hide')"></i></span>
+          <span ng-switch-when="true" class="text-right noAction-container" data-ng-switch on="rejectedMode">
+            <div class="text-center noAction" ng-switch-when="false">
+              <div>
+                <span>No further action required</span>
+              </div>
+            </div>
+            <div class="text-center resendAction" ng-switch-when="true">
+              <div></div>
+              <div class="col-md-2 text-center" data-ng-click="resendConfirm(true)" rel="popover" data-trigger="hover" data-content="Resend corrected" data-placement="bottom" data-container="body" data-template={{popover.templateSmall}}
+                   onmouseover="$(this).popover('show')" onclick="$(this).popover('hide')">
+                <div class="resend-icons" ng-include="'images/resend-correct-icon.svg'"></div>
+              </div>
+              <div class="col-md-2" data-ng-click="resendConfirm(false)" rel="popover" data-trigger="hover" data-content="Resend rejected" data-placement="bottom" data-container="body" data-template={{popover.templateSmall}}
+                   onmouseover="$(this).popover('show')" onclick="$(this).popover('hide')">
+                <div class="resend-icons" ng-include="'images/resend-rejected-icon.svg'"></div>
+              </div>
+            </div>
+          </span>
+        </span>
+        </div>
+      </div>
+    </div>
+  </div>
+   <div class="switcher-container" ng-switch on="editMode && showMoreInfo">
+      <div class="switcher" data-ng-switch-when="true" data-ng-click="switchToMoreInfo()">
+        <i class="fa fa-angle-right white"></i>
+      </div>
+    </div>
+</div>

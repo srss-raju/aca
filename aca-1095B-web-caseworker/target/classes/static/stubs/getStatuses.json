@@ -1,0 +1,26 @@
+[
+  {
+    "statusCd": "PR",
+    "statusDesc": "Processing"
+  },
+  {
+    "statusCd": "AC",
+    "statusDesc": "Accepted"
+  },
+  {
+    "statusCd": "AE",
+    "statusDesc": "Accepted with Errors"
+  },
+  {
+    "statusCd": "PA",
+    "statusDesc": "Partially Accepted"
+  },
+  {
+    "statusCd": "NF",
+    "statusDesc": "Not Found"
+  },
+  {
+    "statusCd": "RJ",
+    "statusDesc": "Rejected"
+  }
+]

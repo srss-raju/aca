@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportPdfWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.steppdf</a> &gt; <span class="el_source">ExportPdfWriter.java</span></div><h1>ExportPdfWriter.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.steppdf;
+
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.profile.ProfileProperties;
+import us.gov.treasury.irs.ext.aca.air._7.Form1095BUpstreamDetailType;
+
+
+/**
+ * Renders each Form1095BUpstreamDetailType as encapsulated within the list of Form1095bProcessDto objects.
+ * Stores the entire Form1095bProcessDto, along with rendered XML to the ExportJob1095Repository.
+ *
+ * @see Form1095BUpstreamDetailType
+ * @see ExportJob1095Repository
+ * @see Step1Form1095Dto
+ */
+@Component
+<span class="nc" id="L32">public class ExportPdfWriter implements ItemWriter&lt;ExportPdfDto&gt; {</span>
+<span class="nc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(ExportPdfWriter.class);</span>
+
+    StepExecution stepExecution;
+
+    @Autowired
+    ProfileProperties profileProperties;
+    
+    @Autowired
+    BatchInfoService batchInfoService;
+    
+<span class="nc" id="L43">    BatchInfoDto batchInfo = null;</span>
+
+    
+    @Override
+    public void write(List&lt;? extends ExportPdfDto&gt; aca1095Forms) throws Exception {
+<span class="nc" id="L48">    	String state = ExportUtil.getState(stepExecution.getJobExecution().getExecutionContext());</span>
+<span class="nc" id="L49">    	String startDate = (String)stepExecution.getJobExecution().getExecutionContext().get(&quot;STARTDATE&quot;);</span>
+<span class="nc" id="L50">    	String endDate = (String)stepExecution.getJobExecution().getExecutionContext().get(&quot;ENDDATE&quot;);</span>
+    	
+<span class="nc" id="L52">    	int size = 0;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">    	if(aca1095Forms != null){</span>
+<span class="nc" id="L54">    		size = aca1095Forms.size();</span>
+    	}
+<span class="nc" id="L56">    	String originalPdf = &quot;/opt/ACA1095B-Data/f1095b.pdf&quot;;</span>
+<span class="nc" id="L57">    	String outputLocation = null;</span>
+<span class="nc" id="L58">    	batchInfo = new BatchInfoDto();</span>
+<span class="nc" id="L59">    	batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L60">        int batchId = batchInfoService.save(batchInfo);</span>
+<span class="nc" id="L61">        LOG.info(&quot;Batch Id  -----&gt;&gt;&gt; &quot;+batchId);</span>
+<span class="nc" id="L62">        batchInfo.setBatchId(batchId);</span>
+    	
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    	if(&quot;AR&quot;.equals(state)){</span>
+<span class="nc" id="L65">    		outputLocation = &quot;/opt/ACA1095B-Data/Arkansas/Data/Out/pdf/&quot;;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">    	}else if(&quot;IN&quot;.equals(state)){</span>
+<span class="nc" id="L67">    		outputLocation = &quot;/opt/ACA1095B-Data/Indiana/Data/Out/pdf/&quot;;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    	}else if(&quot;LA&quot;.equals(state)){</span>
+<span class="nc" id="L69">    		outputLocation = &quot;/opt/ACA1095B-Data/Louisiana/Data/Out/pdf/&quot;;</span>
+    	}
+<span class="nc" id="L71">    	LOG.info(&quot; --- In ExportPdfWriter ---&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">    	for(ExportPdfDto dto:aca1095Forms){</span>
+<span class="nc" id="L73">    		GeneratePdf.exportPdf(originalPdf,outputLocation,dto.filer);</span>
+<span class="nc" id="L74">    	}</span>
+    	
+<span class="nc" id="L76">    	batchInfo.setFileName(size+&quot;_&quot;+startDate.replaceAll(&quot;-&quot;, &quot;&quot;)+&quot;_&quot;+endDate.replaceAll(&quot;-&quot;, &quot;&quot;));</span>
+<span class="nc" id="L77">        batchInfo.setReceiveDt(new Date());</span>
+<span class="nc" id="L78">        batchInfo.setBatchType(ExportPdfConstants.PDF_BATCH_TYPE);</span>
+<span class="nc" id="L79">        batchInfo.setStateCd(state);</span>
+<span class="nc" id="L80">        batchInfo.setAgencyCd(ExportUtil.getAgencyCode(state));</span>
+<span class="nc" id="L81">        batchInfo.setSystemCd(ExportUtil.getSystemCode(state));</span>
+<span class="nc" id="L82">    	batchInfoService.updatePrintAndProcess(batchInfo);</span>
+<span class="nc" id="L83">    }</span>
+    
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L87">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L88">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

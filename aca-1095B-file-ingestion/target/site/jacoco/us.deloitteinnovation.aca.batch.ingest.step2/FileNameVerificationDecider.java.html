@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileNameVerificationDecider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step2</a> &gt; <span class="el_source">FileNameVerificationDecider.java</span></div><h1>FileNameVerificationDecider.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step2;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.batch.file.InputFileMetaData;
+import us.deloitteinnovation.aca.batch.file.filter.FileExtensionFilter;
+import us.deloitteinnovation.aca.batch.service.BatchInfoService;
+import us.deloitteinnovation.aca.batch.service.ExceptionReportService;
+import us.deloitteinnovation.aca.batch.service.FileImportMailerService;
+import us.deloitteinnovation.aca.batch.service.ReportGenerationService;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+import us.deloitteinnovation.aca.model.SourceSystemConfig;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.util.*;
+
+/**
+ * &lt;p&gt;
+ * Job execution decider which decides whether to go to the filer data verification step or flow
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * This decider is used while configuring the spring batch job to import filers.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Spring batch job goes to the verify step only if the FlowExecutionStatus returned by this decider is &quot;PASSED&quot;
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Spring batch job stops execution and exits gracefully if the FlowExecutionStatus returned by this decider is &quot;FAILED&quot;
+ * &lt;/p&gt;
+ */
+
+<span class="nc" id="L56">public class FileNameVerificationDecider implements JobExecutionDecider {</span>
+
+<span class="nc" id="L58">    private static final Logger LOGGER = LoggerFactory.getLogger(FileNameVerificationDecider.class);</span>
+    String year;
+    String state;
+    boolean goAhead;
+    List&lt;String&gt; validationErrorsList;
+<span class="nc" id="L63">    String FLOW_EXECUTION_STATUS = FileIngestionConstants.FlowConstants.FLOW_STATUS_PASSED;</span>
+
+
+    @Autowired
+    Validator validator;
+    @Autowired
+    BatchInfoDto batchInfoDto;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+    @Autowired
+    FileImportMailerService fileImportMailerService;
+    @Autowired
+    ExceptionReportService exceptionReportService;
+    @Autowired
+    BatchInfoService batchInfoService;
+    private String agencyCodeFromDB;
+    private String systemCodeFromDB;
+    @Autowired
+    private Environment env;
+    @Autowired
+    @SuppressWarnings(&quot;SpringJavaAutowiringInspection&quot;)
+    private ProfileProperties profileProperties;
+
+    @Autowired
+    private ReportGenerationService reportGenerationService;
+    
+    @Override
+    public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
+
+<span class="nc" id="L92">        goAhead = true;</span>
+<span class="nc" id="L93">        batchInfoDto.setBatchType(FileIngestionConstants.BATCH_TYPE_FILE_INGESTION);</span>
+<span class="nc" id="L94">        validationErrorsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L95">        state = jobExecution.getJobParameters().getString(FileIngestionConstants.BATCH_ARG_STATE);</span>
+<span class="nc" id="L96">        year = jobExecution.getJobParameters().getString(FileIngestionConstants.BATCH_ARG_TAX_YEAR);</span>
+
+<span class="nc" id="L98">        Assert.notNull(state, &quot;Null value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_STATE + &quot;'&quot;);</span>
+<span class="nc" id="L99">        Assert.hasLength(state, &quot;Blank value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_STATE + &quot;'&quot;);</span>
+<span class="nc" id="L100">        Assert.notNull(year, &quot;Null value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_TAX_YEAR + &quot;'&quot;);</span>
+<span class="nc" id="L101">        Assert.hasLength(year, &quot;Blank value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_TAX_YEAR + &quot;'&quot;);</span>
+
+        try { // Check to see if we currently support the US state for which this job is being run.
+<span class="nc" id="L104">            SourceSystemConfig config = sourceSystemConfigDataService.getByState(state, Integer.valueOf(year));</span>
+<span class="nc" id="L105">            agencyCodeFromDB = config.getSourceCd().substring(state.length(), 5);</span>
+<span class="nc" id="L106">            systemCodeFromDB = config.getSourceCd().substring((state.length() + agencyCodeFromDB.length()), 8);</span>
+<span class="nc" id="L107">        } catch (EmptyResultDataAccessException e) {</span>
+<span class="nc" id="L108">            validationErrorsList.add(env.getProperty(&quot;filename.state.code.invalid&quot;));</span>
+<span class="nc" id="L109">            goAhead = false;</span>
+<span class="nc" id="L110">        }</span>
+
+        //1. Determine the location of the file based on the input parameters.
+<span class="nc" id="L113">        String stateInputFolderKey = state + BatchConstants.INPUT_FILE_FOLDER;</span>
+<span class="nc" id="L114">        String stateInputFolder = profileProperties.getProperty(stateInputFolderKey);</span>
+<span class="nc" id="L115">        File fileDirectory = new File(stateInputFolder);</span>
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (goAhead) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (!fileDirectory.exists()) {</span>
+<span class="nc" id="L119">                validationErrorsList.add(stateInputFolder + ErrorMessageConstants.FILE_DIRECTORY_REQ);</span>
+<span class="nc" id="L120">                goAhead = false;</span>
+            }
+        }
+
+        //2. Read the file.
+<span class="nc" id="L125">        File[] fileListInSourceFolder = null;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (goAhead) {</span>
+<span class="nc" id="L127">            fileListInSourceFolder = fileDirectory.listFiles(new FileExtensionFilter(BatchConstants.FILE_FORMAT_EXTENSION));</span>
+            /* Sort in ascending order of modified date*/
+<span class="nc" id="L129">            Arrays.sort(fileListInSourceFolder, new Comparator&lt;File&gt;() {</span>
+                public int compare(File f1, File f2) {
+<span class="nc" id="L131">                    return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());</span>
+                }
+            });
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (fileListInSourceFolder.length == 0) {</span>
+<span class="nc" id="L135">                validationErrorsList.add(env.getProperty(&quot;filename.extension.invalid&quot;));</span>
+<span class="nc" id="L136">                goAhead = false;</span>
+            }
+        }
+<span class="nc" id="L139">        String fileName = null;</span>
+        //3. Populate input file meta data.
+<span class="nc" id="L141">        InputFileMetaData inputFileMetaData = null;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (goAhead) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            for (File file : fileListInSourceFolder) {</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                if (file.exists()) {</span>
+<span class="nc" id="L146">                    fileName = file.getName();</span>
+<span class="nc" id="L147">                    batchInfoDto.setFileName(file.getName());</span>
+                    // Check if the file is named in the format &lt;StateCd&gt;_&lt;AgencyCd&gt;_&lt;SystemCd&gt;_&lt;MMDDYYYY&gt;_&lt;Ver#&gt;_&lt;TaxYear&gt;.dat
+<span class="nc" id="L149">                    String[] fileNameParts = file.getName().split(&quot;_&quot;);</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                    if (fileNameParts.length == 3) {</span>
+<span class="nc" id="L151">                        inputFileMetaData = this.parseFileName(file);</span>
+                    } else {
+<span class="nc" id="L153">                        validationErrorsList.add(env.getProperty(&quot;filename.format.invalid&quot;));</span>
+<span class="nc" id="L154">                        generateReport(jobExecution, file.getName(), batchInfoDto.getBatchId(), env.getProperty(&quot;filename.format.invalid&quot;));</span>
+<span class="nc" id="L155">                        goAhead = false;</span>
+                    }
+<span class="nc" id="L157">                } else {</span>
+<span class="nc" id="L158">                    validationErrorsList.add(ErrorMessageConstants.FILE_EXISTS);</span>
+<span class="nc" id="L159">                    goAhead = false;</span>
+                }
+                // We shall not process more than 1 file in the state input folder
+<span class="nc" id="L162">                break;</span>
+            }
+        }
+
+        //4. Valid input file meta data.
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (goAhead) {</span>
+<span class="nc" id="L168">            BindingResult bindingResult = BatchUtils.bindAndValidate(inputFileMetaData, validator);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L170">                String errMsg = BatchUtils.buildValidationException(bindingResult);</span>
+<span class="nc" id="L171">                validationErrorsList.add(errMsg);</span>
+<span class="nc" id="L172">                generateReport(jobExecution,  fileName, batchInfoDto.getBatchId(), errMsg);</span>
+<span class="nc" id="L173">                goAhead = false;</span>
+<span class="nc" id="L174">            } else {</span>
+                // Check if the state code is valid and if yes
+                // check if it has a matching system code and agency code as mentioned in the DB.
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                if (!inputFileMetaData.getStateCode().equals(state)) {</span>
+<span class="nc" id="L178">                    validationErrorsList.add(env.getProperty(&quot;filename.state.code.invalid&quot;));</span>
+<span class="nc" id="L179">                    goAhead = false;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                } else if (!inputFileMetaData.getAgencyCode().equals(agencyCodeFromDB)) {</span>
+<span class="nc" id="L181">                    validationErrorsList.add(env.getProperty(&quot;filename.agency.code.invalid&quot;));</span>
+<span class="nc" id="L182">                    goAhead = false;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                } else if (!inputFileMetaData.getSystemCode().equals(systemCodeFromDB)) {</span>
+<span class="nc" id="L184">                    validationErrorsList.add(env.getProperty(&quot;filename.system.code.invalid&quot;));</span>
+<span class="nc" id="L185">                    goAhead = false;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                } else if (!inputFileMetaData.getTaxYear().equals(year)) {</span>
+<span class="nc" id="L187">                    validationErrorsList.add(env.getProperty(&quot;filename.tax.year.invalid&quot;));</span>
+                } else {
+<span class="nc" id="L189">                    batchInfoDto.setStateCd(inputFileMetaData.getStateCode());</span>
+<span class="nc" id="L190">                    batchInfoDto.setAgencyCd(inputFileMetaData.getAgencyCode());</span>
+<span class="nc" id="L191">                    batchInfoDto.setSystemCd(inputFileMetaData.getSystemCode());</span>
+<span class="nc" id="L192">                    batchInfoDto.setFileVersion(inputFileMetaData.getVersion());</span>
+<span class="nc" id="L193">                    batchInfoDto.setReceiveDt(new Date());</span>
+<span class="nc" id="L194">                    batchInfoDto.setTotalCount(inputFileMetaData.getRecordCountInHeader());</span>
+<span class="nc" id="L195">                    batchInfoDto.setSourceCode(batchInfoDto.getStateCd().concat(batchInfoDto.getAgencyCd().concat(batchInfoDto.getSystemCd())));</span>
+                }
+
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                if (!validationErrorsList.isEmpty()) {</span>
+<span class="nc" id="L199">                    generateReport(jobExecution,  fileName, batchInfoDto.getBatchId(), StringUtils.join(validationErrorsList, &quot;\n&quot;));</span>
+                }
+            }
+        }
+
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        if (goAhead &amp;&amp; !(inputFileMetaData.getRecordCountInFile().equals(inputFileMetaData.getRecordCountInHeader()))) {</span>
+
+<span class="nc" id="L206">            validationErrorsList.add(env.getProperty(&quot;filename.record.count.mismatch&quot;));</span>
+<span class="nc" id="L207">            generateReport(jobExecution,  fileName, batchInfoDto.getBatchId(), env.getProperty(&quot;filename.record.count.mismatch&quot;));</span>
+        }
+
+        //5. Return FlowExecutionStatus.FAILED on failed validation
+<span class="nc bnc" id="L211" title="All 6 branches missed.">        if (validationErrorsList != null &amp; !validationErrorsList.isEmpty()) {</span>
+
+<span class="nc" id="L213">            FLOW_EXECUTION_STATUS = FileIngestionConstants.FlowConstants.FLOW_STATUS_FAILED;</span>
+            //6. Log Exception on Failed validation
+<span class="nc" id="L215">            this.logExceptions(validationErrorsList, batchInfoDto);</span>
+            //7. Send email with validation failure messages.
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L218">                LOGGER.info(&quot;Decider signalled Failed..Sending email..&quot;);</span>
+<span class="nc" id="L219">                LOGGER.info(validationErrorsList.toString());</span>
+            }
+<span class="nc" id="L221">            fileImportMailerService.sendMail(batchInfoDto, jobExecution);</span>
+        }
+<span class="nc" id="L223">        batchInfoService.update(batchInfoDto);</span>
+
+        //8. Set exit status as COMPLETED
+<span class="nc" id="L226">        jobExecution.setExitStatus(ExitStatus.COMPLETED);</span>
+<span class="nc" id="L227">        return new FlowExecutionStatus(FLOW_EXECUTION_STATUS);</span>
+    }
+
+    private InputFileMetaData parseFileName(File file) {
+
+<span class="nc" id="L232">        InputFileMetaData inputFileMetaData = new InputFileMetaData();</span>
+<span class="nc" id="L233">        String completeFileName = file.getName();</span>
+        // completeFileName = fileName + fileExtension
+<span class="nc" id="L235">        String fileName = completeFileName.substring(0, completeFileName.lastIndexOf(&quot;.&quot;));</span>
+<span class="nc" id="L236">        String fileExtension = completeFileName.substring(completeFileName.lastIndexOf(&quot;.&quot;) + 1);</span>
+<span class="nc" id="L237">        String stateCode = fileName.substring(0, 2);</span>
+<span class="nc" id="L238">        String agencyCode = fileName.substring(2, 5);</span>
+<span class="nc" id="L239">        String systemCode = fileName.substring(5, 8);</span>
+<span class="nc" id="L240">        String date = fileName.substring(8, StringUtils.ordinalIndexOf(completeFileName, &quot;_&quot;, 1));</span>
+<span class="nc" id="L241">        String version = fileName.substring(StringUtils.ordinalIndexOf(completeFileName, &quot;_&quot;, 1) + 1,</span>
+<span class="nc" id="L242">                StringUtils.ordinalIndexOf(completeFileName, &quot;_&quot;, 2));</span>
+<span class="nc" id="L243">        String year = fileName.substring(StringUtils.ordinalIndexOf(completeFileName, &quot;_&quot;, 2) + 1);</span>
+<span class="nc" id="L244">        int recordCountInHeader = this.getRecordCountFromHeader(file);</span>
+<span class="nc" id="L245">        int recordCountInFile = this.getActualRecordCount(file);</span>
+<span class="nc" id="L246">        inputFileMetaData</span>
+<span class="nc" id="L247">                .setExtension(fileExtension)</span>
+<span class="nc" id="L248">                .setFileName(fileName)</span>
+<span class="nc" id="L249">                .setStateCode(stateCode)</span>
+<span class="nc" id="L250">                .setAgencyCode(agencyCode)</span>
+<span class="nc" id="L251">                .setSystemCode(systemCode)</span>
+<span class="nc" id="L252">                .setDate(date)</span>
+<span class="nc" id="L253">                .setVersion(version)</span>
+<span class="nc" id="L254">                .setTaxYear(year)</span>
+<span class="nc" id="L255">                .setRecordCountInHeader(recordCountInHeader)</span>
+<span class="nc" id="L256">                .setRecordCountInFile(recordCountInFile);</span>
+
+<span class="nc" id="L258">        return inputFileMetaData;</span>
+    }
+
+    public void generateReport(JobExecution jobExecution, String fileName, int batchId, String errorMessage) {
+<span class="nc" id="L262">        final ExecutionContext context = jobExecution.getExecutionContext();</span>
+        try {
+<span class="nc" id="L264">            final String stateOutputFolderkey = state + BatchConstants.OUTPUT_FILE_FOLDER;</span>
+<span class="nc" id="L265">            final String stateOutputFolder = profileProperties.getProperty(stateOutputFolderkey);</span>
+<span class="nc bnc" id="L266" title="All 4 branches missed.">            if (stateOutputFolder == null || !new File(stateOutputFolder).exists()) {</span>
+<span class="nc" id="L267">                LOGGER.warn(&quot;State specific Reports folder does not exists for the given state code {} &quot;, state);</span>
+<span class="nc" id="L268">                return;</span>
+            }
+<span class="nc" id="L270">            final String generatedReportName = stateOutputFolder + File.separator + fileName.replace(&quot;.dat&quot;, &quot;_ErrorReport.dat&quot;);</span>
+<span class="nc" id="L271">            reportGenerationService.generateMetadataReport(generatedReportName, fileName, batchId, errorMessage);</span>
+<span class="nc" id="L272">            context.put(&quot;errorReportGenerated&quot;, &quot;true&quot;);</span>
+<span class="nc" id="L273">        } catch (final Exception e) {</span>
+<span class="nc" id="L274">            context.put(&quot;errorReportGenerated&quot;, &quot;false&quot;);</span>
+<span class="nc" id="L275">            LOGGER.error(&quot;Error while generating report &quot;, e);</span>
+<span class="nc" id="L276">        }</span>
+<span class="nc" id="L277">    }</span>
+
+    private void logExceptions(List&lt;String&gt; validationErrorsList, BatchInfoDto batchInfoDto) {
+
+<span class="nc" id="L281">        ExceptionReportDto exceptionReport = new ExceptionReportDto();</span>
+<span class="nc" id="L282">        exceptionReport.setBatchInfo(batchInfoDto);</span>
+<span class="nc" id="L283">        exceptionReport.setRowNumber(0);</span>
+<span class="nc" id="L284">        exceptionReport.setSourceUniqueId(0);</span>
+<span class="nc" id="L285">        exceptionReport.setExDetails(validationErrorsList.toString());</span>
+<span class="nc" id="L286">        exceptionReportService.save(exceptionReport);</span>
+
+<span class="nc" id="L288">    }</span>
+
+    private int getRecordCountFromHeader(File file) {
+        int linenumber;
+        try {
+<span class="nc" id="L293">            FileReader fr = new FileReader(file);</span>
+<span class="nc" id="L294">            LineNumberReader lnr = new LineNumberReader(fr);</span>
+<span class="nc" id="L295">            String line = StringUtils.trim(lnr.readLine());</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (NumberUtils.isNumber(line)) {</span>
+<span class="nc" id="L297">                linenumber = Integer.parseInt(line);</span>
+            } else {
+<span class="nc" id="L299">                linenumber = -1;</span>
+            }
+<span class="nc" id="L301">            lnr.close();</span>
+
+<span class="nc" id="L303">        } catch (IOException e) {</span>
+<span class="nc" id="L304">            validationErrorsList.add(e.getMessage());</span>
+<span class="nc" id="L305">            goAhead = false;</span>
+<span class="nc" id="L306">            linenumber = -1;</span>
+<span class="nc" id="L307">        }</span>
+<span class="nc" id="L308">        return linenumber;</span>
+    }
+
+    private int getActualRecordCount(File file) {
+<span class="nc" id="L312">        int linenumber = -1; // Since we have to skip the first line to get to the first record.</span>
+        try {
+<span class="nc" id="L314">            FileReader fr = new FileReader(file);</span>
+<span class="nc" id="L315">            LineNumberReader lnr = new LineNumberReader(fr);</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">            while (lnr.readLine() != null) {</span>
+<span class="nc" id="L317">                linenumber++;</span>
+            }
+<span class="nc" id="L319">            lnr.close();</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">            if (linenumber == -1) {</span>
+<span class="nc" id="L321">                validationErrorsList.add(ErrorMessageConstants.FILE_EMPTY);</span>
+<span class="nc" id="L322">                goAhead = false;</span>
+            }
+
+<span class="nc" id="L325">        } catch (IOException e) {</span>
+<span class="nc" id="L326">            validationErrorsList.add(e.getMessage());</span>
+<span class="nc" id="L327">            goAhead = false;</span>
+<span class="nc" id="L328">        }</span>
+<span class="nc" id="L329">        return linenumber;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

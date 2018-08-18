@@ -1,0 +1,83 @@
+<div class="static-content-container">
+  <div class="static-content">
+    <!--<div class="title" tabindex="0" aria-label="{{ariaLabel.titleAction}}">{{detail.state}}{{detail.title}}</div>-->
+    <div class="container-scroll">
+      <div class="static-content-scroll" ng-switch on="state">
+
+        <div ng-switch-when="AR">
+          <div>
+            <div class="row row-margin text-center">
+              <div class="col-md-12">
+                <img class="full-width" ng-src="images/arkansas-header.png"/>
+              </div>
+            </div>
+            <div class="row row-margin">{{detail.actDetails}}<span class="text-blue">{{detail.actDetails_1}}</span>
+            </div>
+            <div class="row row-margin bold red">{{detail.importance}}</div>
+            <div class="row row-margin">{{detail.formDetail.overview}} <a class="text-inherit" target="_blank"
+                                                                          href="http://{{detail.formDetail.contactUrl}}">{{detail.formDetail.contactUrl}}</a>
+              or call {{detail.formDetail.contactInfo}}
+            </div>
+
+            <!--<div class="row row-margin text-center">-->
+            <!--<div class="col-md-12">-->
+            <!--<img ng-src="images/sample-form.png"/>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!-- -->
+            <!--<div class="row row-margin bold">{{detail.formDetail.formLabel}} <a target="_blank" href="http://{{detail.formDetail.sampleUrl}}">{{detail.formDetail.sampleUrl}}</a></div>-->
+            <div class="row bold">{{detail.formDetail.detailTitle}}</div>
+            <div class="row">{{detail.formDetail.description}}</div>
+
+            <div class="row">
+              <div ng-repeat="part in detail.formDetail.parts"><span class="bold">{{part.bullet}}</span> {{part.detail}}<span
+                class="text-blue">{{part.color}}</span></div>
+            </div>
+
+            <div class="row">{{detail.formDetail.line1}}<span class="text-blue">{{detail.formDetail.line1_1}}</span>
+            </div>
+            <div class="row row-margin">{{detail.formDetail.line2}}</div>
+
+            <div class="row bold">{{detail.formDetail.purpose.title}}</div>
+            <div class="row row-margin">{{detail.formDetail.purpose.description}}<span class="text-blue">{{detail.formDetail.purpose.description_1}}</span>
+            </div>
+            <div class="row">{{detail.formDetail.purpose.description2}}</div>
+
+            <div class="row row-margin">{{detail.formDetail.purpose.urlLabel}} <a class="text-inherit" target="_blank"
+                                                                                  href="{{detail.formDetail.purpose.url}}">{{detail.formDetail.purpose.url}}</a>
+            </div>
+            <div class="row bold">{{detail.formDetail.incomeTaxQuestions.title}}</div>
+            <div class="row">{{detail.formDetail.incomeTaxQuestions.detail}} <a class="text-inherit" target="_blank"
+                                                                                href="http://{{detail.formDetail.incomeTaxQuestions.url}}">{{detail.formDetail.incomeTaxQuestions.url}}</a>
+            </div>
+            <div class="row row-margin">
+              <div ng-repeat="question in detail.formDetail.incomeTaxQuestions.questions"><li>{{question.text}}</li></div>
+            </div>
+            <div class="row bold">{{detail.formDetail.incomeTaxQuestions.moreQuestions}}</div>
+            <div class="row row-margin">{{detail.formDetail.incomeTaxQuestions.contactDetails}}</div>
+
+          </div>
+        </div>
+
+        <div ng-switch-when="IN">
+          <div>
+            <div class="row row-margin">{{detail.actDetails}}</div>
+          </div>
+        </div>
+
+        <div ng-switch-when="LA">
+          <div>
+            <div class="row row-margin">{{detail.actDetails}}</div>
+          </div>
+        </div>
+
+        <div ng-switch-default>
+          <div>
+            <div class="row row-margin">{{detail.actDetails}}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

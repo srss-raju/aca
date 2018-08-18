@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3RecordValidationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3.services.impl</a> &gt; <span class="el_source">Step3RecordValidationServiceImpl.java</span></div><h1>Step3RecordValidationServiceImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3.services.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import us.deloitteinnovation.aca.batch.constants.BatchQueryConstants;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.*;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.FileIngestionService;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by tthakore on 9/1/2016.
+ */
+<span class="nc" id="L18">public class Step3RecordValidationServiceImpl implements Step3RecordValidationService {</span>
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private FileIngestionService fileIngestionDao;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    Step3RecordsUIDValidationResultMap step3RecordsUIDValidationResultMap;
+    
+
+
+    @Override
+    public List&lt;Step3FilerDataDto&gt; getRecordsByUID(String sourceCd, long sourceUID, String taxYear) {
+
+<span class="nc" id="L37">        StringBuilder sql = new StringBuilder(&quot;select &quot;+ BatchQueryConstants.STAGING_COLUMNS_NAME+&quot; from filer_demographics_staging where source_cd = ? and source_unique_id = ? and tax_year = ? order by row_number ASC&quot;);</span>
+<span class="nc" id="L38">        List&lt;Step3FilerDataDto&gt; list = this.jdbcTemplate.query(sql.toString(),</span>
+<span class="nc" id="L39">                new Object[]{sourceCd, sourceUID, taxYear}, new Step3FilerDataDtoMapper());</span>
+<span class="nc" id="L40">        return list;</span>
+    }
+
+    @Override
+    public List&lt;Step3FilerDataDto&gt; getRecordsBySSN(String uid,  String taxYear, String sourceCd) {
+
+        List&lt;Step3FilerDataDto&gt; list;
+<span class="nc" id="L47">            StringBuilder sql = new StringBuilder(&quot;select &quot;+ BatchQueryConstants.STAGING_COLUMNS_NAME+&quot; from filer_demographics_staging where RECIPIENT_SSN = ? and tax_year = ? and source_cd = ?  order by row_number ASC&quot;);</span>
+<span class="nc" id="L48">            list = this.jdbcTemplate.query(sql.toString(),</span>
+                    new Object[]{uid, taxYear, sourceCd}, new Step3FilerDataDtoMapper());
+<span class="nc" id="L50">        return list;</span>
+    }
+
+
+    @Override
+    public List&lt;Step3FilerDataDto&gt; getRecordsByTIN(String uid, String taxYear, String sourceCd) {
+
+        List&lt;Step3FilerDataDto&gt; list;
+
+<span class="nc" id="L59">            StringBuilder sql = new StringBuilder(&quot;select &quot;+ BatchQueryConstants.STAGING_COLUMNS_NAME+&quot; from filer_demographics_staging where RECIPIENT_TIN = ? and  tax_year = ? and source_cd = ?   order by row_number ASC&quot;);</span>
+<span class="nc" id="L60">            list = this.jdbcTemplate.query(sql.toString(),</span>
+                    new Object[]{uid, taxYear, sourceCd}, new Step3FilerDataDtoMapper());
+<span class="nc" id="L62">        return list;</span>
+    }
+
+    @Override
+    public List&lt;Step3FilerDataDto&gt; getRecordsFromFileByStateandTaxYear(String state, String taxYear) {
+        List&lt;Step3FilerDataDto&gt; list;
+<span class="nc" id="L68">        StringBuilder sql = new StringBuilder(&quot;select distinct source_unique_id,  source_cd , tax_year , filer_status, row_number from filer_demographics_staging fds where left(fds.SOURCE_CD,2) = ? and tax_year = ?  and RECORD_SOURCE = 'FILE'   order by row_number ASC &quot;);</span>
+<span class="nc" id="L69">        this.jdbcTemplate.query(sql.toString(),</span>
+                new Object[]{state, taxYear}, new Step3InitialRecordListMapper(step3RecordsUIDValidationResultMap));
+<span class="nc" id="L71">        list = new ArrayList&lt;&gt;(step3RecordsUIDValidationResultMap.getIntialRecordsMap().values());</span>
+<span class="nc" id="L72">        return list;</span>
+    }
+
+    @Override
+    public void bulkInsertFD(List&lt;Step3FilerDataDto&gt; filerDemographics) {
+<span class="nc" id="L77">        fileIngestionDao.bulkInsertFD(filerDemographics);</span>
+<span class="nc" id="L78">    }</span>
+
+    @Override
+    public void bulkInsertFCS(FilerCoverageDto filerDemographics) {
+<span class="nc" id="L82">        fileIngestionDao.bulkInsertFCS(filerDemographics);</span>
+<span class="nc" id="L83">    }</span>
+
+    @Override
+    public void bulkInsertBusinessLogs(List&lt;BusinessValidationRuleDto&gt; businessLogList) {
+<span class="nc" id="L87">        fileIngestionDao.bulkInsertBusinessLogs(businessLogList);</span>
+<span class="nc" id="L88">    }</span>
+
+    @Override
+    public void bulkInsertExceptionReport(List&lt;BusinessValidationRuleDto&gt; exceptionReportListList)
+    {
+<span class="nc" id="L93">        fileIngestionDao.bulkInsertExceptionReport(exceptionReportListList);</span>
+<span class="nc" id="L94">    }</span>
+
+    @Override
+    public void bulkUpdateFD(List&lt;Step3FilerDataDto&gt; filerDemographics) {
+<span class="nc" id="L98">        fileIngestionDao.bulkUpdateFD(filerDemographics);</span>
+<span class="nc" id="L99">    }</span>
+
+    @Override
+    public void bulkUpdateFormStatus(List&lt;Step3FilerDataDto&gt; filerDemographics){
+<span class="nc" id="L103">        fileIngestionDao.bulkUpdateFormStatus(filerDemographics);</span>
+<span class="nc" id="L104">    }</span>
+
+    @Override
+    public List&lt;Step3FilerDataDto&gt; getCoveredPersonListbyUID(String sourceCd, long sourceUID, String taxYear) {
+<span class="nc" id="L108">        String filerStatus = &quot;C&quot;;</span>
+<span class="nc" id="L109">        StringBuilder sql = new StringBuilder(&quot;select &quot;+ BatchQueryConstants.STAGING_COLUMNS_NAME+&quot; from filer_demographics_staging where source_cd = ? and RESPONSIBLE_PERSON_UNIQUE_ID = ? and tax_year = ? and filer_status= ? order by row_number ASC&quot;);</span>
+<span class="nc" id="L110">        List&lt;Step3FilerDataDto&gt; list = this.jdbcTemplate.query(sql.toString(),</span>
+<span class="nc" id="L111">                new Object[]{sourceCd, sourceUID, taxYear,filerStatus}, new Step3FilerDataDtoMapper());</span>
+<span class="nc" id="L112">        return list;</span>
+    }
+
+    @Override
+    public void bulkDeleteFromCoverage(FilerCoverageDto filerDemographics)
+    {
+<span class="nc" id="L118">        fileIngestionDao.bulkDeleteFromCoverage(filerDemographics);</span>
+<span class="nc" id="L119">    }</span>
+
+    @Override
+    public void bulkUpdateVersionNo(List&lt;Step3FilerDataDto&gt; otherRecordsToUpdate)
+    {
+<span class="nc" id="L124">        fileIngestionDao.bulkUpdateVersionNo(otherRecordsToUpdate);</span>
+<span class="nc" id="L125">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

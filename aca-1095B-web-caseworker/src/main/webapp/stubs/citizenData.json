@@ -1,0 +1,19 @@
+{
+  "bFormView":true,
+  "message":null,
+  "firstName":"Martha",
+  "lastName":"Stuart",
+  "errorMessage":null,
+  "ssnValue":"xxx-xx-1236",
+  "listFormInfos":[
+    {
+      "generated_date":"Temp",
+      "address1":"Building1",
+      "address2":"",
+      "city":"Frankort",
+      "state":"KY",
+      "zipcode":"",
+      "doc_id":"GAFSDID10202015_01_1990654376"
+    }
+  ]
+}

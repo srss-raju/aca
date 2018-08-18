@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step1Form1095Dto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step1</a> &gt; <span class="el_source">Step1Form1095Dto.java</span></div><h1>Step1Form1095Dto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step1;
+
+import us.deloitteinnovation.aca.entity.IrsRecordDetails1095BPK;
+import us.deloitteinnovation.aca.model.Filer;
+import us.gov.treasury.irs.ext.aca.air._7.Form1095BUpstreamDetailType;
+
+/**
+ * &lt;p&gt;
+ * Encapsulation of the Form1095BUpstreamDetailType and the SOAP XML rendered from it.
+ * Used for mid-term storage of Form 1095 data, along with its XML, during the Job.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Object is uniquely identified by the Filer's source code and source unique id.
+ * &lt;/p&gt;
+ */
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">public class Step1Form1095Dto {</span>
+
+    /**
+     * Filer or &quot;Payee&quot; detailed in the FORM 1095B.  Data pulled from FILER_DEMOGRAPHICS.
+     */
+    Filer filer;
+
+    /**
+     * Created during Step1 processor.
+     */
+    Form1095BUpstreamDetailType form1095BUpstreamDetailType;
+
+    /** If the job is for corrections, this will be the primary key of the IRS_RECORD_DETAILS_1095B table.  Its key contains
+     * the record id, submission id, and transmission id. */
+    IrsRecordDetails1095BPK irsRecordDetails1095BPK ;
+
+    /** If the job is for corrections, this should be the receipt id of the original transmission. */
+    String receiptId;
+
+    /**
+     * SOAP XML rendered in String format.
+     */
+    byte[] rawXml;
+
+<span class="fc" id="L41">    public Step1Form1095Dto() {</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * @param filer
+     */
+<span class="nc" id="L47">    public Step1Form1095Dto(Filer filer) {</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">        assert (filer != null);</span>
+<span class="nc" id="L49">        this.filer = filer;</span>
+<span class="nc" id="L50">    }</span>
+
+    public Form1095BUpstreamDetailType getForm1095BUpstreamDetailType() {
+<span class="nc" id="L53">        return form1095BUpstreamDetailType;</span>
+    }
+
+    public void setForm1095BUpstreamDetailType(Form1095BUpstreamDetailType form1095BUpstreamDetailType) {
+<span class="nc" id="L57">        this.form1095BUpstreamDetailType = form1095BUpstreamDetailType;</span>
+<span class="nc" id="L58">    }</span>
+
+    public byte[] getRawXml() {
+<span class="nc" id="L61">        return rawXml;</span>
+    }
+
+    public void setRawXml(byte[] rawXml) {
+<span class="nc" id="L65">        this.rawXml = rawXml;</span>
+<span class="nc" id="L66">    }</span>
+
+    public Filer getFiler() {
+<span class="nc" id="L69">        return filer;</span>
+    }
+
+    public void setFiler(Filer filer) {
+<span class="nc" id="L73">        this.filer = filer;</span>
+<span class="nc" id="L74">    }</span>
+
+    public String getReceiptId() {
+<span class="nc" id="L77">        return receiptId;</span>
+    }
+
+    public void setReceiptId(String receiptId) {
+<span class="nc" id="L81">        this.receiptId = receiptId;</span>
+<span class="nc" id="L82">    }</span>
+
+    public IrsRecordDetails1095BPK getIrsRecordDetails1095BPK() {
+<span class="nc" id="L85">        return irsRecordDetails1095BPK;</span>
+    }
+
+    public void setIrsRecordDetails1095BPK(IrsRecordDetails1095BPK irsRecordDetails1095BPK) {
+<span class="nc" id="L89">        this.irsRecordDetails1095BPK = irsRecordDetails1095BPK;</span>
+<span class="nc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,1298 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dto</a> &gt; <span class="el_source">FilerDemographicDto.java</span></div><h1>FilerDemographicDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dto;
+
+import com.google.common.collect.ListMultimap;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+import us.deloitteinnovation.aca.validator.AcceptedValues;
+import us.deloitteinnovation.aca.validator.StateCode;
+import us.deloitteinnovation.aca.validator.USStateCode;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.*;
+
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.COVERAGE_MONTHS;
+import static us.deloitteinnovation.aca.constants.CommonDataConstants.MMDDYYYY;
+
+/**
+ * Created by rgopalani on 10/20/2015.
+ */
+public class FilerDemographicDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private FilerDemographicPKDto id;
+
+<span class="nc" id="L34">    private boolean</span>
+            active = true,
+            insert;
+
+    private String originalCoverageBeginDtStr;
+
+    private String comments;
+
+    private String transmissionStatusCode;
+    
+    @NotEmpty(message = &quot;{recipient.commmunication.preference.value.required.error}&quot;)
+    @AcceptedValues(acceptValues = {&quot;E&quot;,&quot;P&quot;,&quot;B&quot;}, message = &quot;{recipient.commmunication.preference.value.required.error}&quot;)
+    private String communicationPreference;
+
+    @NotNull(message = &quot;{correction.code.value.invalid}&quot;)
+    @Pattern(regexp = &quot;[OUC]&quot;, message = &quot;{correction.code.value.invalid}&quot;)
+    private String correction;
+
+    private Date correctionDt;
+
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,100}$&quot;, message = &quot;{recipient.email.format.invalid}&quot;),
+                    @Pattern(regexp = &quot;^[A-z0-9._%+-]+@[A-z0-9.-]+\\.[A-z]{2,63}$&quot;, message = &quot;{recipient.email.format.invalid}&quot;)
+            }
+    )
+    private String eMail;
+
+    @Pattern(regexp = &quot;^.{0,30}$&quot;, message = ErrorMessageConstants.EMPLOYER_ADDRESS_LINE_1_REQ_VALUE)
+    private String employerAddressLine1;
+
+    @Pattern(regexp = &quot;^.{0,30}$&quot;, message = ErrorMessageConstants.EMPLOYER_ADDRESS_LINE_1_REQ_VALUE)
+    private String employerAddressLine2;
+
+    private String employerCityOrTown;
+
+    @Pattern(regexp = &quot;[0-9]{10}$&quot;, message = ErrorMessageConstants.EMPLOYER_CONTACT_NO_VALUE)
+    private String employerContactNo;
+
+    @Pattern(regexp = &quot;^.{0,25}$&quot;, message = ErrorMessageConstants.EMPLOYER_COUNTRY_REQ_VALUE)
+    private String employerCountry;
+
+    @Pattern(regexp = &quot;^[0-9]{0,25}$&quot;, message = ErrorMessageConstants.EMPLOYER_IDENTIFICATION_NUMBER_REQ_VALUE)
+    private String employerIdentificationNumber;
+
+    @Pattern(regexp = &quot;^.{0,25}$&quot;, message = ErrorMessageConstants.EMPLOYER_NAME_REQ_VALUE)
+    private String employerName;
+
+    @Pattern(regexp = &quot;^.{0,25}$&quot;, message = ErrorMessageConstants.EMPLOYER_STATE_OR_PROVINCE_REQ_VALUE)
+    private String employerStateOrProvince;
+
+    @NotEmpty(message = &quot;{recipient.filer.status.value.required.error}&quot;)
+    @AcceptedValues(acceptValues = {&quot;R&quot;,&quot;C&quot;}, message = &quot;{recipient.filer.status.value.required.error}&quot;)
+	private String filerStatus;
+
+    private String formStatus;
+
+    @Pattern(regexp = &quot;^.{0}$&quot;, message = &quot;{recipient.language.preference.value.error}&quot;)
+    private String languagePreference;
+
+    @NotEmpty(message = &quot;{policy.origin.length.invalid}&quot;)
+    @Pattern(regexp = &quot;^[C]$&quot;, message = &quot;{policy.origin.length.invalid}&quot;)
+    private String policyOrigin;
+
+    @NotNull(message = &quot;{provider.address.line1.length.invalid}&quot;)
+    @Pattern.List({
+            @Pattern(regexp = &quot;^.{1,35}$&quot;, message = &quot;{provider.address.line1.length.invalid}&quot;),
+            @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{provider.address.line1.spchar.num.error}&quot;),
+    })
+    private String providerAddressLine1;
+
+    @Pattern.List({
+            @Pattern(regexp = &quot;^.{1,35}$&quot;, message = &quot;{provider.address.line2.length.invalid}&quot;),
+            @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{provider.address.line2.spchar.num.error}&quot;),
+    })
+    private String providerAddressLine2;
+
+    @NotNull(message = &quot;{provider.city.or.town.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,22}$&quot;, message = &quot;{provider.city.or.town.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{provider.city.or.town.spchar.num.error}&quot;),
+                    @Pattern(regexp = &quot;^[ A-Za-z0-9\\.\\-\\'\\,\\*]*$&quot;, message = &quot;{provider.city.or.town.allowed.spchar.error}&quot;)
+            }
+    )
+    private String providerCityOrTown;
+
+    @NotBlank(message = &quot;{provider.contact.number.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,10}$&quot;, message = &quot;{provider.contact.number.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;[0-9]*&quot;, message = &quot;{provider.contact.number.format.invalid}&quot;)
+            }
+    )
+    private String providerContactNo;
+
+    @NotNull(message = &quot;{provider.country.length.invalid}&quot;)
+    @Pattern(regexp = &quot;^[A-z]{1,25}$&quot;, message = &quot;{provider.country.length.invalid}&quot;)
+    private String providerCountry;
+
+    @NotNull(message = &quot;{provider.ein.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,10}$&quot;, message = &quot;{provider.ein.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(\\d{9}|\\d{2}-\\d{7})&quot;, message = &quot;{provider.ein.format.invalid}&quot;)
+            }
+    )
+    private String providerIdentificationNumber;
+
+    @NotBlank(message = &quot;{provider.name.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,75}$&quot;, message = &quot;{provider.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(^[^\\&amp;\\'\\\&quot;\\#\\&lt;\\&gt;\\*\\^\\%\\$\\@\\!\\{\\}\\[\\]\\?\\/\\\\\\+\\=]+$)&quot;, message = &quot;{provider.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;^(?:(?!--).)+$&quot;, message = &quot;{provider.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{provider.name.spchar.num.error}&quot;)
+            }
+    )
+    private String providerName;
+
+    @NotNull(message = &quot;{provider.state.or.province.length.invalid}&quot;)
+    @Pattern(regexp = &quot;^.{1,2}$&quot;, message = &quot;{provider.state.or.province.length.invalid}&quot;)
+    @USStateCode(acceptValues = StateCode.class, message = &quot;{provider.state.or.province.mismatch}&quot;)
+    private String providerStateOrProvince;
+
+    @NotNull(message = &quot;{provider.zip.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;[0-9]*&quot;, message = &quot;{provider.zip.content.invalid}&quot;),
+                    @Pattern(regexp = &quot;^.{5,9}$&quot;, message = &quot;{provider.zip.min.max.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;^(?!00000).+&quot;, message = &quot;{provider.zip.all.zeros.error}&quot;)
+            }
+    )
+    private String providerZipOrPostalCode;
+
+    @NotNull(message = &quot;{recipient.address.line1.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,35}$&quot;, message = &quot;{recipient.address.line1.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{recipient.address.line1.spchar.num.error}&quot;),
+            }
+    )
+    private String recipientAddressLine1;
+
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,35}$&quot;, message = &quot;{recipient.address.line2.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{recipient.address.line2.spchar.num.error}&quot;),
+            }
+    )
+    private String recipientAddressLine2;
+
+    @NotNull(message = &quot;{recipient.city.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,22}$&quot;, message = &quot;{recipient.city.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{recipient.city.spchar.num.error}&quot;),
+                    @Pattern(regexp = &quot;^[ A-Za-z0-9\\.\\-\\'\\,]*$&quot;, message = &quot;{recipient.city.allowed.spchar.error}&quot;)
+            }
+    )
+    private String recepientCity;
+
+    private String recipientDobStr;
+
+    @NotNull(message = &quot;{recipient.dob.length.invalid}&quot;)
+    @DateTimeFormat(pattern = BatchConstants.DATE_FORMAT)
+    private Date recipientDob;
+
+    @NotBlank(message = &quot;{recipient.first.name.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,20}$&quot;, message = &quot;{recipient.first.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(^[^\\&amp;\\\&quot;\\#\\&lt;\\&gt;\\*\\^\\%\\$\\@\\!\\{\\}\\[\\]\\?\\/\\\\\\+\\=]+$)&quot;, message = &quot;{recipient.first.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;^(?:(?!--).)+$&quot;, message = &quot;{recipient.first.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;.*[ a-zA-Z].*&quot;, message = &quot;{recipient.first.name.spchar.num.error}&quot;)
+            }
+    )
+    private String recipientFirstName;
+
+    @NotBlank(message = &quot;{recipient.last.name.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,20}$&quot;, message = &quot;{recipient.last.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(^[^\\&amp;\\\&quot;\\#\\&lt;\\&gt;\\*\\^\\%\\$\\@\\!\\{\\}\\[\\]\\?\\/\\\\\\+\\=]+$)&quot;, message = &quot;{recipient.last.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;^(?:(?!--).)+$&quot;, message = &quot;{recipient.last.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;.*[ a-zA-Z].*&quot;, message = &quot;{recipient.last.name.spchar.num.error}&quot;)
+            }
+    )
+    private String recipientLastName;
+
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,20}$&quot;, message = &quot;{recipient.middle.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(^[^\\&amp;\\\&quot;\\#\\&lt;\\&gt;\\*\\^\\%\\$\\@\\!\\{\\}\\[\\]\\?\\/\\\\\\+\\=]+$)&quot;, message = &quot;{recipient.middle.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;^(?:(?!--).)+$&quot;, message = &quot;{recipient.middle.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;.*[ a-zA-Z].*&quot;, message = &quot;{recipient.middle.name.spchar.num.error}&quot;)
+            }
+    )
+    private String recipientMiddleName;
+
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^\\d{9}$&quot;, message = &quot;{recipient.ssn.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;^(?!666).+&quot;, message = &quot;{recipient.ssn.begin.value.error}&quot;),
+                    @Pattern(regexp = &quot;^(?!000).+&quot;, message = &quot;{recipient.ssn.begin.value.error}&quot;),
+                    @Pattern(regexp = &quot;(^[0-8]\\w*$)&quot;, message = &quot;{recipient.ssn.begin.value.error}&quot;)
+            }
+    )
+    private String recipientSsn;
+
+    @NotNull(message = &quot;{recipient.state.code.invalid}&quot;)
+    @Pattern(regexp = &quot;[a-zA-Z]{2}&quot;, message = &quot;{recipient.state.code.invalid}&quot;)
+    @USStateCode(acceptValues = StateCode.class, message = &quot;{recipient.state.code.mismatch}&quot;)
+    private String recipientState;
+
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^.{1,10}$&quot;, message = &quot;{recipient.suffix.name.length.invalid}&quot;),
+                    @Pattern(regexp = &quot;(^[^\\&amp;\\\&quot;\\#\\&lt;\\&gt;\\*\\^\\%\\$\\@\\!\\{\\}\\[\\]\\?\\/\\\\\\+\\=]+$)&quot;, message = &quot;{recipient.suffix.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;^(?:(?!--).)+$&quot;, message = &quot;{recipient.suffix.name.spchar.exclusion.error}&quot;),
+                    @Pattern(regexp = &quot;.*[a-zA-Z].*&quot;, message = &quot;{recipient.suffix.name.spchar.num.error}&quot;)
+            }
+    )
+    private String recepientSuffixName;
+
+    @Pattern(regexp = &quot;^[0-9]{9}$&quot;, message = &quot;{recipient.tin.length.invalid}&quot;)
+    private String recipientTin;
+
+    @Pattern(
+            regexp = &quot;^\\d{4}$&quot;, message = &quot;{recipient.zip4.length.invalid}&quot;
+    )
+    private String recepientZip4;
+
+    @NotNull(message = &quot;{recipient.zip5.length.invalid}&quot;)
+    @Pattern.List(
+            {
+                    @Pattern(regexp = &quot;^[0-9]{5}$&quot;, message = &quot;{recipient.zip5.length.invalid}&quot;),
+            }
+    )
+    private String recepientZip5;
+    @Pattern(regexp = &quot;[0-9]{0,15}&quot;, message = &quot;{responsible.person.unique.id.value.num.length.error}&quot;)
+    private String responsiblePersonUniqueId;
+
+    @Pattern(regexp = &quot;^.{0}$&quot;, message = &quot;{shop.identifier.value.error}&quot;)
+    private String shopIdentifier;
+
+    @NotEmpty(message = &quot;{recipient.email.value.required.error}&quot;)
+    @AcceptedValues(acceptValues = {&quot;Y&quot;, &quot;N&quot;}, message = &quot;{recipient.email.value.required.error}&quot;)
+    private String mailedForm;
+
+    private String updatedBy;
+
+    private String updatedDt;
+
+    @Pattern(regexp = &quot;[0-9]{0,25}&quot;, message = ErrorMessageConstants.EMPLOYER_ZIP_OR_FOREIGN_POSTAL_CODE_REQ_VALUE)
+    private String zipOrPostalCode;
+
+<span class="nc" id="L291">    private List&lt;FilerCoverageDto&gt; filerCoverages = new ArrayList&lt;&gt;();</span>
+
+    private BatchInfoDto batchInfo;
+
+<span class="nc" id="L295">    private String</span>
+            jan = &quot;0&quot;,
+            feb = &quot;0&quot;,
+            mar = &quot;0&quot;,
+            apr = &quot;0&quot;,
+            may = &quot;0&quot;,
+            jun = &quot;0&quot;,
+            jul = &quot;0&quot;,
+            aug = &quot;0&quot;,
+            sep = &quot;0&quot;,
+            oct = &quot;0&quot;,
+            nov = &quot;0&quot;,
+            dec = &quot;0&quot;;
+    private int lineNumber;
+
+<span class="nc" id="L310">    public FilerDemographicDto() {</span>
+<span class="nc" id="L311">    }</span>
+
+    /* This is a constructor to deep-clone another object */
+<span class="nc" id="L314">    public FilerDemographicDto(FilerDemographicDto another) {</span>
+        /* Clone immutable objects */
+<span class="nc" id="L316">        this.active = another.isActive();</span>
+<span class="nc" id="L317">        this.originalCoverageBeginDtStr = another.getOriginalCoverageBeginDtStr();</span>
+<span class="nc" id="L318">        this.comments = another.getComments();</span>
+<span class="nc" id="L319">        this.transmissionStatusCode = another.getTransmissionStatusCode();</span>
+<span class="nc" id="L320">        this.communicationPreference = another.getCommunicationPreference();</span>
+<span class="nc" id="L321">        this.correction = another.getCorrection();</span>
+<span class="nc" id="L322">        this.correctionDt = another.getCorrectionDt();</span>
+<span class="nc" id="L323">        this.eMail = another.geteMail();</span>
+<span class="nc" id="L324">        this.employerAddressLine1 = another.getEmployerAddressLine1();</span>
+<span class="nc" id="L325">        this.employerAddressLine2 = another.getEmployerAddressLine2();</span>
+<span class="nc" id="L326">        this.employerCityOrTown = another.getEmployerCityOrTown();</span>
+<span class="nc" id="L327">        this.employerContactNo = another.getEmployerContactNo();</span>
+<span class="nc" id="L328">        this.employerCountry = another.getEmployerCountry();</span>
+<span class="nc" id="L329">        this.employerIdentificationNumber = another.getEmployerIdentificationNumber();</span>
+<span class="nc" id="L330">        this.employerName = another.getEmployerName();</span>
+<span class="nc" id="L331">        this.employerStateOrProvince = another.getEmployerStateOrProvince();</span>
+<span class="nc" id="L332">        this.filerStatus = another.getFilerStatus();</span>
+<span class="nc" id="L333">        this.formStatus = another.getFormStatus();</span>
+<span class="nc" id="L334">        this.languagePreference = another.getLanguagePreference();</span>
+<span class="nc" id="L335">        this.policyOrigin = another.getPolicyOrigin();</span>
+<span class="nc" id="L336">        this.providerAddressLine1 = another.getProviderAddressLine1();</span>
+<span class="nc" id="L337">        this.providerAddressLine2 = another.getProviderAddressLine2();</span>
+<span class="nc" id="L338">        this.providerCityOrTown = another.getProviderCityOrTown();</span>
+<span class="nc" id="L339">        this.providerContactNo = another.getProviderContactNo();</span>
+<span class="nc" id="L340">        this.providerCountry = another.getProviderCountry();</span>
+<span class="nc" id="L341">        this.providerIdentificationNumber = another.getProviderIdentificationNumber();</span>
+<span class="nc" id="L342">        this.providerName = another.getProviderName();</span>
+<span class="nc" id="L343">        this.providerStateOrProvince = another.getProviderStateOrProvince();</span>
+<span class="nc" id="L344">        this.providerZipOrPostalCode = another.getProviderZipOrPostalCode();</span>
+<span class="nc" id="L345">        this.recipientAddressLine1 = another.getRecipientAddressLine1();</span>
+<span class="nc" id="L346">        this.recipientAddressLine2 = another.getRecipientAddressLine2();</span>
+<span class="nc" id="L347">        this.recepientCity = another.getRecipientCity();</span>
+<span class="nc" id="L348">        this.recipientDobStr = another.getRecipientDobStr();</span>
+<span class="nc" id="L349">        this.recipientDob = another.getRecipientDob();</span>
+<span class="nc" id="L350">        this.recipientFirstName = another.getRecipientFirstName();</span>
+<span class="nc" id="L351">        this.recipientLastName = another.getRecipientLastName();</span>
+<span class="nc" id="L352">        this.recipientMiddleName = another.getRecipientMiddleName();</span>
+<span class="nc" id="L353">        this.recipientSsn = another.getRecipientSsn();</span>
+<span class="nc" id="L354">        this.recipientState = another.getRecipientState();</span>
+<span class="nc" id="L355">        this.recepientSuffixName = another.getRecepientSuffixName();</span>
+<span class="nc" id="L356">        this.recipientTin = another.getRecipientTin();</span>
+<span class="nc" id="L357">        this.recepientZip4 = another.getRecepientZip4();</span>
+<span class="nc" id="L358">        this.recepientZip5 = another.getRecepientZip5();</span>
+<span class="nc" id="L359">        this.responsiblePersonUniqueId = another.getResponsiblePersonUniqueId();</span>
+<span class="nc" id="L360">        this.shopIdentifier = another.getShopIdentifier();</span>
+<span class="nc" id="L361">        this.mailedForm = another.getMailedForm();</span>
+<span class="nc" id="L362">        this.updatedBy = another.getUpdatedBy();</span>
+<span class="nc" id="L363">        this.updatedDt = another.getUpdatedDt();</span>
+<span class="nc" id="L364">        this.zipOrPostalCode = another.getZipOrPostalCode();</span>
+<span class="nc" id="L365">        this.jan = another.getJan();</span>
+<span class="nc" id="L366">        this.feb = another.getFeb();</span>
+<span class="nc" id="L367">        this.mar = another.getMar();</span>
+<span class="nc" id="L368">        this.apr = another.getApr();</span>
+<span class="nc" id="L369">        this.may = another.getMay();</span>
+<span class="nc" id="L370">        this.jun = another.getJun();</span>
+<span class="nc" id="L371">        this.jul = another.getJul();</span>
+<span class="nc" id="L372">        this.aug = another.getAug();</span>
+<span class="nc" id="L373">        this.sep = another.getSep();</span>
+<span class="nc" id="L374">        this.oct = another.getOct();</span>
+<span class="nc" id="L375">        this.nov = another.getNov();</span>
+<span class="nc" id="L376">        this.dec = another.getDec();</span>
+<span class="nc" id="L377">        this.lineNumber = another.getLineNumber();</span>
+
+
+        /* Clone mutable objects */
+        /* Current doing shallow-clone for mutable objects (quick and dirty) */
+        /* TODO: create deep-clone constructors for these mutable objects */
+<span class="nc" id="L383">        this.id = another.getId();</span>
+<span class="nc" id="L384">        this.filerCoverages = another.getFilerCoverages();</span>
+<span class="nc" id="L385">        this.batchInfo = another.getBatchInfo();</span>
+
+<span class="nc" id="L387">    }</span>
+
+    public boolean isActive() {
+<span class="nc" id="L390">        return active;</span>
+    }
+
+    public void setActive(final boolean active) {
+<span class="nc" id="L394">        this.active = active;</span>
+<span class="nc" id="L395">    }</span>
+
+    public String getOriginalCoverageBeginDtStr() {
+<span class="nc" id="L398">        return originalCoverageBeginDtStr;</span>
+    }
+
+    public String getComments() {
+<span class="nc" id="L402">        return this.comments;</span>
+    }
+
+    public void setComments(String comments) {
+<span class="nc" id="L406">        this.comments = comments;</span>
+<span class="nc" id="L407">    }</span>
+
+    public String getTransmissionStatusCode() {
+<span class="nc" id="L410">        return transmissionStatusCode;</span>
+    }
+
+    public String getCommunicationPreference() {
+<span class="nc" id="L414">        return this.communicationPreference;</span>
+    }
+
+    public void setCommunicationPreference(String communicationPreference) {
+<span class="nc" id="L418">        this.communicationPreference = communicationPreference;</span>
+<span class="nc" id="L419">    }</span>
+
+    public String getCorrection() {
+<span class="nc" id="L422">        return this.correction;</span>
+    }
+
+    public void setCorrection(String correction) {
+<span class="nc" id="L426">        this.correction = correction;</span>
+<span class="nc" id="L427">    }</span>
+
+    public Date getCorrectionDt() {
+<span class="nc" id="L430">        return this.correctionDt;</span>
+    }
+
+    public void setCorrectionDt(Date correctionDt) {
+<span class="nc" id="L434">        this.correctionDt = correctionDt;</span>
+<span class="nc" id="L435">    }</span>
+
+    /**
+     * @return the eMail
+     */
+    public String geteMail() {
+<span class="nc" id="L441">        return eMail;</span>
+    }
+
+    public String getEmployerAddressLine1() {
+<span class="nc" id="L445">        return this.employerAddressLine1;</span>
+    }
+
+    public void setEmployerAddressLine1(String employerAddressLine1) {
+<span class="nc" id="L449">        this.employerAddressLine1 = employerAddressLine1;</span>
+<span class="nc" id="L450">    }</span>
+
+    public String getEmployerAddressLine2() {
+<span class="nc" id="L453">        return this.employerAddressLine2;</span>
+    }
+
+    public void setEmployerAddressLine2(String employerAddressLine2) {
+<span class="nc" id="L457">        this.employerAddressLine2 = employerAddressLine2;</span>
+<span class="nc" id="L458">    }</span>
+
+    public String getEmployerCityOrTown() {
+<span class="nc" id="L461">        return this.employerCityOrTown;</span>
+    }
+
+    public void setEmployerCityOrTown(String employerCityOrTown) {
+<span class="nc" id="L465">        this.employerCityOrTown = employerCityOrTown;</span>
+<span class="nc" id="L466">    }</span>
+
+    public String getEmployerContactNo() {
+<span class="nc" id="L469">        return this.employerContactNo;</span>
+    }
+
+    public void setEmployerContactNo(String employerContactNo) {
+<span class="nc" id="L473">        this.employerContactNo = employerContactNo;</span>
+<span class="nc" id="L474">    }</span>
+
+    public String getEmployerCountry() {
+<span class="nc" id="L477">        return this.employerCountry;</span>
+    }
+
+    public void setEmployerCountry(String employerCountry) {
+<span class="nc" id="L481">        this.employerCountry = employerCountry;</span>
+<span class="nc" id="L482">    }</span>
+
+    public String getEmployerIdentificationNumber() {
+<span class="nc" id="L485">        return this.employerIdentificationNumber;</span>
+    }
+
+    public void setEmployerIdentificationNumber(String employerIdentificationNumber) {
+<span class="nc" id="L489">        this.employerIdentificationNumber = employerIdentificationNumber;</span>
+<span class="nc" id="L490">    }</span>
+
+    public String getEmployerName() {
+<span class="nc" id="L493">        return this.employerName;</span>
+    }
+
+    public void setEmployerName(String employerName) {
+<span class="nc" id="L497">        this.employerName = employerName;</span>
+<span class="nc" id="L498">    }</span>
+
+    public String getEmployerStateOrProvince() {
+<span class="nc" id="L501">        return this.employerStateOrProvince;</span>
+    }
+
+    public void setEmployerStateOrProvince(String employerStateOrProvince) {
+<span class="nc" id="L505">        this.employerStateOrProvince = employerStateOrProvince;</span>
+<span class="nc" id="L506">    }</span>
+
+    public String getFilerStatus() {
+<span class="nc" id="L509">        return this.filerStatus;</span>
+    }
+
+    public void setFilerStatus(String filerStatus) {
+<span class="nc" id="L513">        this.filerStatus = filerStatus;</span>
+<span class="nc" id="L514">    }</span>
+
+    public String getFormStatus() {
+<span class="nc" id="L517">        return formStatus;</span>
+    }
+
+    public void setFormStatus(final String formStatus) {
+<span class="nc" id="L521">        this.formStatus = formStatus;</span>
+<span class="nc" id="L522">    }</span>
+
+    public String getLanguagePreference() {
+<span class="nc" id="L525">        return this.languagePreference;</span>
+    }
+
+    public void setLanguagePreference(String languagePreference) {
+<span class="nc" id="L529">        this.languagePreference = languagePreference;</span>
+<span class="nc" id="L530">    }</span>
+
+    public String getPolicyOrigin() {
+<span class="nc" id="L533">        return this.policyOrigin;</span>
+    }
+
+    public void setPolicyOrigin(String policyOrigin) {
+<span class="nc" id="L537">        this.policyOrigin = policyOrigin;</span>
+<span class="nc" id="L538">    }</span>
+
+    public String getProviderAddressLine1() {
+<span class="nc" id="L541">        return this.providerAddressLine1;</span>
+    }
+
+    public void setProviderAddressLine1(String providerAddressLine1) {
+<span class="nc" id="L545">        this.providerAddressLine1 = providerAddressLine1;</span>
+<span class="nc" id="L546">    }</span>
+
+    public String getProviderAddressLine2() {
+<span class="nc" id="L549">        return this.providerAddressLine2;</span>
+    }
+
+    public void setProviderAddressLine2(String providerAddressLine2) {
+<span class="nc" id="L553">        this.providerAddressLine2 = providerAddressLine2;</span>
+<span class="nc" id="L554">    }</span>
+
+    public String getProviderCityOrTown() {
+<span class="nc" id="L557">        return this.providerCityOrTown;</span>
+    }
+
+    public void setProviderCityOrTown(String providerCityOrTown) {
+<span class="nc" id="L561">        this.providerCityOrTown = providerCityOrTown;</span>
+<span class="nc" id="L562">    }</span>
+
+    public String getProviderContactNo() {
+<span class="nc" id="L565">        return this.providerContactNo;</span>
+    }
+
+    public void setProviderContactNo(String providerContactNo) {
+<span class="nc" id="L569">        this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L570">    }</span>
+
+    public String getProviderCountry() {
+<span class="nc" id="L573">        return this.providerCountry;</span>
+    }
+
+    public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L577">        this.providerCountry = providerCountry;</span>
+<span class="nc" id="L578">    }</span>
+
+    public String getProviderIdentificationNumber() {
+<span class="nc" id="L581">        return this.providerIdentificationNumber;</span>
+    }
+
+    public void setProviderIdentificationNumber(String providerIdentificationNumber) {
+<span class="nc" id="L585">        this.providerIdentificationNumber = providerIdentificationNumber;</span>
+<span class="nc" id="L586">    }</span>
+
+    public String getProviderName() {
+<span class="nc" id="L589">        return this.providerName;</span>
+    }
+
+    public void setProviderName(String providerName) {
+<span class="nc" id="L593">        this.providerName = providerName;</span>
+<span class="nc" id="L594">    }</span>
+
+    public String getProviderStateOrProvince() {
+<span class="nc" id="L597">        return this.providerStateOrProvince;</span>
+    }
+
+    public void setProviderStateOrProvince(String providerStateOrProvince) {
+<span class="nc" id="L601">        this.providerStateOrProvince = providerStateOrProvince;</span>
+<span class="nc" id="L602">    }</span>
+
+    public String getProviderZipOrPostalCode() {
+<span class="nc" id="L605">        return this.providerZipOrPostalCode;</span>
+    }
+
+    public void setProviderZipOrPostalCode(String providerZipOrPostalCode) {
+<span class="nc" id="L609">        this.providerZipOrPostalCode = providerZipOrPostalCode;</span>
+<span class="nc" id="L610">    }</span>
+
+    public String getRecipientAddressLine1() {
+<span class="nc" id="L613">        return this.recipientAddressLine1;</span>
+    }
+
+    public void setRecipientAddressLine1(String recipientAddressLine1) {
+<span class="nc" id="L617">        this.recipientAddressLine1 = recipientAddressLine1;</span>
+<span class="nc" id="L618">    }</span>
+
+    public String getRecipientAddressLine2() {
+<span class="nc" id="L621">        return this.recipientAddressLine2;</span>
+    }
+
+    public void setRecipientAddressLine2(String recipientAddressLine2) {
+<span class="nc" id="L625">        this.recipientAddressLine2 = recipientAddressLine2;</span>
+<span class="nc" id="L626">    }</span>
+
+    public String getRecipientCity() {
+<span class="nc" id="L629">        return this.recepientCity;</span>
+    }
+
+    public void setRecipientCity(String recepientCity) {
+<span class="nc" id="L633">        this.recepientCity = recepientCity;</span>
+<span class="nc" id="L634">    }</span>
+
+    public String getRecipientDobStr() {
+<span class="nc" id="L637">        return this.recipientDobStr;</span>
+    }
+
+    public void setRecipientDobStr(String recipientDobStr) {
+<span class="nc" id="L641">        this.recipientDobStr = recipientDobStr;</span>
+<span class="nc" id="L642">    }</span>
+
+    public Date getRecipientDob() {
+<span class="nc" id="L645">        return this.recipientDob;</span>
+    }
+
+    public void setRecipientDob(Date recipientDob) {
+<span class="nc" id="L649">        this.recipientDob = recipientDob;</span>
+<span class="nc" id="L650">    }</span>
+
+    public String getRecipientFirstName() {
+<span class="nc" id="L653">        return this.recipientFirstName;</span>
+    }
+
+    public void setRecipientFirstName(String recipientFirstName) {
+<span class="nc" id="L657">        this.recipientFirstName = recipientFirstName;</span>
+<span class="nc" id="L658">    }</span>
+
+    public String getRecipientLastName() {
+<span class="nc" id="L661">        return this.recipientLastName;</span>
+    }
+
+    public void setRecipientLastName(String recipientLastName) {
+<span class="nc" id="L665">        this.recipientLastName = recipientLastName;</span>
+<span class="nc" id="L666">    }</span>
+
+    public String getRecipientMiddleName() {
+<span class="nc" id="L669">        return this.recipientMiddleName;</span>
+    }
+
+    public void setRecipientMiddleName(String recipientMiddleName) {
+<span class="nc" id="L673">        this.recipientMiddleName = recipientMiddleName;</span>
+<span class="nc" id="L674">    }</span>
+
+    public String getRecipientSsn() {
+<span class="nc" id="L677">        return this.recipientSsn;</span>
+    }
+
+    public void setRecipientSsn(String recipientSsn) {
+<span class="nc" id="L681">        this.recipientSsn = recipientSsn;</span>
+<span class="nc" id="L682">    }</span>
+
+    public String getRecipientState() {
+<span class="nc" id="L685">        return this.recipientState;</span>
+    }
+
+    public void setRecipientState(String recipientState) {
+<span class="nc" id="L689">        this.recipientState = recipientState;</span>
+<span class="nc" id="L690">    }</span>
+
+    public String getRecepientSuffixName() {
+<span class="nc" id="L693">        return this.recepientSuffixName;</span>
+    }
+
+    public void setRecepientSuffixName(String recepientSuffixName) {
+<span class="nc" id="L697">        this.recepientSuffixName = recepientSuffixName;</span>
+<span class="nc" id="L698">    }</span>
+
+    public String getRecipientTin() {
+<span class="nc" id="L701">        return this.recipientTin;</span>
+    }
+
+    public void setRecipientTin(String recipientTin) {
+<span class="nc" id="L705">        this.recipientTin = recipientTin;</span>
+<span class="nc" id="L706">    }</span>
+
+    public String getRecepientZip4() {
+<span class="nc" id="L709">        return this.recepientZip4;</span>
+    }
+
+    public String getRecepientZip5() {
+<span class="nc" id="L713">        return this.recepientZip5;</span>
+    }
+
+    public String getResponsiblePersonUniqueId() {
+<span class="nc" id="L717">        return this.responsiblePersonUniqueId;</span>
+    }
+
+    public void setResponsiblePersonUniqueId(String responsiblePersonUniqueId) {
+<span class="nc" id="L721">        this.responsiblePersonUniqueId = responsiblePersonUniqueId;</span>
+<span class="nc" id="L722">    }</span>
+
+    public String getShopIdentifier() {
+<span class="nc" id="L725">        return this.shopIdentifier;</span>
+    }
+
+    public void setShopIdentifier(String shopIdentifier) {
+<span class="nc" id="L729">        this.shopIdentifier = shopIdentifier;</span>
+<span class="nc" id="L730">    }</span>
+
+    public String getMailedForm() {
+<span class="nc" id="L733">        return mailedForm;</span>
+    }
+
+    public String getUpdatedBy() {
+<span class="nc" id="L737">        return this.updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L741">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L742">    }</span>
+
+    public String getUpdatedDt() {
+<span class="nc" id="L745">        return this.updatedDt;</span>
+    }
+
+    public void setUpdatedDt(String updatedDt) {
+<span class="nc" id="L749">        this.updatedDt = updatedDt;</span>
+<span class="nc" id="L750">    }</span>
+
+    public String getZipOrPostalCode() {
+<span class="nc" id="L753">        return this.zipOrPostalCode;</span>
+    }
+
+    public String getJan() {
+<span class="nc" id="L757">        return jan;</span>
+    }
+
+    public void setJan(String jan) {
+<span class="nc" id="L761">        this.jan = jan;</span>
+<span class="nc" id="L762">    }</span>
+
+    public String getFeb() {
+<span class="nc" id="L765">        return feb;</span>
+    }
+
+    public void setFeb(String feb) {
+<span class="nc" id="L769">        this.feb = feb;</span>
+<span class="nc" id="L770">    }</span>
+
+    public String getMar() {
+<span class="nc" id="L773">        return mar;</span>
+    }
+
+    public void setMar(String mar) {
+<span class="nc" id="L777">        this.mar = mar;</span>
+<span class="nc" id="L778">    }</span>
+
+    public String getApr() {
+<span class="nc" id="L781">        return apr;</span>
+    }
+
+    public void setApr(String apr) {
+<span class="nc" id="L785">        this.apr = apr;</span>
+<span class="nc" id="L786">    }</span>
+
+    public String getMay() {
+<span class="nc" id="L789">        return may;</span>
+    }
+
+    public void setMay(String may) {
+<span class="nc" id="L793">        this.may = may;</span>
+<span class="nc" id="L794">    }</span>
+
+    public String getJun() {
+<span class="nc" id="L797">        return jun;</span>
+    }
+
+    public void setJun(String jun) {
+<span class="nc" id="L801">        this.jun = jun;</span>
+<span class="nc" id="L802">    }</span>
+
+    public String getJul() {
+<span class="nc" id="L805">        return jul;</span>
+    }
+
+    public void setJul(String jul) {
+<span class="nc" id="L809">        this.jul = jul;</span>
+<span class="nc" id="L810">    }</span>
+
+    public String getAug() {
+<span class="nc" id="L813">        return aug;</span>
+    }
+
+    public void setAug(String aug) {
+<span class="nc" id="L817">        this.aug = aug;</span>
+<span class="nc" id="L818">    }</span>
+
+    public String getSep() {
+<span class="nc" id="L821">        return sep;</span>
+    }
+
+    public void setSep(String sep) {
+<span class="nc" id="L825">        this.sep = sep;</span>
+<span class="nc" id="L826">    }</span>
+
+    public String getOct() {
+<span class="nc" id="L829">        return oct;</span>
+    }
+
+    public void setOct(String oct) {
+<span class="nc" id="L833">        this.oct = oct;</span>
+<span class="nc" id="L834">    }</span>
+
+    public String getNov() {
+<span class="nc" id="L837">        return nov;</span>
+    }
+
+    public void setNov(String nov) {
+<span class="nc" id="L841">        this.nov = nov;</span>
+<span class="nc" id="L842">    }</span>
+
+    public String getDec() {
+<span class="nc" id="L845">        return dec;</span>
+    }
+
+    public void setDec(String dec) {
+<span class="nc" id="L849">        this.dec = dec;</span>
+<span class="nc" id="L850">    }</span>
+
+    /**
+     * @return the lineNumber
+     */
+    public int getLineNumber() {
+<span class="nc" id="L856">        return lineNumber;</span>
+    }
+
+    public FilerDemographicPKDto getId() {
+<span class="nc" id="L860">        return this.id;</span>
+    }
+
+    public void setId(FilerDemographicPKDto id) {
+<span class="nc" id="L864">        this.id = id;</span>
+<span class="nc" id="L865">    }</span>
+
+    /**
+     * @return the filerCoverages
+     */
+    public List&lt;FilerCoverageDto&gt; getFilerCoverages() {
+<span class="nc" id="L871">        return filerCoverages;</span>
+    }
+
+    /**
+     * @return the batchInfo
+     */
+    public BatchInfoDto getBatchInfo() {
+<span class="nc" id="L878">        return batchInfo;</span>
+    }
+
+    /**
+     * @param batchInfo the batchInfo to set
+     */
+    public void setBatchInfo(BatchInfoDto batchInfo) {
+<span class="nc" id="L885">        this.batchInfo = batchInfo;</span>
+<span class="nc" id="L886">    }</span>
+
+    /**
+     * @param lineNumber the lineNumber to set
+     */
+    public void setLineNumber(int lineNumber) {
+<span class="nc" id="L892">        this.lineNumber = lineNumber;</span>
+<span class="nc" id="L893">    }</span>
+
+    public void setZipOrPostalCode(String zipOrPostalCode) {
+<span class="nc" id="L896">        this.zipOrPostalCode = zipOrPostalCode;</span>
+<span class="nc" id="L897">    }</span>
+
+    public void setMailedForm(final String mailedForm) {
+<span class="nc" id="L900">        this.mailedForm = mailedForm;</span>
+<span class="nc" id="L901">    }</span>
+
+    /**
+     * @param eMail the eMail to set
+     */
+    public void seteMail(String eMail) {
+<span class="nc" id="L907">        this.eMail = eMail;</span>
+<span class="nc" id="L908">    }</span>
+
+    public void setTransmissionStatusCode(final String transmissionStatusCode) {
+<span class="nc" id="L911">        this.transmissionStatusCode = transmissionStatusCode;</span>
+<span class="nc" id="L912">    }</span>
+
+    public static Date getHighestCoverageEndDate(final List&lt;FilerDemographicCacheDto&gt; cacheDtos) {
+<span class="nc bnc" id="L915" title="All 2 branches missed.">        if (CollectionUtils.isNotEmpty(cacheDtos)) {</span>
+<span class="nc" id="L916">            Collections.sort(cacheDtos, new Comparator&lt;FilerDemographicCacheDto&gt;() {</span>
+                @Override
+                public int compare(FilerDemographicCacheDto o1, FilerDemographicCacheDto o2) {
+<span class="nc" id="L919">                    return ObjectUtils.compare(</span>
+<span class="nc" id="L920">                            o2.originalCoverageEndDt, o1.originalCoverageEndDt);</span>
+                }
+            });
+<span class="nc" id="L923">            final String originalCoverageEndDtStr = cacheDtos.get(0).originalCoverageEndDt;</span>
+            try {
+<span class="nc" id="L925">                return MMDDYYYY.parse(originalCoverageEndDtStr);</span>
+<span class="nc" id="L926">            } catch (ParseException ex) {</span>
+<span class="nc" id="L927">                throw new RuntimeException(ex);</span>
+            }
+        }
+<span class="nc" id="L930">        return null;</span>
+    }
+
+    public static int indexOfByPK(
+            final FilerDemographicPKDto pk,
+            final List&lt;? extends FilerDemographicDto&gt; itemsToSearch) {
+<span class="nc bnc" id="L936" title="All 2 branches missed.">        if (CollectionUtils.isNotEmpty(itemsToSearch)) {</span>
+<span class="nc" id="L937">            final int numItems = itemsToSearch.size();</span>
+<span class="nc bnc" id="L938" title="All 2 branches missed.">            for (int i = 0; i &lt; numItems; i++) {</span>
+<span class="nc" id="L939">                final FilerDemographicDto fd = itemsToSearch.get(i);</span>
+<span class="nc bnc" id="L940" title="All 2 branches missed.">                if (Objects.equals(pk, fd.getId())) {</span>
+<span class="nc" id="L941">                    return i;</span>
+                }
+            }
+        }
+<span class="nc" id="L945">        return -1;</span>
+    }
+
+    public static Set&lt;FilerDemographicPKDto&gt; getAllIds(final List&lt;FilerDemographicDto&gt; items) {
+<span class="nc" id="L949">        final Set&lt;FilerDemographicPKDto&gt; ids = new LinkedHashSet&lt;&gt;(items.size());</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">        for (final FilerDemographicDto fd : items) {</span>
+<span class="nc" id="L951">            ids.add(fd.getId());</span>
+<span class="nc" id="L952">        }</span>
+<span class="nc" id="L953">        return ids;</span>
+    }
+
+    public boolean hasIndividualIdentity() {
+<span class="nc bnc" id="L957" title="All 6 branches missed.">        return (recipientSsn != null || recipientTin != null) &amp;&amp; recipientDobStr != null;</span>
+    }
+
+    public boolean isInsert() {
+<span class="nc" id="L961">        return insert;</span>
+    }
+
+    public void isInsert(final boolean insert) {
+<span class="nc" id="L965">        this.insert = insert;</span>
+<span class="nc" id="L966">    }</span>
+
+    public String getRecordKey() {
+<span class="nc bnc" id="L969" title="All 2 branches missed.">        return id == null ? null : id.toString();</span>
+    }
+
+    public String getEMail() {
+<span class="nc" id="L973">        return this.eMail;</span>
+    }
+
+    public void setEMail(String eMail) {
+<span class="nc" id="L977">        this.eMail = eMail;</span>
+<span class="nc" id="L978">    }</span>
+
+    public void setRecipientZip4(String recepientZip4) {
+<span class="nc" id="L981">        this.recepientZip4 = recepientZip4;</span>
+<span class="nc" id="L982">    }</span>
+
+    public void setRecipientZip5(String recepientZip5) {
+<span class="nc" id="L985">        this.recepientZip5 = recepientZip5;</span>
+<span class="nc" id="L986">    }</span>
+
+    public void addFilerCoverage(final FilerCoverageDto filerCoverage) {
+<span class="nc" id="L989">        updateCoverageMonths(filerCoverage);</span>
+<span class="nc" id="L990">        originalCoverageBeginDtStr = filerCoverage.getOrigCoverageBeginDtStr();</span>
+<span class="nc" id="L991">        filerCoverages.add(filerCoverage);</span>
+<span class="nc" id="L992">    }</span>
+
+    public void updateCoverageMonths(final FilerCoverageDto filerCoverage) {
+<span class="nc bnc" id="L995" title="All 2 branches missed.">        for (final String upperCaseMonth : COVERAGE_MONTHS) {</span>
+<span class="nc" id="L996">            final String month = upperCaseMonth.toLowerCase();</span>
+            try {
+<span class="nc" id="L998">                final String coverageDtoMonth = BeanUtils</span>
+<span class="nc" id="L999">                        .getSimpleProperty(filerCoverage, month);</span>
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">                if (&quot;1&quot;.equals(coverageDtoMonth)) {</span>
+<span class="nc" id="L1001">                    BeanUtils.copyProperty(this, month, &quot;1&quot;);</span>
+                }
+<span class="nc" id="L1003">            } catch (final Exception ex) {</span>
+<span class="nc" id="L1004">                throw new RuntimeException(ex);</span>
+<span class="nc" id="L1005">            }</span>
+        }
+<span class="nc" id="L1007">    }</span>
+
+    public void updateCoverageMonths(final FilerDemographicCacheDto cacheDto) {
+<span class="nc bnc" id="L1010" title="All 2 branches missed.">        if (!&quot;N&quot;.equals(filerStatus)) {</span>
+<span class="nc bnc" id="L1011" title="All 2 branches missed.">            for (int i = 0; i &lt; COVERAGE_MONTHS.length; i++) {</span>
+<span class="nc" id="L1012">                final String month = COVERAGE_MONTHS[i].toLowerCase();</span>
+                try {
+<span class="nc" id="L1014">                    final boolean dtoCovered = &quot;1&quot;.equals(BeanUtils.getProperty(this, month));</span>
+<span class="nc" id="L1015">                    final boolean cacheDtoCovered = cacheDto.coverageMonths[i];</span>
+<span class="nc bnc" id="L1016" title="All 4 branches missed.">                    if (dtoCovered || cacheDtoCovered) {    // if one is true, make sure both are true</span>
+<span class="nc" id="L1017">                        BeanUtils.setProperty(this, month, &quot;1&quot;);</span>
+<span class="nc" id="L1018">                        cacheDto.coverageMonths[i] = true;</span>
+                    }
+<span class="nc" id="L1020">                } catch (final Exception ex) {</span>
+<span class="nc" id="L1021">                    throw new RuntimeException(ex);</span>
+<span class="nc" id="L1022">                }</span>
+            }
+        }
+<span class="nc" id="L1025">    }</span>
+
+    public void clearCoverageMonths() {
+<span class="nc bnc" id="L1028" title="All 2 branches missed.">        for (int i = 0; i &lt; COVERAGE_MONTHS.length; i++) {</span>
+<span class="nc" id="L1029">            final String month = COVERAGE_MONTHS[i].toLowerCase();</span>
+            try {
+<span class="nc" id="L1031">                BeanUtils.setProperty(this, month, &quot;0&quot;);</span>
+<span class="nc" id="L1032">            } catch (final Exception ex) {</span>
+<span class="nc" id="L1033">                throw new RuntimeException(ex);</span>
+<span class="nc" id="L1034">            }</span>
+        }
+<span class="nc" id="L1036">    }</span>
+
+    public FilerCoverageDto getFilerCoverage() {
+<span class="nc bnc" id="L1039" title="All 2 branches missed.">        return CollectionUtils.isEmpty(filerCoverages) ? null : filerCoverages.get(0);</span>
+    }
+
+    public Set&lt;FilerDemographicPKDto&gt; getDifferentIds(
+            final Collection&lt;FilerDemographicCacheDto&gt; cacheDtos) {
+<span class="nc" id="L1044">        final Set&lt;FilerDemographicPKDto&gt; ids = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L1045" title="All 2 branches missed.">        for (final FilerDemographicCacheDto cacheDto : cacheDtos) {</span>
+<span class="nc" id="L1046">            final FilerDemographicPKDto cacheDtoId = cacheDto.getUniqueId();</span>
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">            if (!this.id.equals(cacheDtoId)) {</span>
+<span class="nc" id="L1048">                ids.add(cacheDto.getUniqueId());</span>
+            }
+<span class="nc" id="L1050">        }</span>
+<span class="nc" id="L1051">        return ids;</span>
+    }
+
+    public boolean isSameIndividual(final FilerDemographicCacheDto that) {
+<span class="nc" id="L1055">        final boolean idNumbersMatch =</span>
+<span class="nc bnc" id="L1056" title="All 2 branches missed.">                Objects.equals(this.recipientSsn, that.recipientSsn)</span>
+<span class="nc bnc" id="L1057" title="All 2 branches missed.">                        || Objects.equals(this.recipientTin, that.recipientTin);</span>
+<span class="nc" id="L1058">        final boolean birthDatesMatch = Objects.equals(</span>
+<span class="nc" id="L1059">                this.recipientDobStr, that.recipientDob);</span>
+<span class="nc bnc" id="L1060" title="All 4 branches missed.">        return idNumbersMatch &amp;&amp; birthDatesMatch;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L1065">        return getId().hashCode();</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L1070" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L1071" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L1073">        FilerDemographicDto that = (FilerDemographicDto) o;</span>
+
+<span class="nc" id="L1075">        return getId().equals(that.getId());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L1080">        return String.format(</span>
+                &quot;FilerDemographicDto=[Primary-Key=[%s], Individual-Key=[%s]]&quot;,
+<span class="nc" id="L1082">                this.getId(), this.getIndividualKey());</span>
+    }
+
+    public FilerDemographicCacheDto asCacheDto() {
+<span class="nc" id="L1086">        final FilerDemographicCacheDto cacheDto = new FilerDemographicCacheDto();</span>
+<span class="nc" id="L1087">        cacheDto.individualKey = this.getIndividualKey();</span>
+<span class="nc" id="L1088">        cacheDto.uniqueId = this.id;</span>
+
+<span class="nc bnc" id="L1090" title="All 2 branches missed.">        if (CollectionUtils.isNotEmpty(filerCoverages)) {</span>
+<span class="nc" id="L1091">            final FilerCoverageDto filerCoverage = this.filerCoverages.get(0);</span>
+<span class="nc bnc" id="L1092" title="All 2 branches missed.">            if (filerCoverage != null) {</span>
+<span class="nc" id="L1093">                cacheDto.caseApplicationId = filerCoverage.getRecipientCaseApplicationId();</span>
+<span class="nc" id="L1094">                cacheDto.originalCoverageBeginDt = filerCoverage.getOrigCoverageBeginDtStr();</span>
+<span class="nc" id="L1095">                cacheDto.originalCoverageEndDt = filerCoverage.getOrigCoverageEndDtStr();</span>
+<span class="nc" id="L1096">                cacheDto.programName = filerCoverage.getProgramName();</span>
+            }
+<span class="nc bnc" id="L1098" title="All 2 branches missed.">            for (int i = 0; i &lt; COVERAGE_MONTHS.length; i++) {</span>
+<span class="nc" id="L1099">                final String month = COVERAGE_MONTHS[i].toLowerCase();</span>
+                try {
+<span class="nc" id="L1101">                    final String coverageDtoMonth = BeanUtils.getSimpleProperty(this, month);</span>
+<span class="nc" id="L1102">                    cacheDto.coverageMonths[i] = &quot;1&quot;.equals(coverageDtoMonth);</span>
+<span class="nc" id="L1103">                } catch (final Exception ex) {</span>
+<span class="nc" id="L1104">                    throw new RuntimeException(ex);</span>
+<span class="nc" id="L1105">                }</span>
+            }
+        }
+
+<span class="nc" id="L1109">        cacheDto.active = this.active;</span>
+<span class="nc" id="L1110">        cacheDto.correction = this.correction;</span>
+<span class="nc" id="L1111">        cacheDto.filerStatus = this.filerStatus;</span>
+<span class="nc" id="L1112">        cacheDto.recipientDob = this.recipientDobStr;</span>
+<span class="nc" id="L1113">        cacheDto.recipientSsn = this.recipientSsn;</span>
+<span class="nc" id="L1114">        cacheDto.recipientTin = this.recipientTin;</span>
+<span class="nc" id="L1115">        cacheDto.responsiblePersonUniqueId = this.responsiblePersonUniqueId;</span>
+<span class="nc" id="L1116">        cacheDto.transmissionStatusCode = this.transmissionStatusCode;</span>
+
+<span class="nc" id="L1118">        return cacheDto;</span>
+    }
+
+    public String getIndividualKey() {
+<span class="nc bnc" id="L1122" title="All 2 branches missed.">        final String individualId = this.recipientSsn != null</span>
+                ? this.recipientSsn : this.recipientTin;
+<span class="nc bnc" id="L1124" title="All 2 branches missed.">        return individualId == null ? id.toString() : individualId + &quot;-&quot; + this.recipientDobStr;</span>
+    }
+
+    public FilerDemographicPKDto getResponsiblePersonPK(final ListMultimap&lt;String, FilerDemographicCacheDto&gt; multiMap) {
+<span class="nc bnc" id="L1128" title="All 6 branches missed.">        if (responsiblePersonUniqueId != null &amp;&amp; id != null &amp;&amp; id.getSourceCd() != null) {</span>
+<span class="nc" id="L1129">            FilerDemographicPKDto pk = new FilerDemographicPKDto();</span>
+<span class="nc" id="L1130">            pk.setSourceCd(id.getSourceCd());</span>
+<span class="nc" id="L1131">            pk.setSourceUniqueId(responsiblePersonUniqueId);</span>
+
+<span class="nc" id="L1133">            final FilerDemographicCacheDto cacheDto =</span>
+<span class="nc" id="L1134">                    FilerDemographicCacheDto.getMostRecentForKey(pk, multiMap);</span>
+<span class="nc bnc" id="L1135" title="All 2 branches missed.">            return cacheDto != null ? cacheDto.getUniqueId() : null;</span>
+        }
+<span class="nc" id="L1137">        return null;</span>
+    }
+
+    /**
+     * Used to provide an immutable, lightweight representation
+     * of a FilerDemographicDto object for caching.
+     * &lt;p&gt;
+     * Created by ergreen on 11/24/2015.
+     */
+<span class="nc" id="L1146">    public static class FilerDemographicCacheDto {</span>
+
+        private String individualKey;
+        private FilerDemographicPKDto uniqueId;
+        private String caseApplicationId;
+        private String correction;
+        private String recipientSsn;
+        private String recipientTin;
+        private String recipientDob;
+        private String programName;
+        private String originalCoverageBeginDt;
+        private String originalCoverageEndDt;
+        private String filerStatus;
+        private String responsiblePersonUniqueId;
+        private String transmissionStatusCode;
+        private boolean active;
+        private boolean deactivate;
+        private boolean previouslyLoaded;
+<span class="nc" id="L1164">        private boolean[] coverageMonths = new boolean[COVERAGE_MONTHS.length];</span>
+
+        public static FilerDemographicCacheDto getMostRecentForKey(
+                final FilerDemographicPKDto pk,
+                final ListMultimap&lt;String, FilerDemographicCacheDto&gt; multimap) {
+<span class="nc" id="L1169">            return getMostRecentForKey(pk.toString(), multimap);</span>
+        }
+
+        public static FilerDemographicCacheDto getMostRecentForKey(
+                final String key,
+                final ListMultimap&lt;String, FilerDemographicCacheDto&gt; multimap) {
+<span class="nc bnc" id="L1175" title="All 2 branches missed.">            if (multimap.containsKey(key)) {</span>
+<span class="nc" id="L1176">                final List&lt;FilerDemographicCacheDto&gt; cacheDtos = multimap.get(key);</span>
+<span class="nc" id="L1177">                final int mostRecentItemIdx = cacheDtos.size() - 1;</span>
+<span class="nc" id="L1178">                return cacheDtos.get(mostRecentItemIdx);</span>
+            }
+<span class="nc" id="L1180">            return null;</span>
+        }
+
+        public static Map&lt;FilerDemographicPKDto, FilerDemographicCacheDto&gt; byPK(final List&lt;FilerDemographicCacheDto&gt; cacheDtos) {
+<span class="nc" id="L1184">            final Map&lt;FilerDemographicPKDto, FilerDemographicCacheDto&gt; dtosForPK = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1185" title="All 2 branches missed.">            for (final FilerDemographicCacheDto cacheDto : cacheDtos) {</span>
+<span class="nc" id="L1186">                dtosForPK.put(cacheDto.getUniqueId(), cacheDto);</span>
+<span class="nc" id="L1187">            }</span>
+<span class="nc" id="L1188">            return dtosForPK;</span>
+        }
+
+        public FilerDemographicPKDto getUniqueId() {
+<span class="nc" id="L1192">            return uniqueId;</span>
+        }
+
+        public String getIndividualKey() {
+<span class="nc" id="L1196">            return individualKey;</span>
+        }
+
+        public String getRecordKey() {
+<span class="nc" id="L1200">            return uniqueId.toString();</span>
+        }
+
+        public String getCaseId() {
+<span class="nc" id="L1204">            return caseApplicationId;</span>
+        }
+
+        public String getCorrection() {
+<span class="nc" id="L1208">            return correction;</span>
+        }
+
+        public String getRecipientSsn() {
+<span class="nc" id="L1212">            return recipientSsn;</span>
+        }
+
+        public String getRecipientTin() {
+<span class="nc" id="L1216">            return recipientTin;</span>
+        }
+
+        public String getRecipientDob() {
+<span class="nc" id="L1220">            return recipientDob;</span>
+        }
+
+        public String getProgramName() {
+<span class="nc" id="L1224">            return programName;</span>
+        }
+
+        public String getOriginalCoverageBeginDt() {
+<span class="nc" id="L1228">            return originalCoverageBeginDt;</span>
+        }
+
+        public String getOriginalCoverageEndDt() {
+<span class="nc" id="L1232">            return originalCoverageEndDt;</span>
+        }
+
+        public String getFilerStatus() {
+<span class="nc" id="L1236">            return filerStatus;</span>
+        }
+
+        public String getResponsiblePersonUniqueId() {
+<span class="nc" id="L1240">            return responsiblePersonUniqueId;</span>
+        }
+
+        public boolean setCovered(final int month) {
+<span class="nc" id="L1244">            return this.coverageMonths[month];</span>
+        }
+
+        public String getTransmissionStatusCode() {
+<span class="nc" id="L1248">            return transmissionStatusCode;</span>
+        }
+
+        public boolean isActive() {
+<span class="nc" id="L1252">            return active;</span>
+        }
+
+        public boolean isDeactivate() {
+<span class="nc" id="L1256">            return deactivate;</span>
+        }
+
+        public void setDeactivate(final boolean deactivate) {
+<span class="nc" id="L1260">            this.deactivate = deactivate;</span>
+<span class="nc" id="L1261">        }</span>
+
+        public boolean isPreviouslyLoaded() {
+<span class="nc" id="L1264">            return previouslyLoaded;</span>
+        }
+
+        public void setPreviouslyLoaded(final boolean previouslyLoaded) {
+<span class="nc" id="L1268">            this.previouslyLoaded = previouslyLoaded;</span>
+<span class="nc" id="L1269">        }</span>
+
+        public void updateIndividualKey(final FilerDemographicDto fd) {
+<span class="nc" id="L1272">            this.recipientSsn = fd.getRecipientSsn();</span>
+<span class="nc" id="L1273">            this.recipientTin = fd.getRecipientTin();</span>
+<span class="nc" id="L1274">            this.recipientDob = fd.getRecipientDobStr();</span>
+<span class="nc" id="L1275">            this.individualKey = fd.getIndividualKey();</span>
+<span class="nc" id="L1276">        }</span>
+
+        public void orCoverageMonths(final FilerDemographicCacheDto that) {
+<span class="nc bnc" id="L1279" title="All 2 branches missed.">            for (int i = 0; i &lt; coverageMonths.length; i++) {</span>
+<span class="nc bnc" id="L1280" title="All 4 branches missed.">                if (this.coverageMonths[i] || that.coverageMonths[i]) {</span>
+<span class="nc" id="L1281">                    this.coverageMonths[i] = that.coverageMonths[i] = true;</span>
+                }
+            }
+<span class="nc" id="L1284">        }</span>
+
+        public String getDeactivateCompareKey() {
+<span class="nc" id="L1287">            return originalCoverageBeginDt + '-' + caseApplicationId;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L1292">            return String.format(</span>
+                    &quot;FilerDemographicDto=[Primary-Key=[%s], Individual-Key=[%s]]&quot;,
+                    uniqueId, individualKey);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

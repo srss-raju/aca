@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicPKDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dto</a> &gt; <span class="el_source">FilerDemographicPKDto.java</span></div><h1>FilerDemographicPKDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dto;
+
+import org.hibernate.validator.constraints.NotBlank;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+
+import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+
+/**
+ * Created by rgopalani on 10/20/2015.
+ */
+public class FilerDemographicPKDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+
+    //@Digits(fraction = 0, integer = 15, message = &quot;{rid.length.invalid}&quot;)
+    //@NotNull(message = &quot;{rid.length.invalid}&quot;)
+    @NotBlank(message = &quot;{rid.length.invalid}&quot;)
+    @Pattern.List({
+            @Pattern(regexp = &quot;^.{1,15}$&quot;, message = &quot;{rid.length.invalid}&quot;),
+            @Pattern(regexp = &quot;\\d+&quot;, message = &quot;{rid.content.invalid}&quot;)
+//            @Pattern(regexp = &quot;^[0-9]+[1-9]+$&quot;, message = &quot;{rid.content.all.zeros.error}&quot;)
+    })
+    private String sourceUniqueId;
+
+    private String sourceCd;
+
+    @NotBlank(message = ErrorMessageConstants.TAX_YEAR_LENGTH_LIMIT)
+    @Pattern.List({
+            @Pattern(regexp = &quot;^[0-9]{4}$&quot;, message = ErrorMessageConstants.TAX_YEAR_LENGTH_LIMIT),
+            @Pattern(regexp = &quot;(2015|2016)&quot;, message = &quot;{tax.year.invalid}&quot;)
+    })
+    private String taxYear;
+
+<span class="nc" id="L35">    public FilerDemographicPKDto() {</span>
+<span class="nc" id="L36">    }</span>
+
+    public String getSourceUniqueId() {
+<span class="nc" id="L39">        return this.sourceUniqueId;</span>
+    }
+
+    public void setSourceUniqueId(String sourceUniqueId) {
+<span class="nc" id="L43">        this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L44">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L47">        return this.sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L51">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L52">    }</span>
+
+    public String getTaxYear() {
+<span class="nc" id="L55">        return this.taxYear;</span>
+    }
+
+    public void setTaxYear(String taxYear) {
+<span class="nc" id="L59">        this.taxYear = taxYear;</span>
+<span class="nc" id="L60">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L67">        FilerDemographicPKDto that = (FilerDemographicPKDto) o;</span>
+
+<span class="nc bnc" id="L69" title="All 6 branches missed.">        if (getSourceUniqueId() != null ? !getSourceUniqueId().equals(that.getSourceUniqueId()) : that.getSourceUniqueId() != null)</span>
+<span class="nc" id="L70">            return false;</span>
+<span class="nc bnc" id="L71" title="All 6 branches missed.">        return !(getSourceCd() != null ? !getSourceCd().equals(that.getSourceCd()) : that.getSourceCd() != null);</span>
+
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        int result = getSourceUniqueId() != null ? getSourceUniqueId().hashCode() : 0;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        result = 31 * result + (getSourceCd() != null ? getSourceCd().hashCode() : 0);</span>
+<span class="nc" id="L79">        return result;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L84">        return sourceUniqueId + &quot;-&quot; + sourceCd;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

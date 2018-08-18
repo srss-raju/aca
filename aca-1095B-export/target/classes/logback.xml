@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="3 seconds">
+    <appender name="EXPORTLOGFILE" class="ch.qos.logback.core.FileAppender">
+        <file>/var/log/aca1095b/aca_export_xml.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="test,local,dev,qa">
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.hibernate" level="INFO"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="INFO"/>
+        <logger name="us.deloitteinnovation.aca" level="DEBUG"/>
+    </springProfile>
+    <springProfile name="preprod,prod,dryrun">
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate.jdbc" level="WARN"/>
+        <logger name="org.hibernate.loader" level="WARN"/>
+        <logger name="com.mchange.v2.log.slf4j.Slf4jMLog" level="WARN"/>
+        <logger name="us.deloitteinnovation.aca" level="WARN"/>
+    </springProfile>
+
+    <logger name="root" level="ERROR">
+        <appender-ref ref="EXPORTLOGFILE"/>
+    </logger>
+    
+</configuration>

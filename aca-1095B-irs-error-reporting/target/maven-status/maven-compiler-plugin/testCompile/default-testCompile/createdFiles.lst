@@ -1,0 +1,5 @@
+us\deloitteinnovation\batch\listener\ItemReaderListenerTest.class
+us\deloitteinnovation\batch\writer\IrsErrorReportingItemWriterTest.class
+us\deloitteinnovation\batch\processor\IrsErrorReportingAppProcessorTest.class
+us\deloitteinnovation\batch\writer\IrsErrorReportingItemWriterTest$1.class
+us\deloitteinnovation\batch\objectstore\ErrorReportingObjectStoreTest.class

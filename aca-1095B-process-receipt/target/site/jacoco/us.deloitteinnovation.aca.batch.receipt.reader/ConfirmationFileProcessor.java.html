@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfirmationFileProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Process Receipt Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.receipt.reader</a> &gt; <span class="el_source">ConfirmationFileProcessor.java</span></div><h1>ConfirmationFileProcessor.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.receipt.reader;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import us.deloitteinnovation.aca.batch.constants.BatchExportConstants;
+import us.deloitteinnovation.aca.batch.receipt.dto.StepResult;
+import us.deloitteinnovation.aca.batch.receipt.repository.PrintDetailsMailRepository;
+import us.deloitteinnovation.aca.batch.receipt.util.ProcessReceiptConstants;
+import us.deloitteinnovation.aca.batch.receipt.util.ProcessReceiptUtil;
+import us.deloitteinnovation.aca.entity.FilerDemographic;
+import us.deloitteinnovation.aca.entity.FilerDemographicPK;
+import us.deloitteinnovation.aca.entity.PrintDetail;
+import us.deloitteinnovation.aca.entity.PrintDetailPK;
+import us.deloitteinnovation.aca.exception.PrintVendorExceptionReportDto;
+
+/**
+ *
+ * @author ThirupathiReddy V
+ *
+ */
+<span class="nc" id="L40">public class ConfirmationFileProcessor implements ItemProcessor&lt;File, StepResult&gt; {</span>
+
+<span class="nc" id="L42">    private static final Logger LOGGER = LoggerFactory.getLogger(ConfirmationFileProcessor.class);</span>
+
+    @Autowired
+    PrintDetailsMailRepository printDetailsMailRepository;
+
+    private StepExecution stepExecution;
+    
+    @Override
+    public StepResult process(File file) throws Exception {
+<span class="nc" id="L51">        final StepResult stepResult = new StepResult();</span>
+        
+<span class="nc" id="L53">        LOGGER.info(&quot;Processing the files received from the reader &quot;);</span>
+
+<span class="nc" id="L55">        LOGGER.info(&quot;Processing the file {} from the location {} &quot;, file.getName(), file.getAbsolutePath());</span>
+
+<span class="nc" id="L57">        final boolean isValid = validateFile(file, stepResult);</span>
+<span class="nc" id="L58">        stepResult.setValid(isValid);// This flag useful to process in writer</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (isValid) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (isEmptyFile(file)) {</span>
+<span class="nc" id="L61">                LOGGER.info(&quot;Found empty file and  logging the exception in exception report&quot;);</span>
+<span class="nc" id="L62">                final PrintVendorExceptionReportDto exceptionReport = new PrintVendorExceptionReportDto();</span>
+<span class="nc" id="L63">                exceptionReport.setExDetails(file.getName() + &quot; contains no records&quot;);</span>
+<span class="nc" id="L64">                exceptionReport.setRowNumber(0);</span>
+<span class="nc" id="L65">                exceptionReport.setSourceUniqueId(0);</span>
+<span class="nc" id="L66">                stepResult.getExceptionReport().add(exceptionReport);</span>
+<span class="nc" id="L67">            } else {</span>
+<span class="nc" id="L68">                preparePrintDetails(file, stepResult);</span>
+            }
+        }
+
+<span class="nc" id="L72">        stepResult.setProcessedFile(file);</span>
+<span class="nc" id="L73">        return stepResult;</span>
+    }
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L78">        this.stepExecution = stepExecution;</span>
+<span class="nc" id="L79">    }</span>
+
+    boolean isCOR() {
+
+<span class="nc" id="L83">        final String fileType = (String) stepExecution.getJobExecution().getExecutionContext()</span>
+<span class="nc" id="L84">                .get(BatchExportConstants.StepExecutionContextKeys.PROCESS_RECEIPT_FILE_TYPE);</span>
+
+<span class="nc" id="L86">        return &quot;COR&quot;.equalsIgnoreCase(fileType);</span>
+    }
+
+    String getBaseFileName(File file) {
+
+<span class="nc" id="L91">        final String baseFile = file.getName().substring(file.getName().indexOf('_') + 1);</span>
+<span class="nc" id="L92">        LOGGER.info(&quot;Base file name {} &quot;, baseFile);</span>
+<span class="nc" id="L93">        return baseFile;</span>
+    }
+
+    boolean isFileExistsInDB(String xmlFileName, File file, StepResult stepResult, String baseFile) {
+
+<span class="nc" id="L98">        LOGGER.info(&quot;Checking DB for the printXML record existance with name {} &quot;, xmlFileName);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if(printDetailsMailRepository.isPrintXMLExists(xmlFileName)){</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">			if(isCOR()) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">				if(isCORCOMFileExistsInDB(&quot;COR_&quot; + baseFile)) {</span>
+<span class="nc" id="L102">					logException(stepResult, file.getName() + &quot; already processed&quot;);</span>
+<span class="nc" id="L103">					stepResult.setCORCOM(true);</span>
+<span class="nc" id="L104">					return false;</span>
+				}
+<span class="nc" id="L106">				return true;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">			} else if(!isCOR()) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">				if(isCORCOMFileExistsInDB(&quot;COR_&quot; + baseFile)) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">					if(isCORCOMFileExistsInDB(file.getName())) {</span>
+<span class="nc" id="L110">						logException(stepResult, file.getName() + &quot; already processed&quot;);</span>
+<span class="nc" id="L111">						stepResult.setCORCOM(true);</span>
+<span class="nc" id="L112">						return false;</span>
+					}
+<span class="nc" id="L114">					return true;</span>
+				} else {
+<span class="nc" id="L116">					logException(stepResult, file.getName() + &quot; corresponding COR file is not yet processed&quot;);</span>
+<span class="nc" id="L117">					stepResult.setCORCOM(true);</span>
+<span class="nc" id="L118">					return false;</span>
+				}
+			}
+        }
+<span class="nc" id="L122">        return false;</span>
+    }
+    
+    boolean isCORCOMFileExistsInDB(String baseFile) {
+<span class="nc" id="L126">        LOGGER.info(&quot;Checking DB for the COR File record existance with name {} &quot;, baseFile);</span>
+<span class="nc" id="L127">        return printDetailsMailRepository.isPrintXMLExists(baseFile);</span>
+    }
+
+    private boolean validateFile(File file, StepResult stepResult) {
+<span class="nc" id="L131">        final String baseFile = getBaseFileName(file);</span>
+<span class="nc" id="L132">        final String xmlFileName = baseFile.replace(&quot;.csv&quot;, &quot;.xml&quot;);</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (!isFileExistsInDB(xmlFileName, file, stepResult,baseFile)) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        	if(!stepResult.isCORCOM()){</span>
+<span class="nc" id="L136">        		LOGGER.error(&quot;{} does not have a corresponding print file&quot;, file.getName());</span>
+<span class="nc" id="L137">                logException(stepResult, file.getName() + &quot; does not have a corresponding print file&quot;);</span>
+        	}
+<span class="nc" id="L139">            return false;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        } else if (isEmptyFile(file)) {</span>
+<span class="nc" id="L141">            return true; // file is empty we are treating it as valid file and in the processor we are changing PRINT_STATUS to RESEND FORM_STATUS to null</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        } else if (!isCountValid(xmlFileName, stepResult, file)) {</span>
+<span class="nc" id="L143">            return false;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        } else if (!isStatusAndRIDExistsForAllRecords(file)) {</span>
+<span class="nc" id="L145">            LOGGER.error(&quot;{}  is missing RID or status values.&quot;, file.getName());</span>
+<span class="nc" id="L146">            logException(stepResult, file.getName() + &quot; is missing RID or status values&quot;);</span>
+<span class="nc" id="L147">            return false;</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        } else if (!isRecordCountMatchingWithActualRecords(file)) {</span>
+<span class="nc" id="L149">            logException(stepResult, file.getName() + &quot; record count and actual records in the file are not matching&quot;);</span>
+<span class="nc" id="L150">            return false;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        } else if (!checkStatus(file)) {</span>
+<span class="nc" id="L152">            logException(stepResult, file.getName() + &quot; contains invalid status&quot;);</span>
+<span class="nc" id="L153">            return false;</span>
+        }
+
+<span class="nc" id="L156">        return true;</span>
+
+    }
+
+    private boolean checkStatus(File file) {
+<span class="nc" id="L161">    	boolean isValid = false;</span>
+<span class="nc" id="L162">    	boolean isCOR = isCOR();</span>
+<span class="nc" id="L163">    	isValid = isStatusValid(isValid, file,isCOR);</span>
+<span class="nc" id="L164">    	return isValid;</span>
+	}
+    
+    private boolean isStatusValid(boolean isValid, File file, boolean isCOR){
+<span class="nc" id="L168">            try (BufferedReader br = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L169">                String line = br.readLine();// skip first line , which contains header information such as total record count</span>
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                while ((line = br.readLine()) != null) {</span>
+<span class="nc" id="L172">                	String status = line.split(&quot;,&quot;)[1];</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                	if(isCOR){</span>
+<span class="nc" id="L174">                		isValid = ProcessReceiptUtil.getCORStatus().contains(status);</span>
+                	}else{
+<span class="nc" id="L176">                		isValid = ProcessReceiptUtil.getCOMStatus().contains(status);</span>
+                	}
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                	if(!isValid){</span>
+<span class="nc" id="L179">                		break;</span>
+                	}
+<span class="nc" id="L181">                }</span>
+
+<span class="nc bnc" id="L183" title="All 8 branches missed.">            }catch (final Exception e) {</span>
+<span class="nc" id="L184">                LOGGER.debug(&quot;Ignore status&quot;, e);</span>
+<span class="nc" id="L185">            }</span>
+
+<span class="nc" id="L187">    	return isValid;</span>
+    }
+
+	boolean isCountValid(String xmlFileName, StepResult stepResult, File file) {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (isCOR()) {</span>
+            // Record count match verification only for COR files
+<span class="nc" id="L193">            LOGGER.info(&quot;Record exists with name {} in the database and reading total count &quot;, xmlFileName);</span>
+<span class="nc" id="L194">            final int totalRecordCount = printDetailsMailRepository.getTotalRecordsCount(xmlFileName);</span>
+<span class="nc" id="L195">            LOGGER.info(&quot;Total {} records found for the printXML {} &quot;, totalRecordCount, xmlFileName);</span>
+
+<span class="nc" id="L197">            final int recordCountFromFile = getRecordCountFromCORFile(file);</span>
+<span class="nc" id="L198">            LOGGER.info(&quot;Total {} records found in the header of the COR file &quot;, recordCountFromFile);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (recordCountFromFile == -1) {</span>
+<span class="nc" id="L200">                LOGGER.error(&quot;{} is missing a value for the record count.&quot;, file.getName());</span>
+<span class="nc" id="L201">                logException(stepResult, file.getName() + &quot; is missing a value for the record count.&quot;);</span>
+<span class="nc" id="L202">                return false;</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            } else if (totalRecordCount != recordCountFromFile) {</span>
+<span class="nc" id="L204">                LOGGER.error(&quot;{}  does not contain the exact number of records as the corresponding print file.&quot;, file.getName());</span>
+<span class="nc" id="L205">                logException(stepResult, file.getName() + &quot; does not contain the exact number of records as the corresponding print file.&quot;);</span>
+<span class="nc" id="L206">                return false;</span>
+            }
+<span class="nc" id="L208">        } else {</span>
+<span class="nc" id="L209">            final int recordCountFromFile = getRecordCountFromCOMFile(file);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">            if (recordCountFromFile == -1) {</span>
+<span class="nc" id="L211">                LOGGER.error(&quot;{} is missing a value for the record count.&quot;, file.getName());</span>
+<span class="nc" id="L212">                logException(stepResult, file.getName() + &quot; is missing a value for the record count.&quot;);</span>
+<span class="nc" id="L213">                return false;</span>
+            }
+            
+<span class="nc" id="L216">            final String requisitionId = getRequisitionIdFromCOMFile(file);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (requisitionId != null) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            	if(requisitionId.trim().length() != 20){</span>
+<span class="nc" id="L219">            		LOGGER.error(&quot;{}  file must contain Requisition ID length only 20 alpha numeric characters&quot;, file.getName());</span>
+<span class="nc" id="L220">		            logException(stepResult, file.getName() + &quot; file must contain Requisition ID length only 20 alpha numeric characters&quot;);</span>
+<span class="nc" id="L221">        			return false;</span>
+        		}
+<span class="nc" id="L223">            	stepResult.setRequisitionId(requisitionId.trim());</span>
+            }else{
+<span class="nc" id="L225">            	LOGGER.error(&quot;{} is missing a value for the record count.&quot;, file.getName());</span>
+<span class="nc" id="L226">                logException(stepResult, file.getName() + &quot; is missing a value for the requisitionID.&quot;);</span>
+<span class="nc" id="L227">                return false;</span>
+            }
+            
+        }
+<span class="nc" id="L231">        return true;</span>
+    }
+	
+    private boolean isRecordCountMatchingWithActualRecords(File file) {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        final int recordCount = isCOR() ? getRecordCountFromCORFile(file) : getRecordCountFromCOMFile(file);</span>
+<span class="nc" id="L236">        final int totalRecords = getTotalRecordsInFile(file);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        return recordCount == totalRecords - 1;</span>
+    }
+
+    int getTotalRecordsInFile(File file) {
+
+<span class="nc" id="L242">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L244">        try (BufferedReader br = Files.newBufferedReader(Paths.get(file.getAbsolutePath()))) {</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">            list = br.lines().filter(s -&gt; s.trim().length() &gt; 0).collect(Collectors.toList());</span>
+<span class="nc bnc" id="L246" title="All 8 branches missed.">        } catch (final IOException e) {</span>
+<span class="nc" id="L247">            LOGGER.error(&quot;Error while reading lines from the file &quot;, e);</span>
+<span class="nc" id="L248">        }</span>
+<span class="nc" id="L249">        LOGGER.info(&quot;Total {} record(s) found in the file {}  [including header ]&quot;, list.size(), file.getAbsolutePath());</span>
+<span class="nc" id="L250">        return list.size();</span>
+    }
+
+    private boolean isStatusAndRIDExistsForAllRecords(File file) {
+
+<span class="nc" id="L255">        boolean isValid = true;</span>
+
+        try {
+<span class="nc" id="L258">            try (BufferedReader br = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L259">                String line = br.readLine();// skip first line , which contains header information such as total record count</span>
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                while ((line = br.readLine()) != null) {</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">                    if (line.split(&quot;,&quot;).length != 2) {</span>
+<span class="nc" id="L263">                        isValid = false;</span>
+<span class="nc" id="L264">                        break;</span>
+                    } else {
+                        // ACAB-2363 - without RID but with status scenario
+                        try {
+<span class="nc" id="L268">                            Long.parseLong(line.split(&quot;,&quot;)[0]);</span>
+<span class="nc" id="L269">                        } catch (final Exception e) {</span>
+<span class="nc" id="L270">                            LOGGER.debug(&quot;Ignoring parsing exception &quot;, e);</span>
+<span class="nc" id="L271">                            isValid = false;</span>
+<span class="nc" id="L272">                            break;</span>
+<span class="nc" id="L273">                        }</span>
+                    }
+                }
+
+<span class="nc bnc" id="L277" title="All 8 branches missed.">            }</span>
+
+<span class="nc" id="L279">        } catch (final Exception e) {</span>
+<span class="nc" id="L280">            LOGGER.debug(&quot;Ignore status and rid exception&quot;, e);</span>
+<span class="nc" id="L281">        }</span>
+<span class="nc" id="L282">        return isValid;</span>
+    }
+
+    private int getRecordCountFromCORFile(File file) {
+
+<span class="nc" id="L287">        int recordCountInHeader = 0;</span>
+
+        try {
+
+<span class="nc" id="L291">            try (BufferedReader br = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L292">                recordCountInHeader = Integer.parseInt(br.readLine());</span>
+<span class="nc bnc" id="L293" title="All 8 branches missed.">            }</span>
+
+<span class="nc" id="L295">        } catch (final Exception e) {</span>
+<span class="nc" id="L296">            recordCountInHeader = -1;// This is to log exception if the record count header missing</span>
+<span class="nc" id="L297">            LOGGER.error(e.getMessage(), e);</span>
+<span class="nc" id="L298">        }</span>
+
+<span class="nc" id="L300">        return recordCountInHeader;</span>
+
+    }
+
+    private int getRecordCountFromCOMFile(File file) {
+
+<span class="nc" id="L306">        int recordCountInHeader = 0;</span>
+
+        try {
+
+<span class="nc" id="L310">            try (BufferedReader br = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L311">                recordCountInHeader = Integer.parseInt(br.readLine().split(&quot;,&quot;)[0]);</span>
+<span class="nc bnc" id="L312" title="All 8 branches missed.">            }</span>
+
+<span class="nc" id="L314">        } catch (final Exception e) {</span>
+<span class="nc" id="L315">            recordCountInHeader = -1;// This is to log exception if the record count header missing</span>
+<span class="nc" id="L316">            LOGGER.debug(&quot;Ignore exception&quot;, e);</span>
+<span class="nc" id="L317">        }</span>
+
+<span class="nc" id="L319">        return recordCountInHeader;</span>
+
+    }
+    
+    private String getRequisitionIdFromCOMFile(File file) {
+        String requisitionId;
+        try {
+
+<span class="nc" id="L327">            try (BufferedReader br = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L328">            	requisitionId = br.readLine().split(&quot;,&quot;)[1];</span>
+<span class="nc bnc" id="L329" title="All 8 branches missed.">            }</span>
+
+<span class="nc" id="L331">        } catch (final Exception e) {</span>
+<span class="nc" id="L332">        	requisitionId = null;// This is to log exception if the record count header missing</span>
+<span class="nc" id="L333">            LOGGER.debug(&quot;Ignore exception&quot;, e);</span>
+<span class="nc" id="L334">        }</span>
+<span class="nc" id="L335">        LOGGER.info(&quot;requisitionId ----&gt;&gt; &quot;+requisitionId);</span>
+<span class="nc" id="L336">        return requisitionId;</span>
+
+    }
+
+    private void logException(StepResult stepResult, String message) {
+
+<span class="nc" id="L342">        final PrintVendorExceptionReportDto exceptionReport = new PrintVendorExceptionReportDto();</span>
+<span class="nc" id="L343">        exceptionReport.setExDetails(message);</span>
+<span class="nc" id="L344">        stepResult.getExceptionReport().add(exceptionReport);</span>
+
+<span class="nc" id="L346">    }</span>
+
+    private void preparePrintDetails(File file, StepResult stepResult) throws IOException {
+
+<span class="nc" id="L350">        int totalRecords = 0;</span>
+<span class="nc" id="L351">        int failedRecords = 0;</span>
+<span class="nc" id="L352">        int successRecords = 0;</span>
+
+<span class="nc" id="L354">        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {</span>
+<span class="nc" id="L355">            String line = reader.readLine();// SKIP Header</span>
+<span class="nc" id="L356">            String status = null;</span>
+
+<span class="nc bnc" id="L358" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L359">                totalRecords++;// use this as rowNumber as well</span>
+<span class="nc" id="L360">                final String[] rowArray = line.trim().split(&quot;,&quot;);</span>
+
+<span class="nc bnc" id="L362" title="All 2 branches missed.">                if (rowArray.length == 2) {</span>
+
+<span class="nc bnc" id="L364" title="All 4 branches missed.">                    if (&quot;MAIL PENDING&quot;.equalsIgnoreCase(rowArray[1]) || &quot;MAILED&quot;.equalsIgnoreCase(rowArray[1])) {</span>
+<span class="nc" id="L365">                        successRecords++;</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">                        if (&quot;MAIL PENDING&quot;.equalsIgnoreCase(rowArray[1])){</span>
+<span class="nc" id="L367">                        	status = &quot;MAIL_PENDING&quot;;</span>
+                        }else{
+<span class="nc" id="L369">                        	status = &quot;MAILED&quot;;</span>
+                        }
+                        
+                    } else {
+<span class="nc" id="L373">                        failedRecords++;</span>
+<span class="nc" id="L374">                        status = rowArray[1].toUpperCase();</span>
+                    }
+
+<span class="nc" id="L377">                    addPrintDetails(stepResult, file, rowArray[0], status);</span>
+                } else {
+<span class="nc" id="L379">                    failedRecords++;</span>
+<span class="nc" id="L380">                    LOGGER.error(&quot;Received invalid data in record &quot;);</span>
+                }
+<span class="nc" id="L382">            }</span>
+<span class="nc bnc" id="L383" title="All 8 branches missed.">        }</span>
+
+<span class="nc" id="L385">        stepResult.setTotalRecords(totalRecords);</span>
+<span class="nc" id="L386">        stepResult.setFailedRecords(failedRecords);</span>
+<span class="nc" id="L387">        stepResult.setSuccessRecords(successRecords);</span>
+
+<span class="nc" id="L389">        LOGGER.info(&quot;Total Records {} , failedRecords {} , successRecords {} &quot;, totalRecords, failedRecords, successRecords);</span>
+
+<span class="nc" id="L391">    }</span>
+
+    private void addPrintDetails(StepResult stepResult, File file, String sourceUniqueId, String printStatus) {
+
+<span class="nc" id="L395">        final PrintDetail printDetail = new PrintDetail();</span>
+<span class="nc" id="L396">        final PrintDetailPK id = new PrintDetailPK();</span>
+<span class="nc" id="L397">        final String baseFile = getBaseFileName(file);</span>
+<span class="nc" id="L398">        final String fileName = baseFile.replace(&quot;.csv&quot;, &quot;.xml&quot;);</span>
+<span class="nc" id="L399">        id.setPrintFileName(fileName);</span>
+<span class="nc" id="L400">        id.setSourceUniqueId(Long.valueOf(sourceUniqueId));</span>
+<span class="nc" id="L401">        id.setTaxYear(String.valueOf(getTaxYear(file)));</span>
+<span class="nc" id="L402">        id.setSourceCd(getSourceId(getStateCode(file)));</span>
+
+<span class="nc" id="L404">        printDetail.setId(id);</span>
+<span class="nc" id="L405">        printDetail.setPrintStatus(printStatus);</span>
+
+<span class="nc bnc" id="L407" title="All 2 branches missed.">        if (&quot;RESEND&quot;.equalsIgnoreCase(printStatus)) {</span>
+<span class="nc" id="L408">            updateFilerDemographicStatusForResend(stepResult, printDetail);</span>
+        }
+
+<span class="nc" id="L411">        stepResult.getPrintDetails().add(printDetail);</span>
+
+<span class="nc" id="L413">    }</span>
+
+    boolean isEmptyFile(File file) {
+        // this logic need to be changed if each file must contains one header line
+<span class="nc" id="L417">        final int totalRecords = getTotalRecordsInFile(file);</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">        return totalRecords == 0;</span>
+    }
+
+    private static String getSourceId(String state) {
+<span class="nc" id="L422">        String sourceCd = null;</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">        if (&quot;AR&quot;.equals(state)) {</span>
+<span class="nc" id="L424">            sourceCd = ProcessReceiptConstants.ARDHSDSS;</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        } else if (&quot;IN&quot;.equals(state)) {</span>
+<span class="nc" id="L426">            sourceCd = ProcessReceiptConstants.INFSSICE;</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">        } else if (&quot;LA&quot;.equals(state)) {</span>
+<span class="nc" id="L428">            sourceCd = ProcessReceiptConstants.LADHHEES;</span>
+        }
+<span class="nc" id="L430">        return sourceCd;</span>
+    }
+
+    private static int getTaxYear(File inputFile) {
+<span class="nc" id="L434">        final Calendar calendar = Calendar.getInstance();</span>
+        try {
+<span class="nc" id="L436">            final String[] fileNameArray = inputFile.getName().split(&quot;_&quot;);</span>
+
+<span class="nc" id="L438">            final SimpleDateFormat sdf = new SimpleDateFormat(&quot;yy&quot;);</span>
+<span class="nc" id="L439">            final Date date = sdf.parse(fileNameArray[1].substring(0, 2));</span>
+<span class="nc" id="L440">            calendar.setTime(date);</span>
+
+<span class="nc" id="L442">        } catch (final ParseException parseException) {</span>
+<span class="nc" id="L443">            LOGGER.error(&quot;Error while parsing the date&quot;, parseException);</span>
+<span class="nc" id="L444">        }</span>
+<span class="nc" id="L445">        return calendar.get(Calendar.YEAR);</span>
+
+    }
+
+    private static String getStateCode(File inputFile) {
+<span class="nc" id="L450">        final String[] fileNameArray = inputFile.getName().split(&quot;_&quot;);</span>
+<span class="nc" id="L451">        return fileNameArray[1].substring(2, 4);</span>
+    }
+
+    private void updateFilerDemographicStatusForResend(StepResult stepResult, PrintDetail printDetail) {
+<span class="nc" id="L455">        final FilerDemographic filerDemographic = new FilerDemographic();</span>
+<span class="nc" id="L456">        final FilerDemographicPK filerDemographicPK = new FilerDemographicPK();</span>
+<span class="nc" id="L457">        filerDemographicPK.setSourceUniqueId(printDetail.getId().getSourceUniqueId());</span>
+<span class="nc" id="L458">        filerDemographicPK.setSourceCd(printDetail.getId().getSourceCd());</span>
+<span class="nc" id="L459">        filerDemographicPK.setTaxYear(Integer.parseInt(printDetail.getId().getTaxYear()));</span>
+<span class="nc" id="L460">        filerDemographic.setId(filerDemographicPK);</span>
+<span class="nc" id="L461">        filerDemographic.setFormStatus(null);</span>
+<span class="nc" id="L462">        stepResult.getFilerDemographicList().add(filerDemographic);</span>
+<span class="nc" id="L463">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

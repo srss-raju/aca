@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionReportDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.dao.impl</a> &gt; <span class="el_source">ExceptionReportDaoImpl.java</span></div><h1>ExceptionReportDaoImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.dao.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.BatchQueryConstants;
+import us.deloitteinnovation.aca.batch.dao.ExceptionReportDao;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.batch.mapper.ExceptionReportMapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by rgopalani on 10/12/2015.
+ */
+@Component
+public class ExceptionReportDaoImpl extends NamedParameterJdbcDaoSupport implements ExceptionReportDao {
+
+    JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+<span class="nc" id="L31">    public ExceptionReportDaoImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {</span>
+<span class="nc" id="L32">        this.jdbcTemplate = jdbcTemplate;</span>
+<span class="nc" id="L33">        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;</span>
+<span class="nc" id="L34">        setJdbcTemplate(jdbcTemplate);</span>
+<span class="nc" id="L35">    }</span>
+
+    /**
+     * @param exceptionReport
+     * @return
+     */
+    @Override
+    public int save(ExceptionReportDto exceptionReport) {
+<span class="nc" id="L43">        String sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT;</span>
+<span class="nc" id="L44">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L45">        params.put(BatchConstants.BATCH_ID, exceptionReport.getBatchInfo().getBatchId());</span>
+<span class="nc" id="L46">        params.put(BatchConstants.EX_DETAILS, exceptionReport.getExDetails());</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        if (exceptionReport.getRowNumber() &gt;= 0 &amp;&amp; exceptionReport.getSourceUniqueId() &gt;= 0) {</span>
+<span class="nc" id="L48">            params.put(BatchConstants.EX_ROW_NUMBER, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L49">            params.put(BatchConstants.EX_SOURCE_UNIQUE_ID_NUMBER, exceptionReport.getSourceUniqueId());</span>
+<span class="nc" id="L50">            sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT_ROW_NUM_SOURCE_UNIQUE_ID;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        } else if (exceptionReport.getRowNumber() &gt; 0) {</span>
+<span class="nc" id="L52">            params.put(BatchConstants.EX_ROW_NUMBER, exceptionReport.getRowNumber());</span>
+<span class="nc" id="L53">            sql = BatchQueryConstants.INSERT_EXCEPTION_REPORT_ROW_NUM;</span>
+        }
+<span class="nc" id="L55">        return namedParameterJdbcTemplate.update(sql, params);</span>
+    }
+
+    @Override
+    public int getExceptionReportCount(BatchInfoDto batchInfoDto) {
+<span class="nc" id="L60">        String sql = BatchQueryConstants.EXCEPTION_REPORT_COUNT;</span>
+<span class="nc" id="L61">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">        params.put(BatchConstants.BATCH_ID, batchInfoDto.getBatchId());</span>
+<span class="nc" id="L63">        return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);</span>
+    }
+
+    @Override
+    public List&lt;ExceptionReportDto&gt; getExceptionReport(BatchInfoDto batchInfoDto) {
+<span class="nc" id="L68">        String sql = BatchQueryConstants.EXCEPTION_REPORT;</span>
+<span class="nc" id="L69">        Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L70">        params.put(BatchConstants.BATCH_ID, batchInfoDto.getBatchId());</span>
+<span class="nc" id="L71">        return this.namedParameterJdbcTemplate.query(sql, params, new ExceptionReportMapper());</span>
+
+    }
+
+    @Override
+    public void clearAll() {
+<span class="nc" id="L77">        String sql = BatchQueryConstants.CLEAR_EXCEPTION_REPORT;</span>
+<span class="nc" id="L78">        this.jdbcTemplate.update(sql);</span>
+
+<span class="nc" id="L80">    }</span>
+
+    @Override
+    public List&lt;Integer&gt; getDistinctSourceUniqueIdForBatchId(int batchId) {
+<span class="nc" id="L84">        String sql = BatchQueryConstants.GET_DISTINCT_EXCEPTION_ROW_NUM_FOR_BATCH + batchId + &quot; and EX_DETAILS NOT LIKE 'WR%'&quot;;</span>
+<span class="nc" id="L85">        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);</span>
+<span class="nc" id="L86">        List&lt;Integer&gt; listSourceUniqueIds = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        while(sqlRowSet.next()){</span>
+<span class="nc" id="L88">            listSourceUniqueIds.add(sqlRowSet.getInt(&quot;SID&quot;));</span>
+        }
+<span class="nc" id="L90">        return listSourceUniqueIds;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

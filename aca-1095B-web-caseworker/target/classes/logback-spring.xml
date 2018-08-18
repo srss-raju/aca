@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <springProfile name="preprod,prod,dryrun">
+        <logger name="org.springframework" level="error"><appender-ref ref="STDOUT" /></logger>
+        <logger name="org.hibernate" level="error"><appender-ref ref="STDOUT" /></logger>
+        <logger name="us.deloitteinnovation" level="warn"><appender-ref ref="STDOUT" /></logger>
+        <logger name="cwlogger" level="info"><appender-ref ref="STDOUT" /></logger>
+    </springProfile>
+    <springProfile name="dev,qa">
+        <logger name="org.springframework" level="warn"><appender-ref ref="STDOUT" /></logger>
+        <logger name="org.hibernate" level="warn"><appender-ref ref="STDOUT" /></logger>
+        <logger name="us.deloitteinnovation" level="info"><appender-ref ref="STDOUT" /></logger>
+        <logger name="cwlogger" level="info"><appender-ref ref="STDOUT" /></logger>
+    </springProfile>
+    <springProfile name="test,local">
+        <logger name="org.springframework" level="warn"><appender-ref ref="STDOUT" /></logger>
+        <logger name="org.hibernate" level="warn"><appender-ref ref="STDOUT" /></logger>
+        <logger name="us.deloitteinnovation" level="debug"><appender-ref ref="STDOUT" /></logger>
+        <logger name="cwlogger" level="debug"><appender-ref ref="STDOUT" /></logger>
+    </springProfile>
+</configuration>
+
+
+

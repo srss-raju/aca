@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4UpdateBatchCountsReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step4</a> &gt; <span class="el_source">Step4UpdateBatchCountsReader.java</span></div><h1>Step4UpdateBatchCountsReader.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step4;
+
+import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.dto.BatchCountDto;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.FileIngestionService;
+import us.deloitteinnovation.aca.repository.ExceptionReportRepository;
+
+/**
+ * Created by bhchaganti on 11/11/2016.
+ */
+<span class="fc" id="L13">public class Step4UpdateBatchCountsReader implements ItemReader&lt;BatchCountDto&gt; {</span>
+    @Autowired
+    BatchInfoDto batchInfoDto;
+    @Autowired
+    ExceptionReportRepository exceptionReportRepository;
+    @Autowired
+    FileIngestionService fileIngestionService;
+<span class="fc" id="L20">    boolean readComplete = false;</span>
+
+    @Override
+    public BatchCountDto read() throws Exception {
+        //Return null explicityly;otherwise reader cannot know when to stop.
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if(readComplete){</span>
+<span class="nc" id="L26">            return null;</span>
+        }
+<span class="fc" id="L28">        BatchCountDto batchCountDto = new BatchCountDto();</span>
+<span class="fc" id="L29">        Integer currentBatchId = batchInfoDto.getBatchId();</span>
+<span class="fc" id="L30">        Integer countInExceptionReport = exceptionReportRepository.getDistinctRowNumberCount(currentBatchId);</span>
+<span class="fc" id="L31">        Integer countInBusinessDecisionsLog = fileIngestionService.getDistinctSourceUniqueIdsForBatch(currentBatchId);</span>
+<span class="fc" id="L32">        batchCountDto.setCountInExceptionReport(countInExceptionReport);</span>
+<span class="fc" id="L33">        batchCountDto.setCountInBusinessDecisionLog(countInBusinessDecisionsLog);</span>
+<span class="fc" id="L34">        readComplete=true;</span>
+<span class="fc" id="L35">        return batchCountDto;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ACA1094BDetailBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.jaxb</a> &gt; <span class="el_source">ACA1094BDetailBuilder.java</span></div><h1>ACA1094BDetailBuilder.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.jaxb;
+
+import us.gov.treasury.irs.common.TINRequestTypeCodeType;
+import us.gov.treasury.irs.ext.aca.air._7.BusinessAddressGrpType;
+import us.gov.treasury.irs.ext.aca.air._7.BusinessNameType;
+import us.gov.treasury.irs.ext.aca.air._7.Form1094BUpstreamDetailType;
+import us.gov.treasury.irs.ext.aca.air._7.ObjectFactory;
+
+import java.math.BigInteger;
+
+/**
+ * Created by rgopalani on 12/28/2015.
+ */
+<span class="fc" id="L14">public class ACA1094BDetailBuilder {</span>
+<span class="fc" id="L15">    private ObjectFactory objectFactory = new ObjectFactory();</span>
+<span class="fc" id="L16">    private Form1094BUpstreamDetailType form1094 = objectFactory.createForm1094BUpstreamDetailType();</span>
+
+    public ACA1094BDetailBuilder setTaxYr(final int taxYr) {
+<span class="fc" id="L19">        form1094.setTaxYr(JaxbUtils.createXmlGregorianCalendarNoTimezone(taxYr));</span>
+<span class="fc" id="L20">        return this;</span>
+    }
+
+    public ACA1094BDetailBuilder setBusinessNameType(BusinessNameType businessNameType){
+<span class="nc" id="L24">        form1094.setBusinessName(businessNameType);</span>
+<span class="nc" id="L25">        return this;</span>
+    }
+    public ACA1094BDetailBuilder setBusinessAddressGrpType(BusinessAddressGrpType businessAddressGrpType){
+<span class="nc" id="L28">        form1094.setMailingAddressGrp(businessAddressGrpType);</span>
+<span class="nc" id="L29">        return this;</span>
+    }
+
+    public ACA1094BDetailBuilder setEmployerEIN(String employerEIN){
+<span class="fc" id="L33">        form1094.setEmployerEIN(employerEIN);</span>
+<span class="fc" id="L34">        return this;</span>
+    }
+
+    /**
+     * For every record, recordType must be “String” (word) or “” and lineNum must be 0 (zero).
+     * @return
+     */
+    public Form1094BUpstreamDetailType build() {
+<span class="fc" id="L42">        form1094.setRecordType(&quot;String&quot;);</span>
+<span class="fc" id="L43">        form1094.setLineNum(BigInteger.ZERO);</span>
+<span class="fc" id="L44">        return form1094;</span>
+    }
+
+    public ACA1094BDetailBuilder setSubmissionId(BigInteger submissionId){
+<span class="nc" id="L48">        form1094.setSubmissionId(submissionId);</span>
+<span class="nc" id="L49">        return this;</span>
+    }
+
+    public ACA1094BDetailBuilder setTINRequestTypeCd(TINRequestTypeCodeType tinRequestTypeCd){
+<span class="nc" id="L53">        form1094.setTINRequestTypeCd(tinRequestTypeCd);</span>
+<span class="nc" id="L54">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

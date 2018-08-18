@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatchExportConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.constants</a> &gt; <span class="el_source">BatchExportConstants.java</span></div><h1>BatchExportConstants.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.constants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import us.deloitteinnovation.aca.entity.BatchExportEntityConstants;
+
+/**
+ * Constants specific to the batch process for exporting Form 10945B data as SOAP XML for the IRS.
+ */
+public interface BatchExportConstants {
+
+<span class="nc" id="L13">    static final Logger LOG = LoggerFactory.getLogger(BatchExportConstants.class) ;</span>
+
+<span class="nc" id="L15">	Integer FILECHUNK = 10;</span>
+
+    String EX_SOURCE_UNIQUE_ID_NUMBER = &quot;sourceUniqueId&quot;;
+    String PARAM_SOURCE_CD            = &quot;sourceCd&quot;;
+    String PARAM_UPDATED_BY           = &quot;updatedBy&quot;;
+    String PARAM_UPDATED_DATE         = &quot;updatedDate&quot;;
+    String PARAM_TRANSMIT_STATUS      = &quot;transmitStatus&quot;;
+    String PARAM_TRANSMIT_FILE_NAME   = &quot;transmitFileName&quot;;
+
+    /**
+     * Job names passed to the Spring Batch launcher.  Used to determine functionality in steps.
+     */
+    interface JobNames {
+        String ORIGINALS    = &quot;aca1095ExportOriginals&quot;;
+        String CORRECTIONS  = &quot;aca1095ExportCorrections&quot;;
+        String REPLACEMENTS = &quot;aca1095ExportReplacements&quot;;
+        String ORIGINAL1095S = &quot;acaGenerate1095Originals&quot;;
+        String ORIGINAL109495S = &quot;acaGenerate109495Originals&quot;;
+        String CORRECTION1095S = &quot;acaGenerate1095Corrections&quot;;
+        String CORRECTION109495S = &quot;acaGenerate109495Corrections&quot;;
+        String REPLACEMENT1095S = &quot;acaGenerate1095Replacements&quot;;
+        String REPLACEMENT109495S = &quot;acaGenerate109495Replacements&quot;;
+        String ORIGINAL1095FILERS = &quot;acaGenerate1095OriginalsForPrintVendor&quot;;
+		String ORIGINAL1095PRINTVENDORPARAMFILERS = &quot;acaGenerate1095OriginalsForPrintVendorParam&quot;;
+
+    }
+
+    interface JobPropertiesKeys {
+        /**
+         * Two letter abbreviation of the US State for which the Job is executing.
+         */
+        String STATE = &quot;STATE&quot;;
+
+        /**
+         * EIN of the payee agency.
+         */
+        String EIN = &quot;EIN&quot;;
+
+        /**
+         * Tax year as an Integer.
+         */
+        String YEAR = &quot;YEAR&quot;;
+
+        /**
+         * IRS receipt id of the original transmission for correction or replacement execution.
+         */
+        String RECEIPT_ID = &quot;RECEIPT_ID&quot;;
+
+        /**
+         * If running a test scenario, the test number should be set using TEST_SCENARIO.
+         */
+        String TEST_SCENARIO = &quot;TEST_SCENARIO&quot;;
+    }
+
+    interface JobExecutionContextKeys {
+        /**
+         * Value should be a List of String filenames for which manifests should be created in Step 4.
+Bat         */
+        String FORM_109495B_FILEDATA = &quot;FORM_109495B_FILEDATA&quot;;
+    }
+
+    interface StepExecutionContextKeys {
+
+        /**
+         * Names of the manifest files written in Step 4.
+         */
+        String MANIFEST_FILENAMES = &quot;MANIFEST_FILENAMES&quot;;
+
+        /**
+         * Loop counter for iteration over Form 109495B files in Step 4.  Value will be an Integer.
+         */
+        String FORM_109495B_FILENAMES_COUNTER = &quot;FORM_109495B_FILENAMES_COUNTER&quot;;
+
+        /**
+         * Loop counter for Print vendor XML file name.
+         */
+        String FORM_1095S_RECORD_COUNT = &quot;FORM_1095S_RECORD_COUNT&quot;;
+        /**
+         * File counter for Print vendor XML file name.Value will be in Long
+         */
+        String PRINT_VENDOR_XML_FILE_NUMBER = &quot;PRINT_VENDOR_XML_FILE_NUMBER&quot;;
+
+		String PRINT_VENDOR_XML_FREQUENCY = &quot;FREQUENCY&quot;;
+
+		String PRINT_VENDOR_XML_MAILSTATUS = &quot;MAILSTATUS&quot;;
+		
+		String PROCESS_RECEIPT_FILE_TYPE = &quot;FILETYPE&quot;;
+		
+		String INVALID_ADDRESS = &quot;ADDRESS_INVALID&quot;;
+
+    }
+
+    /**
+     * @param stepExecution
+     * @return True if the current job is a run of original export.
+     */
+    static boolean isJobOriginal(StepExecution stepExecution) {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        return ( JobNames.ORIGINALS.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()) ||</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                JobNames.ORIGINAL109495S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()) ||</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                JobNames.ORIGINAL1095S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()));</span>
+    }
+
+    /**
+     * @param stepExecution
+     * @return True if the current job is a run of corrections.
+     */
+    static boolean isJobCorrections(StepExecution stepExecution) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        return ( JobNames.CORRECTIONS.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()) ||</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                JobNames.CORRECTION109495S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName())||</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                JobNames.CORRECTION1095S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()));</span>
+    }
+
+    /**
+     * @param stepExecution
+     * @return True if the current job is a run of replacements.
+     */
+    static boolean isJobReplacement(StepExecution stepExecution) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        return ( JobNames.REPLACEMENTS.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()) ||</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                JobNames.REPLACEMENT109495S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName())||</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                JobNames.REPLACEMENT1095S.equalsIgnoreCase(stepExecution.getJobExecution().getJobInstance().getJobName()));</span>
+    }
+
+
+    /**
+     * @param stepExecution
+     * @return O, C, or R depending on if job is an Original, Correction, or Replacement.
+     */
+    static String getJobTypeLetter(StepExecution stepExecution) {
+<span class="nc" id="L143">        String jobLetter = null;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (isJobOriginal(stepExecution))</span>
+<span class="nc" id="L145">            jobLetter = &quot;O&quot;;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        else if (isJobCorrections(stepExecution))</span>
+<span class="nc" id="L147">            jobLetter = &quot;C&quot;;</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        else if (isJobReplacement(stepExecution))</span>
+<span class="nc" id="L149">            jobLetter = &quot;R&quot;;</span>
+
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (jobLetter == null)</span>
+<span class="nc" id="L152">            throw new IllegalArgumentException(&quot;Job Type abbreviation not available for job type '&quot; + stepExecution.getJobExecution().getJobInstance().getJobName() + &quot;'&quot;);</span>
+<span class="nc" id="L153">        return jobLetter;</span>
+    }
+
+
+    /**
+     * Converts a transmission code to the appropriate IRS XML transmit status.
+     * @param transmissionCode
+     * @return
+     */
+    static String getStatusFromTransmissionCode(String transmissionCode) {
+<span class="nc" id="L163">        String status = null ;</span>
+<span class="nc bnc" id="L164" title="All 14 branches missed.">        switch (transmissionCode) {</span>
+            case &quot;O&quot;:
+<span class="nc" id="L166">                status = BatchExportEntityConstants.FilerXmlStatus.ORIGINAL ;</span>
+<span class="nc" id="L167">                break ;</span>
+            case &quot;C&quot;:
+<span class="nc" id="L169">                status = BatchExportEntityConstants.FilerXmlStatus.CORRECTED ;</span>
+<span class="nc" id="L170">                break ;</span>
+            case &quot;R&quot;:
+<span class="nc" id="L172">                status = BatchExportEntityConstants.FilerXmlStatus.REPLACE ;</span>
+<span class="nc" id="L173">                break ;</span>
+            default:
+<span class="nc" id="L175">                throw new IllegalArgumentException(&quot;Status not available for transmissionCode ' &quot; + transmissionCode + &quot;'&quot;);</span>
+        }
+<span class="nc" id="L177">        return status ;</span>
+    }
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

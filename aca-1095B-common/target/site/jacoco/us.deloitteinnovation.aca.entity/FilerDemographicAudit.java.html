@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilerDemographicAudit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">FilerDemographicAudit.java</span></div><h1>FilerDemographicAudit.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import us.deloitteinnovation.aca.constants.CommonEntityConstants;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * Created by ritmukherjee on 10/30/2015.
+ */
+
+@Entity
+@Table(name=&quot;A_FILER_DEMOGRAPHICS&quot;)
+@Deprecated
+<span class="nc" id="L16">public class FilerDemographicAudit implements Serializable {</span>
+
+    private static final long serialVersionUID = 1406555636819934006L;
+
+    @Id
+    @Column(name=&quot;A_SEQ_NO&quot;)
+    private int auditSeqNo;
+
+    @Column(name=&quot;SOURCE_UNIQUE_ID&quot;)
+    private long sourceUniqueId;
+
+    @Column(name=&quot;SOURCE_CD&quot;)
+    private String sourceCd;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_ADDRESS_LINE_1)
+    private String recepientAddressLine1;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_ADDRESS_LINE_2)
+    private String recepientAddressLine2;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_CITY)
+    private String recepientCity;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_STATE_CODE)
+    private String recepientState;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_ZIP_4)
+    private String recepientZip4;
+
+    @Column(name=CommonEntityConstants.RECIPIENT_ZIP_5)
+    private String recepientZip5;
+
+    @Column(name = CommonEntityConstants.COMMENTS)
+    private String comments;
+
+
+    @Column(name=&quot;UPDATED_BY&quot;)
+    private String updatedBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name=&quot;UPDATED_DATE&quot;)
+    private Date updatedDt;
+
+
+
+
+//    @Column(name=&quot;MAILED_FORM&quot;)
+//    private String mailedForm;
+
+/*   May be used at future
+--------------------------
+ @OneToOne(cascade = CascadeType.ALL  )
+    @JoinColumns({
+            @JoinColumn(name=&quot;SOURCE_CD&quot;, referencedColumnName=&quot;SOURCE_CD&quot;,insertable = false,updatable = false),
+            @JoinColumn(name=&quot;SOURCE_UNIQUE_ID&quot;, referencedColumnName=&quot;SOURCE_UNIQUE_ID&quot;,insertable = false,updatable = false)
+    })
+    private FormPdf1095BAudit FormPdf1095BAudit;
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name=&quot;SOURCE_CD&quot;, referencedColumnName=&quot;SOURCE_CD&quot;),
+            @JoinColumn(name=&quot;SOURCE_UNIQUE_ID&quot;, referencedColumnName=&quot;SOURCE_UNIQUE_ID&quot;)
+    })
+    private List&lt;FormPdf1095BAudit&gt; formPdf1095BAuditList;*/
+
+    public long getSourceUniqueId() {
+<span class="nc" id="L82">        return sourceUniqueId;</span>
+    }
+
+    public void setSourceUniqueId(long sourceUniqueId) {
+<span class="nc" id="L86">        this.sourceUniqueId = sourceUniqueId;</span>
+<span class="nc" id="L87">    }</span>
+
+    public String getSourceCd() {
+<span class="nc" id="L90">        return sourceCd;</span>
+    }
+
+    public void setSourceCd(String sourceCd) {
+<span class="nc" id="L94">        this.sourceCd = sourceCd;</span>
+<span class="nc" id="L95">    }</span>
+
+    public String getRecepientAddressLine1() {
+<span class="nc" id="L98">        return recepientAddressLine1;</span>
+    }
+
+    public void setRecepientAddressLine1(String recepientAddressLine1) {
+<span class="nc" id="L102">        this.recepientAddressLine1 = recepientAddressLine1;</span>
+<span class="nc" id="L103">    }</span>
+
+    public String getRecepientAddressLine2() {
+<span class="nc" id="L106">        return recepientAddressLine2;</span>
+    }
+
+    public void setRecepientAddressLine2(String recepientAddressLine2) {
+<span class="nc" id="L110">        this.recepientAddressLine2 = recepientAddressLine2;</span>
+<span class="nc" id="L111">    }</span>
+
+    public String getRecepientCity() {
+<span class="nc" id="L114">        return recepientCity;</span>
+    }
+
+    public void setRecepientCity(String recepientCity) {
+<span class="nc" id="L118">        this.recepientCity = recepientCity;</span>
+<span class="nc" id="L119">    }</span>
+
+    public String getRecepientState() {
+<span class="nc" id="L122">        return recepientState;</span>
+    }
+
+    public void setRecepientState(String recepientState) {
+<span class="nc" id="L126">        this.recepientState = recepientState;</span>
+<span class="nc" id="L127">    }</span>
+
+    public String getRecepientZip4() {
+<span class="nc" id="L130">        return recepientZip4;</span>
+    }
+
+    public void setRecepientZip4(String recepientZip4) {
+<span class="nc" id="L134">        this.recepientZip4 = recepientZip4;</span>
+<span class="nc" id="L135">    }</span>
+
+    public String getRecepientZip5() {
+<span class="nc" id="L138">        return recepientZip5;</span>
+    }
+
+    public void setRecepientZip5(String recepientZip5) {
+<span class="nc" id="L142">        this.recepientZip5 = recepientZip5;</span>
+<span class="nc" id="L143">    }</span>
+
+    public String getComments() {
+<span class="nc" id="L146">        return comments;</span>
+    }
+
+    public void setComments(String comments) {
+<span class="nc" id="L150">        this.comments = comments;</span>
+<span class="nc" id="L151">    }</span>
+
+    public String getUpdatedBy() {
+<span class="nc" id="L154">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L158">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L159">    }</span>
+
+    public Date getUpdatedDt() {
+<span class="nc" id="L162">        return updatedDt;</span>
+    }
+
+    public void setUpdatedDt(Date updatedDt) {
+<span class="nc" id="L166">        this.updatedDt = updatedDt;</span>
+<span class="nc" id="L167">    }</span>
+
+    public int getAuditSeqNo() {
+<span class="nc" id="L170">        return auditSeqNo;</span>
+    }
+
+    public void setAuditSeqNo(int auditSeqNo) {
+<span class="nc" id="L174">        this.auditSeqNo = auditSeqNo;</span>
+<span class="nc" id="L175">    }</span>
+
+
+
+    //    public String getMailedForm() {
+//        return mailedForm;
+//    }
+//
+//    public void setMailedForm(String mailedForm) {
+//        this.mailedForm = mailedForm;
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

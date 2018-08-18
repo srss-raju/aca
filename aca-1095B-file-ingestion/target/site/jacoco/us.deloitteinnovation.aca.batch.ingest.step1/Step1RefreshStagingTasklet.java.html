@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step1RefreshStagingTasklet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step1</a> &gt; <span class="el_source">Step1RefreshStagingTasklet.java</span></div><h1>Step1RefreshStagingTasklet.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step1;
+
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.util.Assert;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.batch.service.ExceptionReportService;
+import us.deloitteinnovation.aca.batch.service.FileImportMailerService;
+import us.deloitteinnovation.aca.repository.FilerDemographicStagingRepository;
+
+/**
+ * &lt;p&gt;
+ * Tasklet to call a stored procedure which truncates FILER_DEMOGRAPHICS_STAGING
+ * and copies data from FILER_DEMOGRAPHICS for a given state and tax year.
+ * &lt;/p&gt;
+ */
+
+<span class="nc" id="L34">public class Step1RefreshStagingTasklet implements Tasklet, InitializingBean {</span>
+
+<span class="nc" id="L36">    private static final Logger LOGGER = LoggerFactory.getLogger(Step1RefreshStagingTasklet.class);</span>
+
+    String state;
+    String sourceCd;
+    String year; // From batch arguments
+    Integer taxYear;
+    JobExecution jobExecution;
+    @Autowired
+    FilerDemographicStagingRepository filerDemographicStagingRepository;
+    @Autowired
+    ExceptionReportService exceptionReportService;
+    @Autowired
+    BatchInfoDto batchInfoDto;
+    @Autowired
+    FileImportMailerService fileImportMailerService;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+<span class="nc" id="L53">    SingleConnectionDataSource singleConnectionDataSource = null;</span>
+    JdbcTemplate singleConnJdbcTemplate;
+    SimpleJdbcCall simpleJdbcCall;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+
+        try {
+<span class="nc" id="L63">            jobExecution = chunkContext.getStepContext().getStepExecution().getJobExecution();</span>
+
+<span class="nc" id="L65">            state = (String) chunkContext.getStepContext().getJobParameters().get(FileIngestionConstants.BATCH_ARG_STATE);</span>
+<span class="nc" id="L66">            Assert.notNull(state, &quot;Null value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_STATE + &quot;'&quot;);</span>
+<span class="nc" id="L67">            Assert.hasLength(state, &quot;Blank value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_STATE + &quot;'&quot;);</span>
+<span class="nc" id="L68">            year = (String) chunkContext.getStepContext().getJobParameters().get(FileIngestionConstants.BATCH_ARG_TAX_YEAR);</span>
+<span class="nc" id="L69">            Assert.notNull(year, &quot;Null value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_TAX_YEAR + &quot;'&quot;);</span>
+<span class="nc" id="L70">            Assert.hasLength(year, &quot;Blank value provided for parameter '&quot; + FileIngestionConstants.BATCH_ARG_TAX_YEAR + &quot;'&quot;);</span>
+<span class="nc" id="L71">            taxYear = Integer.valueOf(year);</span>
+<span class="nc" id="L72">            sourceCd = sourceSystemConfigDataService.getByState(state, taxYear).getSourceCd();</span>
+
+            /**
+             * Set up a separate data source only for executing the stored procedure.
+             * We are doing this because when the application starts, the connection retrieved from the
+             * data source has the default isolation level, whereas the stored procedure is executed at the SNAPSHOT
+             * isolation level. So if we try to call the stored procedure with data source configured
+             * for this application, we get an exception because of mismatch in isolation levels.
+             * In order to overcome the exception, we configure a single connection data source exclusively to execute
+             * the stored procedure and set the isolation level for this single connection data source to SNAPSHOT.
+             */
+<span class="nc" id="L83">            singleConnectionDataSource = new SingleConnectionDataSource(this.jdbcTemplate.getDataSource().getConnection(), true);</span>
+<span class="nc" id="L84">            singleConnectionDataSource.getConnection().setTransactionIsolation(4096);// 4096 is the SNAPSHOT isolation level indicator for ms sql server.</span>
+<span class="nc" id="L85">            singleConnJdbcTemplate = new JdbcTemplate(singleConnectionDataSource);</span>
+
+<span class="nc" id="L87">            simpleJdbcCall = new SimpleJdbcCall(singleConnJdbcTemplate)</span>
+<span class="nc" id="L88">                    .withSchemaName(&quot;dbo&quot;)</span>
+<span class="nc" id="L89">                    .withProcedureName(&quot;ResetFilerDemoStaging&quot;);</span>
+            // Parameters to be passed to the stored proc.
+<span class="nc" id="L91">            MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();</span>
+<span class="nc" id="L92">            sqlParameterSource.addValue(&quot;source_cd&quot;, sourceCd);</span>
+<span class="nc" id="L93">            sqlParameterSource.addValue(&quot;tax_year&quot;, taxYear);</span>
+            // Execute the stored proc.
+<span class="nc" id="L95">            simpleJdbcCall.execute(sqlParameterSource);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L97">                LOGGER.info(&quot;Staging table refreshed for {} state and tax year {}&quot;, state, taxYear);</span>
+            }
+<span class="nc" id="L99">        } catch (Exception ex) {</span>
+            // Log errors into error table
+<span class="nc" id="L101">            ExceptionReportDto exceptionReport = new ExceptionReportDto();</span>
+<span class="nc" id="L102">            exceptionReport.setSourceUniqueId(0l);</span>
+<span class="nc" id="L103">            exceptionReport.setBatchInfo(this.batchInfoDto);</span>
+<span class="nc" id="L104">            exceptionReport.setExDetails(ExceptionUtils.getRootCauseMessage(ex));</span>
+<span class="nc" id="L105">            exceptionReport.setRowNumber(0);</span>
+<span class="nc" id="L106">            exceptionReportService.save(exceptionReport);</span>
+            // Send email
+<span class="nc" id="L108">            fileImportMailerService.sendMail(batchInfoDto, jobExecution);</span>
+            // Stop the job right here!!
+<span class="nc" id="L110">            jobExecution.stop();</span>
+<span class="nc" id="L111">        }</span>
+<span class="nc" id="L112">        return RepeatStatus.FINISHED;</span>
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+<span class="nc" id="L116">        this.jdbcTemplate = jdbcTemplate;</span>
+<span class="nc" id="L117">    }</span>
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+<span class="nc" id="L121">        Assert.notNull(jdbcTemplate);</span>
+<span class="nc" id="L122">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

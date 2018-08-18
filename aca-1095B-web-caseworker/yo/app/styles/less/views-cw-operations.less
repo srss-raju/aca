@@ -1,0 +1,493 @@
+/**** Operations : XML Status ***/
+.margin-container-box {
+  margin: 25px 38px 0;
+}
+
+.resend-icons {
+  width: 25px;
+  height: 25px;
+  path {
+    fill: @blue;
+  }
+  &:hover {
+    path {
+      fill: @orange;
+    }
+  }
+}
+
+.input-width {
+  min-width: 500px;
+}
+
+.input-height {
+  height: 35px;
+}
+
+.search-box {
+  font-size: 0;
+  .btn {
+    margin-top: -11px;
+  }
+}
+
+.dropdown {
+  .dropdown > ul {
+    padding: 0
+  }
+  .dropdown-menu > li > a {
+    padding: 8px 13px;
+    font-size: 16px;
+  }
+  .dropdown-toggle {
+    cursor: pointer;
+    height: 35px;
+    border: 1px solid @lighter-gray;
+    padding: 6px 0;
+    color: @gray;
+    font-size: 16px;
+    > div:first-child {
+      padding-left: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    > div:nth-child(2) {
+      padding-left: 5px;
+    }
+  }
+  .open > .dropdown-toggle.btn-default {
+    color: @gray;
+    border-color: transparent;
+    background-color: @white;
+  }
+}
+
+.dropdown-state {
+  width: 57%;
+  margin-right: 5%;
+  float: left;
+}
+
+.dropdown-year {
+  width: 38%;
+  float: left;
+}
+
+.input-text {
+  padding: 0 10px;
+  font-size: 16px;
+  &:disabled {
+    background-color: transparent;
+    border: 1px solid @lighter-gray;
+  }
+}
+
+.input-text-css {
+  font-family: Roboto-Regular, Helvetica, Arial;
+}
+
+.input-text
+::-webkit-input-placeholder {
+  .input-text-css
+}
+
+:-moz-placeholder {
+  .input-text-css
+}
+
+::-moz-placeholder {
+  .input-text-css
+}
+
+:-ms-input-placeholder {
+  .input-text-css
+}
+
+.radioButtons {
+  padding-left: 10px;
+  > i {
+    margin-right: 10px;
+    &:not(:first-child) {
+      margin-left: 50px;
+    }
+  }
+}
+
+.radioButtons.active {
+  color: @dark-gray;
+}
+
+.radioButtons.inactive {
+  color: @lighter-gray;
+}
+
+.loading {
+  text-align: center;
+  padding-top: 150px;
+}
+
+.sorter {
+  > i {
+    font-size: x-small;
+    color: @lighter-gray;
+  }
+}
+
+.tabular-data {
+  > div {
+    margin-bottom: 2px;
+    > div {
+      height: 60px;
+      padding: 12px 0 12px 12px;
+    }
+    &:nth-child(even) {
+      margin-bottom: 2px;
+    }
+  }
+
+  .editModeClass {
+    background-color: rgba(54, 167, 199, 0.15);
+  }
+
+  .normalModeOdd {
+    background-color: rgba(175, 174, 175, 0.1);
+  }
+  .normalModeEven {
+    background-color: rgba(175, 174, 175, 0.3);
+  }
+
+}
+
+.btn-grp {
+  > div {
+    display: inline-block;
+    background-color: @orange;
+    border-radius: 4px 0 0 4px;
+    width: 80px;
+    height: 28px;
+    padding: 5px 1px;
+    color: @white;
+  }
+
+  .caret-box {
+    color: @white;
+    display: inline-block;
+    width: 0;
+    margin-left: -2px;
+    border-radius: 0 4px 4px 0;
+    padding: 5px 8px;
+    .caret {
+      margin-left: -4px;
+    }
+  }
+}
+
+.type-value {
+  text-align: center;
+}
+
+.lower-case {
+  text-transform: lowercase;
+}
+
+.statusColumnHeader {
+  > div {
+    padding-left: 20px;
+  }
+}
+
+.showList {
+  z-index: 1000;
+  background-color: @white;
+  position: absolute;
+  border-radius: 4px;
+  margin: 2px -45px 0 0;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  > div {
+    text-align: left;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    font-size: 12px;
+    &:hover {
+      background-color: @light-gray;
+    }
+  }
+}
+
+.popover-xml-long {
+  .popover-content {
+    right: -190px !important;
+    position: absolute;
+    top: -5px;
+  }
+}
+
+.popover-xml-short {
+  .popover-content {
+    right: -30px !important;
+    position: absolute;
+    top: -5px;
+    min-width: 63px;
+    text-align: center;
+  }
+  .arrow {
+    left: 10px !important;
+  }
+}
+
+.popover-xml-medium {
+  .popover-content {
+    width: 150px;
+    right: -77px !important;
+    position: absolute;
+    top: -5px;
+    text-align: center;
+  }
+}
+
+.popover-xml {
+  .popover-content {
+    background-color: @white;
+    border: 1px solid @lighter-gray-10;
+    color: @lighter-gray;
+    font-size: 12px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    padding: 5px !important;
+  }
+  .arrow {
+    /* border-width: 5px;*/
+    border: 1px solid @lighter-gray-10;
+  }
+}
+
+.function-container {
+  padding: 20px;
+  > div {
+    height: 20px;
+  }
+
+  .dropdown-menu {
+    z-index: 9999 !important;
+  }
+
+  .align-text {
+    padding-top: 8px;
+  }
+
+  .align-select {
+    padding-top: 5px;
+  }
+
+  input {
+    width: 150px;
+    height: 37px;
+    border: transparent;
+    border-radius: 3px;
+    padding: 0 5px !important;
+  }
+
+  .padding-input {
+    padding-left: 10px;
+  }
+
+  .date-parser {
+    max-width: 210px;
+    min-width: 140px;
+    width: 100%;
+    #clear {
+      display: none !important;
+    }
+    #spin {
+      display: none !important;
+    }
+    #picker {
+      display: none !important;
+    }
+  }
+  .invalid-input {
+    border: 1px solid @red;
+  }
+  .date-parser.ng-invalid {
+    .invalid-input;
+  }
+  .receipt-id.ng-invalid {
+    .invalid-input;
+  }
+  .btn-grp-container {
+    padding-top: 5px;
+  }
+  .icon-container {
+    position: absolute;
+    right: 0;
+  }
+  .icon-panel {
+    position: absolute;
+    //right: 30px;
+    right: 0;
+    > span {
+      white-space: nowrap;
+      > span {
+        margin-right: 15px;
+        > i.active {
+          color: @blue;
+          &:hover {
+            color: @orange;
+          }
+        }
+        > i.inactive {
+          color: @gray;
+        }
+
+        .fa-dim {
+          font-size: 1.5em;
+        }
+
+        .fa-floppy-o.active {
+          &:hover {
+            color: @green;
+          }
+        }
+
+        .fa-ban.active {
+          &:hover {
+            color: @red;
+          }
+        }
+
+      }
+      /* .popover-content{
+         padding: 2px !important;
+         color : @light-gray;
+       }*/
+    }
+    .noAction-container {
+      margin: 0 !important;
+    }
+    .noAction {
+      white-space: normal;
+      top: -8px;
+      right: -25px;
+      font-size: 12px;
+      color: @dark-gray;
+      overflow: hidden;
+      margin-top: -6px;
+      > div {
+        width: 80px;
+        margin-right: 15px;
+      }
+    }
+    .resendAction {
+      white-space: normal;
+      top: -8px;
+      right: -25px;
+      font-size: 12px;
+      color: @dark-gray;
+      overflow: hidden;
+      > div:not(:first-child) {
+        margin-left: 15px;
+      }
+    }
+  }
+  .record-panel {
+    //border: 1px solid black;
+    left: 12px;
+    position: absolute;
+    right: 20px;
+    top: 0;
+    margin: 12px 0;
+  }
+  .switcher-container {
+    position: absolute;
+    right: 0;
+  }
+  .switcher {
+    width: 20px;
+    height: 60px;
+    background-color: @blue;
+    top: -12px;
+    position: absolute;
+    right: 0;
+    padding: 18px 6px;
+    > i {
+      font-size: 1.65em;
+    }
+
+    &:hover {
+      background-color: @orange;
+    }
+  }
+}
+
+.reverse-truncate {
+  width: 200px;
+  white-space: nowrap;
+  text-overflow: clip;
+  &:before {
+    content: '\02026';
+    position: absolute;
+    z-index: 1;
+    left: -1em;
+    background-color: inherit;
+    padding-left: 1em;
+    margin-left: 0.5em;
+  }
+  > span {
+    min-width: 100%;
+    position: relative;
+    display: inline-block;
+    float: right;
+    overflow: visible;
+    background-color: inherit;
+    text-indent: 0.5em;
+  }
+}
+
+.reverse-truncater {
+  overflow-x: hidden;
+  white-space: nowrap;
+  width: 90%;
+  margin-left: 20px;
+  > span {
+    float: right;
+    background-color: inherit;
+  }
+  &:before {
+    content: '\02026';
+    position: absolute;
+    z-index: 1;
+    left: -1em;
+    background-color: inherit;
+    padding-left: 1em;
+    margin-left: 0.5em;
+  }
+}
+
+.view-current-form {
+  .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .row-margin {
+    margin-bottom: 25px;
+  }
+}
+
+//login error view and login inactive view
+.login-error-view, .login-inactive-view {
+  .failure-icon {
+    position: relative;
+    top: -4px;
+    font-size: 20px;
+  }
+  .error-panel {
+    .padding25;
+    background-color: white;
+    margin: 0 15%;
+    .container-round;
+  }
+}
+

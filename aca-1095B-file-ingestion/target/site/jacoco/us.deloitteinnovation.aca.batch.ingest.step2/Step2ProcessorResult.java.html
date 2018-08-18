@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step2ProcessorResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step2</a> &gt; <span class="el_source">Step2ProcessorResult.java</span></div><h1>Step2ProcessorResult.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step2;
+
+import us.deloitteinnovation.aca.batch.dto.ExceptionReportDto;
+import us.deloitteinnovation.aca.entity.FilerDemographicStagingEntity;
+
+import java.util.Set;
+
+/**
+ * Encapsulates the results of the processors
+ * so that writer can consume this for writing
+ * results to database.
+ */
+public class Step2ProcessorResult {
+
+    private Set&lt;ExceptionReportDto&gt; exceptionReportSet;
+    private FilerDemographicStagingEntity filerDemographicStagingEntity;
+
+
+    /**
+     * Constructor for this class
+     * Constructs an instance of this class with set of
+     * exception report dto's initialized
+     *
+     * @param exceptionReportSet
+     */
+<span class="nc" id="L26">    public Step2ProcessorResult(Set&lt;ExceptionReportDto&gt; exceptionReportSet) {</span>
+<span class="nc" id="L27">        this.exceptionReportSet = exceptionReportSet;</span>
+<span class="nc" id="L28">    }</span>
+
+    /**
+     * @return Set containing the exception report dto's
+     */
+    public Set&lt;ExceptionReportDto&gt; getExceptionReportSet() {
+<span class="nc" id="L34">        return exceptionReportSet;</span>
+    }
+
+
+    /**
+     * Sets the value of exceptionReportSet
+     *
+     * @param exceptionReportSet
+     */
+    public void setExceptionReportSet(Set&lt;ExceptionReportDto&gt; exceptionReportSet) {
+<span class="nc" id="L44">        this.exceptionReportSet = exceptionReportSet;</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     *
+     * @return the filerDemographicStagingEntity property of this class.
+     */
+    public FilerDemographicStagingEntity getFilerDemographicStagingEntity() {
+<span class="nc" id="L52">        return filerDemographicStagingEntity;</span>
+    }
+
+    /**
+     * Sets the value of filerDemographicStagingEntity
+     * @param filerDemographicStagingEntity
+     */
+    public void setFilerDemographicStagingEntity(FilerDemographicStagingEntity filerDemographicStagingEntity) {
+<span class="nc" id="L60">        this.filerDemographicStagingEntity = filerDemographicStagingEntity;</span>
+<span class="nc" id="L61">    }</span>
+
+    /**
+     * Helper method to populate exception reports set
+     *
+     * @param exceptionReport
+     */
+    public void addExceptionReport(ExceptionReportDto exceptionReport) {
+
+<span class="nc" id="L70">        this.getExceptionReportSet().add(exceptionReport);</span>
+<span class="nc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

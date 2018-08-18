@@ -1,0 +1,11 @@
+<div class="form-group input-icon">
+  <input type="text" tabindex="6" aria-label="{{dataAriaLabel}}" class="pointer form-control input-box"
+         placeholder={{placeholder}}
+         aca-date-picker datepicker-popup="MM/dd/yyyy" ng-model="ngModel" is-open="datePicker.open" min-date="minDate"
+         max-date="datePicker.maxDate" show-weeks=false show-button-bar=false
+         ng-required="clear==='dontclear'?true:false"/>
+  <span class="input-icon-img pointer" ng-click="datePicker.open=!datePicker.open;">
+      <i class="fa fa-calendar"></i>
+  </span>
+</div>
+

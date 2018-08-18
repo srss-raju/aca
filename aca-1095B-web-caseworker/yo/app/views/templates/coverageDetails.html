@@ -1,0 +1,12 @@
+<div class="col-md-12 no-padding coverage-width" tabindex="{{isClickable ? -1:1*tabIndex}}"
+     aria-label="{{ariaLabel.coverageSource}}">
+  <div class="col-md-1 moderate-blue-bold no-padding-left no-padding-right  hover_class display-inline-block text-center"  tabindex="{{isClickable ? ((1*tabIndex) + ($index*1)) : -1}}" aria-label="{{ariaLabel.coverageMonthly[$index].month + ariaLabel.coverageMonthly[$index].covered}}" data-ng-repeat = "coverage in cinfo" ng-click="change_coverage(coverage);" ng-keyup="$event.keyCode == 13 ? change_coverage(coverage) : null">
+    <span class="col-md-12 label-class margin-bottom5px margin-top7 no-padding-left no-padding-right">
+      {{coverage.month}}
+    </span>
+    <span class="col-md-12 no-padding-left no-padding-right">
+      <span data-ng-class="(coverage.covered ==='1')?'circle-check-fill':'fa fa-circle-thin fa-2x circle-hollow'" class="margin-right5"></span>
+    </span>
+    <!--<span class="background-block" ng-show="showhover"></span>-->
+  </div>
+</div>

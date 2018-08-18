@@ -1,0 +1,183 @@
+
+/*** views/citizen-state.html ***/
+.citizen-bg-wrap{
+  height: inherit;
+  position: absolute;
+  top : @navbar-height;
+  bottom: @footer-height;
+  right:0;
+  left:0;
+
+  .citizen-state-container {
+    background-image: url('../images/landing-page-bg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    .margin-content {
+      height: 100%;
+      margin: 0 7%;
+    }
+
+    .title-main-light {
+      height: 22.22%;
+      color: @white;
+      font-family: Roboto-Regular, Helvetica, Arial;
+      font-size: 74px;
+      position: relative;
+      > div{
+        position: absolute;
+        bottom: 0;
+      }
+
+    }
+
+    .sub-title-main-light {
+      height: 14.78%;
+      color: @white;
+      font-family: Roboto-Light, Helvetica, Arial;
+      font-size: 30px;
+      padding-left: 5px;
+    }
+
+    .form-title-main-light {
+      height: 63%;
+      //padding-left: 25px;
+      //padding-top: 88px;
+
+      .form-title {
+        font-size: 24px;
+        color: @white;
+        font-family: Roboto-Regular, Helvetica, Arial;
+        padding-bottom: 18px;
+        padding-left: 5px;
+        height: 40px;
+        overflow: hidden;
+      }
+
+      .animate-hide {
+        transition: all linear 1s;
+        margin-top: 0px;
+      }
+
+      .animate-hide.scroll-up {
+        margin-top: -70px;
+      }
+
+      form{
+        padding-top: 7px;
+      }
+
+      .form-container {
+        height: 55px;
+        width: 373px;
+        background-color: @white;
+
+        .form-group {
+          width: 100%;
+          height: inherit;
+          padding-top: 0;
+          margin-bottom: 0;
+
+          .user-input {
+            display: inline-block;
+            width: 300px;
+            height: 50px;
+            float: left;
+
+            #state-dropdown{
+
+            }
+
+            #year-dropdown{
+              display: none;
+            }
+          }
+
+          .user-action {
+            display: inline-block;
+            width: 73px;
+            height: inherit;
+            cursor: pointer;
+
+            i {
+              padding-left: 20px;
+              padding-top: 5px;
+            }
+            .arrow-icon {
+              background-image: url('../images/arrow.svg');
+              height: 50px;
+              width: 73px;
+              display: none;
+            }
+            .enter-button {
+              font-family: Roboto-Regular, Helvetica, Arial;
+              font-size: 20px;
+              color: @white;
+              background-color: @orange;
+              width: 100%;
+              height: 50px;
+              border: 0;
+              opacity: 0.5;
+              cursor: none;
+              display: none;
+            }
+            .enter-button.enable{
+              opacity: 1;
+              cursor: pointer;
+            }
+
+
+          }
+
+          .progress {
+            width: 100%;
+            background-color: @progress-gray;
+            height: 5px;
+            position: absolute;
+            bottom: 0;
+            margin-bottom: 0;
+            border-radius: 0;
+
+            .progress-bar{
+              background-color: @orange;
+              width: 0%;
+            }
+          }
+
+        }
+
+        .loading-center{
+          padding-top: 12px;
+        }
+
+        .user-back {
+          display: none;
+          font-family: Roboto-Regular, Helvetica, Arial;
+          font-size: 14px;
+          color: @white;
+          padding-top: 20px;
+          padding-bottom: 3px;
+          width: 65px;
+          cursor: pointer;
+          border-bottom: 1px solid @white;
+
+          &:before {
+            content: "\f053";
+            font-family: FontAwesome;
+            font-style: normal;
+            font-weight: normal;
+            color: @white;
+            font-size: 10px;
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+}

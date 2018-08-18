@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="-358.65168539325845" y="545.9887640449439">us.deloitteinnovation.aca.batch.writer.IrsErrorReportingItemWriter</node>
+    <node x="417.6629213483145" y="115.60674157303367">us.deloitteinnovation.aca.batch.listeners.IrsErrorHandlingProtocolListener</node>
+    <node x="-360.14606741573033" y="149.95505617977534">us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration</node>
+    <node x="-355.6629213483146" y="33.60674157303373">us.deloitteinnovation.aca.Aca1095BIrsErrorReporting</node>
+    <node x="-359.6179775280899" y="415.97752808988764">us.deloitteinnovation.aca.batch.processor.IrsErrorReportingAppProcessor</node>
+    <node x="789.0337078651684" y="135.98876404494382">us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore</node>
+    <node x="442.9213483146067" y="336.78651685393254">us.deloitteinnovation.aca.batch.listeners.ItemReaderListener</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration" target="us.deloitteinnovation.aca.batch.writer.IrsErrorReportingItemWriter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration" target="us.deloitteinnovation.aca.batch.listeners.IrsErrorHandlingProtocolListener">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration" target="us.deloitteinnovation.aca.batch.listeners.ItemReaderListener">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.listeners.IrsErrorHandlingProtocolListener" target="us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.writer.IrsErrorReportingItemWriter" target="us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.processor.IrsErrorReportingAppProcessor" target="us.deloitteinnovation.aca.batch.objectstore.ErrorReportingObjectStore">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="us.deloitteinnovation.aca.batch.IrsErrorReportingConfiguration" target="us.deloitteinnovation.aca.batch.processor.IrsErrorReportingAppProcessor">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.6691729323308271" x="544.2191011235955" y="522.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

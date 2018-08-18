@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3FileIngestionCRVWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.ingest.step3</a> &gt; <span class="el_source">Step3FileIngestionCRVWriter.java</span></div><h1>Step3FileIngestionCRVWriter.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.ingest.step3;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.dto.FilerDemographicPKDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.BusinessValidationRuleDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.dto.Step3FilerDataDto;
+import us.deloitteinnovation.aca.batch.ingest.step3.services.Step3RecordValidationService;
+import us.deloitteinnovation.aca.constants.CommonDataConstants;
+
+import java.util.*;
+
+/**
+ * Created by tthakore on 8/31/2016.
+ */
+@Component
+<span class="fc" id="L21">public class Step3FileIngestionCRVWriter implements ItemWriter&lt;Step3FilerDataDto&gt; {</span>
+
+<span class="fc" id="L23">    private static Logger logger = LoggerFactory.getLogger(Step3FileIngestionCRVWriter.class);</span>
+
+    @Autowired
+    Step3RecordValidationService step3RecordValidationService;
+
+    ArrayList&lt;Step3FilerDataDto&gt; insertForFD;
+    ArrayList&lt;Step3FilerDataDto&gt; updateForFD;
+    ArrayList&lt;Step3FilerDataDto&gt; recordsToMarkRegenerate;
+    ArrayList&lt;FilerCoverageDto&gt; coverageInfoTransectionData;
+    ArrayList&lt;BusinessValidationRuleDto&gt; businessValidationRuleDtos;
+    ArrayList&lt;BusinessValidationRuleDto&gt; exceptionReportList;
+    Map&lt;String, Step3FilerDataDto&gt; otherRecordsToUpdateVersionFD;
+
+
+    /**
+     * writer will be writing to multiple tables on the basis of data received.
+     **/
+    @Override
+    public void write(List&lt;? extends Step3FilerDataDto&gt; list) throws Exception {
+<span class="nc" id="L42">        logger.info(&quot;start of Step3FileIngestionCRVWriter writer.&quot;);</span>
+<span class="nc" id="L43">        insertForFD = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L44">        updateForFD = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L45">        coverageInfoTransectionData = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L46">        businessValidationRuleDtos = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L47">        exceptionReportList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L48">        recordsToMarkRegenerate = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L49">        otherRecordsToUpdateVersionFD = new HashMap&lt;&gt;();</span>
+
+
+        try {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            for (Step3FilerDataDto item : list) {</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                for (Step3FilerDataDto acceptedRecord : item.getRecordsForFD()) {</span>
+<span class="nc" id="L55">                    updateRecordsForFD(acceptedRecord);</span>
+<span class="nc" id="L56">                }</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                for (Step3FilerDataDto record : item.getAcceptedRecordList()) {</span>
+<span class="nc" id="L59">                    updateBusinessValidationAndCoverageList(record);</span>
+<span class="nc" id="L60">                }</span>
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                for (Step3FilerDataDto record : item.getRejectedRecordList()) {</span>
+<span class="nc" id="L63">                    BusinessValidationRuleDto businessValidationRuleDto = getBusinessRuleDTO(record);</span>
+<span class="nc" id="L64">                    businessValidationRuleDtos.add(businessValidationRuleDto);</span>
+<span class="nc" id="L65">                    exceptionReportList.add(businessValidationRuleDto);</span>
+<span class="nc" id="L66">                }</span>
+
+<span class="nc" id="L68">            }</span>
+
+<span class="nc" id="L70">            logger.info(&quot;inserting values in DB from writer...&quot;);</span>
+<span class="nc" id="L71">            step3RecordValidationService.bulkInsertFD(insertForFD);</span>
+<span class="nc" id="L72">            updateForFD = updateIrsTransmissionCdForResponsible(updateForFD);</span>
+<span class="nc" id="L73">            step3RecordValidationService.bulkUpdateFD(updateForFD);</span>
+<span class="nc" id="L74">            step3RecordValidationService.bulkInsertBusinessLogs(businessValidationRuleDtos);</span>
+<span class="nc" id="L75">            step3RecordValidationService.bulkInsertExceptionReport(exceptionReportList);</span>
+<span class="nc" id="L76">            step3RecordValidationService.bulkUpdateFormStatus(recordsToMarkRegenerate);</span>
+<span class="nc" id="L77">            updateCoverageSource(list);</span>
+<span class="nc" id="L78">            step3RecordValidationService.bulkUpdateVersionNo(new ArrayList&lt;&gt;(otherRecordsToUpdateVersionFD.values()));</span>
+<span class="nc" id="L79">            logger.info(&quot;start of Step3FileIngestionCRVWriter writer.&quot;);</span>
+<span class="nc" id="L80">        } catch (Exception e) {</span>
+
+<span class="nc" id="L82">            Step3DataValidationException step3DataValidationException = new Step3DataValidationException();</span>
+<span class="nc" id="L83">            List&lt;Step3FilerDataDto&gt; dataList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L84">            dataList.addAll(list);</span>
+<span class="nc" id="L85">            step3DataValidationException.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L86">            step3DataValidationException.setParent(dataList);</span>
+
+<span class="nc" id="L88">            logger.error(&quot;Exception in writing records into database&quot;, e);</span>
+<span class="nc" id="L89">            throw step3DataValidationException;</span>
+
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">    }</span>
+
+    protected BusinessValidationRuleDto getBusinessRuleDTO(Step3FilerDataDto step3FilerDataDto) {
+        /*setup current date and time*/
+<span class="fc" id="L96">        BusinessValidationRuleDto businessValidationRuleDto = new BusinessValidationRuleDto();</span>
+<span class="fc" id="L97">        businessValidationRuleDto.setSourceCd(step3FilerDataDto.getSourceCd());</span>
+<span class="fc" id="L98">        businessValidationRuleDto.setSourceUniqueId(Long.valueOf(step3FilerDataDto.getSourceUniqueId()));</span>
+<span class="fc" id="L99">        businessValidationRuleDto.setBatchId(step3FilerDataDto.getBatchInfo().getBatchId());</span>
+<span class="fc" id="L100">        businessValidationRuleDto.setDob(step3FilerDataDto.getRecipientDob());</span>
+<span class="fc" id="L101">        businessValidationRuleDto.setBusinessDecision(step3FilerDataDto.getRecordStatus());</span>
+<span class="fc" id="L102">        businessValidationRuleDto.setBusinessRule(step3FilerDataDto.getBDMessage());</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        businessValidationRuleDto.setUid((step3FilerDataDto.getRecipientSsn() != null) ? step3FilerDataDto.getRecipientSsn() : step3FilerDataDto.getRecipientTin());</span>
+<span class="fc" id="L104">        businessValidationRuleDto.setTaxYear(step3FilerDataDto.getId().getTaxYear());</span>
+<span class="fc" id="L105">        businessValidationRuleDto.setRowNumber(Integer.valueOf(step3FilerDataDto.getRowNumber()));</span>
+<span class="fc" id="L106">        businessValidationRuleDto.setUpdatedBy(step3FilerDataDto.getUpdatedBy());</span>
+<span class="fc" id="L107">        businessValidationRuleDto.setUpdatedDate(step3FilerDataDto.getUpdatedDt());</span>
+<span class="fc" id="L108">        businessValidationRuleDto.setCorrectionCode(step3FilerDataDto.getOriginalCorrectionCode());</span>
+<span class="fc" id="L109">        return businessValidationRuleDto;</span>
+    }
+
+    protected void checkAndMarkRegenerate(Step3FilerDataDto item, List&lt;Step3FilerDataDto&gt; recordsToMarkRegenerate) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        for (Step3FilerDataDto responsiblePerson : item.getResposiblePersonList()) {</span>
+<span class="pc bpc" id="L114" title="2 of 6 branches missed.">            if (responsiblePerson.getFormStatus() != null &amp;&amp; responsiblePerson.getFormStatus().equals(CommonDataConstants.FormStatus.FORM_STATUS_GENERATED) &amp;&amp; &quot;0&quot;.equals(responsiblePerson.getRowNumber())) {</span>
+<span class="fc" id="L115">                recordsToMarkRegenerate.add(responsiblePerson);</span>
+            }
+            // Updating correction indicator for responsible person in case of covered person.
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            if (&quot;R&quot;.equals(responsiblePerson.getFilerStatus())) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (responsiblePerson.getFormStatus() == null) {</span>
+<span class="nc" id="L120">                    responsiblePerson.setCorrectionIndicator(&quot;0&quot;);</span>
+                } else {
+<span class="nc bnc" id="L122" title="All 4 branches missed.">                    if (responsiblePerson.getIrsTransmissionStatusCD() != null &amp;&amp; !&quot;DT&quot;.equals(responsiblePerson.getIrsTransmissionStatusCD())) {</span>
+<span class="nc" id="L123">                        responsiblePerson.setCorrectionIndicator(&quot;2&quot;);</span>
+<span class="nc" id="L124">                        responsiblePerson.setIrsTransmissionStatusCD(&quot;CO&quot;);</span>
+                    } else {
+<span class="nc" id="L126">                        responsiblePerson.setCorrectionIndicator(&quot;1&quot;);</span>
+                    }
+                }
+            }
+<span class="fc" id="L130">        }</span>
+<span class="fc" id="L131">    }</span>
+
+    protected void updateRecordsForFD(Step3FilerDataDto acceptedRecord) {
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (acceptedRecord.getIsRecordExistsInDB()) {</span>
+<span class="fc" id="L135">            updateForFD.add(acceptedRecord);</span>
+<span class="fc" id="L136">            createVersionUpdateList(acceptedRecord);</span>
+        } else {
+<span class="nc" id="L138">            insertForFD.add(acceptedRecord);</span>
+<span class="nc" id="L139">            createVersionUpdateList(acceptedRecord);</span>
+        }
+<span class="fc" id="L141">    }</span>
+
+    protected void updateBusinessValidationAndCoverageList(Step3FilerDataDto record) {
+<span class="nc" id="L144">        BusinessValidationRuleDto businessValidationRuleDto = getBusinessRuleDTO(record);</span>
+<span class="nc bnc" id="L145" title="All 6 branches missed.">        if ((record.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_U) &amp;&amp; record.getIsCoverageChangesAvailable()) || record.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)) {</span>
+
+        }
+
+        //we have to mark form status as regenerate for responsible person in case if filer_status is C and record are there in DB.
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (record.getFilerStatus().equals(String.valueOf(CommonDataConstants.FilerStatus.FILER_STATUS_C))) {</span>
+<span class="nc" id="L151">            checkAndMarkRegenerate(record, recordsToMarkRegenerate);</span>
+        }
+<span class="nc" id="L153">        businessValidationRuleDtos.add(businessValidationRuleDto);</span>
+<span class="nc" id="L154">    }</span>
+
+    public void updateCoverageSource(List&lt;? extends Step3FilerDataDto&gt; list) {
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (Step3FilerDataDto item : list) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            for (Step3FilerDataDto record : item.getAcceptedRecordList()) {</span>
+<span class="nc bnc" id="L159" title="All 6 branches missed.">                if ((record.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_U) &amp;&amp; record.getIsCoverageChangesAvailable()) || record.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_O)) {</span>
+<span class="nc" id="L160">                    step3RecordValidationService.bulkInsertFCS(record.getFilerCoverage());</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                } else if (record.getCorrection().equals(CommonDataConstants.CORRECTION_CODE_C)) {</span>
+<span class="nc" id="L162">                    FilerCoverageDto filerCoverageDto = new FilerCoverageDto();</span>
+<span class="nc" id="L163">                    filerCoverageDto.setId(new FilerDemographicPKDto());</span>
+<span class="nc" id="L164">                    filerCoverageDto.getId().setSourceUniqueId(record.getSourceUniqueId());</span>
+<span class="nc" id="L165">                    filerCoverageDto.getId().setSourceCd(record.getSourceCd());</span>
+<span class="nc" id="L166">                    filerCoverageDto.getId().setTaxYear(record.getTaxYear());</span>
+<span class="nc" id="L167">                    step3RecordValidationService.bulkDeleteFromCoverage(filerCoverageDto);</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">                    if ((!record.getFilerCoverage().getOrigCoverageBeginDt().toString().equals(CommonDataConstants.COVERAGE_CLEAR_DATE) &amp;&amp; !record.getFilerCoverage().getOrigCoverageEndDt().toString().equals(CommonDataConstants.COVERAGE_CLEAR_DATE))</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">                            &amp;&amp; (!record.getFilerCoverage().getOrigCoverageBeginDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE) &amp;&amp; !record.getFilerCoverage().getOrigCoverageEndDt().toString().equals(CommonDataConstants.RECORD_INACTIVE_DATE))) {</span>
+<span class="nc" id="L170">                        step3RecordValidationService.bulkInsertFCS(record.getFilerCoverage());</span>
+                    }
+                }
+<span class="nc" id="L173">            }</span>
+<span class="nc" id="L174">        }</span>
+
+<span class="nc" id="L176">    }</span>
+
+
+    /**
+     * createVersionUpdateList will be creating a list from accepted records with responsible person, covered perso and covered
+     * person saring the same responsible person unique id.
+     * we will be updating lates version no and adding them to otherRecordsToUpdateVersionFD so that we can update
+     * version for whole set (i.e. responsible person + covered persons)
+     * @param acceptedRecord :- accepted record we are using.
+     *
+     * **/
+    public void createVersionUpdateList(Step3FilerDataDto acceptedRecord) {
+
+<span class="fc" id="L189">        int currentVersion = acceptedRecord.getVersionNumber();</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        if (!acceptedRecord.getCoveredPersonList().isEmpty()) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            for (Step3FilerDataDto coveredPerson : acceptedRecord.getCoveredPersonList()) {</span>
+<span class="nc bnc" id="L192" title="All 4 branches missed.">                if (&quot;DB&quot;.equals(coveredPerson.getRecordSource()) &amp;&amp; !acceptedRecord.getUIDValue().equals(coveredPerson.getUIDValue())) {</span>
+<span class="nc" id="L193">                    coveredPerson.setVersionNumber(currentVersion);</span>
+<span class="nc" id="L194">                    otherRecordsToUpdateVersionFD.put(coveredPerson.getUIDValue(), coveredPerson);</span>
+                }
+<span class="nc" id="L196">            }</span>
+        }
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (!acceptedRecord.getResposiblePersonList().isEmpty()) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            for (Step3FilerDataDto responsiblePerson : acceptedRecord.getResposiblePersonList()) {</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">                if (&quot;DB&quot;.equals(responsiblePerson.getRecordSource()) &amp;&amp; !acceptedRecord.getUIDValue().equals(responsiblePerson.getUIDValue())) {</span>
+<span class="nc" id="L201">                    responsiblePerson.setVersionNumber(currentVersion);</span>
+<span class="nc" id="L202">                    otherRecordsToUpdateVersionFD.put(responsiblePerson.getUIDValue(), responsiblePerson);</span>
+                }
+<span class="nc" id="L204">            }</span>
+
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            for (Step3FilerDataDto recordWithSameResponsibleID : acceptedRecord.getCoveredPersonListSharingSameResponsible()) {</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">                if (&quot;DB&quot;.equals(recordWithSameResponsibleID.getRecordSource()) &amp;&amp; !acceptedRecord.getUIDValue().equals(recordWithSameResponsibleID.getUIDValue())) {</span>
+<span class="nc" id="L208">                    recordWithSameResponsibleID.setVersionNumber(currentVersion);</span>
+<span class="nc" id="L209">                    otherRecordsToUpdateVersionFD.put(recordWithSameResponsibleID.getUIDValue(), recordWithSameResponsibleID);</span>
+                }
+<span class="nc" id="L211">            }</span>
+
+        }
+
+<span class="fc" id="L215">    }</span>
+
+    private ArrayList&lt;Step3FilerDataDto&gt; updateIrsTransmissionCdForResponsible(Collection&lt;Step3FilerDataDto&gt; items) {
+<span class="nc" id="L218">        ArrayList&lt;Step3FilerDataDto&gt; newUpdateList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        for (Step3FilerDataDto acceptedRecord : items) {</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (&quot;C&quot;.equalsIgnoreCase(acceptedRecord.getFilerStatus())</span>
+<span class="nc bnc" id="L221" title="All 4 branches missed.">                    &amp;&amp; (&quot;C&quot;.equalsIgnoreCase(acceptedRecord.getCorrection()) || &quot;U&quot;.equalsIgnoreCase(acceptedRecord.getCorrection()))) {</span>
+<span class="nc" id="L222">                updateIrsTransmissionCdInResponsibleList(acceptedRecord, items, newUpdateList);</span>
+            }
+<span class="nc" id="L224">        }</span>
+<span class="nc" id="L225">        newUpdateList.addAll(items);</span>
+<span class="nc" id="L226">        return newUpdateList;</span>
+    }
+    private void updateIrsTransmissionCdInResponsibleList(Step3FilerDataDto record, Collection&lt;Step3FilerDataDto&gt; items, Collection&lt;Step3FilerDataDto&gt; newItems) {
+<span class="nc" id="L229">        Step3FilerDataDto responsibleInUpload = findBySourceUniqueId(items, record.getResponsiblePersonUniqueId());</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (responsibleInUpload != null</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                &amp;&amp; null != responsibleInUpload.getIrsTransmissionStatusCD()</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">                &amp;&amp; !&quot;DT&quot;.equalsIgnoreCase(responsibleInUpload.getIrsTransmissionStatusCD())</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                &amp;&amp; isResponsible(responsibleInUpload)) {</span>
+<span class="nc" id="L234">            responsibleInUpload.setIrsTransmissionStatusCD(&quot;CO&quot;);</span>
+        } else {
+<span class="nc" id="L236">            Step3FilerDataDto responsibleInDb = findBySourceUniqueId(record.getResposiblePersonList(), record.getResponsiblePersonUniqueId(), &quot;DB&quot;);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            if (responsibleInDb != null</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                    &amp;&amp; null != responsibleInDb.getIrsTransmissionStatusCD()</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                    &amp;&amp; !&quot;DT&quot;.equalsIgnoreCase(responsibleInDb.getIrsTransmissionStatusCD())</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                    &amp;&amp; isResponsible(responsibleInDb)) {</span>
+<span class="nc" id="L241">                responsibleInDb.setIrsTransmissionStatusCD(&quot;CO&quot;);</span>
+<span class="nc" id="L242">                newItems.add(responsibleInDb);</span>
+            }
+        }
+<span class="nc" id="L245">    }</span>
+    private Step3FilerDataDto findBySourceUniqueId(Collection&lt;Step3FilerDataDto&gt; source, String sourceUniqueId, String recordSource) {
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        for (Step3FilerDataDto responsible: source) {</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">            if (recordSource.equalsIgnoreCase(responsible.getRecordSource()) &amp;&amp; responsible.getSourceUniqueId().equalsIgnoreCase(sourceUniqueId)) {</span>
+<span class="nc" id="L249">                return responsible;</span>
+            }
+<span class="nc" id="L251">        }</span>
+<span class="nc" id="L252">        return null;</span>
+    }
+    private Step3FilerDataDto findBySourceUniqueId(Collection&lt;Step3FilerDataDto&gt; source, String sourceUniqueId) {
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        for (Step3FilerDataDto responsible: source) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            if (responsible.getSourceUniqueId().equalsIgnoreCase(sourceUniqueId)) {</span>
+<span class="nc" id="L257">                return responsible;</span>
+            }
+<span class="nc" id="L259">        }</span>
+<span class="nc" id="L260">        return null;</span>
+    }
+
+    private boolean isResponsible(Step3FilerDataDto dto) {
+<span class="nc bnc" id="L264" title="All 4 branches missed.">        return &quot;R&quot;.equalsIgnoreCase(dto.getFilerStatus()) || &quot;N&quot;.equalsIgnoreCase(dto.getFilerStatus());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceSystemConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.entity</a> &gt; <span class="el_source">SourceSystemConfig.java</span></div><h1>SourceSystemConfig.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.entity;
+
+import javax.persistence.*;
+import java.sql.Date;
+
+/**
+ * Created by tthakore on 10/14/2015.
+ */
+@Entity
+@Table(name = &quot;SOURCE_SYSTEM_CONFIG&quot;)
+<span class="nc" id="L11">public class SourceSystemConfig {</span>
+
+
+    @EmbeddedId
+    private SourceSystemConfigPK id;
+
+    @Basic
+    @Column(name = &quot;SUPPORT_VIEW_PDF&quot;)
+    private String supportViewPdf;
+
+    @Basic
+    @Column(name = &quot;NOT_FOUND_MESSAGE&quot;, nullable = true, insertable = true, updatable = true, length = 500)
+    private String notFoundMessage;
+
+    @Basic
+    @Column(name = &quot;INCORRECT_ADDRESS_MESSAGE&quot;, nullable = true, insertable = true, updatable = true, length = 500)
+    private String incorrectAddressMessage;
+
+    @Basic
+    @Column(name = &quot;RETURN_ADDRESS_LINE1&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String returnAddressLine1;
+
+    @Basic
+    @Column(name = &quot;RETURN_ADDRESS_LINE2&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String returnAddressLine2;
+
+    @Basic
+    @Column(name = &quot;RETURN_ADDRESS_CITY&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String returnAddressCity;
+
+    @Basic
+    @Column(name = &quot;RETURN_ADDRESS_STATE&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String returnAddressState;
+
+    @Basic
+    @Column(name = &quot;RETURN_ADDRESS_ZIP&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String returnAddressZip;
+    /**
+     * TCC to utilize in production transmission.
+     */
+    @Basic
+    @Column(name = &quot;TRANSMITTER_CONTROL_CODE&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String transmitterControlCode;
+
+    @Basic
+    @Column(name = &quot;UPDATED_BY&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String updatedBy;
+
+    @Basic
+    @Column(name = &quot;UPDATED_DATE&quot;, nullable = true, insertable = true, updatable = true)
+    private Date   updatedDate;
+
+    @Basic
+    @Column(name = &quot;PRINT_PREFERENCES&quot;, nullable = false, insertable = true, updatable = true, length = 1)
+    private String printPreferences;
+
+    @Basic
+    @Column(name = &quot;LANGUAGE_PREFERENCE&quot;, nullable = true, insertable = true, updatable = true, length = 2)
+    private String languagePreferences;
+
+    @Basic
+    @Column(name = &quot;STATE_ABBREVIATION&quot;, nullable = false, insertable = true, updatable = true, length = 2)
+    private String stateAbbreviation;
+
+    @Basic
+    @Column(name = &quot;STATE_NAME&quot;, nullable = true, insertable = true, updatable = true, length = 2)
+    private String stateName;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_NAME&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String providerName;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_IDENTIFICATION_NUMBER&quot;, nullable = true, insertable = true, updatable = true, length = 25)
+    private String providerIdentificationNumber;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_CONTACT_FIRST_NAME&quot;, nullable = true, insertable = true, updatable = true)
+    private String providerContactFirstName ;
+
+
+    @Basic
+    @Column(name = &quot;PROVIDER_CONTACT_LAST_NAME&quot;, nullable = true, insertable = true, updatable = true)
+    private String providerContactLastName ;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_CONTACT_NO&quot;, nullable = true, insertable = true, updatable = true)
+    private Long   providerContactNo;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_ADDRESS_LINE_1&quot;, nullable = true, insertable = true, updatable = true, length = 30)
+    private String providerAddressLine1;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_ADDRESS_LINE_2&quot;, nullable = true, insertable = true, updatable = true, length = 30)
+    private String providerAddressLine2;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_CITY_OR_TOWN&quot;, nullable = true, insertable = true, updatable = true, length = 25)
+    private String providerCityOrTown;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_STATE_OR_PROVINCE&quot;, nullable = true, insertable = true, updatable = true, length = 25)
+    private String providerStateOrProvince;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_COUNTRY&quot;, nullable = true, insertable = true, updatable = true, length = 25)
+    private String providerCountry;
+
+    @Basic
+    @Column(name = &quot;PROVIDER_ZIP_OR_POSTAL_CODE&quot;, nullable = true, insertable = true, updatable = true, length = 25)
+    private String providerZipOrPostalCode;
+
+    @Basic
+    @Column(name = &quot;TEST_TCC&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String testTcc ;
+
+    @Basic
+    @Column(name = &quot;DELOITTE_TEST_TCC&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String deloitteTestTcc ;
+    /** Software id assigned to Deloitte by the IRS. */
+
+    @Basic
+    @Column(name = &quot;SOFTWARE_ID&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String softwareId ;
+
+
+    @Basic
+    @Column(name = &quot;CITIZEN_PORTAL_UI_STATUS&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    private String staticStatus;
+
+
+
+    public SourceSystemConfigPK getId() {
+<span class="nc" id="L145">        return id;</span>
+    }
+
+    public void setId(SourceSystemConfigPK id) {
+<span class="nc" id="L149">        this.id = id;</span>
+<span class="nc" id="L150">    }</span>
+
+
+
+    public String getSupportViewPdf() {
+<span class="nc" id="L155">        return supportViewPdf;</span>
+    }
+
+    public void setSupportViewPdf(String supportViewPdf) {
+<span class="nc" id="L159">        this.supportViewPdf = supportViewPdf;</span>
+<span class="nc" id="L160">    }</span>
+
+
+    public String getNotFoundMessage() {
+<span class="nc" id="L164">        return notFoundMessage;</span>
+    }
+
+    public void setNotFoundMessage(String notFoundMessage) {
+<span class="nc" id="L168">        this.notFoundMessage = notFoundMessage;</span>
+<span class="nc" id="L169">    }</span>
+
+
+    public String getIncorrectAddressMessage() {
+<span class="nc" id="L173">        return incorrectAddressMessage;</span>
+    }
+
+    public void setIncorrectAddressMessage(String incorrectAddressMessage) {
+<span class="nc" id="L177">        this.incorrectAddressMessage = incorrectAddressMessage;</span>
+<span class="nc" id="L178">    }</span>
+
+
+    public String getReturnAddressLine1() {
+<span class="nc" id="L182">        return returnAddressLine1;</span>
+    }
+
+    public void setReturnAddressLine1(String returnAddressLine1) {
+<span class="nc" id="L186">        this.returnAddressLine1 = returnAddressLine1;</span>
+<span class="nc" id="L187">    }</span>
+
+
+    public String getReturnAddressCity() {
+<span class="nc" id="L191">        return returnAddressCity;</span>
+    }
+
+    public void setReturnAddressCity(String returnAddressCity) {
+<span class="nc" id="L195">        this.returnAddressCity = returnAddressCity;</span>
+<span class="nc" id="L196">    }</span>
+
+
+    public String getReturnAddressState() {
+<span class="nc" id="L200">        return returnAddressState;</span>
+    }
+
+    public void setReturnAddressState(String returnAddressState) {
+<span class="nc" id="L204">        this.returnAddressState = returnAddressState;</span>
+<span class="nc" id="L205">    }</span>
+
+
+    public String getReturnAddressZip() {
+<span class="nc" id="L209">        return returnAddressZip;</span>
+    }
+
+    public void setReturnAddressZip(String returnAddressZip) {
+<span class="nc" id="L213">        this.returnAddressZip = returnAddressZip;</span>
+<span class="nc" id="L214">    }</span>
+
+
+    public String getUpdatedBy() {
+<span class="nc" id="L218">        return updatedBy;</span>
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+<span class="nc" id="L222">        this.updatedBy = updatedBy;</span>
+<span class="nc" id="L223">    }</span>
+
+
+    public Date getUpdatedDate() {
+<span class="nc" id="L227">        return updatedDate;</span>
+    }
+
+    public void setUpdatedDate(Date updatedDate) {
+<span class="nc" id="L231">        this.updatedDate = updatedDate;</span>
+<span class="nc" id="L232">    }</span>
+
+
+    public String getPrintPreferences() {
+<span class="nc" id="L236">        return printPreferences;</span>
+    }
+
+    public void setPrintPreferences(String printPreferences) {
+<span class="nc" id="L240">        this.printPreferences = printPreferences;</span>
+<span class="nc" id="L241">    }</span>
+
+
+    public String getLanguagePreference() {
+<span class="nc" id="L245">        return languagePreferences;</span>
+    }
+
+    public void setLanguagePreference(String languagePreference) {
+<span class="nc" id="L249">        this.languagePreferences = languagePreference;</span>
+<span class="nc" id="L250">    }</span>
+
+
+    public String getTransmitterControlCode() {
+<span class="nc" id="L254">        return transmitterControlCode;</span>
+    }
+
+    @Basic
+    @Column(name = &quot;TRANSMITTER_CONTROL_CODE&quot;, nullable = true, insertable = true, updatable = true, length = 45)
+    public void setTransmitterControlCode(String transmitterControlCode) {
+<span class="nc" id="L260">        this.transmitterControlCode = transmitterControlCode;</span>
+<span class="nc" id="L261">    }</span>
+
+
+<span class="nc" id="L264">    public String getStateAbbreviation() {return stateAbbreviation;}</span>
+
+<span class="nc" id="L266">    public void setStateAbbreviation(String stateAbbreviation) {this.stateAbbreviation = stateAbbreviation;}</span>
+
+
+    public String getStateName() {
+<span class="nc" id="L270">        return stateName;</span>
+    }
+
+    public void setStateName(String stateName) {
+<span class="nc" id="L274">        this.stateName = stateName;</span>
+<span class="nc" id="L275">    }</span>
+
+
+    public String getReturnAddressLine2() {
+<span class="nc" id="L279">        return returnAddressLine2;</span>
+    }
+
+    public void setReturnAddressLine2(String returnAddressLine2) {
+<span class="nc" id="L283">        this.returnAddressLine2 = returnAddressLine2;</span>
+<span class="nc" id="L284">    }</span>
+
+
+    public String getProviderName() {
+<span class="nc" id="L288">        return providerName;</span>
+    }
+
+    public void setProviderName(String providerName) {
+<span class="nc" id="L292">        this.providerName = providerName;</span>
+<span class="nc" id="L293">    }</span>
+
+
+    public String getProviderIdentificationNumber() {
+<span class="nc" id="L297">        return providerIdentificationNumber;</span>
+    }
+
+    public void setProviderIdentificationNumber(String providerIdentificationNumber) {
+<span class="nc" id="L301">        this.providerIdentificationNumber = providerIdentificationNumber;</span>
+<span class="nc" id="L302">    }</span>
+
+
+    public String getProviderContactFirstName() {
+<span class="nc" id="L306">        return providerContactFirstName;</span>
+    }
+
+    public void setProviderContactFirstName(String providerContactFirstName) {
+<span class="nc" id="L310">        this.providerContactFirstName = providerContactFirstName;</span>
+<span class="nc" id="L311">    }</span>
+
+
+    public String getProviderContactLastName() {
+<span class="nc" id="L315">        return providerContactLastName;</span>
+    }
+
+    public void setProviderContactLastName(String providerContactLastName) {
+<span class="nc" id="L319">        this.providerContactLastName = providerContactLastName;</span>
+<span class="nc" id="L320">    }</span>
+
+
+    public Long getProviderContactNo() {
+<span class="nc" id="L324">        return providerContactNo;</span>
+    }
+
+    public void setProviderContactNo(Long providerContactNo) {
+<span class="nc" id="L328">        this.providerContactNo = providerContactNo;</span>
+<span class="nc" id="L329">    }</span>
+
+
+    public String getProviderAddressLine1() {
+<span class="nc" id="L333">        return providerAddressLine1;</span>
+    }
+
+    public void setProviderAddressLine1(String providerAddressLine1) {
+<span class="nc" id="L337">        this.providerAddressLine1 = providerAddressLine1;</span>
+<span class="nc" id="L338">    }</span>
+
+
+    public String getProviderAddressLine2() {
+<span class="nc" id="L342">        return providerAddressLine2;</span>
+    }
+
+    public void setProviderAddressLine2(String providerAddressLine2) {
+<span class="nc" id="L346">        this.providerAddressLine2 = providerAddressLine2;</span>
+<span class="nc" id="L347">    }</span>
+
+
+    public String getProviderCityOrTown() {
+<span class="nc" id="L351">        return providerCityOrTown;</span>
+    }
+
+    public void setProviderCityOrTown(String providerCityOrTown) {
+<span class="nc" id="L355">        this.providerCityOrTown = providerCityOrTown;</span>
+<span class="nc" id="L356">    }</span>
+
+
+    public String getProviderStateOrProvince() {
+<span class="nc" id="L360">        return providerStateOrProvince;</span>
+    }
+
+    public void setProviderStateOrProvince(String providerStateOrProvince) {
+<span class="nc" id="L364">        this.providerStateOrProvince = providerStateOrProvince;</span>
+<span class="nc" id="L365">    }</span>
+
+
+    public String getProviderCountry() {
+<span class="nc" id="L369">        return providerCountry;</span>
+    }
+
+    public void setProviderCountry(String providerCountry) {
+<span class="nc" id="L373">        this.providerCountry = providerCountry;</span>
+<span class="nc" id="L374">    }</span>
+
+
+    public String getProviderZipOrPostalCode() {
+<span class="nc" id="L378">        return providerZipOrPostalCode;</span>
+    }
+
+    public void setProviderZipOrPostalCode(String providerZipOrPostalCode) {
+<span class="nc" id="L382">        this.providerZipOrPostalCode = providerZipOrPostalCode;</span>
+<span class="nc" id="L383">    }</span>
+
+
+    public String getTestTcc() {
+<span class="nc" id="L387">        return testTcc;</span>
+    }
+
+    public void setTestTcc(String testTcc) {
+<span class="nc" id="L391">        this.testTcc = testTcc;</span>
+<span class="nc" id="L392">    }</span>
+
+
+    public String getDeloitteTestTcc() {
+<span class="nc" id="L396">        return deloitteTestTcc;</span>
+    }
+
+    public void setDeloitteTestTcc(String deloitteTestTcc) {
+<span class="nc" id="L400">        this.deloitteTestTcc = deloitteTestTcc;</span>
+<span class="nc" id="L401">    }</span>
+
+
+    public String getSoftwareId() {
+<span class="nc" id="L405">        return softwareId;</span>
+    }
+
+
+    public String getStaticStatus() {
+<span class="nc" id="L410">        return staticStatus;</span>
+    }
+
+
+    public void setStaticStatus(String staticStatus) {
+<span class="nc" id="L415">        this.staticStatus = staticStatus;</span>
+<span class="nc" id="L416">    }</span>
+
+
+
+    public void setSoftwareId(String softwareId) {
+<span class="nc" id="L421">        this.softwareId = softwareId;</span>
+<span class="nc" id="L422">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

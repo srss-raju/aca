@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommonDataConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.constants</a> &gt; <span class="el_source">CommonDataConstants.java</span></div><h1>CommonDataConstants.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.constants;
+
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+/**
+ * Created by tthakore on 10/28/2015.
+ */
+public interface CommonDataConstants {
+
+<span class="nc" id="L12">    DateFormat MMDDYYYY = new SimpleDateFormat(&quot;MMddyyyy&quot;);</span>
+
+    String UPDATED_DATE = &quot;UPDATED_DATE&quot;;
+    String UPDATED_BY = &quot;UPDATED_BY&quot;;
+    String SOURCE_CD = &quot;SOURCE_CD&quot;;
+    String SOURCE_CD_ID = &quot;SOURCE_CD_ID&quot;;
+    String SUPPORT_VIEW_PDF = &quot;SUPPORT_VIEW_PDF&quot;;
+    String NOT_FOUND_MESSAGE = &quot;NOT_FOUND_MESSAGE&quot;;
+    String INCORRECT_ADDRESS_MESSAGE = &quot;INCORRECT_ADDRESS_MESSAGE&quot;;
+    String RETURN_ADDRESS_LINE1 = &quot;RETURN_ADDRESS_LINE1&quot;;
+    String RETURN_ADDRESS_LINE2 = &quot;RETURN_ADDRESS_LINE2&quot;;
+    String RETURN_ADDRESS_CITY = &quot;RETURN_ADDRESS_CITY&quot;;
+    String RETURN_ADDRESS_STATE = &quot;RETURN_ADDRESS_STATE&quot;;
+    String RETURN_ADDRESS_ZIP = &quot;RETURN_ADDRESS_ZIP&quot;;
+    String PRINT_PREFERENCES = &quot;PRINT_PREFERENCES&quot;;
+    String LANGUAGE_PREFERENCE = &quot;LANGUAGE_PREFERENCE&quot;;
+    String COVERAGE_SEQ_NO = &quot;COVERAGE_SEQ_NO&quot;;
+    String COVER_MESSAGE_EN = &quot;COVER_MESSAGE_EN&quot;;
+    String COVER_MESSAGE_SP = &quot;COVER_MESSAGE_SP&quot;;
+    String COVER_MESSAGE_VT = &quot;COVER_MESSAGE_VT&quot;;
+    String LANGUAGE_CD = &quot;LANGUAGE_CD&quot;;
+    String SOURCE_UNIQUE_ID = &quot;SOURCE_UNIQUE_ID&quot;;
+    String STATE_ABBREVIATION = &quot;STATE_ABBREVIATION&quot;;
+    String CASE_APPLICATION_ID = &quot;CASE_APPLICATION_ID&quot;;
+    String PROGRAM_NAME = &quot;PROGRAM_NAME&quot;;
+
+    String STANDARD_DATE_FORMAT=&quot;MM/dd/yyyy&quot;;
+    String STANDARD_DATE_TIME_FORMAT=&quot;MM/dd/yyyy hh:mm:ss a&quot;;
+    String INPUT_DATE_FORMAT=&quot;yyyy-MM-dd&quot;;
+
+    /*used for ui output json string*/
+    String _JAN = &quot;Jan&quot;;
+    String _FEB = &quot;Feb&quot;;
+    String _MAR = &quot;Mar&quot;;
+    String _APR = &quot;Apr&quot;;
+    String _MAY = &quot;May&quot;;
+    String _JUN = &quot;Jun&quot;;
+    String _JUL = &quot;Jul&quot;;
+    String _AUG = &quot;Aug&quot;;
+    String _SEP = &quot;Sep&quot;;
+    String _OCT = &quot;Oct&quot;;
+    String _NOV = &quot;Nov&quot;;
+    String _DEC = &quot;Dec&quot;;
+    /*used for DATABASE mapping*/
+    String JAN = &quot;JAN&quot;;
+    String FEB = &quot;FEB&quot;;
+    String MAR = &quot;MAR&quot;;
+    String APR = &quot;APR&quot;;
+    String MAY = &quot;MAY&quot;;
+    String JUN = &quot;JUN&quot;;
+    String JUL = &quot;JUL&quot;;
+    String AUG = &quot;AUG&quot;;
+    String SEP = &quot;SEP&quot;;
+    String OCT = &quot;OCT&quot;;
+    String NOV = &quot;NOV&quot;;
+    String DEC = &quot;DEC&quot;;
+    String COMMENTS = &quot;COMMENTS&quot;;
+    String TRANSMITTER_CONTROL_CODE = &quot;TRANSMITTER_CONTROL_CODE&quot; ;
+    String RECIPIENT_FIRST_NAME = &quot;RECIPIENT_FIRST_NAME&quot;;
+    String RECIPIENT_MIDDLE_NAME = &quot;RECIPIENT_MIDDLE_NAME&quot;;
+    String RECIPIENT_LAST_NAME = &quot;RECIPIENT_LAST_NAME&quot;;
+    String RECIPIENT_SSN = &quot;RECIPIENT_SSN&quot;;
+    String RECIPIENT_TIN = &quot;RECIPIENT_TIN&quot;;
+    String RECIPIENT_DOB = &quot;RECIPIENT_DOB&quot;;
+    String RECIPIENT_ADDRESS_LINE_1 = &quot;RECIPIENT_ADDRESS_LINE_1&quot;;
+    String RECIPIENT_ADDRESS_LINE_2 = &quot;RECIPIENT_ADDRESS_LINE_2&quot;;
+    String RECIPIENT_CITY = &quot;RECIPIENT_CITY&quot;;
+    String RECIPIENT_STATE = &quot;RECIPIENT_STATE&quot;;
+    String RECIPIENT_ZIP_5 = &quot;RECIPIENT_ZIP_5&quot;;
+    String PROVIDER_NAME = &quot;PROVIDER_NAME&quot;;
+    String PROVIDER_IDENTIFICATION_NUMBER = &quot;PROVIDER_IDENTIFICATION_NUMBER&quot;;
+    String PROVIDER_CONTACT_FIRST_NAME = &quot;PROVIDER_CONTACT_FIRST_NAME&quot;;
+    String PROVIDER_CONTACT_LAST_NAME = &quot;PROVIDER_CONTACT_LAST_NAME&quot;;
+    String PROVIDER_CONTACT_NO = &quot;PROVIDER_CONTACT_NO&quot;;
+    String PROVIDER_ADDRESS_LINE_1 = &quot;PROVIDER_ADDRESS_LINE_1&quot;;
+    String PROVIDER_ADDRESS_LINE_2 = &quot;PROVIDER_ADDRESS_LINE_2&quot;;
+    String PROVIDER_CITY_OR_TOWN = &quot;PROVIDER_CITY_OR_TOWN&quot;;
+    String PROVIDER_STATE_OR_PROVINCE = &quot;PROVIDER_STATE_OR_PROVINCE&quot;;
+    String PROVIDER_ZIP_OR_POSTAL_CODE = &quot;PROVIDER_ZIP_OR_POSTAL_CODE&quot;;
+    String PROVIDER_COUNTRY = &quot;PROVIDER_COUNTRY&quot;;
+    String DELOITTE_TEST_TCC = &quot;DELOITTE_TEST_TCC&quot; ;
+    String SOFTWARE_ID = &quot;SOFTWARE_ID&quot; ;
+    String TEST_TCC = &quot;TEST_TCC&quot; ;
+<span class="nc" id="L95">    String[] COVERAGE_MONTHS = {JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC};</span>
+    String CUSTOMER_UID_TYPE_SSN = &quot;SSN&quot;;
+    String CUSTOMER_UID_TYPE_TIN = &quot;TIN&quot;;
+    String CUSTOMER_UID_TYPE_OTHER = &quot;OTHER&quot;;
+    String EMPTY_VALUE = &quot;&quot;;
+    String UNDERSCORE_VALUE = &quot;_&quot;;
+    String OBLIQUE_VALUE = &quot;/&quot;;
+    char COVERED = '1';
+    char NOT_COVERED = '0';
+    String FORMAT_PLACEHOLDER_STR = &quot;%s&quot;;
+    String INVALID_SEARCH_CRITERIA = &quot;Invalid Search Criteria&quot;;
+    String INSUFFICIENT_SEARCH_CRITERIA = &quot;Insufficient Criteria&quot;;
+    String UPDATE_SUCCESS = &quot; Records updated successfully&quot;;
+    String UPDATE_FAILURE = &quot; Records not updated &quot;;
+    /*user roles*/
+    String CASEWORKER_RW = &quot;1095B_Caseworker ReadWrite&quot;;
+    int STATE_CODE_START_INDEX = 0;
+    int STATE_CODE_END_INDEX = 2;
+    String UNDER_SCORE = &quot;_&quot;;
+    String CAPTCHA_KEY = &quot;secret=6Lf5GRITAAAAAFIyDx_tEIcT6FbRKtAyZBklUe5i&amp;response=&quot;;
+    String CAPTCHA_URL = &quot;https://www.google.com/recaptcha/api/siteverify&quot;;
+    String DEK = &quot;Z2hmamRrNTY0NzM4&quot;;
+    String PBE_WITH_MD5_AND_TRIPLE_DES = &quot;PBEWithMD5AndTripleDES&quot;;
+    /**
+     * Adding correction code to reffer in code
+     **/
+    String CORRECTION_CODE_O = &quot;O&quot;;
+    String CORRECTION_CODE_U = &quot;U&quot;;
+    String CORRECTION_CODE_C = &quot;C&quot;;
+
+    String RECORD_VALIDATION_TYPE_DB = &quot;DB&quot;;
+    String RECORD_VALIDATION_TYPE_FILE = &quot;FILE&quot;;
+    /**
+     * Constants for validation rule passed or failed
+     **/
+    String VALIDATION_RULE_PASSED = &quot;PASSED&quot;;
+    String VALIDATION_RULE_FAILED = &quot;FAILED&quot;;
+    String RECORD_STATUS_ACTIVE = &quot;ACTIVE&quot;;
+    String RECORD_STATUS_INACTIVE = &quot;INACTIVE&quot;;
+
+    //default inactive date and coverage clean date
+    String RECORD_INACTIVE_DATE = &quot;6666-12-31&quot;;
+    String COVERAGE_CLEAR_DATE = &quot;9999-12-31&quot;;
+
+    int MAGIC_NUMBER_ZERO = 0;
+
+
+    /** FILER_DEMOGRAPHICS.FORM_STATUS constants */
+    interface FormStatus {
+        /** After iniitial data import, PDF form status will not have been generated. */
+        String FORM_STATUS_NOT_GENERATED = &quot;NOT GENERATED&quot;;
+        /** PDF has been generated by the engine and stored within the binary data field on FILER_DEMOGRAPHICS. */
+        String FORM_STATUS_GENERATED = &quot;GENERATED&quot;;
+
+
+        /** Filer information has been modified in some way (probably by a case worker), and needs a REGENERATE. */
+        String FORM_STATUS_REGENERATE = &quot;REGENERATE&quot;;
+
+
+
+        /** An error occurred during PDF generation, and was unable to continue. */
+        String GENERATION_FAILED = &quot;GENERATION_FAILED&quot;;
+    }
+    /** PRINT_DETAILS.PRINT_STATUS constants. */
+    interface PrintStatus {
+        /** Name of the column within PRINT_DETAILS.  Value will be NULL on initial import. */
+        String PRINT_STATUS = &quot;PRINT_STATUS&quot; ;
+        /** After QA has validated initial import, status set to READY_TO_MAIL. */
+        String READY_TO_MAIL = &quot;READY_TO_MAIL&quot; ;
+        /** State after READY_TO_MAIL and file has been sent to the print vendor. */
+        String MAIL_PENDING = &quot;MAIL_PENDING&quot; ;
+        /** State after MAIL_PENDING when Print Vendor Completes Mailing to the Recipient */
+        String MAIL_COMPLETE = &quot;MAIL_COMPLETE&quot; ;
+    }
+
+    /** Filer_Status constants */
+    interface FilerStatus {
+        char FILER_STATUS_R = 'R';
+        /** Covered. Non head of household. */
+        char FILER_STATUS_C = 'C';
+
+        /** Not covered. */
+        char FILER_STATUS_N = 'N';
+    }
+    interface PdfReportTypes {
+        String DAILY=&quot;daily&quot;;
+        String INITIAL=&quot;initial&quot;;
+
+        /** Actual File suffix used on the PDF output files.  I'm concerned about collitions with lowercase constants,
+         * so I'm explicitly defining the filename suffixes here.*/
+        interface FileSuffix {
+            String DAILY=&quot;Daily&quot;;
+            String INITIAL=&quot;Initial&quot;;
+        }
+    }
+    //Spring Profiles
+    public static final String SPRING_PROFILE_NO_SWAGGER = &quot;no-swagger&quot;;
+    public static final String SPRING_PROFILE_PRODUCTION = &quot;prod&quot;;
+    public static final String SPRING_PROFILE_QA = &quot;qa&quot;;
+    public static final String SPRING_PROFILE_PREPROD = &quot;preprod&quot;;
+    public static final String SPRING_PROFILE_DEV = &quot;dev&quot;;
+    public static final String SPRING_PROFILE_LOCAL = &quot;local&quot;;
+    public static final String SPRING_PROFILE_TEST = &quot;test&quot;;
+    public static final String NOT = &quot;!&quot;;
+    String SEND_STRING_PARAMETERS_AS_UNICODE = &quot;sendStringParametersAsUnicode&quot;;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

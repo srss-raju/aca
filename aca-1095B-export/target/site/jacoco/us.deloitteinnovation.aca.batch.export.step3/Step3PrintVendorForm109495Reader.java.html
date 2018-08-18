@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step3PrintVendorForm109495Reader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step3</a> &gt; <span class="el_source">Step3PrintVendorForm109495Reader.java</span></div><h1>Step3PrintVendorForm109495Reader.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step3;
+
+import java.util.List;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import us.deloitteinnovation.aca.batch.dataservice.SourceSystemConfigDataService;
+import us.deloitteinnovation.aca.batch.export.ExportJob1094Repository;
+import us.deloitteinnovation.aca.batch.export.ExportJob1095Repository;
+import us.deloitteinnovation.aca.batch.export.ExportUtil;
+import us.deloitteinnovation.aca.batch.export.TransmissionIdStack;
+import us.deloitteinnovation.aca.batch.export.step1.Step1Form1095Dto;
+import us.deloitteinnovation.aca.batch.export.step2.Step2Form1094Dto;
+import us.deloitteinnovation.aca.model.SourceSystemConfig;
+
+
+/**
+ * Load Filer 1095B and Payer 1094B objects by EIN for collation.  The EIN number should be stored within the JobContext
+ * using key FORM_1094_EIN during Step 2.
+ */
+<span class="nc" id="L22">public class Step3PrintVendorForm109495Reader implements ItemReader&lt;Step3Form109495Pairing&gt; {</span>
+    @Autowired
+    ExportJob1094Repository       exportJob1094Repository;
+    @Autowired
+    ExportJob1095Repository exportJobRepository;
+    @Autowired
+    SourceSystemConfigDataService sourceSystemConfigDataService;
+    @Autowired
+    TransmissionIdStack transmissionIdStack;
+    /**
+     * Flag to determine when the read() method should stop reading elements.
+     */
+<span class="nc" id="L34">    boolean readStepComplete = false;</span>
+
+    StepExecution stepExecution;
+
+    @Override
+    public Step3Form109495Pairing read() throws Exception {
+        // If our read step is complete, stop now
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (readStepComplete)</span>
+<span class="nc" id="L42">            return null;</span>
+
+<span class="nc" id="L44">        List&lt;Step2Form1094Dto&gt; form1094Data=(List&lt;Step2Form1094Dto&gt;)stepExecution.getJobExecution().getExecutionContext().get(&quot;FORM1094BList&quot;);</span>
+<span class="nc" id="L45">        Step3Form109495Pairing dto = new Step3Form109495Pairing();</span>
+<span class="nc" id="L46">        dto.setStep2Form1094bDto(form1094Data.get(0));</span>
+<span class="nc" id="L47">        dto.setStep1Form1095bDtoList((List&lt;Step1Form1095Dto&gt;) stepExecution.getJobExecution().getExecutionContext().get(&quot;FORM1095BList&quot;));</span>
+
+        // Since there is only 1 Form 1094B per read step, set as complete
+<span class="nc" id="L50">        readStepComplete = true;</span>
+<span class="nc" id="L51">        return dto;</span>
+    } 
+
+
+    @BeforeStep
+    public void beforeStep(StepExecution stepExecution) {
+<span class="nc" id="L57">        this.stepExecution = stepExecution ;</span>
+<span class="nc" id="L58">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

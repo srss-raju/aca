@@ -1,0 +1,17 @@
+us\deloitteinnovation\aca\batch\BatchTestUtil.class
+us\deloitteinnovation\aca\batch\export\step1\Step1IntegTest.class
+us\deloitteinnovation\aca\batch\export\ExportIntegTestConfiguration.class
+us\deloitteinnovation\aca\batch\export\step3\Step3Form109495ReaderTest.class
+us\deloitteinnovation\aca\batch\export\BatchExportIrsScenario6IntegTest.class
+us\deloitteinnovation\aca\batch\export\step2\Step2Form1094WriterTest.class
+us\deloitteinnovation\aca\batch\export\BatchExportIrsScenario8IntegTest.class
+us\deloitteinnovation\aca\batch\export\ExportTestConfiguration.class
+us\deloitteinnovation\aca\batch\export\step1\Step1Form1095DBWriterTest.class
+us\deloitteinnovation\aca\batch\export\step1\Step1Form1095ProcessorTest.class
+us\deloitteinnovation\aca\batch\export\step3\Step3Form109495ProcessorTest.class
+us\deloitteinnovation\aca\batch\export\step1\Step1Form1095WriterTest.class
+us\deloitteinnovation\aca\batch\export\step4\Step4Form109495ProcessorTest.class
+us\deloitteinnovation\aca\batch\export\step2\Step2Form1094ProcessorTest.class
+us\deloitteinnovation\aca\batch\export\step4\Step4Form109495WriterTest.class
+us\deloitteinnovation\aca\batch\export\BatchExportArkansasIntegTest.class
+us\deloitteinnovation\aca\batch\export\step3\Step3Form109495WriterTest.class

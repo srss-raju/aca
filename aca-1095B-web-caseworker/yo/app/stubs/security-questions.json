@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "value": "What was the first company you ever worked for?"
+  },
+  {
+    "id": 2,
+    "value": "What is the name of your favorite musician or band?"
+  },
+  {
+    "id": 3,
+    "value": "What was the make and model of your first car?"
+  },
+  {
+    "id": 4,
+    "value": "What was your high school's mascot?"
+  },
+  {
+    "id": 5,
+    "value": "What is your mother's maiden name?"
+  },
+  {
+    "id": 6,
+    "value": "What is the name of your favorite book?"
+  },
+  {
+    "id": 7,
+    "value": "What school did you attend for sixth grade?"
+  },
+  {
+    "id": 8,
+    "value": "In what city/town was your first job?"
+  }
+]

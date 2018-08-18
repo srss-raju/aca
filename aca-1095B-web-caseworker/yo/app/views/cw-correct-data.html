@@ -1,0 +1,212 @@
+<div class="scroll-container container-white">
+  <div class="margin-indent-container correct-data-view outline-none" role="main">
+
+    <div class="" ng-show="errorflag">
+      <div class="margin-top-5px list-margin" failure-banner show-flag="errorflag" error-message="errorMessage"></div>
+    </div>
+
+    <!-- Screen title-->
+    <div class="row row-margin">
+      <div class="col-md-4 no-padding screen-title" tabindex="1" aria-label="{{ariaLabel.title}}">
+        <span class="screen-title-action">{{label.titleAction}}</span>
+        <span class="screen-title-description margin-left-5px">{{label.titleDescription}}</span>
+      </div>
+      <div class="col-md-8 text-right">
+        <aca-breadcrumb is-parent="false"></aca-breadcrumb>
+      </div>
+    </div>
+
+    <div class="col-md-12 margin-bottom25n no-padding">
+
+      <!--<div class="col-md-6 no-padding-left no-padding-right margin-left-5px opacity-25">-->
+      <!--<div class="col-md-3 text-gray-bold no-padding-left no-padding-right">-->
+      <!--{{label.pdfstatus}}-->
+      <!--</div>-->
+      <!--<div class="col-md-9 no-padding-left" ng-class="classname">-->
+      <!--{{pdfDisplayVal}}-->
+      <!--</div>-->
+      <!--</div>-->
+      <div class="text-right">
+        <button class="btn btn-dark-gray btn-search-user outline-none"
+                tabindex="899" ng-click="backToView()" aria-label="{{ariaLabel.cancel}}">{{label.cancel}}
+        </button>
+        <button class="btn btn-green btn-search-user outline-none" accesskey="S" ng-disabled="savestatus"
+                ng-click="saveData()" tabindex="900" aria-label="{{ariaLabel.save}}">
+          <i class="fa fa-floppy-o"></i>&nbsp;&nbsp;{{label.save}}
+        </button>
+      </div>
+
+    </div>
+
+    <div class="button-heading table-head text-white-heading16-med">
+      <span>{{label.recipientHeading}}</span>
+    </div>
+    <div class="clearfix"></div>
+    <hr>
+
+    <div class="margin-top-30px">
+      <form name="correctdataform" class="" role="form" novalidate
+            ng-model-options="{updateOn:'default blur',debounce:{'default':500,'blur':0}}">
+
+        <div class="padding-left30">
+
+
+          <div class="row row-margin">
+            <div class="form-group col-md-3 no-padding-left padding-right25">
+              <input type="text" class="form-control" name="firstname" tabindex="1" required
+                     placeholder='First Name' ng-model="correctUserDetails.filerInfo.firstName" ng-maxlength="20"
+                     ng-pattern="/^(?!.*--)[0-9a-zA-Z~`'|()‘,\.;: _-]*[a-zA-Z][0-9a-zA-Z~`'|()‘,\.;: _-]*$/"
+                     aria-label="{{cwCorrectData.fname}}" floating-label>
+            </div>
+            <div class="form-group col-md-3 no-padding-left padding-right25">
+              <input type="text" class="form-control" name="lastname" placeholder='Last Name' ng-model="correctUserDetails.filerInfo.lastName" required
+                     tabindex="2" ng-maxlength="20" aria-label="{{cwCorrectData.lname}}"
+                     ng-pattern="/^(?!.*--)[0-9a-zA-Z~`'|()‘,\.;: _-]*[a-zA-Z][0-9a-zA-Z~`'|()‘,\.;: _-]*$/"
+                     floating-label>
+            </div>
+            <div class="form-group col-md-3 no-padding-left padding-right25 opacity-25">
+              <input type="text" class="form-control" name="dob" placeholder='DOB' ng-model="correctUserDetails.filerInfo.dob"
+                     tabindex="-1" ng-maxlength="30" aria-label="{{cwCorrectData.dob}}" ng-disabled="true" floating-label>
+            </div>
+            <div class="form-group col-md-3 no-padding-left padding-right25 opacity-25">
+              <input type="text" class="form-control" name="uid" placeholder="{{correctUserDetails.filerInfo.uidType === 'OTHER' ? 'No SSN / TIN available' : correctUserDetails.filerInfo.uidType}}" ng-model="correctUserDetails.filerInfo.uidNumber"
+                     tabindex="-1" ng-maxlength="30" aria-label="{{cwCorrectData.uidType}}" ng-disabled="true" floating-label>
+            </div>
+          </div>
+
+
+          <div class="row row-margin">
+            <div class="form-group col-md-3 no-padding-left padding-right25" ng-class="correctUserDetails.filerInfo.filerStatus==='C'?'opacity-25':''">
+              <input type="text" class="form-control" name="addressl1" placeholder='Address Line 1' ng-model="correctUserDetails.currentForm.addressLine1"
+                     tabindex="{{correctUserDetails.filerInfo.filerStatus === 'C' ? -1 : 3}}" ng-maxlength="30" aria-label="{{cwCorrectData.aline1}}" floating-label
+                     ng-pattern="/^(?!.*([.#&\[,\(\)\/\\'\]-])\1)[0-9a-zA-Z'#&\/\\[\](),\. -]*[a-zA-Z][0-9a-zA-Z'#&\/\\[\](),\. -]*$/"
+                     ng-disabled="correctUserDetails.filerInfo.filerStatus==='C'?true:false" required>
+            </div>
+            <div class="form-group col-md-3 no-padding-left padding-right25" ng-class="correctUserDetails.filerInfo.filerStatus==='C'?'opacity-25':''">
+              <input type="text" class="form-control" name="addressl2" placeholder='Address Line 2' ng-model="correctUserDetails.currentForm.addressLine2"
+                     tabindex="{{correctUserDetails.filerInfo.filerStatus === 'C' ? -1 : 4}}" ng-maxlength="30" aria-label="{{cwCorrectData.aline2}}" floating-label
+                     ng-pattern="/^(?!.*([.#&\[,\(\)\/\\'\]-])\1)[0-9a-zA-Z'#&\/\\[\](),\. -]*[a-zA-Z][0-9a-zA-Z'#&\/\\[\](),\. -]*$/"
+                     ng-disabled="correctUserDetails.filerInfo.filerStatus==='C'?true:false">
+            </div>
+            <div class="form-group col-md-3 no-padding-left padding-right25"
+                 ng-class="correctUserDetails.filerInfo.filerStatus==='C'?'opacity-25':''">
+              <input type="text" class="form-control" name="city" placeholder='City'
+                     ng-model="correctUserDetails.currentForm.city" ng-maxlength="22"
+                     ng-pattern="/^[0-9a-zA-Z',\. -]*[a-zA-Z][0-9a-zA-Z',\. -]*$/"
+                     tabindex="{{correctUserDetails.filerInfo.filerStatus === C ? -1 : 5}}"
+                     aria-label="{{cwCorrectData.city}}" floating-label
+                     ng-disabled="correctUserDetails.filerInfo.filerStatus==='C'?true:false" required>
+            </div>
+            <div class="form-group state-field no-padding-left padding-right25"
+                 ng-class="correctUserDetails.filerInfo.filerStatus === 'C'?'opacity-25':''">
+              <select class="form-control" ng-model="correctUserDetails.currentForm.state" name="state" tabindex="{{correctUserDetails.filerInfo.filerStatus === 'C'? -1 : 6}}" placeholder="State" aria-label="{{cwCorrectData.state}}"
+                      ng-disabled="correctUserDetails.filerInfo.filerStatus==='C'?true:false" floating-label required>
+                <option value=''>Select State</option>
+                <option ng-repeat="state in states | orderBy:state" value="{{state}}">{{state}}</option>
+              </select>
+            </div>
+            <div class="form-group zipcode-field no-padding-left padding-right25"
+                 ng-class="correctUserDetails.filerInfo.filerStatus==='C'?'opacity-25':''">
+              <input type="text" class="form-control" name="zipcode" placeholder='Zip Code'
+                     ng-minlength="5" ng-maxlength="5"
+                     ng-pattern="/^(?!0{5})[0-9][0-9]{4}$/"
+                     tabindex="{{ correctUserDetails.filerInfo.filerStatus === C? -1 : 7}}"
+                     ng-model="correctUserDetails.currentForm.zipcode" aria-label="{{cwCorrectData.zipCode}}"
+                     floating-label
+                     ng-disabled="correctUserDetails.filerInfo.filerStatus==='C'?true:false" required>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row row-margin" ng-show="correctUserDetails.filerInfo.filerStatus==='N'?false:true">
+
+          <div class="button-heading table-head text-white-heading16-med">
+            <span>{{label.currentCoverage}}</span>
+          </div>
+          <div class="clearfix"></div>
+          <hr>
+
+          <div class="col-md-12 no-padding-left no-padding-right opacity-25 margin-left-20px padding-left30">
+            <div class="row">
+              <coverage-details cinfo="correctUserDetails.filerCoverageInfo" is-clickable="false"></coverage-details>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="row row-margin padding-left30">
+
+          <div class="form-group col-md-4 no-padding-left padding-right25">
+            <label for="comments" class="fixed-float-label">Comments</label>
+            <input type="text" class="form-control" name="comments" placeholder='This is the comments section...'
+                     ng-model="correctUserDetails.currentForm.comments"
+                     tabindex="8" ng-maxlength="200"
+                     aria-label="{{cwCorrectData.comments}}">
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+
+
+    <div ng-if="correctUserDetails.coverageSources.length">
+      <div class="button-heading table-head text-white-heading16-med">
+        <span>{{label.coverageSource}}</span>
+      </div>
+      <div class="clearfix"></div>
+      <hr>
+    </div>
+
+    <div class="row-margin cwcorrect-view" ng-repeat="fileCoverageInfo in correctUserDetails.coverageSources"
+         ng-show="correctUserDetails.filerInfo.filerStatus==='N'?false:true">
+
+      <div class="row margin-left25p margin-bottom10px">
+          <div class="col-md-3 no-padding-left no-padding-right opacity-25">
+            <div class="col-md-5 text-gray-bold no-padding-left no-padding-right" tabindex="-1">
+              {{label.caseid}}
+            </div>
+            <div class="col-md-7 no-padding-left">
+              {{fileCoverageInfo.caseID}}
+            </div>
+          </div>
+      </div>
+      <div class="row margin-left25p margin-bottom10px" tabindex="{{9 + ($index*14)}}">
+          <div class="col-md-12 no-padding-left">
+            <span class="text-moderate-green20-bold">
+            {{label.source + " "}} {{fileCoverageInfo.source}}
+            </span>
+            <span class="">
+              {{"&#40;" + label.lastmodified+ " "}}{{fileCoverageInfo.lastModifiedDate || 'No Data'}} {{"&#41;"}}
+            </span>
+          </div>
+      </div>
+
+      <div>
+          <!--coverage details-->
+        <div class="row margin-left-20 row-margin hover_coverage_details">
+          <div class="col-md-12 no-padding-left no-padding-right">
+              <div class="row height-80px">
+                <coverage-details cinfo="fileCoverageInfo.filerSourceInfo" is-clickable="true" fn-click="change_main_coverage(month)" source="fileCoverageInfo.source" tab-index="{{10 + ($index*14)}}"></coverage-details>
+              </div>
+            </div>
+          </div>
+
+          <!--comments-->
+        <div class="row margin-left25p">
+            <div class="form-group col-md-4 no-padding-left padding-right25">
+              <label for="comment" class="fixed-float-label">Comments</label>
+              <input type="text" tabindex="{{9 + (($index +1)*14)}}" class="form-control background-transparent" name="comment"
+                     ng-class="assign_class(fileCoverageInfo.comments)"
+                     placeholder='This is the comments section' ng-model=fileCoverageInfo.comments ng-maxlength="256"
+                     aria-label="{{cwCorrectData.comments}}">
+            </div>
+          </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

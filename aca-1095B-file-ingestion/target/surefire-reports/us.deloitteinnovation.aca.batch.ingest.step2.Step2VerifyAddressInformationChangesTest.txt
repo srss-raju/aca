@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest
+-------------------------------------------------------------------------------
+Tests run: 68, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 3.701 sec - in us.deloitteinnovation.aca.batch.ingest.step2.Step2VerifyAddressInformationChangesTest

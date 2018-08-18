@@ -1,0 +1,61 @@
+/* CSS to replicate Unicorn CSS **/
+
+@bg-color : #f5f5f5;
+@orange : #f1a34e;
+@white: #fff;
+@dark-gray : #676767;
+
+.unicorn-change-expired-password{
+  .form-area{
+    background-color: @bg-color;
+    padding: 25px;
+    border-radius: 5px;
+
+    .form-group{
+      padding-top: 0;
+    }
+    .form-control{
+      height: 33px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 35%;
+    }
+
+    .btn{
+      width: 123px;
+    }
+
+    .btn-default{
+      outline: none;
+      background-color: @dark-gray;
+      color:@white;
+
+      &:active,&:hover,&:focus{
+        background-color: @white;
+        border-color: @dark-gray;
+        color:@dark-gray;
+
+      }
+    }
+
+    .btn-primary{
+      outline: none;
+      background-color:@orange;
+      color:@white;
+      border-color:@orange;
+      &:active,&:hover,&:focus{
+        color:@orange;
+        border-color:@orange;
+        background-color:@white;
+      }
+      &:disabled{
+        color:@white;
+        background-color: @orange;
+        border-color:@orange;
+        opacity: 0.6;
+      }
+    }
+  }
+}
+

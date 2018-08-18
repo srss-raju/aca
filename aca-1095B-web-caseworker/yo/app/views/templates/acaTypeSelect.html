@@ -1,0 +1,14 @@
+<div class="col-sm-12 no-padding acaSelect-container" aria-label="dataAriaDesc">
+ <div class="dropdown text-gray-reg acaSelect" ng-click="fnShowList();" >
+    <input autofill="off" class="input-filter pointer" ng-model="searchQuery" data-toggle="dropdown pull-left" placeholder="{{defaultOption}}" ng-focus="fnShowList();"/>
+    <span class="fa fa-caret-down fa-lg margin-left-5px pull-right dropdown-img pointer"></span>
+  </div>
+</div>
+<div class="col-sm-12 no-padding acaSelect-list" ng-show="showList">
+  <div class="popover-arrow pull-right"></div>
+  <div class="popover-list" >
+    <button class="listItem pointer" ng-repeat="option in options | filter: { stateName : searchQuery }" ng-click="setValue(option)">
+      {{option.stateName}}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="container-fluid dialogDisplay" style="margin: 2% 3% 5% 2%;">
+  <div class="row"><i class="fa fa-close fa-2x light-gray pull-right pointer" tabindex="5"
+                      aria-label="Press escape to close the dialog box" aca-aria-click="closeFunction()"></i></div>
+  <div class="row row-margin-double text-center">
+    <div class="col-md-12 text-blue-heading28-reg text-center title-dialog confirmation-icon" tabindex="1"
+         aria-label="Dialog Mail 1095-B Form group">{{label.title}}
+    </div>
+  </div>
+  <div class="row text-center dark-gray-16" tabindex="2" ng-switch on="label.isHTML">
+    <div ng-switch-default>{{label.description}}</div>
+    <div ng-switch-when="true">
+      <div ng-bind-html="label.description"></div>
+    </div>
+  </div>
+  <div class="row row-margin-top-double text-center">
+    <div class="col-md-2"></div>
+    <div class="col-md-4 col-sm-12 text-right margin-bottom10px">
+      <button class="btn btn-margin btn-dark-gray btn-width" tabindex="3" aca-aria-click="noFunction()"
+              aria-label="Press Spacebar to {{label.noAction}}">{{label.noAction}}
+      </button>
+    </div>
+    <div class="col-md-4 col-sm-12 text-left margin-bottom10px">
+      <button class="btn btn-green btn-width" tabindex="4" aca-aria-click="yesFunction()"
+              aria-label="Press Spacebar to {{label.yesAction}}">{{label.yesAction}}
+      </button>
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+</div>

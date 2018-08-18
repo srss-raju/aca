@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorFileImportMailerServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.service.impl</a> &gt; <span class="el_source">PrintVendorFileImportMailerServiceImpl.java</span></div><h1>PrintVendorFileImportMailerServiceImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.service.impl;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.service.PrintVendorExceptionReportService;
+import us.deloitteinnovation.aca.batch.service.PrintVendorFileImportMailerService;
+import us.deloitteinnovation.aca.constants.ErrorMessageConstants;
+import us.deloitteinnovation.aca.exception.PrintVendorExceptionReportDto;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+import java.util.List;
+
+/**
+ * Created by bhchaganti on 9/1/2016.
+ */
+<span class="fc" id="L24">public class PrintVendorFileImportMailerServiceImpl implements PrintVendorFileImportMailerService {</span>
+
+<span class="fc" id="L26">    private static final Logger LOGGER = LoggerFactory.getLogger(PrintVendorFileImportMailerServiceImpl.class);</span>
+
+
+    @Autowired
+    private MailSender javaMailSender;
+
+    @Autowired
+    private ProfileProperties profileProperties;
+
+    @Autowired
+    private PrintVendorExceptionReportService exceptionReportService;
+
+    @Override
+    public void sendMail(BatchInfoDto batchInfoDto, JobExecution jobExecution) {
+
+<span class="nc" id="L41">        final String subject = profileProperties.getProperty(BatchConstants.MAIL_SUBJECT);</span>
+<span class="nc" id="L42">        final String emailTo = profileProperties.getProperty(BatchConstants.MAIL_TO);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (StringUtils.isBlank(emailTo)) {</span>
+<span class="nc" id="L44">            LOGGER.warn(String.format(&quot;No to addresses found for active profile.&quot; +</span>
+                    &quot;  Email with subject: \&quot;%s\&quot; will not be sent.&quot;, subject));
+<span class="nc" id="L46">            return;</span>
+        }
+<span class="nc" id="L48">        List&lt;PrintVendorExceptionReportDto&gt; exceptionReportDtoList = this.exceptionReportService.getExceptionReport(batchInfoDto);</span>
+<span class="nc" id="L49">        SimpleMailMessage message = new SimpleMailMessage();</span>
+<span class="nc" id="L50">        String[] emailToArray = emailTo.split(&quot;,&quot;);</span>
+<span class="nc" id="L51">        message.setTo(emailToArray);</span>
+<span class="nc" id="L52">        message.setSubject(subject);</span>
+<span class="nc" id="L53">        message.setFrom(profileProperties.getProperty(BatchConstants.MAIL_FROM));</span>
+
+<span class="nc" id="L55">        StringBuffer errorMessage = new StringBuffer();</span>
+<span class="nc" id="L56">        errorMessage.append(ErrorMessageConstants.BATCH_FAIL_ERROR_MESSAGE);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (exceptionReportDtoList.size() &gt; 0) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            for (PrintVendorExceptionReportDto exceptionReportDto : exceptionReportDtoList) {</span>
+<span class="nc" id="L59">                errorMessage.append(exceptionReportDto.getExDetails() + BatchConstants.NEW_LINE_STR);</span>
+<span class="nc" id="L60">            }</span>
+        } else {
+<span class="nc" id="L62">            List&lt;Throwable&gt; failureExceptions = jobExecution.getAllFailureExceptions();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            for (Throwable throwable : failureExceptions) {</span>
+<span class="nc" id="L64">                errorMessage.append(ExceptionUtils.getRootCauseMessage(throwable) + BatchConstants.NEW_LINE_STR);</span>
+<span class="nc" id="L65">            }</span>
+        }
+<span class="nc" id="L67">        message.setText(errorMessage.toString());</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L69">            LOGGER.info(&quot;Email message: &quot; + errorMessage);</span>
+        }
+<span class="nc" id="L71">        javaMailSender.send(message);</span>
+
+<span class="nc" id="L73">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

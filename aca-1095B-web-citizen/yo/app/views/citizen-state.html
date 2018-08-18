@@ -1,0 +1,80 @@
+<div class="citizen-bg-wrap">
+  <div class="citizen-state-container" role="main">
+
+    <div class="margin-content">
+      <div class="row title-main-light"><div>Connecting You</div></div>
+      <div class="row sub-title-main-light">Simple access to your 1095-B form.</div>
+      <div class="row form-title-main-light" >
+
+
+        <div class="form-title">
+          <div class="animate-hide" tabindex="1" aria-label="{{vm.ariaLabel.titleAction}}">
+            {{vm.label.stateTitle}}
+            <br>
+            <br>
+            {{vm.label.yearTitle}}
+          </div>
+        </div>
+
+        <form class="citizen-state" novalidate
+              ng-model-options="{updateOn:'default blur',debounce:{'default':500,'blur':0}}">
+
+          <div class="form-container" ng-switch on="vm.stateLoad">
+
+            <div class="form-group" ng-switch-when="true">
+              <div class="user-input">
+
+                <aca-type-select id="state-dropdown"
+                                 ng-model="vm.userInput.selectedEntry"
+                                 default-option="'Type or select a state'"
+                                 options="vm.states"
+                                 search-text="vm.stateText"
+                                 type="'state'"
+                  >
+                </aca-type-select>
+
+                <aca-type-select id="year-dropdown"
+                                 ng-model="vm.userInput.selectedYearEntry"
+                                 default-option="'Type or select here...'"
+                                 options="vm.userInput.selectedEntry.stateInfo"
+                                 search-text="vm.yearText"
+                                 type="'year'"
+                  >
+                </aca-type-select>
+
+              </div>
+
+              <div class="user-action">
+                <div class="arrow-icon" aca-select-year tabindex="5" aria-label="{{vm.ariaLabel.arrowIcon}}"
+                     user-year="vm.yearText"
+                     options="vm.userInput.selectedEntry.stateInfo"></div>
+                <button class="enter-button" tabindex="16" aria-label="{{vm.ariaLabel.enterButton}}"
+                        ng-click="vm.goToLogin()">Enter
+                </button>
+              </div>
+
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" tabindex="-1" aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+
+
+            </div>
+
+            <div class="form-group text-center loading-center" ng-switch-when="false">
+              <i class="fa fa-spinner fa-2x fa-pulse color-spinner"></i>
+            </div>
+
+            <div class="user-back" tabindex="15" aria-label="{{vm.ariaLabel.goBack}}" aca-go-back>
+              Go back
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>

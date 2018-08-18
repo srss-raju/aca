@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: us.deloitteinnovation.aca.batch.export.step3.Step3Form109495WriterTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.772 sec - in us.deloitteinnovation.aca.batch.export.step3.Step3Form109495WriterTest

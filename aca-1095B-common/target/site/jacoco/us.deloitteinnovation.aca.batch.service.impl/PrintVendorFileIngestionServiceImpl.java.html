@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintVendorFileIngestionServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.service.impl</a> &gt; <span class="el_source">PrintVendorFileIngestionServiceImpl.java</span></div><h1>PrintVendorFileIngestionServiceImpl.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import us.deloitteinnovation.aca.batch.dto.FilerCoverageDto;
+import us.deloitteinnovation.aca.batch.service.PrintVendorFileIngestionService;
+import us.deloitteinnovation.aca.batch.utils.BatchUtils;
+import us.deloitteinnovation.aca.exception.PrintVendorBusinessValidationRuleDto;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+
+import static us.deloitteinnovation.aca.batch.constants.BatchQueryConstants.INSERT_FILER_COVERAGE;
+import static us.deloitteinnovation.aca.batch.constants.BatchQueryConstants.INSERT_INTO_BUSINESS_RULE_LOG;
+
+
+/**
+ * Created by tthakore on 10/12/2015.
+ */
+
+
+<span class="fc" id="L28">public class PrintVendorFileIngestionServiceImpl extends NamedParameterJdbcDaoSupport implements PrintVendorFileIngestionService {</span>
+
+<span class="fc" id="L30">    private final static Logger LOGGER = LoggerFactory.getLogger(PrintVendorFileIngestionServiceImpl.class);</span>
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+<span class="fc" id="L38">    private int batchSize = 500;</span>
+
+
+    /**
+     * Insert  record in filer coverage table
+     **/
+    @Override
+    public void bulkInsertFCS(final List&lt;FilerCoverageDto&gt; filerCoverages) {
+
+<span class="nc" id="L47">        this.jdbcTemplate.batchUpdate(INSERT_FILER_COVERAGE, filerCoverages, batchSize,</span>
+<span class="nc" id="L48">                new ParameterizedPreparedStatementSetter&lt;FilerCoverageDto&gt;() {</span>
+                    public void setValues(PreparedStatement pStatement, FilerCoverageDto filerCoverage) {
+<span class="nc" id="L50">                        prepareInsertStatementForCoverage(pStatement, filerCoverage);</span>
+<span class="nc" id="L51">                    }</span>
+                });
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * Insert  record in filer coverage table
+     **/
+    private void prepareInsertStatementForCoverage(final PreparedStatement pStatement, final FilerCoverageDto filerCoverage) {
+        try {
+<span class="nc" id="L60">            BatchUtils.setMonth(1, pStatement, filerCoverage.getApr());</span>
+<span class="nc" id="L61">            BatchUtils.setMonth(2, pStatement, filerCoverage.getAug());</span>
+<span class="nc" id="L62">            BatchUtils.setString(3, pStatement, filerCoverage.getComments());</span>
+<span class="nc" id="L63">            BatchUtils.setMonth(4, pStatement, filerCoverage.getDec());</span>
+<span class="nc" id="L64">            BatchUtils.setMonth(5, pStatement, filerCoverage.getFeb());</span>
+<span class="nc" id="L65">            BatchUtils.setMonth(6, pStatement, filerCoverage.getJan());</span>
+<span class="nc" id="L66">            BatchUtils.setMonth(7, pStatement, filerCoverage.getJul());</span>
+<span class="nc" id="L67">            BatchUtils.setMonth(8, pStatement, filerCoverage.getJun());</span>
+<span class="nc" id="L68">            BatchUtils.setMonth(9, pStatement, filerCoverage.getMar());</span>
+<span class="nc" id="L69">            BatchUtils.setMonth(10, pStatement, filerCoverage.getMay());</span>
+<span class="nc" id="L70">            BatchUtils.setMonth(11, pStatement, filerCoverage.getNov());</span>
+<span class="nc" id="L71">            BatchUtils.setMonth(12, pStatement, filerCoverage.getOct());</span>
+<span class="nc" id="L72">            BatchUtils.setDate(13, pStatement, filerCoverage.getOrigCoverageBeginDt());</span>
+<span class="nc" id="L73">            BatchUtils.setDate(14, pStatement, filerCoverage.getOrigCoverageEndDt());</span>
+<span class="nc" id="L74">            BatchUtils.setMonth(15, pStatement, filerCoverage.getSep());</span>
+<span class="nc" id="L75">            BatchUtils.setString(16, pStatement, filerCoverage.getUpdatedBy());</span>
+<span class="nc" id="L76">            BatchUtils.setString(17, pStatement, filerCoverage.getUpdatedDt());</span>
+<span class="nc" id="L77">            BatchUtils.setString(18, pStatement, filerCoverage.getProgramName());</span>
+<span class="nc" id="L78">            BatchUtils.setString(19, pStatement, filerCoverage.getId().getSourceCd());</span>
+<span class="nc" id="L79">            BatchUtils.setString(20, pStatement, filerCoverage.getId().getSourceUniqueId());</span>
+<span class="nc" id="L80">            BatchUtils.setString(21, pStatement, filerCoverage.getRecipientCaseApplicationId());</span>
+<span class="nc" id="L81">        } catch (SQLException e) {</span>
+<span class="nc" id="L82">            LOGGER.error(e.getMessage());</span>
+<span class="nc" id="L83">        }</span>
+<span class="nc" id="L84">    }</span>
+
+    @Override
+    public void bulkInsertBusinessLogs(List&lt;PrintVendorBusinessValidationRuleDto&gt; businessLogList) {
+<span class="nc" id="L88">        this.jdbcTemplate.batchUpdate(INSERT_INTO_BUSINESS_RULE_LOG, businessLogList, batchSize,</span>
+<span class="nc" id="L89">                new ParameterizedPreparedStatementSetter&lt;PrintVendorBusinessValidationRuleDto&gt;() {</span>
+                    public void setValues(PreparedStatement pStatement, PrintVendorBusinessValidationRuleDto businessRuleLogDTO) {
+<span class="nc" id="L91">                        prepareInsertStatementBRLog(pStatement, businessRuleLogDTO);</span>
+<span class="nc" id="L92">                    }</span>
+                });
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * Insert  record in filer coverage table
+     **/
+    private void prepareInsertStatementBRLog(final PreparedStatement pStatement, final PrintVendorBusinessValidationRuleDto brLogs) {
+        try {
+<span class="nc" id="L101">            BatchUtils.setString(1, pStatement, brLogs.getTaxYear());</span>
+<span class="nc" id="L102">            BatchUtils.setString(2, pStatement, brLogs.getSourceCd());</span>
+<span class="nc" id="L103">            BatchUtils.setString(3, pStatement, brLogs.getSourceUniqueId());</span>
+<span class="nc" id="L104">            BatchUtils.setString(4, pStatement, brLogs.getBusinessDecision());</span>
+<span class="nc" id="L105">            BatchUtils.setString(5, pStatement, brLogs.getBusinessRule());</span>
+<span class="nc" id="L106">            BatchUtils.setString(6, pStatement, brLogs.getUid());</span>
+<span class="nc" id="L107">            BatchUtils.setDate(7, pStatement, brLogs.getDob());</span>
+<span class="nc" id="L108">            BatchUtils.setString(8, pStatement, brLogs.getCorrectionCode());</span>
+<span class="nc" id="L109">            BatchUtils.setString(9, pStatement, brLogs.getBatchId());</span>
+<span class="nc" id="L110">            BatchUtils.setString(10, pStatement, brLogs.getRowNumber());</span>
+<span class="nc" id="L111">            BatchUtils.setString(11, pStatement, brLogs.getUpdatedBy());</span>
+<span class="nc" id="L112">            BatchUtils.setString(12, pStatement, brLogs.getUpdatedDate());</span>
+<span class="nc" id="L113">        } catch (SQLException e) {</span>
+<span class="nc" id="L114">            LOGGER.error(e.getMessage());</span>
+<span class="nc" id="L115">        }</span>
+<span class="nc" id="L116">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

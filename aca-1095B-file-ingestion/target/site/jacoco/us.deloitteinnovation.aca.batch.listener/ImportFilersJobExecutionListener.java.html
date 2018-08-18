@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImportFilersJobExecutionListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - File Ingestion Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.listener</a> &gt; <span class="el_source">ImportFilersJobExecutionListener.java</span></div><h1>ImportFilersJobExecutionListener.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.listener;
+
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import us.deloitteinnovation.aca.batch.constants.BatchConstants;
+import us.deloitteinnovation.aca.batch.constants.FileIngestionConstants;
+import us.deloitteinnovation.aca.batch.dto.BatchInfoDto;
+import us.deloitteinnovation.aca.batch.service.FileImportMailerService;
+import us.deloitteinnovation.aca.batch.service.ReportGenerationService;
+import us.deloitteinnovation.profile.ProfileProperties;
+
+/**
+ * Created by bhchaganti on 9/1/2016.
+ */
+<span class="nc" id="L21">public class ImportFilersJobExecutionListener implements JobExecutionListener {</span>
+
+<span class="nc" id="L23">    private static final Logger LOGGER = LoggerFactory.getLogger(ImportFilersJobExecutionListener.class);</span>
+    @Autowired
+    private BatchInfoDto batchInfo;
+
+    @Autowired
+    private FileImportMailerService fileImportMailerService;
+
+    @Autowired
+    private ReportGenerationService reportGenerationService;
+
+    @Autowired
+    private ProfileProperties profileProperties;
+    
+    @Override
+    public void beforeJob(JobExecution jobExecution) {
+<span class="nc" id="L38">        LOGGER.debug(&quot;beforeJob method executing&quot;);</span>
+<span class="nc" id="L39">    }</span>
+
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+<span class="nc" id="L43">        generateReport(jobExecution);</span>
+        // Get the job execution status
+<span class="nc" id="L45">        String jobExitCode = jobExecution.getExitStatus().getExitCode();</span>
+
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (jobExitCode.equals(BatchConstants.IMPORT_APPLICATION_FLOW_FAILED)) {</span>
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            if (LOGGER.isInfoEnabled()) {</span>
+<span class="nc" id="L50">                LOGGER.info(&quot;Job Failed..Sending email..&quot;);</span>
+            }
+<span class="nc" id="L52">            fileImportMailerService.sendMail(this.batchInfo, jobExecution);</span>
+        }
+
+
+<span class="nc" id="L56">    }</span>
+    
+ 
+    
+    void generateReport(JobExecution jobExecution) {
+<span class="nc" id="L61">        Object errorReportGenerated = jobExecution.getExecutionContext().get(&quot;errorReportGenerated&quot;);</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (errorReportGenerated == null) {</span>
+<span class="nc" id="L64">            errorReportGenerated = &quot;false&quot;;</span>
+        }
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (!&quot;true&quot;.equalsIgnoreCase(errorReportGenerated.toString())) {</span>
+<span class="nc" id="L68">            final String state = jobExecution.getJobParameters().getString(FileIngestionConstants.BATCH_ARG_STATE);</span>
+<span class="nc" id="L69">            final String outputFolderKey = state + BatchConstants.OUTPUT_FILE_FOLDER;</span>
+<span class="nc" id="L70">            final String outputFolder = profileProperties.getProperty(outputFolderKey);</span>
+            
+<span class="nc bnc" id="L72" title="All 4 branches missed.">            if(outputFolder==null ||  !new File(outputFolder).exists()){</span>
+<span class="nc" id="L73">                LOGGER.warn(&quot;State specific Reports folder does not exists for the given state code {} &quot;,state);</span>
+<span class="nc" id="L74">                return;</span>
+            }
+
+            try {
+<span class="nc" id="L78">                reportGenerationService.generateRecordLevelReport(outputFolder, batchInfo.getBatchId());</span>
+<span class="nc" id="L79">            } catch (final Exception e) {</span>
+<span class="nc" id="L80">                LOGGER.error(&quot;Error while generating report&quot;, e);</span>
+<span class="nc" id="L81">            }</span>
+        }
+<span class="nc" id="L83">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,25 @@
+.cw-view-detail-container {
+  position: fixed;
+  width: 100%;
+  height: calc(~'100% - @{footer-height} - @{navbar-height}');
+
+  .cw-view-form-header {
+    height: 60px;
+    padding: 10px 35px;
+    .title {
+      font-family: Roboto-Regular, Helvetica, Arial;
+      font-size: 28px;
+      color: @dark-blue;
+    }
+    .btn {
+      width: 106px;
+    }
+  }
+
+  .cw-view-form-detail {
+    background-color: @light-gray;
+    width: 100%;
+    height: calc(~'100% - 60px');
+  }
+
+}

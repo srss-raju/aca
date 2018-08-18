@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Step4Form109495HeaderAndXmlDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Export Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.export.step4</a> &gt; <span class="el_source">Step4Form109495HeaderAndXmlDto.java</span></div><h1>Step4Form109495HeaderAndXmlDto.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.export.step4;
+
+import us.deloitteinnovation.aca.batch.export.step3.Form10945Type;
+import us.deloitteinnovation.aca.model.SourceSystemConfig;
+import us.gov.treasury.irs.ext.aca.air._7.*;
+
+import java.io.File;
+
+/**
+ * &lt;p&gt;
+ * Encapsulation of the data necessary for a 109495B Header and Manifest.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L14">public class Step4Form109495HeaderAndXmlDto {</span>
+
+    public SourceSystemConfig     sourceSystem;
+    /**
+     * “O” – Original, “C” – Corrections, “R” - Replacement
+     */
+    public TransmissionTypeCdType transmissionType;
+
+    // TODO Many of these things should be in a constants file.
+    /**
+     * Name of the transmitter.
+     */
+    public BusinessNameType          transmitterName;
+    /**
+     * The address, name of the company to contact, and phone number to call
+     */
+    public CompanyInformationGrpType contactCompany;
+    /**
+     * Identifies if software was developed by a vendor or in-house as well as contact information
+     */
+    public VendorInformationGrpType  softwareDeveloper;
+    /**
+     * The Software ID assigned to the software when the software was registered with the IRS
+     */
+    public String                    softwareId;
+    public int                       paymentYear;
+<span class="nc" id="L40">    public boolean isPriorYearFiling = false;</span>
+    /**
+     * Reference to the Receipt ID of the transmission for which replacement transmissions are submitted
+     */
+    String priorTransmissionRef;
+    /**
+     * The total number of Forms 1094 (payers) included in the entire transmission
+     */
+    public int    total1094Forms;
+    /**
+     * The total number of Forms 1095 (payees) included in the entire transmission
+     */
+    public int    total1095Forms;
+    /**
+     * Will contain “1094/1095B” if Forms 1094/1095-B are included in the transmission or “1094/1095C” if Forms 1094/1095-C are included in the transmission
+     */
+<span class="nc" id="L56">    public Form10945Type form10945Type = Form10945Type.FORM_10945_B;</span>
+    /**
+     * The MD5 Checksum computed on the Form Data File attached to the transmission
+     */
+    public String formDataMd5;
+    /**
+     * The size in bytes of the Form Data File attached to the transmission
+     */
+    public long  formDataSize;
+
+    /**
+     * Form data file attached to the transmission.
+     */
+    public File formDataFile ;
+
+    /**
+     * Manifest information in IRS format.
+     */
+    ACATrnsmtManifestReqDtlType acaTrnsmtManifestReqDtlType;
+
+
+    public SourceSystemConfig getSourceSystem() {
+<span class="nc" id="L78">        return sourceSystem;</span>
+    }
+
+    public void setSourceSystem(SourceSystemConfig sourceSystem) {
+<span class="nc" id="L82">        this.sourceSystem = sourceSystem;</span>
+<span class="nc" id="L83">    }</span>
+
+    public TransmissionTypeCdType getTransmissionType() {
+<span class="nc" id="L86">        return transmissionType;</span>
+    }
+
+    public void setTransmissionType(TransmissionTypeCdType transmissionType) {
+<span class="nc" id="L90">        this.transmissionType = transmissionType;</span>
+<span class="nc" id="L91">    }</span>
+
+//    public String getTransmitterEin() {
+//        return transmitterEin;
+//    }
+//
+//    public void setTransmitterEin(String transmitterEin) {
+//        this.transmitterEin = transmitterEin;
+//    }
+
+    public CompanyInformationGrpType getContactCompany() {
+<span class="nc" id="L102">        return contactCompany;</span>
+    }
+
+    public void setContactCompany(CompanyInformationGrpType contactCompany) {
+<span class="nc" id="L106">        this.contactCompany = contactCompany;</span>
+<span class="nc" id="L107">    }</span>
+
+    public VendorInformationGrpType getSoftwareDeveloper() {
+<span class="nc" id="L110">        return softwareDeveloper;</span>
+    }
+
+    public void setSoftwareDeveloper(VendorInformationGrpType softwareDeveloper) {
+<span class="nc" id="L114">        this.softwareDeveloper = softwareDeveloper;</span>
+<span class="nc" id="L115">    }</span>
+
+    public String getSoftwareId() {
+<span class="nc" id="L118">        return softwareId;</span>
+    }
+
+    public void setSoftwareId(String softwareId) {
+<span class="nc" id="L122">        this.softwareId = softwareId;</span>
+<span class="nc" id="L123">    }</span>
+
+    public int getPaymentYear() {
+<span class="nc" id="L126">        return paymentYear;</span>
+    }
+
+    public void setPaymentYear(int paymentYear) {
+<span class="nc" id="L130">        this.paymentYear = paymentYear;</span>
+<span class="nc" id="L131">    }</span>
+
+    public boolean isPriorYearFiling() {
+<span class="nc" id="L134">        return isPriorYearFiling;</span>
+    }
+
+    public void setPriorYearFiling(boolean priorYearFiling) {
+<span class="nc" id="L138">        isPriorYearFiling = priorYearFiling;</span>
+<span class="nc" id="L139">    }</span>
+
+    public String getPriorTransmissionRef() {
+<span class="nc" id="L142">        return priorTransmissionRef;</span>
+    }
+
+    public void setPriorTransmissionRef(String priorTransmissionRef) {
+<span class="nc" id="L146">        this.priorTransmissionRef = priorTransmissionRef;</span>
+<span class="nc" id="L147">    }</span>
+
+    public int getTotal1094Forms() {
+<span class="nc" id="L150">        return total1094Forms;</span>
+    }
+
+    public void setTotal1094Forms(int total1094Forms) {
+<span class="nc" id="L154">        this.total1094Forms = total1094Forms;</span>
+<span class="nc" id="L155">    }</span>
+
+    public int getTotal1095Forms() {
+<span class="nc" id="L158">        return total1095Forms;</span>
+    }
+
+    public void setTotal1095Forms(int total1095Forms) {
+<span class="nc" id="L162">        this.total1095Forms = total1095Forms;</span>
+<span class="nc" id="L163">    }</span>
+
+    public Form10945Type getForm10945Type() {
+<span class="nc" id="L166">        return form10945Type;</span>
+    }
+
+    public void setForm10945Type(Form10945Type form10945Type) {
+<span class="nc" id="L170">        this.form10945Type = form10945Type;</span>
+<span class="nc" id="L171">    }</span>
+
+    public String getFormDataMd5() {
+<span class="nc" id="L174">        return formDataMd5;</span>
+    }
+
+    public void setFormDataMd5(String formDataMd5) {
+<span class="nc" id="L178">        this.formDataMd5 = formDataMd5;</span>
+<span class="nc" id="L179">    }</span>
+
+    public long getFormDataSize() {
+<span class="nc" id="L182">        return formDataSize;</span>
+    }
+
+    public void setFormDataSize(long formDataSize) {
+<span class="nc" id="L186">        this.formDataSize = formDataSize;</span>
+<span class="nc" id="L187">    }</span>
+
+    public File getFormDataFile() {
+<span class="nc" id="L190">        return formDataFile;</span>
+    }
+
+    public void setFormDataFile(File formDataFile) {
+<span class="nc" id="L194">        this.formDataFile = formDataFile;</span>
+<span class="nc" id="L195">    }</span>
+
+    public BusinessNameType getTransmitterName() {
+<span class="nc" id="L198">        return transmitterName;</span>
+    }
+
+    public void setTransmitterName(BusinessNameType transmitterName) {
+<span class="nc" id="L202">        this.transmitterName = transmitterName;</span>
+<span class="nc" id="L203">    }</span>
+
+    public ACATrnsmtManifestReqDtlType getAcaTrnsmtManifestReqDtlType() {
+<span class="nc" id="L206">        return acaTrnsmtManifestReqDtlType;</span>
+    }
+
+    public void setAcaTrnsmtManifestReqDtlType(ACATrnsmtManifestReqDtlType acaTrnsmtManifestReqDtlType) {
+<span class="nc" id="L210">        this.acaTrnsmtManifestReqDtlType = acaTrnsmtManifestReqDtlType;</span>
+<span class="nc" id="L211">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

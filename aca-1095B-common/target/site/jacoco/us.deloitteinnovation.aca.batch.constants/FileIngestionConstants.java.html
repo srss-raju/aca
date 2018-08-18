@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileIngestionConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ACA 1095B - Common Module</a> &gt; <a href="index.source.html" class="el_package">us.deloitteinnovation.aca.batch.constants</a> &gt; <span class="el_source">FileIngestionConstants.java</span></div><h1>FileIngestionConstants.java</h1><pre class="source lang-java linenums">package us.deloitteinnovation.aca.batch.constants;
+
+/**
+ * Constants file to be used for the file ingestion process.
+ */
+public interface FileIngestionConstants {
+
+    String IMPORT_FILERS_JOB_NAME = &quot;importFilers&quot;;
+    String BATCH_ARG_STATE = &quot;STATE&quot;;
+    String BATCH_ARG_TAX_YEAR = &quot;YEAR&quot;;
+<span class="nc" id="L11">    Integer LINES_TO_SKIP = 1;</span>
+    String RECORD_SOURCE_FILE = &quot;FILE&quot;;
+    String STATUS_ACTIVE = &quot;ACTIVE&quot;;
+    String STATUS_INACTIVE = &quot;INACTIVE&quot;;
+    String CORRECTION_CODE_ORIGINAL = &quot;O&quot;;
+    String CORRECTION_CODE_UPDATE = &quot;U&quot;;
+    String CORRECTION_CODE_CORRECTION = &quot;C&quot;;
+    String COVERAGE_DATE_ALL_NINES = &quot;99999999&quot;;
+    String COVERAGE_DATE_ALL_SIXES = &quot;66666666&quot;;
+    String BATCH_TYPE_FILE_INGESTION = &quot;File Ingestion&quot;;
+    int NUM_FILES_TO_PROCESS = 1;
+    int THROTTLE_LIMIT = 4;
+    String FILER_STATUS_RESPONSIBLE_PERSON = &quot;R&quot;;
+    String FILER_STATUS_COVERED_PERSON = &quot;C&quot;;
+
+
+    interface FlowConstants {
+        String REFRESH_STAGING_JOB_FLOW = &quot;refreshStagingJobFlow&quot;;
+        String VERIFY_AND_VALIDATE_JOB_FLOW = &quot;verifyAndValidateJobFlow&quot;;
+        String FLOW_STATUS_PASSED = &quot;PASSED&quot;;
+        String FLOW_STATUS_FAILED = &quot;FAILED&quot;;
+    }
+
+    interface JobConstants {
+        String JOB_STATUS_COMPLETED = &quot;COMPLETED&quot;;
+        String JOB_STATUS_FAILED = &quot;FAILED&quot;;
+    }
+
+    interface StepConstants {
+        String REFRESH_STAGING_TASKLET_STEP = &quot;step1RefreshStagingTasklet&quot;;
+        String VERIFY_FILER_DATA_STEP = &quot;step2VerifyFilerData&quot;;
+        String VALIDATE_FILER_DATA_STEP = &quot;step3ValidateFilerData&quot;;
+        String UPDATE_BATCH_COUNTS_STEP = &quot;step4UpdateBatchCounts&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
